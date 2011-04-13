@@ -39,5 +39,10 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.15</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r08</version>
+        </dependency>
     </dependencies>
 </project>

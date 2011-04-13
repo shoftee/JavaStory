@@ -35,7 +35,7 @@ import server.TimerManager;
 import server.shops.IMaplePlayerShop;
 import tools.FileoutputUtil;
 import tools.IPAddressTool;
-import tools.MapleAESOFB;
+import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
 
 import java.util.concurrent.locks.Lock;
@@ -54,7 +54,7 @@ public class MapleClient implements Serializable {
 		LOGIN_CS_LOGGEDIN = 5,
 		CHANGE_CHANNEL = 6;
 	public static final String CLIENT_KEY = "CLIENT";
-	private transient MapleAESOFB send, receive;
+	private transient AesTransform send, receive;
 	private transient IoSession session;
 	private MapleCharacter player;
 	private int channel = 1, accId = 1, world;
@@ -72,17 +72,17 @@ public class MapleClient implements Serializable {
 	private transient String secondPassword, salt2; // To be used only on login
 	private final transient Lock mutex = new ReentrantLock(true);
 
-	public MapleClient(MapleAESOFB send, MapleAESOFB receive, IoSession session) {
+	public MapleClient(AesTransform send, AesTransform receive, IoSession session) {
 	this.send = send;
 	this.receive = receive;
 	this.session = session;
 	}
 
-	public final MapleAESOFB getReceiveCrypto() {
+	public final AesTransform getReceiveCrypto() {
 	return receive;
 	}
 
-	public final MapleAESOFB getSendCrypto() {
+	public final AesTransform getSendCrypto() {
 	return send;
 	}
 

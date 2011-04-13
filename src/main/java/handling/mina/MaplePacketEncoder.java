@@ -22,7 +22,7 @@ package handling.mina;
 
 import client.MapleClient;
 import handling.MaplePacket;
-import tools.MapleAESOFB;
+import org.javastory.cryptography.AesTransform;
 import tools.MapleCustomEncryption;
 
 import java.util.concurrent.locks.Lock;
@@ -43,17 +43,17 @@ public class MaplePacketEncoder implements ProtocolEncoder {
 
 	    mutex.lock();
 	    try {
-		final MapleAESOFB send_crypto = client.getSendCrypto();
+		final AesTransform send_crypto = client.getSendCrypto();
 
 		final byte[] inputInitialPacket = ((MaplePacket) message).getBytes();
 		final byte[] unencrypted = new byte[inputInitialPacket.length];
 		System.arraycopy(inputInitialPacket, 0, unencrypted, 0, inputInitialPacket.length); // Copy the input > "unencrypted"
 
 		final byte[] ret = new byte[unencrypted.length + 4]; // Create new bytes with length = "unencrypted" + 4
-		final byte[] header = send_crypto.getPacketHeader(unencrypted.length);
+		final byte[] header = send_crypto.constructHeader(unencrypted.length);
 
 		MapleCustomEncryption.encryptData(unencrypted); // Encrypting Data
-		send_crypto.crypt(unencrypted); // Crypt it with IV
+		send_crypto.transform(unencrypted); // Crypt it with IV
 
 		System.arraycopy(header, 0, ret, 0, 4); // Copy the header > "Ret", first 4 bytes
 		System.arraycopy(unencrypted, 0, ret, 4, unencrypted.length); // Copy the unencrypted > "ret"

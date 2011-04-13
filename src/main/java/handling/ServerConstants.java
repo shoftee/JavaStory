@@ -12,7 +12,7 @@ public class ServerConstants {
 			return 0;
 		}
 	}
-	public static final short MAPLE_VERSION = 102;
+	public static final short GAME_VERSION = 102;
 	public static final String CashShop_Key = "a;!%dfb_=*-a123d9{P~";
 	public static final String Login_Key = "pWv]xq:SPTCtk^LGnU9F";
 	public static final String[] Channel_Key = {

@@ -113,22 +113,6 @@ public class BitTools {
     }
 
     /**
-     * Repeats <code>count</code> bytes of <code>in</code> <code>mul</code> times.
-     *
-     * @param in The array of bytes containing the bytes to multiply.
-     * @param count The number of bytes to repeat.
-     * @param mul The number of times to repeat.
-     * @return The repeated bytes.
-     */
-    public static final byte[] multiplyBytes(final byte[] in, final int count, final int mul) {
-	byte[] ret = new byte[count * mul];
-	for (int x = 0; x < count * mul; x++) {
-	    ret[x] = in[x % count];
-	}
-	return ret;
-    }
-
-    /**
      * Turns a double-precision floating point integer into an integer.
      *
      * @param d The double to transform.
