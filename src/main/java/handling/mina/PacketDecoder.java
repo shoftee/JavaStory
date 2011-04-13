@@ -22,17 +22,17 @@ package handling.mina;
 
 import client.MapleClient;
 import org.javastory.cryptography.AesTransform;
-import tools.MapleCustomEncryption;
+import org.javastory.cryptography.CustomEncryption;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
-public class MaplePacketDecoder extends CumulativeProtocolDecoder {
+public class PacketDecoder extends CumulativeProtocolDecoder {
 
     public static final String DECODER_STATE_KEY =
-            MaplePacketDecoder.class.getName() + ".STATE";
+            PacketDecoder.class.getName() + ".STATE";
 
     public static class DecoderState {
 
@@ -49,29 +49,32 @@ public class MaplePacketDecoder extends CumulativeProtocolDecoder {
                 (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
 
         if (decoderState.packetLength == -1) {
-            if (buffer.remaining() >= 4) {
-                final byte[] header = new byte[4];
-                buffer.get(header);
-                if (!client.getReceiveCrypto().validateHeader(header)) {
-                    session.close();
-                    return false;
-                }
-                decoderState.packetLength =
-                        AesTransform.getPacketLength(header);
-            } else {
+            if (buffer.remaining() < 4) {
                 return false;
             }
+            
+            final byte[] header = new byte[4];
+            buffer.get(header);
+            if (!client.getClientCrypto().validateHeader(header)) {
+                session.close();
+                return false;
+            }
+            decoderState.packetLength =
+                    AesTransform.getPacketLength(header);
         }
-        if (buffer.remaining() >= decoderState.packetLength) {
-            final byte decryptedPacket[] = new byte[decoderState.packetLength];
-            buffer.get(decryptedPacket, 0, decoderState.packetLength);
-            decoderState.packetLength = -1;
 
-            client.getReceiveCrypto().transform(decryptedPacket);
-            MapleCustomEncryption.decryptData(decryptedPacket);
-            out.write(decryptedPacket);
-            return true;
+        if (buffer.remaining() < decoderState.packetLength) {
+            return false;
         }
-        return false;
+        
+        final byte decryptedPacket[] = new byte[decoderState.packetLength];
+        buffer.get(decryptedPacket, 0, decoderState.packetLength);
+        decoderState.packetLength = -1;
+
+        client.getClientCrypto().transform(decryptedPacket);
+        CustomEncryption.decrypt(decryptedPacket);
+
+        out.write(decryptedPacket);
+        return true;
     }
 }

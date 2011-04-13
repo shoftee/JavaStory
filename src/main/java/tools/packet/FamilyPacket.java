@@ -1,14 +1,14 @@
 package tools.packet;
 
 import handling.MaplePacket;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
 public class FamilyPacket {
 	public static MaplePacket getFamilyData() {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.FAMILY.getValue());
+		mplew.writeShort(ServerPacketOpcode.FAMILY.getValue());
 		mplew.writeInt(11); // Number of events
 		mplew.write(0);
 		mplew.writeInt(300); // REP needed

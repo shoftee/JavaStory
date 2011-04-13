@@ -26,8 +26,8 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 
 public class MapleCodecFactory implements ProtocolCodecFactory {
 
-    private final ProtocolEncoder encoder = new MaplePacketEncoder();
-    private final ProtocolDecoder decoder = new MaplePacketDecoder();
+    private final ProtocolEncoder encoder = new PacketEncoder();
+    private final ProtocolDecoder decoder = new PacketDecoder();
 
     @Override
     public ProtocolEncoder getEncoder() throws Exception {

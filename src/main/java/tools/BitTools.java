@@ -74,45 +74,6 @@ public class BitTools {
     }
 
     /**
-     * Rotates the bits of <code>in</code> <code>count</code> places to the
-     * left.
-     *
-     * @param in The byte to rotate the bits
-     * @param count Number of times to rotate.
-     * @return The rotated byte.
-     */
-    public static final byte rollLeft(final byte in, final int count) {
-	/*
-	 * in: 11001101 count: 3 out: 0110 1110
-	 */
-	int tmp = (int) in & 0xFF;
-
-	tmp = tmp << (count % 8);
-	return (byte) ((tmp & 0xFF) | (tmp >> 8));
-    }
-
-    /**
-     * Rotates the bits of <code>in</code> <code>count</code> places to the
-     * right.
-     *
-     * @param in The byte to rotate the bits
-     * @param count Number of times to rotate.
-     * @return The rotated byte.
-     */
-    public static final byte rollRight(final byte in, final int count) {
-	/*
-	 * in: 11001101 count: 3 out: 1011 10011
-	 *
-	 * 0000 1011 1011 0000 0101 1000
-	 *
-	 */
-	int tmp = (int) in & 0xFF;
-	tmp = (tmp << 8) >>> (count % 8);
-
-	return (byte) ((tmp & 0xFF) | (tmp >>> 8));
-    }
-
-    /**
      * Turns a double-precision floating point integer into an integer.
      *
      * @param d The double to transform.

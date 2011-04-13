@@ -4,7 +4,7 @@ import java.awt.Point;
 
 import client.MapleClient;
 import client.SkillFactory;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import server.Randomizer;
 import server.MapleItemInformationProvider;
 import server.life.MapleLifeFactory;
@@ -383,7 +383,7 @@ public class MapScriptMethods {
 	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
 	// 79 00 01 00 01 00 00 00
-	mplew.writeShort(SendPacketOpcode.BOSS_ENV.getValue());
+	mplew.writeShort(ServerPacketOpcode.BOSS_ENV.getValue());
 	mplew.writeShort(1);
 	mplew.writeShort(1);
 	mplew.writeShort(0);

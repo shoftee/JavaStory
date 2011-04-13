@@ -10,7 +10,7 @@ import handling.channel.ChannelServer;
 import handling.cashshop.handler.*;
 import handling.channel.handler.*;
 import handling.login.handler.*;
-import handling.mina.MaplePacketDecoder;
+import handling.mina.PacketDecoder;
 import server.Randomizer;
 import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
@@ -29,7 +29,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
     private int channel = -1;
     private ServerType type = null;
     private final List<String> BlockedIP = new ArrayList();
-    private final Map<String, Pair<Long, Byte>> tracker = 
+    private final Map<String, Pair<Long, Byte>> tracker =
             new ConcurrentHashMap<String, Pair<Long, Byte>>();
 
     public MapleServerHandler(final ServerType type) {
@@ -42,7 +42,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void messageSent(final IoSession session, final Object message) 
+    public void messageSent(final IoSession session, final Object message)
             throws Exception {
         final Runnable r = ((MaplePacket) message).getOnSend();
         if (r != null) {
@@ -52,14 +52,14 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(final IoSession session, final Throwable cause) 
+    public void exceptionCaught(final IoSession session, final Throwable cause)
             throws Exception {
         // Empty statement
     }
 
     @Override
     public void sessionOpened(final IoSession session) throws Exception {
-        final String address = 
+        final String address =
                 session.getRemoteAddress().toString().split(":")[0];
         if (BlockedIP.contains(address)) {
             session.close();
@@ -91,22 +91,22 @@ public class MapleServerHandler extends IoHandlerAdapter {
                 return;
             }
         }
-        final byte ivRecv[] = {70, 114, 122, (byte) Randomizer.nextInt(255)};
-        final byte ivSend[] = {82, 48, 120, (byte) Randomizer.nextInt(255)};
-        
-        final AesTransform server = new AesTransform(
-                ivSend, ServerConstants.GAME_VERSION, VersionType.COMPLEMENT);
-        final AesTransform clientCrypto = new AesTransform(
-                ivRecv, ServerConstants.GAME_VERSION, VersionType.REGULAR);
+        final byte clientIv[] = {70, 114, 122, (byte) Randomizer.nextInt(255)};
+        final byte serverIv[] = {82, 48, 120, (byte) Randomizer.nextInt(255)};
 
-        final MapleClient client = 
-                new MapleClient(server, clientCrypto, session);
+        final AesTransform serverCrypto = new AesTransform(
+                serverIv, ServerConstants.GAME_VERSION, VersionType.COMPLEMENT);
+        final AesTransform clientCrypto = new AesTransform(
+                clientIv, ServerConstants.GAME_VERSION, VersionType.REGULAR);
+
+        final MapleClient client =
+                new MapleClient(clientCrypto, serverCrypto, session);
         client.setChannel(channel);
-        MaplePacketDecoder.DecoderState decoderState = 
-                new MaplePacketDecoder.DecoderState();
-        session.setAttribute(MaplePacketDecoder.DECODER_STATE_KEY, decoderState);
+        PacketDecoder.DecoderState decoderState =
+                new PacketDecoder.DecoderState();
+        session.setAttribute(PacketDecoder.DECODER_STATE_KEY, decoderState);
         final MaplePacket helloPacket = LoginPacket.getHello(
-                ServerConstants.GAME_VERSION, ivSend, ivRecv);
+                ServerConstants.GAME_VERSION, clientIv, serverIv);
         session.write(helloPacket);
         session.setAttribute(MapleClient.CLIENT_KEY, client);
         session.setIdleTime(IdleStatus.READER_IDLE, 30);
@@ -132,15 +132,15 @@ public class MapleServerHandler extends IoHandlerAdapter {
     public void messageReceived(final IoSession session, final Object message) throws Exception {
         final SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream((byte[]) message));
         final short header_num = slea.readShort();
-        for (final RecvPacketOpcode recv : RecvPacketOpcode.values()) {
-            if (recv.getValue() == header_num) {
+        for (final ClientPacketOpcode code : ClientPacketOpcode.values()) {
+            if (code.getValue() == header_num) {
                 final MapleClient c = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-                if (recv.NeedsChecking()) {
+                if (code.NeedsChecking()) {
                     if (!c.isLoggedIn()) {
                         return;
                     }
                 }
-                handlePacket(recv, slea, c, type);
+                handlePacket(code, slea, c, type);
                 return;
             }
         }
@@ -155,7 +155,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
         super.sessionIdle(session, status);
     }
 
-    public static final void handlePacket(final RecvPacketOpcode header, final SeekableLittleEndianAccessor slea, final MapleClient c, final ServerType type) {
+    public static final void handlePacket(final ClientPacketOpcode header, final SeekableLittleEndianAccessor slea, final MapleClient c, final ServerType type) {
         switch (header) {
             case PONG:
                 c.pongReceived();
@@ -510,7 +510,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
                 break;
             default:
-                //		System.out.println("[UNHANDLED] Recv ["+header.toString()+"] found");
+                //		System.out.println("[UNHANDLED] ["+header.toString()+"] found");
                 break;
         }
     }

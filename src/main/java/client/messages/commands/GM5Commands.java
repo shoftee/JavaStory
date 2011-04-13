@@ -15,7 +15,7 @@ import client.anticheat.CheatingOffense;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import handling.channel.ChannelServer;
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -275,7 +275,7 @@ public class GM5Commands implements Command {
 		} else if (splitted[0].equals("-dcall")) {
 			c.getChannelServer().getPlayerStorage().disconnectAll();
 		} else if (splitted[0].equals("-reloadops")) {
-			SendPacketOpcode.reloadValues();
+			ServerPacketOpcode.reloadValues();
 		} else if (splitted[0].equals("-reloaddrops")) {
 			MapleMonsterInformationProvider.getInstance().clearDrops();
 			ReactorScriptManager.getInstance().clearDrops();

@@ -23,7 +23,7 @@ package handling.mina;
 import client.MapleClient;
 import handling.MaplePacket;
 import org.javastory.cryptography.AesTransform;
-import tools.MapleCustomEncryption;
+import org.javastory.cryptography.CustomEncryption;
 
 import java.util.concurrent.locks.Lock;
 
@@ -32,36 +32,38 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
-public class MaplePacketEncoder implements ProtocolEncoder {
+public class PacketEncoder implements ProtocolEncoder {
 
     @Override
     public void encode(final IoSession session, final Object message, final ProtocolEncoderOutput out) throws Exception {
-	final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+	final MapleClient client = 
+                (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
 
 	if (client != null) {
 	    final Lock mutex = client.getLock();
 
 	    mutex.lock();
 	    try {
-		final AesTransform send_crypto = client.getSendCrypto();
+		final AesTransform serverCrypto = client.getServerCrypto();
 
-		final byte[] inputInitialPacket = ((MaplePacket) message).getBytes();
-		final byte[] unencrypted = new byte[inputInitialPacket.length];
-		System.arraycopy(inputInitialPacket, 0, unencrypted, 0, inputInitialPacket.length); // Copy the input > "unencrypted"
+		final byte[] packet = ((MaplePacket) message).getBytes();
+		final byte[] packetCopy = new byte[packet.length];
+		System.arraycopy(packet, 0, packetCopy, 0, packet.length); 
 
-		final byte[] ret = new byte[unencrypted.length + 4]; // Create new bytes with length = "unencrypted" + 4
-		final byte[] header = send_crypto.constructHeader(unencrypted.length);
+		final byte[] raw = new byte[packetCopy.length + 4]; 
+		final byte[] header = 
+                        serverCrypto.constructHeader(packetCopy.length);
 
-		MapleCustomEncryption.encryptData(unencrypted); // Encrypting Data
-		send_crypto.transform(unencrypted); // Crypt it with IV
+		CustomEncryption.encrypt(packetCopy); 
+		serverCrypto.transform(packetCopy); 
 
-		System.arraycopy(header, 0, ret, 0, 4); // Copy the header > "Ret", first 4 bytes
-		System.arraycopy(unencrypted, 0, ret, 4, unencrypted.length); // Copy the unencrypted > "ret"
-		out.write(ByteBuffer.wrap(ret));
+		System.arraycopy(header, 0, raw, 0, 4); 
+		System.arraycopy(packetCopy, 0, raw, 4, packetCopy.length);
+		out.write(ByteBuffer.wrap(raw));
 	    } finally {
 		mutex.unlock();
 	    }
-	} else { // no client object created yet, send unencrypted (hello)
+	} else { 
 	    out.write(ByteBuffer.wrap(((MaplePacket) message).getBytes()));
 	}
     }

@@ -7,21 +7,20 @@ import java.util.Set;
 import client.MapleClient;
 import client.MapleCharacter;
 import handling.MaplePacket;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import handling.login.LoginServer;
 import tools.data.output.MaplePacketLittleEndianWriter;
 import tools.HexTool;
 
 public class LoginPacket {
-	public static final MaplePacket getHello(final short mapleVersion, final byte[] sendIv, final byte[] recvIv) {
+	public static final MaplePacket getHello(final short version, final byte[] clientIv, final byte[] serverIv) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
 
 		mplew.writeShort(14);
-		mplew.writeShort(mapleVersion);
-		mplew.writeShort(1);
-		mplew.write(49);
-		mplew.write(recvIv);
-		mplew.write(sendIv);
+		mplew.writeShort(version);
+                mplew.writeMapleAsciiString("1");
+		mplew.write(clientIv);
+		mplew.write(serverIv);
 		mplew.write(7);
 
 		return mplew.getPacket();
@@ -30,7 +29,7 @@ public class LoginPacket {
 	public static final MaplePacket getPing() {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
 
-		mplew.writeShort(SendPacketOpcode.PING.getValue());
+		mplew.writeShort(ServerPacketOpcode.PING.getValue());
 
 		return mplew.getPacket();
 	}
@@ -66,7 +65,7 @@ public class LoginPacket {
 		 * 25: Maple Europe notice
 		 * 27: Some weird full client notice, probably for trial versions*/
 
-		mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
+		mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
 		mplew.writeInt(reason);
 		mplew.writeShort(0);
 
@@ -76,7 +75,7 @@ public class LoginPacket {
 	public static final MaplePacket getPermBan(final byte reason) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
 
-		mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
+		mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
 		mplew.writeShort(2); // Account is banned
 		mplew.write(0);
 		mplew.write(reason);
@@ -88,7 +87,7 @@ public class LoginPacket {
 	public static final MaplePacket getTempBan(final long timestampTill, final byte reason) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(17);
 
-		mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
+		mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
 		mplew.write(2);
 		mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00"));
 		mplew.write(reason);
@@ -100,7 +99,7 @@ public class LoginPacket {
 	public static final MaplePacket getAuthSuccessRequest(final MapleClient client) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
+		mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
 		mplew.write(0);
 		mplew.writeInt(client.getAccID());
 		mplew.write(client.getGender());
@@ -124,7 +123,7 @@ public class LoginPacket {
 	public static final MaplePacket deleteCharResponse(final int cid, final int state) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.DELETE_CHAR_RESPONSE.getValue());
+		mplew.writeShort(ServerPacketOpcode.DELETE_CHAR_RESPONSE.getValue());
 		mplew.writeInt(cid);
 		mplew.write(state);
 
@@ -134,7 +133,7 @@ public class LoginPacket {
 	public static final MaplePacket secondPwError(final byte mode) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
 
-		mplew.writeShort(SendPacketOpcode.SECONDPW_ERROR.getValue());
+		mplew.writeShort(ServerPacketOpcode.SECONDPW_ERROR.getValue());
 		mplew.write(mode);
 
 		return mplew.getPacket();
@@ -142,7 +141,7 @@ public class LoginPacket {
 
 	public static final MaplePacket getServerList(final int serverId, final String serverName, final Map<Integer, Integer> channelLoad) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-			mplew.writeShort(SendPacketOpcode.SERVERLIST.getValue());
+			mplew.writeShort(ServerPacketOpcode.SERVERLIST.getValue());
 			mplew.write(serverId);
 			mplew.writeMapleAsciiString(serverName);
 			mplew.write(LoginServer.getInstance().getFlag());
@@ -180,7 +179,7 @@ public class LoginPacket {
 	public static final MaplePacket getEndOfServerList() {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.SERVERLIST.getValue());
+		mplew.writeShort(ServerPacketOpcode.SERVERLIST.getValue());
 		mplew.write(0xFF);
 
 		return mplew.getPacket();
@@ -189,7 +188,7 @@ public class LoginPacket {
 	public static final MaplePacket getServerStatus(final int status) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.SERVERSTATUS.getValue());
+		mplew.writeShort(ServerPacketOpcode.SERVERSTATUS.getValue());
 		mplew.writeShort(status);
 
 		return mplew.getPacket();
@@ -198,7 +197,7 @@ public class LoginPacket {
 	public static final MaplePacket getCharList(final boolean secondpw, final List<MapleCharacter> chars) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CHARLIST.getValue());
+		mplew.writeShort(ServerPacketOpcode.CHARLIST.getValue());
 		mplew.write(0);
 		mplew.write(chars.size());
 		for (final MapleCharacter chr : chars) {
@@ -217,7 +216,7 @@ public class LoginPacket {
 	public static final MaplePacket addNewCharEntry(final MapleCharacter chr, final boolean worked) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
+		mplew.writeShort(ServerPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
 		mplew.write(worked ? 0 : 1);
 		addCharEntry(mplew, chr);
 
@@ -227,7 +226,7 @@ public class LoginPacket {
 	public static final MaplePacket charNameResponse(final String charname, final boolean nameUsed) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CHAR_NAME_RESPONSE.getValue());
+		mplew.writeShort(ServerPacketOpcode.CHAR_NAME_RESPONSE.getValue());
 		mplew.writeMapleAsciiString(charname);
 		mplew.write(nameUsed ? 1 : 0);
 

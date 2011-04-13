@@ -5,7 +5,7 @@ import client.MapleInventoryType;
 import client.MapleClient;
 import client.MapleCharacter;
 import client.GameConstants;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import server.AutobanManager;
 import server.MapleShop;
 import server.MapleInventoryManipulator;
@@ -25,13 +25,13 @@ public class NPCHandler {
 	final int length = (int) slea.available();
 
 	if (length == 6) { // NPC Talk
-		mplew.writeShort(SendPacketOpcode.NPC_ACTION.getValue());
+		mplew.writeShort(ServerPacketOpcode.NPC_ACTION.getValue());
 		mplew.writeInt(slea.readInt());
 		mplew.writeShort(slea.readShort());
 		c.getSession().write(mplew.getPacket());
 	} else if (length > 6) { // NPC Move
 		final byte[] bytes = slea.read(length - 9);
-		mplew.writeShort(SendPacketOpcode.NPC_ACTION.getValue());
+		mplew.writeShort(ServerPacketOpcode.NPC_ACTION.getValue());
 		mplew.write(bytes);
 		c.getSession().write(mplew.getPacket());
 	}

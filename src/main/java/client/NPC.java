@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import handling.MaplePacket;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
 public class NPC {
@@ -70,7 +70,7 @@ public class NPC {
 	this.senddialogue = senddialogue;
 
 	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-	mplew.writeShort(SendPacketOpcode.NPC_TALK.getValue());
+	mplew.writeShort(ServerPacketOpcode.NPC_TALK.getValue());
 	mplew.write(4);
 	mplew.writeInt(npcid);
 	mplew.write(senddialogue);

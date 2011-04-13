@@ -8,7 +8,7 @@ import client.IItem;
 import client.MapleClient;
 import client.MapleCharacter;
 import handling.MaplePacket;
-import handling.SendPacketOpcode;
+import handling.ServerPacketOpcode;
 import tools.HexTool;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
@@ -17,7 +17,7 @@ public class MTSCSPacket {
 	public static MaplePacket warpCS(MapleClient c) {
 		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPEN.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPEN.getValue());
 		final MapleCharacter chr = c.getPlayer();
 		mplew.writeLong(-1);
 		mplew.write(0);
@@ -45,7 +45,7 @@ public class MTSCSPacket {
 	public static MaplePacket useCharm(byte charmsleft, byte daysleft) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
+		mplew.writeShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		mplew.write(6);
 		mplew.write(1);
 		mplew.write(charmsleft);
@@ -57,7 +57,7 @@ public class MTSCSPacket {
 	public static MaplePacket itemExpired(int itemid) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.SHOW_STATUS_INFO.getValue());
+		mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		mplew.write(2);
 		mplew.writeInt(itemid);
 
@@ -67,7 +67,7 @@ public class MTSCSPacket {
 	public static MaplePacket ViciousHammer(boolean start, int hammered) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.VICIOUS_HAMMER.getValue());
+		mplew.writeShort(ServerPacketOpcode.VICIOUS_HAMMER.getValue());
 		if (start) {
 			mplew.write(49);
 			mplew.writeInt(0);
@@ -82,7 +82,7 @@ public class MTSCSPacket {
 
 	public static MaplePacket changePetName(MapleCharacter chr, String newname, int slot) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-		mplew.writeShort(SendPacketOpcode.PET_NAMECHANGE.getValue());
+		mplew.writeShort(ServerPacketOpcode.PET_NAMECHANGE.getValue());
 
 		mplew.writeInt(chr.getId());
 		mplew.write(0);
@@ -95,7 +95,7 @@ public class MTSCSPacket {
 	public static MaplePacket showNotes(ResultSet notes, int count) throws SQLException {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.SHOW_NOTES.getValue());
+		mplew.writeShort(ServerPacketOpcode.SHOW_NOTES.getValue());
 		mplew.write(3);
 		mplew.write(count);
 		for (int i = 0; i < count; i++) {
@@ -112,7 +112,7 @@ public class MTSCSPacket {
 
 	public static MaplePacket useChalkboard(final int charid, final String msg) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-		mplew.writeShort(SendPacketOpcode.CHALKBOARD.getValue());
+		mplew.writeShort(ServerPacketOpcode.CHALKBOARD.getValue());
 
 		mplew.writeInt(charid);
 		if (msg == null) {
@@ -128,7 +128,7 @@ public class MTSCSPacket {
 	public static MaplePacket getTrockRefresh(MapleCharacter chr, boolean vip, boolean delete) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.TROCK_LOCATIONS.getValue());
+		mplew.writeShort(ServerPacketOpcode.TROCK_LOCATIONS.getValue());
 		mplew.write(delete ? 2 : 3);
 		mplew.write(vip ? 1 : 0);
 		int[] map = chr.getRocks();
@@ -141,7 +141,7 @@ public class MTSCSPacket {
 	public static MaplePacket sendWishList(MapleCharacter chr, boolean update) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(update ? 0x58 : 0x52);
 		int[] list = chr.getWishlist();
 		for (int i = 0; i < 10; i++) {
@@ -153,7 +153,7 @@ public class MTSCSPacket {
 	public static MaplePacket showNXMapleTokens(MapleCharacter chr) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_UPDATE.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_UPDATE.getValue());
 		mplew.writeInt(chr.getCSPoints(1)); // A-cash
 		mplew.writeInt(chr.getCSPoints(2)); // MPoint
 
@@ -163,7 +163,7 @@ public class MTSCSPacket {
 	public static MaplePacket showBoughtCSItem(int itemid , int accountId) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x5A);
 		mplew.writeLong(137235);//HexTool.getByteArrayFromHexString("13 18 02 00 00 00 00 00")); // uniq id
 		mplew.writeLong(accountId);
@@ -180,7 +180,7 @@ public class MTSCSPacket {
 	public static MaplePacket showBoughtCSQuestItem(short position, int itemid) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x92); // MapleSEA v1.01
 		mplew.write(HexTool.getByteArrayFromHexString("01 00 00 00 01 00")); // probably ID and something else
 		mplew.writeShort(position);
@@ -192,7 +192,7 @@ public class MTSCSPacket {
 	public static MaplePacket transferFromCSToInv(IItem item, int position) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x6D);
 		mplew.write(position);//in csinventory
 		PacketHelper.addItemInfo(mplew, item, true, false, true);
@@ -203,7 +203,7 @@ public class MTSCSPacket {
 	public static MaplePacket transferFromInvToCS(IItem item, int accountId) {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x4E);
 		//addCashItemInformation(mplew, item, accountId);
 
@@ -222,7 +222,7 @@ public class MTSCSPacket {
 	public static MaplePacket enableUse1() {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(HexTool.getByteArrayFromHexString("4E 00 00 04 00 07 00 00 00 04 00"));
 
 		return mplew.getPacket();
@@ -231,7 +231,7 @@ public class MTSCSPacket {
 	public static MaplePacket enableUse2() {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x50);
 		mplew.writeShort(0);
 
@@ -241,7 +241,7 @@ public class MTSCSPacket {
 	public static MaplePacket enableUse3() {
 		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-		mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
+		mplew.writeShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		mplew.write(0x52);
 		mplew.writeZeroBytes(40);
 
