@@ -76,7 +76,7 @@ public class MapleAlliance implements java.io.Serializable {
 		    try {
 			guilds.add(c.getChannelServer().getWorldInterface().getGuild(guildId[i], c.getPlayer().getMGC()));
 		    } catch (RemoteException e) {
-			c.getChannelServer().reconnectWorld();
+			c.getChannelServer().pingWorld();
 		    }
 		} else {
 		    guilds.add(new MapleGuild(guildId[i]));
@@ -93,7 +93,7 @@ public class MapleAlliance implements java.io.Serializable {
 		try {
 		    guilds.add(c.getChannelServer().getWorldInterface().getGuild(guildid, c.getPlayer().getMGC()));
 		} catch (Exception e) {
-		    c.getChannelServer().reconnectWorld();
+		    c.getChannelServer().pingWorld();
 		}
 		broadcast(null);
 		break;

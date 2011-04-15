@@ -24,9 +24,9 @@ import tools.StringUtil;
 
 public class MapleLifeFactory {
 
-	private static final MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Mob.wz"));
-	private static final MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/String.wz"));
-	private static final MapleDataProvider etcDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Etc.wz"));
+	private static final MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Mob.wz"));
+	private static final MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/String.wz"));
+	private static final MapleDataProvider etcDataWZ = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz"));
 	private static final MapleData mobStringData = stringDataWZ.getData("Mob.img");
 	private static final MapleData npcStringData = stringDataWZ.getData("Npc.img");
 	private static final MapleData npclocData = etcDataWZ.getData("NpcLocation.img");

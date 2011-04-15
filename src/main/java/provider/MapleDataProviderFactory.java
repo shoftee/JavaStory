@@ -25,7 +25,7 @@ import provider.WzXML.XMLWZFile;
 
 public class MapleDataProviderFactory {
 
-    private final static String wzPath = System.getProperty("net.sf.odinms.wzpath");
+    private final static String wzPath = System.getProperty("org.javastory.wzpath");
 
     private static MapleDataProvider getWZ(Object in, boolean provideImages) {
 	if (in instanceof File) {

@@ -20,6 +20,7 @@
 */
 package handling.cashshop;
 
+import org.javastory.server.cashshop.CashShopServer;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import javax.rmi.ssl.SslRMIClientSocketFactory;

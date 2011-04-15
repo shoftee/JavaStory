@@ -22,12 +22,13 @@ package handling.login.remote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import org.javastory.server.ChannelInfo;
 
 public interface LoginWorldInterface extends Remote {
 
-    public void channelOnline(int channel, String ip) throws RemoteException;
+    public void channelOnline(ChannelInfo channelInfo) throws RemoteException;
 
-    public void channelOffline(int channel) throws RemoteException;
+    public void channelOffline(int channelId) throws RemoteException;
 
     public void shutdown() throws RemoteException;
 

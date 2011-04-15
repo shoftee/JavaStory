@@ -62,7 +62,7 @@ public class CharacterTransfer implements Externalizable {
 	this.characterid = chr.getId();
 	this.accountid = chr.getAccountID();
 	this.accountname = chr.getClient().getAccountName();
-	this.channel = (byte) chr.getClient().getChannel();
+	this.channel = (byte) chr.getClient().getChannelId();
 	this.ACash = chr.getCSPoints(1);
         this.vpoints = chr.getVPoints();
         this.vpoints = chr.getVPoints();

@@ -20,12 +20,14 @@
 */
 package handling.login;
 
+import org.javastory.server.login.LoginServer;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 import handling.login.remote.LoginWorldInterface;
+import org.javastory.server.ChannelInfo;
 
 public class LoginWorldInterfaceImpl extends UnicastRemoteObject implements LoginWorldInterface {
 
@@ -35,8 +37,8 @@ public class LoginWorldInterfaceImpl extends UnicastRemoteObject implements Logi
 	super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
-    public void channelOnline(int channel, String ip) throws RemoteException {
-	LoginServer.getInstance().addChannel(channel, ip);
+    public void channelOnline(ChannelInfo info) throws RemoteException {
+	LoginServer.getInstance().addChannel(info);
     }
 
     public void channelOffline(int channel) throws RemoteException {

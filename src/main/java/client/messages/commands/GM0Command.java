@@ -7,8 +7,8 @@ import client.PlayerStats;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.channel.ChannelServer;
 import java.rmi.RemoteException;
+import org.javastory.server.channel.ChannelServer;
 import scripting.NPCScriptManager;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
@@ -87,7 +87,7 @@ public class GM0Command implements Command {
 			try {
 				c.getChannelServer().getWorldInterface().broadcastGMMessage(MaplePacketCreator.serverNotice(5, msg.toString()).getBytes());
 			} catch (RemoteException e) {
-				c.getChannelServer().reconnectWorld();
+				c.getChannelServer().pingWorld();
 			}
 		} else if (splitted[0].equals("@dispose")) {
 			NPCScriptManager.getInstance().dispose(c);

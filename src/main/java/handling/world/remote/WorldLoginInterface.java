@@ -29,8 +29,6 @@ import handling.world.guild.MapleGuildCharacter;
 
 public interface WorldLoginInterface extends Remote {
 
-    public Properties getDatabaseProperties() throws RemoteException;
-
     public Properties getWorldProperties() throws RemoteException;
 
     public Map<Integer, Integer> getChannelLoad() throws RemoteException;

@@ -34,10 +34,11 @@ import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.packet.PlayerShopPacket;
-import handling.channel.ChannelServer;
-import handling.channel.MapleGuildRanking;
+import org.javastory.server.channel.MapleGuildRanking;
 import database.DatabaseConnection;
 import handling.world.MaplePartyCharacter;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 import server.MapleCarnivalChallenge;
 import server.MapleItemInformationProvider;
 
@@ -239,7 +240,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 			try {
 				c.getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.getGachaponMega(c.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, rareness).getBytes());
 			} catch (RemoteException e) {
-				c.getChannelServer().reconnectWorld();
+				c.getChannelServer().pingWorld();
 			}
 		}
 		return item.getItemId();
@@ -391,7 +392,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 			return null;
 		}
 		List<MapleCharacter> chars = new LinkedList<MapleCharacter>(); // creates an empty array full of shit..
-		for (ChannelServer channel : ChannelServer.getAllInstances()) {
+		for (ChannelServer channel : ChannelManager.getAllInstances()) {
 			for (MapleCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
 				if (chr != null) { // double check <3
 					chars.add(chr);
@@ -445,7 +446,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void registerSquad(String type, int minutes, String startText) {
-		final MapleSquad squad = new MapleSquad(c.getChannel(), type, c.getPlayer(), minutes * 60 * 1000);
+		final MapleSquad squad = new MapleSquad(c.getChannelId(), type, c.getPlayer(), minutes * 60 * 1000);
 		final MapleMap map = c.getPlayer().getMap();
 
 		map.broadcastMessage(MaplePacketCreator.getClock(minutes * 60));

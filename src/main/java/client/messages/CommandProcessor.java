@@ -10,7 +10,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.messages.commands.*;
 import server.TimerManager;
-import tools.FileoutputUtil;
+import tools.FileOutputUtil;
 import tools.StringUtil;
 import tools.Pair;
 
@@ -58,7 +58,7 @@ public class CommandProcessor {
 			final StringBuilder sb = new StringBuilder();
 			rl.lock();
 			try {
-			final String time = FileoutputUtil.CurrentReadable_Time();
+			final String time = FileOutputUtil.CurrentReadable_Time();
 			for (Pair<String, String> logentry : gmlog) {
 				sb.append("NAME : ");
 				sb.append(logentry.getLeft());
@@ -72,7 +72,7 @@ public class CommandProcessor {
 			} finally {
 				rl.unlock();
 			}
-			FileoutputUtil.log(FileoutputUtil.GMCommand_Log, sb.toString());
+			FileOutputUtil.log(FileOutputUtil.GMCommand_Log, sb.toString());
 		}
 	}
 

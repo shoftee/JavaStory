@@ -26,7 +26,7 @@ public class SearchCommands implements Command {
 			String type = splitted[1];
 			String search = StringUtil.joinStringFrom(splitted, 2);
 			MapleData data = null;
-			MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/" + "String.wz"));
+			MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/" + "String.wz"));
 			c.getPlayer().dropMessage(6, "<<Type: " + type + " | Search: " + search + ">>");
 			if (type.equalsIgnoreCase("NPC")) {
 				List<String> retNpcs = new ArrayList<String>();

@@ -4,7 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import client.MapleCharacter;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 
 public class MapleSquad {
 
@@ -33,7 +34,7 @@ public class MapleSquad {
 		members.clear();
 		bannedMembers.clear();
 		leader = null;
-		ChannelServer.getInstance(ch).removeMapleSquad(type);
+		ChannelManager.getInstance(ch).removeMapleSquad(type);
 	    }
 	}, time);
     }

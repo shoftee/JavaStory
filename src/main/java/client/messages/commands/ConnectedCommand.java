@@ -33,7 +33,7 @@ public class ConnectedCommand implements Command {
 			}
 			c.getPlayer().dropMessage(6, conStr.toString());
 		} catch (RemoteException e) {
-			c.getChannelServer().reconnectWorld();
+			c.getChannelServer().pingWorld();
 		}
 	}
 

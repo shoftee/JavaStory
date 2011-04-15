@@ -26,7 +26,7 @@ import client.ItemFlag;
 import client.GameConstants;
 import client.MapleCharacter;
 import client.MapleClient;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
 import server.MapleInventoryManipulator;
 import server.TimerManager;
 import server.maps.MapleMap;
@@ -44,7 +44,7 @@ public class HiredMerchant extends AbstractPlayerStore {
 	super(owner, itemId, desc);
 	start = System.currentTimeMillis();
 	this.map = owner.getMap();
-	this.channel = owner.getClient().getChannel();
+	this.channel = owner.getClient().getChannelId();
 	this.schedule = TimerManager.getInstance().schedule(new Runnable() {
 
 	    @Override
@@ -99,7 +99,7 @@ public class HiredMerchant extends AbstractPlayerStore {
 	    saveItems();
 	}
 	if (remove) {
-	    ChannelServer.getInstance(channel).removeMerchant(this);
+	    ChannelManager.getInstance(channel).removeMerchant(this);
 	    map.broadcastMessage(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
 	}
 	map.removeMapObject(this);

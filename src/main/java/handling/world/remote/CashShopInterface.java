@@ -34,8 +34,6 @@ public interface CashShopInterface extends Remote {
 
     public boolean isAvailable() throws RemoteException;
 
-    public String getIP() throws RemoteException;
-
     public String getChannelIP(int channel) throws RemoteException;
 
     public boolean isCharacterListConnected(List<String> charName) throws RemoteException;

@@ -14,7 +14,7 @@ public class MapleMessengerCharacter implements Serializable {
 
 	public MapleMessengerCharacter(MapleCharacter maplechar) {
 		this.name = maplechar.getName();
-		this.channel = maplechar.getClient().getChannel();
+		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
 		this.online = true;
 		this.position = 0;
@@ -22,7 +22,7 @@ public class MapleMessengerCharacter implements Serializable {
 
 	public MapleMessengerCharacter(MapleCharacter maplechar, int position) {
 		this.name = maplechar.getName();
-		this.channel = maplechar.getClient().getChannel();
+		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
 		this.online = true;
 		this.position = position;

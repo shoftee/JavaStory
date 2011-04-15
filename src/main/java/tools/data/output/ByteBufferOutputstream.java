@@ -20,7 +20,8 @@
 */
 package tools.data.output;
 
-import org.apache.mina.common.ByteBuffer;
+import java.nio.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 /**
  * Uses a bytebuffer as an underlying storage method to hold a stream of bytes.
@@ -31,17 +32,17 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class ByteBufferOutputstream implements ByteOutputStream {
 
-    private ByteBuffer bb;
+    private IoBuffer bb;
 
     /**
      * Class constructor - Wraps this instance around ByteBuffer <code>bb</code>
      *
-     * @param bb The <code>org.apache.mina.common.ByteBuffer</code> to wrap
+     * @param buffer The <code>org.apache.mina.common.ByteBuffer</code> to wrap
      *            this stream around.
      */
-    public ByteBufferOutputstream(ByteBuffer bb) {
+    public ByteBufferOutputstream(IoBuffer buffer) {
 	super();
-	this.bb = bb;
+	this.bb = buffer;
     }
 
     /**

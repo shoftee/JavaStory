@@ -27,7 +27,7 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.FileOutputStream;
 
-public class FileoutputUtil {
+public class FileOutputUtil {
 
     // Logging output file
     public static final String Acc_Stuck = "Log_AccountStuck.rtf",

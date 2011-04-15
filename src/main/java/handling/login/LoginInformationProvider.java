@@ -40,7 +40,7 @@ public class LoginInformationProvider {
 		1302000, 1322005, 1312004, 1442079, 1302132, // Weapon
 		1072001, 1072005, 1072037, 1072038, 1072383, 1072418// Shoes
 	};
-	final String WZpath = System.getProperty("net.sf.odinms.wzpath");
+	final String WZpath = System.getProperty("org.javastory.wzpath");
 	final MapleDataProvider equipData = MapleDataProviderFactory.getDataProvider(new File(WZpath + "/Character.wz"));
 	for (int i = 0; i < LoadEquipment.length; i++) {
 		loadEquipStats(LoadEquipment[i], equipData);

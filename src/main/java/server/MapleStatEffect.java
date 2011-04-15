@@ -24,7 +24,6 @@ import client.SkillFactory;
 import client.PlayerStats;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import handling.channel.ChannelServer;
 import provider.MapleData;
 import provider.MapleDataTool;
 import server.life.MapleMonster;
@@ -36,6 +35,8 @@ import server.maps.MapleMist;
 import server.maps.MapleSummon;
 import server.maps.SummonMovementType;
 import handling.world.PlayerCoolDownValueHolder;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 import tools.ArrayMap;
 import tools.MaplePacketCreator;
 import tools.Pair;
@@ -730,7 +731,7 @@ public class MapleStatEffect implements Serializable {
 		if (moveTo == 999999999) {
 		    target = applyto.getMap().getReturnMap();
 		} else {
-		    target = ChannelServer.getInstance(applyto.getClient().getChannel()).getMapFactory(applyto.getWorld()).getMap(moveTo);
+		    target = ChannelManager.getInstance(applyto.getClient().getChannelId()).getMapFactory(applyto.getWorld()).getMap(moveTo);
 		    if (target.getId() / 10000000 != 60 && applyto.getMapId() / 10000000 != 61) {
 			if (target.getId() / 10000000 != 21 && applyto.getMapId() / 10000000 != 20) {
 			    if (target.getId() / 10000000 != applyto.getMapId() / 10000000) {
@@ -746,7 +747,7 @@ public class MapleStatEffect implements Serializable {
 	return false;
     }
 
-    private final void applyBuff(final MapleCharacter applyfrom) {
+    private void applyBuff(final MapleCharacter applyfrom) {
 	if (isPartyBuff() && (applyfrom.getParty() != null || isGmBuff())) {
 	    final Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
 	    final List<MapleMapObject> affecteds = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(MapleMapObjectType.PLAYER));

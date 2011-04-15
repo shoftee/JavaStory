@@ -35,7 +35,7 @@ public class CheaterHuntingCommands implements Command {
 					c.getPlayer().dropMessage(6, cheater.getInfo());
 				}
 			} catch (RemoteException e) {
-				c.getChannelServer().reconnectWorld();
+				c.getChannelServer().pingWorld();
 			}
 		}
 	}

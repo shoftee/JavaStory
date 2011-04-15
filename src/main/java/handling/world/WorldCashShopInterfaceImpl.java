@@ -42,10 +42,6 @@ public class WorldCashShopInterfaceImpl extends UnicastRemoteObject implements C
 	return true;
     }
 
-    public String getIP() throws RemoteException {
-	return WorldRegistryImpl.getInstance().getCSIP();
-    }
-
     public final String getChannelIP(int channel) throws RemoteException {
 	for (int i : WorldRegistryImpl.getInstance().getChannelServer()) {
 	    if (channel == i) {

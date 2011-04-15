@@ -47,7 +47,7 @@ public class BAOSByteOutputStream implements ByteOutputStream {
      * Writes a byte to the stream.
      *
      * @param b The byte to write to the stream.
-     * @see net.sf.odinms.tools.data.output.ByteOutputStream#writeByte(byte)
+     * @see tools.data.output.ByteOutputStream#writeByte(byte)
      */
     @Override
     public void writeByte(byte b) {

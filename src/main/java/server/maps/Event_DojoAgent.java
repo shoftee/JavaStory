@@ -3,7 +3,7 @@ package server.maps;
 import java.awt.Point;
 
 import client.MapleCharacter;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelServer;
 import server.Randomizer;
 import server.TimerManager;
 import server.life.MapleLifeFactory;

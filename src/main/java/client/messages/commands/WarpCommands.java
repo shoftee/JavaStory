@@ -5,7 +5,8 @@ import client.MapleClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 import server.MaplePortal;
 import server.maps.MapleMap;
 import server.life.MapleMonster;
@@ -25,7 +26,7 @@ public class WarpCommands implements Command {
 				if (splitted.length == 2) {
 					c.getPlayer().changeMap(victim.getMap(), victim.getMap().findClosestSpawnpoint(victim.getPosition()));
 				} else {
-					MapleMap target = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(Integer.parseInt(splitted[2]));
+					MapleMap target = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(Integer.parseInt(splitted[2]));
 					victim.changeMap(target, target.getPortal(0));
 				}
 			} else {
@@ -45,58 +46,58 @@ public class WarpCommands implements Command {
 		} else if (splitted[0].equals("-worldtrip")) {
 			victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
 			for (int i = 1; i <= 10; i++) {
-				MapleMap target = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(200000000);
+				MapleMap target = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(200000000);
 				MaplePortal targetPortal = target.getPortal(0);
 				victim.changeMap(target, targetPortal);
-				MapleMap target1 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(102000000);
+				MapleMap target1 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(102000000);
 				MaplePortal targetPortal1 = target.getPortal(0);
 				victim.changeMap(target1, targetPortal1);
-				MapleMap target2 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(103000000);
+				MapleMap target2 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(103000000);
 				MaplePortal targetPortal2 = target.getPortal(0);
 				victim.changeMap(target2, targetPortal2);
-				MapleMap target3 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(100000000);
+				MapleMap target3 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(100000000);
 				MaplePortal targetPortal3 = target.getPortal(0);
 				victim.changeMap(target3, targetPortal3);
-				MapleMap target4 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(200000000);
+				MapleMap target4 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(200000000);
 				MaplePortal targetPortal4 = target.getPortal(0);
 				victim.changeMap(target4, targetPortal4);
-				MapleMap target5 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(211000000);
+				MapleMap target5 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(211000000);
 				MaplePortal targetPortal5 = target.getPortal(0);
 				victim.changeMap(target5, targetPortal5);
-				MapleMap target6 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(230000000);
+				MapleMap target6 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(230000000);
 				MaplePortal targetPortal6 = target.getPortal(0);
 				victim.changeMap(target6, targetPortal6);
-				MapleMap target7 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(222000000);
+				MapleMap target7 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(222000000);
 				MaplePortal targetPortal7 = target.getPortal(0);
 				victim.changeMap(target7, targetPortal7);
-				MapleMap target8 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(251000000);
+				MapleMap target8 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(251000000);
 				MaplePortal targetPortal8 = target.getPortal(0);
 				victim.changeMap(target8, targetPortal8);
-				MapleMap target9 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(220000000);
+				MapleMap target9 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(220000000);
 				MaplePortal targetPortal9 = target.getPortal(0);
 				victim.changeMap(target9, targetPortal9);
-				MapleMap target10 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(221000000);
+				MapleMap target10 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(221000000);
 				MaplePortal targetPortal10 = target.getPortal(0);
 				victim.changeMap(target10, targetPortal10);
-				MapleMap target11 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(240000000);
+				MapleMap target11 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(240000000);
 				MaplePortal targetPortal11 = target.getPortal(0);
 				victim.changeMap(target11, targetPortal11);
-				MapleMap target12 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(600000000);
+				MapleMap target12 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(600000000);
 				MaplePortal targetPortal12 = target.getPortal(0);
 				victim.changeMap(target12, targetPortal12);
-				MapleMap target13 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(800000000);
+				MapleMap target13 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(800000000);
 				MaplePortal targetPortal13 = target.getPortal(0);
 				victim.changeMap(target13, targetPortal13);
-				MapleMap target14 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(680000000);
+				MapleMap target14 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(680000000);
 				MaplePortal targetPortal14 = target.getPortal(0);
 				victim.changeMap(target14, targetPortal14);
-				MapleMap target15 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(105040300);
+				MapleMap target15 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(105040300);
 				MaplePortal targetPortal15 = target.getPortal(0);
 				victim.changeMap(target15, targetPortal15);
-				MapleMap target16 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(990000000);
+				MapleMap target16 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(990000000);
 				MaplePortal targetPortal16 = target.getPortal(0);
 				victim.changeMap(target16, targetPortal16);
-				MapleMap target17 = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(100000001);
+				MapleMap target17 = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(100000001);
 				MaplePortal targetPortal17 = target.getPortal(0);
 				victim.changeMap(target17, targetPortal17);
 			}

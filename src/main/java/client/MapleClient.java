@@ -22,9 +22,7 @@ import javax.script.ScriptEngine;
 
 import database.DatabaseConnection;
 import database.DatabaseException;
-import handling.cashshop.CashShopServer;
-import handling.channel.ChannelServer;
-import handling.login.LoginServer;
+import org.javastory.server.login.LoginServer;
 import handling.world.MapleMessengerCharacter;
 import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
@@ -33,15 +31,17 @@ import scripting.NPCScriptManager;
 import server.MapleTrade;
 import server.TimerManager;
 import server.shops.IMaplePlayerShop;
-import tools.FileoutputUtil;
+import tools.FileOutputUtil;
 import tools.IPAddressTool;
 import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.session.IoSession;
+import org.javastory.server.cashshop.CashShopServer;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 
 public class MapleClient implements Serializable {
 
@@ -57,7 +57,7 @@ public class MapleClient implements Serializable {
     private transient AesTransform serverCrypto, clientCrypto;
     private transient IoSession session;
     private MapleCharacter player;
-    private int channel = 1, accId = 1, world;
+    private int channelId = 1, accId = 1, world;
     private boolean loggedIn = false, serverTransition = false;
     private transient Calendar birthday = null, tempban = null;
     private String accountName;
@@ -625,7 +625,7 @@ public class MapleClient implements Serializable {
                 }
             }
         } catch (final Throwable e) {
-            FileoutputUtil.outputFileError(FileoutputUtil.Acc_Stuck, e);
+            FileOutputUtil.outputFileError(FileOutputUtil.Acc_Stuck, e);
         }
     }
 
@@ -637,7 +637,7 @@ public class MapleClient implements Serializable {
 
 
             if (!fromCS) {
-                final ChannelServer ch = ChannelServer.getInstance(channel);
+                final ChannelServer ch = ChannelManager.getInstance(channelId);
 
                 try {
                     if (player.getMessenger() != null) {
@@ -650,16 +650,16 @@ public class MapleClient implements Serializable {
                         ch.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                     }
                     if (!serverTransition && isLoggedIn()) {
-                        ch.getWorldInterface().loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                        ch.getWorldInterface().loggedOff(player.getName(), player.getId(), channelId, player.getBuddylist().getBuddyIds());
                     } else { // Change channel
-                        ch.getWorldInterface().loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                        ch.getWorldInterface().loggedOn(player.getName(), player.getId(), channelId, player.getBuddylist().getBuddyIds());
                     }
                     if (player.getGuildId() > 0) {
                         ch.getWorldInterface().setGuildMemberOnline(player.getMGC(), false, -1);
                     }
 
                 } catch (final RemoteException e) {
-                    ch.reconnectWorld();
+                    ch.pingWorld();
                     player.setMessenger(null);
                 } catch (final Exception e) {
                     e.printStackTrace();
@@ -679,16 +679,16 @@ public class MapleClient implements Serializable {
                         cs.getCSInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                     }
                     if (!serverTransition && isLoggedIn()) {
-                        cs.getCSInterface().loggedOff(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                        cs.getCSInterface().loggedOff(player.getName(), player.getId(), channelId, player.getBuddylist().getBuddyIds());
                     } else { // Change channel
-                        cs.getCSInterface().loggedOn(player.getName(), player.getId(), channel, player.getBuddylist().getBuddyIds());
+                        cs.getCSInterface().loggedOn(player.getName(), player.getId(), channelId, player.getBuddylist().getBuddyIds());
                     }
                     if (player.getGuildId() > 0) {
                         cs.getCSInterface().setGuildMemberOnline(player.getMGC(), false, -1);
                     }
 
                 } catch (final RemoteException e) {
-                    cs.reconnectWorld();
+                    cs.pingWorld();
                     player.setMessenger(null);
                 } catch (final Exception e) {
                     e.printStackTrace();
@@ -749,12 +749,12 @@ public class MapleClient implements Serializable {
         sb.append(getPlayer() != null);
     }
 
-    public final int getChannel() {
-        return channel;
+    public final int getChannelId() {
+        return channelId;
     }
 
     public final ChannelServer getChannelServer() {
-        return ChannelServer.getInstance(channel);
+        return ChannelManager.getInstance(channelId);
     }
 
     public final boolean deleteCharacter(final int cid) {
@@ -833,7 +833,7 @@ public class MapleClient implements Serializable {
     }
 
     public final void setChannel(final int channel) {
-        this.channel = channel;
+        this.channelId = channel;
     }
 
     public final int getWorld() {
@@ -863,7 +863,7 @@ public class MapleClient implements Serializable {
                 try {
                     if (lastPong - then < 0) {
                         if (getSession().isConnected()) {
-                            getSession().close();
+                            getSession().close(false);
                         }
                     }
                 } catch (final NullPointerException e) {

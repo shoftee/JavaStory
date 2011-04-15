@@ -6,83 +6,94 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import tools.FileoutputUtil;
+import tools.FileOutputUtil;
 
-public class TimerManager {
+public final class TimerManager {
 
     private static TimerManager instance = new TimerManager();
 
-    public static class getInstance {
-
-        public getInstance() {
-        }
-    }
-    private ScheduledThreadPoolExecutor ses;
+    private ScheduledThreadPoolExecutor executor;
 
     public static TimerManager getInstance() {
 	return instance;
     }
+    
+    private TimerManager() {
+        this.start();
+    }
 
     public void start() {
-	if (ses != null && !ses.isShutdown() && !ses.isTerminated()) {
-	    return; //starting the same timermanager twice is no - op
+	//starting the same timermanager twice is no - op
+        if (executor != null && !executor.isShutdown() && !executor.isTerminated()) {
+	    return; 
 	}
 
-	final ThreadFactory thread = new ThreadFactory() {
+	final ThreadFactory factory = new ThreadFactory() {
 
-	    private final AtomicInteger threadNumber = new AtomicInteger(1);
+	    private final AtomicInteger threadId = new AtomicInteger(1);
 
 	    @Override
-	    public Thread newThread(Runnable r) {
-		final Thread t = new Thread(r);
-		t.setName("Timermanager-Worker-" + threadNumber.getAndIncrement());
-		return t;
+	    public Thread newThread(Runnable runnable) {
+		final Thread thread = new Thread(runnable);
+                final String threadName = 
+                        "TimerManager-Worker-" + threadId.getAndIncrement();
+		thread.setName(threadName);
+		return thread;
 	    }
 	};
 
-	final ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(3, thread);
-	stpe.setKeepAliveTime(10, TimeUnit.MINUTES);;
-	stpe.allowCoreThreadTimeOut(true);
-	stpe.setCorePoolSize(3);
-	stpe.setMaximumPoolSize(5);
-	stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-	ses = stpe;
+	executor = new ScheduledThreadPoolExecutor(3, factory);
+	executor.setKeepAliveTime(10, TimeUnit.MINUTES);
+	executor.allowCoreThreadTimeOut(true);
+	executor.setCorePoolSize(3);
+	executor.setMaximumPoolSize(5);
+	executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
     }
 
     public void stop() {
-	ses.shutdown();
+	executor.shutdown();
     }
 
-    public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {
-	return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, TimeUnit.MILLISECONDS);
+    public ScheduledFuture<?> register(Runnable runnable, 
+            long repeatTime, long delay) {
+	return executor.scheduleAtFixedRate(
+                getLoggedRunnable(runnable), delay, 
+                repeatTime, TimeUnit.MILLISECONDS);
     }
 
-    public ScheduledFuture<?> register(Runnable r, long repeatTime) {
-	return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), 0, repeatTime, TimeUnit.MILLISECONDS);
+    public ScheduledFuture<?> register(Runnable runnable, long repeatTime) {
+	return executor.scheduleAtFixedRate(
+                getLoggedRunnable(runnable), 0, 
+                repeatTime, TimeUnit.MILLISECONDS);
     }
 
-    public ScheduledFuture<?> schedule(Runnable r, long delay) {
-	return ses.schedule(new LoggingSaveRunnable(r), delay, TimeUnit.MILLISECONDS);
+    private Runnable getLoggedRunnable(Runnable runnable) {
+        return new LoggedRunnable(runnable);
+    }
+
+    public ScheduledFuture<?> schedule(Runnable runnable, long delay) {
+	return executor.schedule(
+                getLoggedRunnable(runnable), delay, TimeUnit.MILLISECONDS);
     }
 
     public ScheduledFuture<?> scheduleAtTimestamp(Runnable r, long timestamp) {
 	return schedule(r, timestamp - System.currentTimeMillis());
     }
 
-    private class LoggingSaveRunnable implements Runnable {
+    private class LoggedRunnable implements Runnable {
 
-	Runnable r;
+	Runnable runnable;
 
-	public LoggingSaveRunnable(final Runnable r) {
-	    this.r = r;
+	public LoggedRunnable(final Runnable runnable) {
+	    this.runnable = runnable;
 	}
 
 	@Override
 	public void run() {
 	    try {
-		r.run();
+		runnable.run();
 	    } catch (Throwable t) {
-		FileoutputUtil.outputFileError(FileoutputUtil.Timer_Log, t);
+		FileOutputUtil.outputFileError(FileOutputUtil.Timer_Log, t);
 	    }
 	}
     }

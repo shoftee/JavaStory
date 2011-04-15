@@ -39,12 +39,8 @@ public class WorldLoginInterfaceImpl extends UnicastRemoteObject implements Worl
 	super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
     }
 
-    public Properties getDatabaseProperties() throws RemoteException {
-	return WorldServer.getInstance().getDbProp();
-    }
-
     public Properties getWorldProperties() throws RemoteException {
-	return WorldServer.getInstance().getWorldProp();
+	return WorldServer.getInstance().getWorldProperties();
     }
 
     public boolean isAvailable() throws RemoteException {

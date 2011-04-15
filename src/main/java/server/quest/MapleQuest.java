@@ -49,7 +49,7 @@ public class MapleQuest implements Serializable {
     private boolean autoStart;
     private boolean autoPreComplete;
     private boolean repeatable = false, customend = false;
-    private static final MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Quest.wz"));
+    private static final MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Quest.wz"));
     private static final MapleData actions = questData.getData("Act.img");
     private static final MapleData requirements = questData.getData("Check.img");
     private static final MapleData info = questData.getData("QuestInfo.img");

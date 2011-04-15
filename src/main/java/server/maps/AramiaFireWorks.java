@@ -43,9 +43,9 @@ public class AramiaFireWorks {
 
 	private final void broadcastEvent(final MapleCharacter c) {
 		try {
-			c.getClient().getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(5, "<Channel " + c.getClient().getChannel() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
+			c.getClient().getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
 		} catch (RemoteException e) {
-			c.getClient().getChannelServer().reconnectWorld();
+			c.getClient().getChannelServer().pingWorld();
 		}
 		// Henesys Park
 		TimerManager.getInstance().schedule(new Runnable() {

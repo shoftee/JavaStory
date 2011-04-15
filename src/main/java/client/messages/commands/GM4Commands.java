@@ -11,7 +11,8 @@ import client.MapleInventoryType;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
+import org.javastory.server.channel.ChannelServer;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.life.MapleMonster;
@@ -64,7 +65,7 @@ public class GM4Commands implements Command {
 				c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), toDrop, c.getPlayer().getPosition(), true, true);
 			}
 		} else if (splitted[0].equals("-saveall")) {
-			for (ChannelServer chan : ChannelServer.getAllInstances()) {
+			for (ChannelServer chan : ChannelManager.getAllInstances()) {
 				for (MapleCharacter chr : chan.getPlayerStorage().getAllCharacters()) {
 					chr.saveToDB(false, false);
 				}

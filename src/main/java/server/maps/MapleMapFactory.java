@@ -27,8 +27,8 @@ import tools.StringUtil;
 
 public class MapleMapFactory {
 
-	private static final MapleDataProvider source = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Map.wz"));
-	private static final MapleData nameData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/String.wz")).getData("Map.img");
+	private static final MapleDataProvider source = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Map.wz"));
+	private static final MapleData nameData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/String.wz")).getData("Map.img");
 	private final Map<Integer, MapleMap> maps = new HashMap<Integer, MapleMap>();
 	private final WeakHashMap<Integer, MapleMap> instanceMap = new WeakHashMap<Integer, MapleMap>();
 	private int channel;

@@ -24,7 +24,7 @@ import java.awt.Point;
 
 import client.MapleClient;
 import client.anticheat.CheatingOffense;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
 import scripting.PortalScriptManager;
 import server.MaplePortal;
 import tools.MaplePacketCreator;
@@ -116,7 +116,7 @@ public class MapleGenericPortal implements MaplePortal {
 		e.printStackTrace();
 	    }
 	} else if (getTargetMapId() != 999999999) {
-	    final MapleMap to = ChannelServer.getInstance(c.getChannel()).getMapFactory(c.getPlayer().getWorld()).getMap(getTargetMapId());
+	    final MapleMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(getTargetMapId());
 	    c.getPlayer().changeMap(to, to.getPortal(getTarget()) == null ? to.getPortal(0) : to.getPortal(getTarget())); //late resolving makes this harder but prevents us from loading the whole world at once
 	}
     }

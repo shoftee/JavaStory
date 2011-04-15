@@ -38,7 +38,7 @@ public class HiredMerchantHandler {
 			try {
 			merch = c.getChannelServer().getWorldInterface().hasMerchant(c.getAccID());
 			} catch (RemoteException re) {
-			c.getChannelServer().reconnectWorld();
+			c.getChannelServer().pingWorld();
 			}
 			if (!merch) {
 //		    c.getPlayer().dropMessage(1, "The Hired Merchant is temporary disabled until it's fixed.");

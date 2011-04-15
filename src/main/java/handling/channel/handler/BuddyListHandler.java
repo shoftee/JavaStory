@@ -106,7 +106,7 @@ public class BuddyListHandler {
 		    int channel;
 		    final MapleCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
 		    if (otherChar != null) {
-			channel = c.getChannel();
+			channel = c.getChannelId();
 
 			if (!otherChar.isGM() || c.getPlayer().isGM()) {
 			    charWithId = new CharacterIdNameBuddyCapacity(otherChar.getId(), otherChar.getName(), otherChar.getLevel(), otherChar.getJob(), otherChar.getBuddylist().getCapacity());
@@ -120,7 +120,7 @@ public class BuddyListHandler {
 			BuddyAddResult buddyAddResult = null;
 			if (channel != -1) {
 			    final ChannelWorldInterface channelInterface = worldInterface.getChannelInterface(channel);
-			    buddyAddResult = channelInterface.requestBuddyAdd(addName, c.getChannel(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob());
+			    buddyAddResult = channelInterface.requestBuddyAdd(addName, c.getChannelId(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob());
 			} else {
 			    Connection con = DatabaseConnection.getConnection();
 			    PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) as buddyCount FROM buddies WHERE characterid = ? AND pending = 0");
@@ -235,7 +235,7 @@ public class BuddyListHandler {
 
 	if (remoteChannel != -1) {
 	    final ChannelWorldInterface channelInterface = worldInterface.getChannelInterface(remoteChannel);
-	    channelInterface.buddyChanged(otherCid, player.getId(), player.getName(), c.getChannel(), operation, player.getLevel(), player.getJob());
+	    channelInterface.buddyChanged(otherCid, player.getId(), player.getName(), c.getChannelId(), operation, player.getLevel(), player.getJob());
 	}
     }
 }

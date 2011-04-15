@@ -31,7 +31,7 @@ import client.Item;
 import client.GameConstants;
 import client.MapleClient;
 import client.MapleInventoryType;
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelManager;
 import server.MapleItemInformationProvider;
 import server.life.MapleLifeFactory;
 import server.maps.ReactorDropEntry;
@@ -91,7 +91,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 	for (final ReactorDropEntry d : items) {
 	    if (d.itemId == 0) {
 		range = maxMeso - minMeso;
-		mesoDrop = (int) (Math.random() * range) + minMeso * ChannelServer.getInstance(getClient().getChannel()).getMesoRate();
+		mesoDrop = (int) (Math.random() * range) + minMeso * ChannelManager.getInstance(getClient().getChannelId()).getMesoRate();
 		reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, reactor, getPlayer(), false, (byte) 0);
 	    } else {
 		IItem drop;

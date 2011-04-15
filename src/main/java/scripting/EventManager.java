@@ -30,8 +30,8 @@ import javax.script.Invocable;
 import javax.script.ScriptException;
 
 import client.MapleCharacter;
-import handling.channel.ChannelServer;
 import handling.world.MapleParty;
+import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;
 import server.MapleSquad;
 import server.life.MapleMonster;

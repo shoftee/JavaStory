@@ -82,7 +82,7 @@ public class AutobanManager implements Runnable {
 	    try {
 		c.getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(0, "[Autoban] " + c.getPlayer().getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
 	    } catch (final RemoteException e) {
-		c.getChannelServer().reconnectWorld();
+		c.getChannelServer().pingWorld();
 	    }
 //		Calendar cal = Calendar.getInstance();
 //		cal.add(Calendar.DATE, 60);

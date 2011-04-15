@@ -26,8 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-
-import handling.channel.ChannelServer;
+import org.javastory.server.channel.ChannelServer;
 
 /**
  *

@@ -32,7 +32,7 @@ import tools.StringUtil;
 
 public class MapleReactorFactory {
 
-    private static final MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Reactor.wz"));
+    private static final MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Reactor.wz"));
     private static Map<Integer, MapleReactorStats> reactorStats = new HashMap<Integer, MapleReactorStats>();
 
     public static final MapleReactorStats getReactor(int rid) {

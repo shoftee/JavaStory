@@ -32,7 +32,7 @@ import tools.Pair;
 
 public class PetDataFactory {
 
-    private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Item.wz"));
+    private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Item.wz"));
     private static Map<Pair<Integer, Integer>, PetCommand> petCommands = new HashMap<Pair<Integer, Integer>, PetCommand>();
     private static Map<Integer, Integer> petHunger = new HashMap<Integer, Integer>();
 
