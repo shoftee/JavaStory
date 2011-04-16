@@ -26,7 +26,7 @@ import java.util.List;
 
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.world.CharacterTransfer;
 import handling.world.MapleMessenger;
 import handling.world.MapleParty;
@@ -68,7 +68,7 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public void ChannelChange_Data(CharacterTransfer transfer, int characterid) throws RemoteException;
 
-    public void sendPacket(List<Integer> targetIds, MaplePacket packet, int exception) throws RemoteException;
+    public void sendPacket(List<Integer> targetIds, GamePacket packet, int exception) throws RemoteException;
 
     public void setGuildAndRank(int cid, int guildid, int rank) throws RemoteException;
 

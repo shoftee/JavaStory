@@ -23,7 +23,7 @@ package server.shops;
 import java.util.List;
 import client.MapleCharacter;
 import client.MapleClient;
-import handling.MaplePacket;
+import handling.GamePacket;
 import tools.Pair;
 
 public interface IMaplePlayerShop {
@@ -47,13 +47,13 @@ public interface IMaplePlayerShop {
     public int getItemId();
     public int getMeso();
     public int getOwnerId();
-    public int getOwnerAccId();
+    public int getOwnerAccountId();
 
     public void setOpen(boolean open);
     public void setMeso(int meso);
     public void addItem(MaplePlayerShopItem item);
     public void removeFromSlot(int slot);
-    public void broadcastToVisitors(MaplePacket packet);
+    public void broadcastToVisitors(GamePacket packet);
     public void addVisitor(MapleCharacter visitor);
     public void removeVisitor(MapleCharacter visitor);
     public void removeAllVisitors(int error, int type);

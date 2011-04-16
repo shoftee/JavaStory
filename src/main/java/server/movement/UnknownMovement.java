@@ -22,7 +22,7 @@ package server.movement;
 
 import java.awt.Point;
 
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class UnknownMovement extends AbstractLifeMovement {
 
@@ -59,15 +59,13 @@ public class UnknownMovement extends AbstractLifeMovement {
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-	lew.write(getType());
-	lew.writeShort(unk);
-	lew.writeShort(getPosition().x);
-	lew.writeShort(getPosition().y);
-	lew.writeShort(pixelsPerSecond.x);
-	lew.writeShort(pixelsPerSecond.y);
-	lew.writeShort(fh);
-	lew.write(getNewstate());
-	lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+	lew.writeAsByte(getType());
+	lew.writeAsShort(unk);
+        lew.writeVector(getPosition());
+        lew.writeVector(pixelsPerSecond);
+	lew.writeAsShort(fh);
+	lew.writeAsByte(getNewstate());
+	lew.writeAsShort(getDuration());
     }
 }

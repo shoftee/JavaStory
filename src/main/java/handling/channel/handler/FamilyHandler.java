@@ -1,10 +1,11 @@
 package handling.channel.handler;
 
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 
 public class FamilyHandler {
 
-	public static final void RequestFamily(final SeekableLittleEndianAccessor slea) {
-		final String reqName = slea.readMapleAsciiString();
-	}
+    public static final void handleFamilyRequest(final PacketReader reader) throws PacketFormatException {
+        final String reqName = reader.readLengthPrefixedString();
+    }
 }

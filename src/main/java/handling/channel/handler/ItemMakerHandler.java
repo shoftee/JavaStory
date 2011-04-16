@@ -30,6 +30,7 @@ import client.SkillFactory;
 import client.MapleClient;
 import client.MapleInventoryType;
 import client.GameConstants;
+import org.javastory.io.PacketFormatException;
 import server.ItemMakerFactory;
 import server.ItemMakerFactory.GemCreateEntry;
 import server.ItemMakerFactory.ItemMakerCreateEntry;
@@ -38,16 +39,16 @@ import server.MapleItemInformationProvider;
 import server.MapleInventoryManipulator;
 import tools.Pair;
 import tools.MaplePacketCreator;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class ItemMakerHandler {
 
-    public static final void ItemMaker(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-	final int makerType = slea.readInt();
+    public static final void handleItemMaker(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+	final int makerType = reader.readInt();
 
 	switch (makerType) {
 	    case 1: { // Gem
-		final int toCreate = slea.readInt();
+		final int toCreate = reader.readInt();
 
 		if (GameConstants.isGem(toCreate)) {
 		    final GemCreateEntry gem = ItemMakerFactory.getInstance().getGemInfo(toCreate);
@@ -73,8 +74,8 @@ public class ItemMakerHandler {
 		    c.getSession().write(MaplePacketCreator.ItemMaker_Success());
 		    c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
 		} else {
-		    final boolean stimulator = slea.readByte() > 0;
-		    final int numEnchanter = slea.readInt();
+		    final boolean stimulator = reader.readByte() > 0;
+		    final int numEnchanter = reader.readInt();
 
 		    final ItemMakerCreateEntry create = ItemMakerFactory.getInstance().getCreateInfo(toCreate);
 
@@ -104,7 +105,7 @@ public class ItemMakerHandler {
 			    MapleInventoryManipulator.removeById(c, MapleInventoryType.ETC, create.getStimulator(), 1, false, false);
 			}
 			for (int i = 0; i < numEnchanter; i++) {
-			    final int enchant = slea.readInt();
+			    final int enchant = reader.readInt();
 			    if (c.getPlayer().haveItem(enchant, 1, false, true)) {
 				final Map<String, Byte> stats = ii.getItemMakeStats(enchant);
 				if (stats != null) {
@@ -121,7 +122,7 @@ public class ItemMakerHandler {
 		break;
 	    }
 	    case 3: { // Making Crystals
-		final int etc = slea.readInt();
+		final int etc = reader.readInt();
 		if (c.getPlayer().haveItem(etc, 100, false, true)) {
 		    MapleInventoryManipulator.addById(c, getCreateCrystal(etc), (short) 1);
 		    MapleInventoryManipulator.removeById(c, MapleInventoryType.ETC, etc, 100, false, false);
@@ -132,9 +133,9 @@ public class ItemMakerHandler {
 		break;
 	    }
 	    case 4: { // Disassembling EQ.
-		final int itemId = slea.readInt();
-		slea.skip(4);
-		final byte slot = (byte) slea.readInt();
+		final int itemId = reader.readInt();
+		reader.skip(4);
+		final byte slot = (byte) reader.readInt();
 
 		final IItem toUse = c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem(slot);
 		if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {

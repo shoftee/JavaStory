@@ -77,9 +77,8 @@ public class LoginWorker {
                     c.getSession().write(LoginPacket.getLoginFailed(7));
                     return;
                 }
-                final double loadFactor = 1200 / ((double) LS.getUserLimit() / channelLoad.size());
                 for (Entry<Integer, Integer> entry : channelLoad.entrySet()) {
-                    final int load = Math.min(1200, (int) (entry.getValue() * loadFactor));
+                    final int load = Math.min(1200, entry.getValue());
                     LS.setLoad(entry.getKey(), load);
                 }
             } catch (RemoteException ex) {

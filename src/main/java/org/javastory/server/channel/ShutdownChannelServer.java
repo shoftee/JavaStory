@@ -1,4 +1,4 @@
-package server;
+package org.javastory.server.channel;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.javastory.server.ChannelInfo;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
+import server.TimerManager;
 
 public class ShutdownChannelServer implements Runnable {
 
@@ -27,14 +28,6 @@ public class ShutdownChannelServer implements Runnable {
             System.err.println("SHUTDOWN ERROR " + t);
         }
 
-        while (ChannelManager.getInstance(channelId).getPlayerStorage().getConnectedClients() > 0) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.err.println("ERROR " + e);
-            }
-        }
-
         System.out.println("Channel " + channelId + ", Deregistering channel");
         try {
             ChannelServer.getWorldRegistry().deregisterChannelServer(channelId);
@@ -42,29 +35,6 @@ public class ShutdownChannelServer implements Runnable {
             System.err.println("ERROR on deregistering channel server: " + ex);
         }
 
-        System.out.println("Channel " + channelId + ", Unbinding ports...");
-
-        boolean error = true;
-        while (error) {
-            try {
-                ChannelManager.getInstance(channelId).unbind();
-                error = false;
-            } catch (Exception e) {
-                error = true;
-            }
-        }
-
-        System.out.println("Channel " + channelId + ", closing...");
-
-        for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-            while (cserv.getStatus() != ServerStatus.OFFLINE) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    System.err.println("ERROR" + e);
-                }
-            }
-        }
         TimerManager.getInstance().stop();
         try {
             DatabaseConnection.closeAll();

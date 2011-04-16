@@ -1,182 +1,182 @@
 package tools.packet;
 
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class UIPacket {
 
-	public static final MaplePacket EarnTitleMsg(final String msg) {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket EarnTitleMsg(final String msg) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		//"You have acquired the Pig's Weakness skill."
-		mplew.writeShort(ServerPacketOpcode.EARN_TITLE_MSG.getValue());
-		mplew.writeMapleAsciiString(msg);
+		builder.writeAsShort(ServerPacketOpcode.EARN_TITLE_MSG.getValue());
+		builder.writeLengthPrefixedString(msg);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket getStatusMsg(int itemid) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket getStatusMsg(int itemid) {
+		PacketBuilder builder = new PacketBuilder();
 
 		// Temporary transformed as a dragon, even with the skill ......
-		mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
-		mplew.write(7);
-		mplew.writeInt(itemid);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
+		builder.writeAsByte(7);
+		builder.writeInt(itemid);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket getSPMsg(byte sp) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket getSPMsg(byte sp) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
-		mplew.write(4);
-		mplew.writeShort(0);
-		mplew.write(sp);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
+		builder.writeAsByte(4);
+		builder.writeAsShort(0);
+		builder.writeByte(sp);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket getGPMsg(int itemid) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket getGPMsg(int itemid) {
+		PacketBuilder builder = new PacketBuilder();
 
 		// Temporary transformed as a dragon, even with the skill ......
-		mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
-		mplew.write(7);
-		mplew.writeInt(itemid);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
+		builder.writeAsByte(7);
+		builder.writeInt(itemid);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket MapNameDisplay(final int mapid) {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket MapNameDisplay(final int mapid) {
+		final PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.BOSS_ENV.getValue());
-		mplew.write(0x3);
-		mplew.writeMapleAsciiString("maplemap/enter/" + mapid);
+		builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
+		builder.writeAsByte(0x3);
+		builder.writeLengthPrefixedString("maplemap/enter/" + mapid);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket Aran_Start() {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket Aran_Start() {
+		final PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.BOSS_ENV.getValue());
-		mplew.write(0x4);
-		mplew.writeMapleAsciiString("Aran/balloon");
+		builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
+		builder.writeAsByte(0x4);
+		builder.writeLengthPrefixedString("Aran/balloon");
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket AranTutInstructionalBalloon(final String data) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket AranTutInstructionalBalloon(final String data) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
-		mplew.write(0x17);
-		mplew.writeMapleAsciiString(data);
-		mplew.writeInt(1);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
+		builder.writeAsByte(0x17);
+		builder.writeLengthPrefixedString(data);
+		builder.writeInt(1);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket EvanTutInstructionalBalloon(final String data) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket EvanTutInstructionalBalloon(final String data) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.BOSS_ENV.getValue());
-		mplew.write(3);
-		mplew.writeMapleAsciiString(data);
+		builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
+		builder.writeAsByte(3);
+		builder.writeLengthPrefixedString(data);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket EvanDragonEyes() {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket EvanDragonEyes() {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
-		mplew.write(1);
-		mplew.writeInt(87548);// FC 55 01 00
-		mplew.write(0);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
+		builder.writeAsByte(1);
+		builder.writeInt(87548);// FC 55 01 00
+		builder.writeAsByte(0);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket ShowWZEffect(final String data) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket ShowWZEffect(final String data) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
-		mplew.write(0x14);
-		mplew.writeMapleAsciiString(data);
+		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
+		builder.writeAsByte(0x14);
+		builder.writeLengthPrefixedString(data);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket summonHelper(boolean summon) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket summonHelper(boolean summon) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SUMMON_HINT.getValue());
-		mplew.write(summon ? 1 : 0);
+		builder.writeAsShort(ServerPacketOpcode.SUMMON_HINT.getValue());
+		builder.writeAsByte(summon ? 1 : 0);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket summonMessage(int type) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket summonMessage(int type) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SUMMON_HINT_MSG.getValue());
-		mplew.write(1);
-		mplew.writeInt(type);
-		mplew.writeInt(7000); // probably the delay
+		builder.writeAsShort(ServerPacketOpcode.SUMMON_HINT_MSG.getValue());
+		builder.writeAsByte(1);
+		builder.writeInt(type);
+		builder.writeInt(7000); // probably the delay
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket summonMessage(String message) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket summonMessage(String message) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.SUMMON_HINT_MSG.getValue());
-		mplew.write(0);
-		mplew.writeMapleAsciiString(message);
-		mplew.writeInt(200);
-		mplew.writeInt(4000);
+		builder.writeAsShort(ServerPacketOpcode.SUMMON_HINT_MSG.getValue());
+		builder.writeAsByte(0);
+		builder.writeLengthPrefixedString(message);
+		builder.writeInt(200);
+		builder.writeInt(4000);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket IntroLock(boolean enable) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket IntroLock(boolean enable) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.CYGNUS_INTRO_LOCK.getValue());
-		mplew.write(enable ? 1 : 0);
+		builder.writeAsShort(ServerPacketOpcode.CYGNUS_INTRO_LOCK.getValue());
+		builder.writeAsByte(enable ? 1 : 0);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket IntroDisableUI(boolean enable) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket IntroDisableUI(boolean enable) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.CYGNUS_INTRO_DISABLE_UI.getValue());
-		mplew.write(enable ? 1 : 0);
+		builder.writeAsShort(ServerPacketOpcode.CYGNUS_INTRO_DISABLE_UI.getValue());
+		builder.writeAsByte(enable ? 1 : 0);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket fishingUpdate(byte type, int id) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket fishingUpdate(byte type, int id) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.FISHING_BOARD_UPDATE.getValue());
-		mplew.write(type);
-		mplew.writeInt(id);
+		builder.writeAsShort(ServerPacketOpcode.FISHING_BOARD_UPDATE.getValue());
+		builder.writeByte(type);
+		builder.writeInt(id);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static MaplePacket fishingCaught(int chrid) {
-		MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static GamePacket fishingCaught(int chrid) {
+		PacketBuilder builder = new PacketBuilder();
 
-		mplew.writeShort(ServerPacketOpcode.FISHING_CAUGHT.getValue());
-		mplew.writeInt(chrid);
+		builder.writeAsShort(ServerPacketOpcode.FISHING_CAUGHT.getValue());
+		builder.writeInt(chrid);
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 }

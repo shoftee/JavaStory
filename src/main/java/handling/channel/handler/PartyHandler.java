@@ -8,15 +8,16 @@ import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.remote.WorldChannelInterface;
+import org.javastory.io.PacketFormatException;
 import org.javastory.server.channel.ChannelManager;
 import tools.MaplePacketCreator;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class PartyHandler {
 
-    public static final void DenyPartyRequest(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final int action = slea.readByte();
-        final int partyid = slea.readInt();
+    public static final void handleDenyPartyInvitation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final int action = reader.readByte();
+        final int partyid = reader.readInt();
         if (c.getPlayer().getParty() == null) {
             try {
                 WorldChannelInterface wci = c.getChannelServer().getWorldInterface();
@@ -47,8 +48,8 @@ public class PartyHandler {
         }
     }
 
-    public static void PartyOperatopn(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final int operation = slea.readByte();
+    public static void handlePartyOperation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final int operation = reader.readByte();
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         MapleParty party = c.getPlayer().getParty();
         MaplePartyCharacter partyplayer = new MaplePartyCharacter(c.getPlayer());
@@ -87,7 +88,7 @@ public class PartyHandler {
                 }
                 break;
             case 3: // accept invitation
-                final int partyid = slea.readInt();
+                final int partyid = reader.readInt();
                 if (c.getPlayer().getParty() == null) {
                     try {
                         party = wci.getParty(partyid);
@@ -111,7 +112,7 @@ public class PartyHandler {
                 break;
             case 4: // invite
                 // TODO store pending invitations and check against them
-                final MapleCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
+                final MapleCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                 if (invited != null && invited.getWorld() == c.getPlayer().getWorld()) {
                     if (invited.getParty() == null) {
                         if (party.getMembers().size() < 6) {
@@ -129,7 +130,7 @@ public class PartyHandler {
                 break;
             case 5: // expel
                 if (partyplayer.equals(party.getLeader())) {
-                    final MaplePartyCharacter expelled = party.getMemberById(slea.readInt());
+                    final MaplePartyCharacter expelled = party.getMemberById(reader.readInt());
                     if (expelled != null) {
                         try {
                             wci.updateParty(party.getId(), PartyOperation.EXPEL, expelled);
@@ -148,7 +149,7 @@ public class PartyHandler {
                 }
                 break;
             case 6: // change leader
-                final MaplePartyCharacter newleader = party.getMemberById(slea.readInt());
+                final MaplePartyCharacter newleader = party.getMemberById(reader.readInt());
                 try {
                     wci.updateParty(party.getId(), PartyOperation.CHANGE_LEADER, newleader);
                 } catch (RemoteException e) {

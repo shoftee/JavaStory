@@ -17,8 +17,8 @@ import client.MapleCharacter;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
-import handling.ByteArrayMaplePacket;
-import handling.MaplePacket;
+import handling.ByteArrayGamePacket;
+import handling.GamePacket;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.CharacterTransfer;
 import handling.world.MapleMessenger;
@@ -28,7 +28,6 @@ import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.guild.MapleGuildSummary;
 import handling.world.remote.CheaterData;
-import server.ShutdownChannelServer;
 import server.TimerManager;
 import tools.CollectionUtil;
 import tools.MaplePacketCreator;
@@ -63,17 +62,17 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void broadcastMessage(byte[] message) throws RemoteException {
-        server.broadcastPacket(new ByteArrayMaplePacket(message));
+        server.broadcastPacket(new ByteArrayGamePacket(message));
     }
 
     @Override
     public void broadcastSmega(byte[] message) throws RemoteException {
-        server.broadcastSmegaPacket(new ByteArrayMaplePacket(message));
+        server.broadcastSmegaPacket(new ByteArrayGamePacket(message));
     }
 
     @Override
     public void broadcastGMMessage(byte[] message) throws RemoteException {
-        server.broadcastGMPacket(new ByteArrayMaplePacket(message));
+        server.broadcastGMPacket(new ByteArrayGamePacket(message));
     }
 
     @Override
@@ -105,7 +104,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public boolean hasMerchant(int accountId) throws RemoteException {
-        return server.constainsMerchant(accountId);
+        return server.hasMerchant(accountId);
     }
 
     @Override
@@ -297,7 +296,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void sendPacket(List<Integer> targetIds, MaplePacket packet, int exception) throws RemoteException {
+    public void sendPacket(List<Integer> targetIds, GamePacket packet, int exception) throws RemoteException {
         MapleCharacter c;
         for (int i : targetIds) {
             if (i == exception) {

@@ -22,12 +22,13 @@ package handling.channel.handler;
 
 import client.MapleClient;
 import handling.world.guild.MapleAlliance;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 
 public class AllianceHandler {
 
-    public static final void AllianceOperatopn(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-	final byte mode = slea.readByte();
+    public static final void handleAllianceOperation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+	final byte mode = reader.readByte();
 
 	final MapleAlliance alliance = new MapleAlliance(c, c.getChannelServer().getGuildSummary(c.getPlayer().getGuildId()).getAllianceId());
 
@@ -39,16 +40,16 @@ public class AllianceHandler {
 	    case 0x08: // change titles
 		String[] ranks = new String[5];
 		for (int i = 0; i < 5; i++) {
-		    ranks[i] = slea.readMapleAsciiString();
+		    ranks[i] = reader.readLengthPrefixedString();
 		}
 		alliance.setTitles(ranks);
 		break;
 	    case 0x0A: // change notice
-		String notice = slea.readMapleAsciiString(); // new notice (100 is de max)
+		String notice = reader.readLengthPrefixedString(); // new notice (100 is de max)
 		alliance.setNotice(notice);
 		break;
 	    default:
-		System.out.println("Unknown Alliance operation:\r\n" + slea.toString());
+		System.out.println("Unknown Alliance operation:\r\n" + reader.toString());
 		break;
 	}
     }

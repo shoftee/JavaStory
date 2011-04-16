@@ -21,7 +21,7 @@
 package server.movement;
 
 import java.awt.Point;
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class FlashMovement extends AbstractLifeMovement {
 
@@ -40,11 +40,11 @@ public class FlashMovement extends AbstractLifeMovement {
 	}
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-        lew.write(getType());
-	lew.writePos(getPosition());
-	lew.writePos(pixelsPerSecond);
-        lew.write(getNewstate());
-        lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+        lew.writeAsByte(getType());
+	lew.writeVector(getPosition());
+	lew.writeVector(pixelsPerSecond);
+        lew.writeAsByte(getNewstate());
+        lew.writeAsShort(getDuration());
     }
 }

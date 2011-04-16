@@ -23,14 +23,15 @@ package handling.channel.handler;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 
 import server.maps.AnimatedMapleMapObject;
 import server.movement.*;
-import tools.data.input.LittleEndianAccessor;
 
 public class MovementParse {
 
-    public static final List<LifeMovementFragment> parseMovement(final LittleEndianAccessor lea) {
+    public static List<LifeMovementFragment> parseMovement(final PacketReader lea) throws PacketFormatException {
 	final List<LifeMovementFragment> res = new ArrayList<LifeMovementFragment>();
 	final byte numCommands = lea.readByte();
 

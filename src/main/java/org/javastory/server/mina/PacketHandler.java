@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import client.MapleClient;
 import handling.ClientPacketOpcode;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerConstants;
 import handling.ServerType;
 import handling.cashshop.handler.*;
@@ -17,12 +17,11 @@ import handling.world.remote.ServerStatus;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.javastory.io.PacketFormatException;
 import server.Randomizer;
 import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
-import tools.data.input.ByteArrayByteStream;
-import tools.data.input.GenericSeekableLittleEndianAccessor;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 import tools.Pair;
 
 import org.javastory.cryptography.VersionType;
@@ -48,7 +47,7 @@ public class PacketHandler extends IoHandlerAdapter {
     @Override
     public void messageSent(final IoSession session, final Object message)
             throws Exception {
-        final Runnable r = ((MaplePacket) message).getOnSend();
+        final Runnable r = ((GamePacket) message).getOnSend();
         if (r != null) {
             r.run();
         }
@@ -109,7 +108,7 @@ public class PacketHandler extends IoHandlerAdapter {
         PacketDecoder.DecoderState decoderState =
                 new PacketDecoder.DecoderState();
         session.setAttribute(PacketDecoder.DECODER_STATE_KEY, decoderState);
-        final MaplePacket helloPacket = LoginPacket.getHello(
+        final GamePacket helloPacket = LoginPacket.getHello(
                 ServerConstants.GAME_VERSION, clientIv, serverIv);
         session.write(helloPacket);
         session.setAttribute(MapleClient.CLIENT_KEY, client);
@@ -133,17 +132,21 @@ public class PacketHandler extends IoHandlerAdapter {
 
     @Override
     public void messageReceived(final IoSession session, final Object message) throws Exception {
-        final SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream((byte[]) message));
-        final short header_num = slea.readShort();
+        final PacketReader reader = new PacketReader((byte[]) message);
+        final short header_num = reader.readShort();
         for (final ClientPacketOpcode code : ClientPacketOpcode.values()) {
             if (code.getValue() == header_num) {
-                final MapleClient c = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+                final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
                 if (code.NeedsChecking()) {
-                    if (!c.isLoggedIn()) {
+                    if (!client.isLoggedIn()) {
                         return;
                     }
                 }
-                handlePacket(code, slea, c, type);
+                try {
+                    handlePacket(code, reader, client, type);
+                } catch (PacketFormatException ex) {
+                    client.disconnect(true, true);
+                }
                 return;
             }
         }
@@ -159,351 +162,351 @@ public class PacketHandler extends IoHandlerAdapter {
     }
 
     public static void handlePacket(
-            final ClientPacketOpcode header, 
-            final SeekableLittleEndianAccessor slea, 
-            final MapleClient c, 
-            final ServerType type) {
+            final ClientPacketOpcode header,
+            final PacketReader reader,
+            final MapleClient client,
+            final ServerType type) throws PacketFormatException {
         switch (header) {
             case PONG:
-                c.pongReceived();
+                client.pongReceived();
                 break;
             case STRANGE_DATA:
                 // Does nothing for now, HackShield's heartbeat
                 break;
             case LOGIN_PASSWORD:
-                CharLoginHandler.handleLogin(slea, c);
+                CharLoginHandler.handleLogin(reader, client);
                 break;
             case SERVERLIST_REQUEST:
-                CharLoginHandler.handleWorldListRequest(c);
+                CharLoginHandler.handleWorldListRequest(client);
                 break;
             case CHARLIST_REQUEST:
-                CharLoginHandler.handleCharacterListRequest(slea, c);
+                CharLoginHandler.handleCharacterListRequest(reader, client);
                 break;
             case SERVERSTATUS_REQUEST:
-                CharLoginHandler.handleWorldStatusRequest(c);
+                CharLoginHandler.handleWorldStatusRequest(client);
                 break;
             case CHECK_CHAR_NAME:
-                CharLoginHandler.handleCharacterNameCheck(slea.readMapleAsciiString(), c);
+                CharLoginHandler.handleCharacterNameCheck(reader.readLengthPrefixedString(), client);
                 break;
             case CREATE_CHAR:
-                CharLoginHandler.handleCreateCharacter(slea, c);
+                CharLoginHandler.handleCreateCharacter(reader, client);
                 break;
             case DELETE_CHAR:
-                CharLoginHandler.handleDeleteCharacter(slea, c);
+                CharLoginHandler.handleDeleteCharacter(reader, client);
                 break;
             case CHAR_SELECT:
-                CharLoginHandler.Character_WithoutSecondPassword(slea, c);
+                CharLoginHandler.handleWithoutSecondPassword(reader, client);
                 break;
             case AUTH_SECOND_PASSWORD:
-                CharLoginHandler.Character_WithSecondPassword(slea, c);
+                CharLoginHandler.handleWithSecondPassword(reader, client);
                 break;
             case RSA_KEY: // Fix this somehow
-                c.getSession().write(LoginPacket.StrangeDATA());
+                client.getSession().write(LoginPacket.StrangeDATA());
                 break;
             // END OF LOGIN SERVER
             case CHANGE_CHANNEL:
-                InterServerHandler.ChangeChannel(slea, c, c.getPlayer());
+                InterServerHandler.handleChannelChange(reader, client, client.getPlayer());
                 break;
             case PLAYER_LOGGEDIN:
-                final int playerid = slea.readInt();
+                final int playerid = reader.readInt();
                 if (type == ServerType.CHANNEL) {
-                    InterServerHandler.Loggedin(playerid, c);
+                    InterServerHandler.handlePlayerLoggedIn(playerid, client);
                 } else {
-                    CashShopOperation.EnterCS(playerid, c);
+                    CashShopOperation.enterCashShop(playerid, client);
                 }
                 break;
             case ENTER_CASH_SHOP:
-                InterServerHandler.EnterCashShop(slea, c, c.getPlayer());
+                InterServerHandler.handleEnterCashShop(reader, client, client.getPlayer());
                 break;
             case ENTER_MTS:
-                InterServerHandler.EnterMTS(c);
+                InterServerHandler.handleEnterMTS(client);
                 break;
             case MOVE_PLAYER:
-                PlayerHandler.MovePlayer(slea, c, c.getPlayer());
+                PlayerHandler.handleMovePlayer(reader, client, client.getPlayer());
                 break;
             case CHAR_INFO_REQUEST:
-                slea.skip(4);
-                PlayerHandler.CharInfoRequest(slea.readInt(), c, c.getPlayer());
+                reader.skip(4);
+                PlayerHandler.handleCharacterInfoRequest(reader.readInt(), client, client.getPlayer());
                 break;
             case CLOSE_RANGE_ATTACK:
-                PlayerHandler.closeRangeAttack(slea, c, c.getPlayer());
+                PlayerHandler.handleMeleeAttack(reader, client, client.getPlayer());
                 break;
             case RANGED_ATTACK:
-                PlayerHandler.rangedAttack(slea, c, c.getPlayer());
+                PlayerHandler.handleRangedAttack(reader, client, client.getPlayer());
                 break;
             case MAGIC_ATTACK:
-                PlayerHandler.MagicDamage(slea, c, c.getPlayer());
+                PlayerHandler.MagicDamage(reader, client, client.getPlayer());
                 break;
             case SPECIAL_MOVE:
-                PlayerHandler.SpecialMove(slea, c, c.getPlayer());
+                PlayerHandler.handleSpecialMove(reader, client, client.getPlayer());
                 break;
             case PASSIVE_ENERGY:
                 break;
             case FACE_EXPRESSION:
-                PlayerHandler.ChangeEmotion(slea.readInt(), c.getPlayer());
+                PlayerHandler.handleFaceExpression(reader.readInt(), client.getPlayer());
                 break;
             case TAKE_DAMAGE:
-                PlayerHandler.TakeDamage(slea, c, c.getPlayer());
+                PlayerHandler.handleTakeDamage(reader, client, client.getPlayer());
                 break;
             case HEAL_OVER_TIME:
-                PlayerHandler.Heal(slea, c.getPlayer());
+                PlayerHandler.handleHealthRegeneration(reader, client.getPlayer());
                 break;
             case CANCEL_BUFF:
-                PlayerHandler.CancelBuffHandler(slea.readInt(), c.getPlayer());
+                PlayerHandler.handleCancelBuff(reader.readInt(), client.getPlayer());
                 break;
             case CANCEL_ITEM_EFFECT:
-                PlayerHandler.CancelItemEffect(slea.readInt(), c.getPlayer());
+                PlayerHandler.handleCancelItemEffect(reader.readInt(), client.getPlayer());
                 break;
             case USE_CHAIR:
-                PlayerHandler.UseChair(slea.readInt(), c, c.getPlayer());
+                PlayerHandler.handleUseChair(reader.readInt(), client, client.getPlayer());
                 break;
             case CANCEL_CHAIR:
-                PlayerHandler.CancelChair(slea.readShort(), c, c.getPlayer());
+                PlayerHandler.handleCancelChair(reader.readShort(), client, client.getPlayer());
                 break;
             case USE_ITEMEFFECT:
-                PlayerHandler.UseItemEffect(slea.readInt(), c, c.getPlayer());
+                PlayerHandler.handleUseItemEffect(reader.readInt(), client, client.getPlayer());
                 break;
             case SKILL_EFFECT:
-                PlayerHandler.SkillEffect(slea, c.getPlayer());
+                PlayerHandler.handleSkillEffect(reader, client.getPlayer());
                 break;
             case MESO_DROP:
-                slea.skip(4);
-                PlayerHandler.DropMeso(slea.readInt(), c.getPlayer());
+                reader.skip(4);
+                PlayerHandler.handleMesoDrop(reader.readInt(), client.getPlayer());
                 break;
             case WHEEL_OF_FORTUNE:
-                PlayerHandler.WheelOfFortuneEffect(slea.readInt(), c.getPlayer());
+                PlayerHandler.handleWheelOfFortuneEffect(reader.readInt(), client.getPlayer());
                 break;
             case MONSTER_BOOK_COVER:
-                PlayerHandler.ChangeMonsterBookCover(slea.readInt(), c, c.getPlayer());
+                PlayerHandler.handleChangeMonsterBookCover(reader.readInt(), client, client.getPlayer());
                 break;
             case CHANGE_KEYMAP:
-                PlayerHandler.ChangeKeymap(slea, c.getPlayer());
+                PlayerHandler.HandleChangeKeymap(reader, client.getPlayer());
                 break;
             case CHANGE_MAP:
                 if (type == ServerType.CHANNEL) {
-                    PlayerHandler.ChangeMap(slea, c, c.getPlayer());
+                    PlayerHandler.handleChangeMap(reader, client, client.getPlayer());
                 } else {
-                    CashShopOperation.LeaveCS(slea, c, c.getPlayer());
+                    CashShopOperation.leaveCashShop(reader, client, client.getPlayer());
                 }
                 break;
             case CHANGE_MAP_SPECIAL:
-                slea.skip(1);
-                PlayerHandler.ChangeMapSpecial(slea.readMapleAsciiString(), c, c.getPlayer());
+                reader.skip(1);
+                PlayerHandler.handleChangeMapSpecial(reader.readLengthPrefixedString(), client, client.getPlayer());
                 break;
             case USE_INNER_PORTAL:
-                slea.skip(1);
-                PlayerHandler.InnerPortal(slea, c, c.getPlayer());
+                reader.skip(1);
+                PlayerHandler.handleUseInnerPortal(reader, client, client.getPlayer());
                 break;
             case TROCK_ADD_MAP:
-                PlayerHandler.TrockAddMap(slea, c, c.getPlayer());
+                PlayerHandler.handleTeleportRockAddMap(reader, client, client.getPlayer());
                 break;
             case ARAN_COMBO:
-                PlayerHandler.AranCombo(c, c.getPlayer());
+                PlayerHandler.handleAranCombo(client, client.getPlayer());
                 break;
             case SKILL_MACRO:
-                PlayerHandler.ChangeSkillMacro(slea, c.getPlayer());
+                PlayerHandler.handleSkillMacro(reader, client.getPlayer());
                 break;
             case GIVE_FAME:
-                PlayersHandler.GiveFame(slea, c, c.getPlayer());
+                PlayersHandler.handleGiveFame(reader, client, client.getPlayer());
                 break;
             case TRANSFORM_PLAYER:
-                PlayersHandler.TransformPlayer(slea, c, c.getPlayer());
+                PlayersHandler.handleTransformPlayer(reader, client, client.getPlayer());
                 break;
             case NOTE_ACTION:
-                PlayersHandler.Note(slea, c.getPlayer());
+                PlayersHandler.handleNoteAction(reader, client.getPlayer());
                 break;
             case USE_DOOR:
-                PlayersHandler.UseDoor(slea, c.getPlayer());
+                PlayersHandler.handleUseDoor(reader, client.getPlayer());
                 break;
             case DAMAGE_REACTOR:
-                PlayersHandler.HitReactor(slea, c);
+                PlayersHandler.handleHitReactor(reader, client);
                 break;
             case CLOSE_CHALKBOARD:
-                c.getPlayer().setChalkboard(null);
+                client.getPlayer().setChalkboard(null);
                 break;
             case ITEM_MAKER:
-                ItemMakerHandler.ItemMaker(slea, c);
+                ItemMakerHandler.handleItemMaker(reader, client);
                 break;
             case ITEM_SORT:
-                InventoryHandler.ItemSort(slea, c);
+                InventoryHandler.handleItemSort(reader, client);
                 break;
             case ITEM_MOVE:
-                InventoryHandler.ItemMove(slea, c);
+                InventoryHandler.handleItemMove(reader, client);
                 break;
             case ITEM_PICKUP:
-                InventoryHandler.Pickup_Player(slea, c, c.getPlayer());
+                InventoryHandler.handleItemLoot(reader, client, client.getPlayer());
                 break;
             case USE_CASH_ITEM:
-                InventoryHandler.UseCashItem(slea, c);
+                InventoryHandler.handleUseCashItem(reader, client);
                 break;
             case USE_ITEM:
-                InventoryHandler.UseItem(slea, c, c.getPlayer());
+                InventoryHandler.handleUseItem(reader, client, client.getPlayer());
                 break;
             case USE_SCRIPTED_NPC_ITEM:
-                InventoryHandler.UseScriptedNPCItem(slea, c, c.getPlayer());
+                InventoryHandler.handleUseScriptedNpcItem(reader, client, client.getPlayer());
                 break;
             case USE_RETURN_SCROLL:
-                InventoryHandler.UseReturnScroll(slea, c, c.getPlayer());
+                InventoryHandler.handleUseReturnScroll(reader, client, client.getPlayer());
                 break;
             case USE_UPGRADE_SCROLL:
-                InventoryHandler.UseUpgradeScroll(slea, c, c.getPlayer());
+                InventoryHandler.handleUseUpgradeScroll(reader, client, client.getPlayer());
                 break;
             case USE_SUMMON_BAG:
-                InventoryHandler.UseSummonBag(slea, c, c.getPlayer());
+                InventoryHandler.handleUseSummonBag(reader, client, client.getPlayer());
                 break;
             case USE_TREASUER_CHEST:
-                InventoryHandler.UseTreasureChest(slea, c, c.getPlayer());
+                InventoryHandler.handleUseTreasureChest(reader, client, client.getPlayer());
                 break;
             case USE_SKILL_BOOK:
-                InventoryHandler.UseSkillBook(slea, c, c.getPlayer());
+                InventoryHandler.handleUseSkillBook(reader, client, client.getPlayer());
                 break;
             case USE_CATCH_ITEM:
-                InventoryHandler.UseCatchItem(slea, c, c.getPlayer());
+                InventoryHandler.handleUseCatchItem(reader, client, client.getPlayer());
                 break;
             case USE_MOUNT_FOOD:
-                InventoryHandler.UseMountFood(slea, c, c.getPlayer());
+                InventoryHandler.handleUseMountFood(reader, client, client.getPlayer());
                 break;
             case REWARD_ITEM:
-                InventoryHandler.UseRewardItem(slea, c, c.getPlayer());
+                InventoryHandler.handleUseRewardItem(reader, client, client.getPlayer());
                 break;
             case HYPNOTIZE_DMG:
-                MobHandler.HypnotizeDmg(slea, c.getPlayer());
+                MobHandler.handleHypnotizeDamage(reader, client.getPlayer());
                 break;
             case MOVE_LIFE:
-                MobHandler.MoveMonster(slea, c, c.getPlayer());
+                MobHandler.handleMoveMonster(reader, client, client.getPlayer());
                 break;
             case AUTO_AGGRO:
-                MobHandler.AutoAggro(slea.readInt(), c.getPlayer());
+                MobHandler.handleAutoAggro(reader.readInt(), client.getPlayer());
                 break;
             case FRIENDLY_DAMAGE:
-                MobHandler.FriendlyDamage(slea, c.getPlayer());
+                MobHandler.handleFriendlyDamage(reader, client.getPlayer());
                 break;
             case MONSTER_BOMB:
-                MobHandler.MonsterBomb(slea.readInt(), c.getPlayer());
+                MobHandler.handleMonsterBomb(reader.readInt(), client.getPlayer());
                 break;
             case NPC_SHOP:
-                NPCHandler.NPCShop(slea, c, c.getPlayer());
+                NpcHandler.handleNpcShop(reader, client, client.getPlayer());
                 break;
             case NPC_TALK:
-                NPCHandler.NPCTalk(slea, c, c.getPlayer());
+                NpcHandler.handleNpcTalk(reader, client, client.getPlayer());
                 break;
             case NPC_TALK_MORE:
-                NPCHandler.NPCMoreTalk(slea, c);
+                NpcHandler.handleNpcTalkMore(reader, client);
                 break;
             case NPC_ACTION:
-                NPCHandler.NPCAnimation(slea, c);
+                NpcHandler.handleNpcAnimation(reader, client);
                 break;
             case QUEST_ACTION:
-                NPCHandler.QuestAction(slea, c, c.getPlayer());
+                NpcHandler.handleQuestAction(reader, client, client.getPlayer());
                 break;
             case STORAGE:
-                NPCHandler.Storage(slea, c, c.getPlayer());
+                NpcHandler.handleStorage(reader, client, client.getPlayer());
                 break;
             case GENERAL_CHAT:
-                slea.skip(4);
-                ChatHandler.GeneralChat(slea.readMapleAsciiString(), slea.readByte(), c, c.getPlayer());
+                reader.skip(4);
+                ChatHandler.handleGeneralChat(reader.readLengthPrefixedString(), reader.readByte(), client, client.getPlayer());
                 break;
             case PARTYCHAT:
-                ChatHandler.Others(slea, c, c.getPlayer());
+                ChatHandler.handlePartyChat(reader, client, client.getPlayer());
                 break;
             case WHISPER:
-                ChatHandler.Whisper_Find(slea, c);
+                ChatHandler.handleWhisper(reader, client);
                 break;
             case MESSENGER:
-                ChatHandler.Messenger(slea, c);
+                ChatHandler.handleMessenger(reader, client);
                 break;
             case AUTO_ASSIGN_AP:
-                StatsHandling.AutoAssignAP(slea, c, c.getPlayer());
+                StatsHandling.handleAutoAssignAbilityPoints(reader, client, client.getPlayer());
                 break;
             case DISTRIBUTE_AP:
-                StatsHandling.DistributeAP(slea, c, c.getPlayer());
+                StatsHandling.handleDistributeAbilityPoints(reader, client, client.getPlayer());
                 break;
             case DISTRIBUTE_SP:
-                slea.skip(4);
-                StatsHandling.DistributeSP(slea.readInt(), c, c.getPlayer());
+                reader.skip(4);
+                StatsHandling.handleDistributeSkillPoints(reader.readInt(), client, client.getPlayer());
                 break;
             case PLAYER_INTERACTION:
-                PlayerInteractionHandler.PlayerInteraction(slea, c, c.getPlayer());
+                PlayerInteractionHandler.handlePlayerInteraction(reader, client, client.getPlayer());
                 break;
             case GUILD_OPERATION:
-                GuildHandler.Guild(slea, c);
+                GuildHandler.handleGuildOperation(reader, client);
                 break;
             case DENY_GUILD_REQUEST:
-                slea.skip(1);
-                GuildHandler.DenyGuildRequest(slea.readMapleAsciiString(), c);
+                reader.skip(1);
+                GuildHandler.handleDenyGuildInvitation(reader.readLengthPrefixedString(), client);
                 break;
             case ALLIANCE_OPERATION:
-                AllianceHandler.AllianceOperatopn(slea, c);
+                AllianceHandler.handleAllianceOperation(reader, client);
                 break;
             case BBS_OPERATION:
-                BBSHandler.BBSOperatopn(slea, c);
+                BbsHandler.handleBbsOperatopn(reader, client);
                 break;
             case REQUEST_FAMILY:
-                FamilyHandler.RequestFamily(slea);
+                FamilyHandler.handleFamilyRequest(reader);
                 break;
             case PARTY_OPERATION:
-                PartyHandler.PartyOperatopn(slea, c);
+                PartyHandler.handlePartyOperation(reader, client);
                 break;
             case DENY_PARTY_REQUEST:
-                PartyHandler.DenyPartyRequest(slea, c);
+                PartyHandler.handleDenyPartyInvitation(reader, client);
                 break;
             case BUDDYLIST_MODIFY:
-                BuddyListHandler.BuddyOperation(slea, c);
+                BuddyListHandler.handleBuddyOperation(reader, client);
                 break;
             case CYGNUS_SUMMON:
-                UserInterfaceHandler.CygnusSummon_NPCRequest(c);
+                UserInterfaceHandler.handleNpcRequestCygnusSummon(client);
                 break;
             case SHIP_OBJECT:
-                UserInterfaceHandler.ShipObjectRequest(slea.readInt(), c);
+                UserInterfaceHandler.handleShipObjectRequest(reader.readInt(), client);
                 break;
             case BUY_CS_ITEM:
-                CashShopOperation.BuyCashItem(slea, c, c.getPlayer());
+                CashShopOperation.handleBuyCashItem(reader, client, client.getPlayer());
                 break;
             case CS_UPDATE:
-                CashShopOperation.CSUpdate(c, c.getPlayer());
+                CashShopOperation.handleCashShopUpdate(client, client.getPlayer());
                 break;
             case DAMAGE_SUMMON:
-                slea.skip(4);
-                SummonHandler.DamageSummon(slea, c.getPlayer());
+                reader.skip(4);
+                SummonHandler.handleSummonDamage(reader, client.getPlayer());
                 break;
             case MOVE_SUMMON:
-                SummonHandler.MoveSummon(slea, c.getPlayer());
+                SummonHandler.handleSummonMove(reader, client.getPlayer());
                 break;
             case SUMMON_ATTACK:
-                SummonHandler.SummonAttack(slea, c, c.getPlayer());
+                SummonHandler.handleSummonAttack(reader, client, client.getPlayer());
                 break;
             case SPAWN_PET:
-                PetHandler.SpawnPet(slea, c, c.getPlayer());
+                PetHandler.handleSpawnPet(reader, client, client.getPlayer());
                 break;
             case MOVE_PET:
-                PetHandler.MovePet(slea, c.getPlayer());
+                PetHandler.handleMovePet(reader, client.getPlayer());
                 break;
             case PET_CHAT:
-                PetHandler.PetChat(slea.readInt(), slea.readShort(), slea.readMapleAsciiString(), c.getPlayer());
+                PetHandler.handlePetChat(reader.readInt(), reader.readShort(), reader.readLengthPrefixedString(), client.getPlayer());
                 break;
             case PET_COMMAND:
-                PetHandler.PetCommand(slea, c, c.getPlayer());
+                PetHandler.handlePetCommand(reader, client, client.getPlayer());
                 break;
             case PET_FOOD:
-                PetHandler.PetFood(slea, c, c.getPlayer());
+                PetHandler.handlePetFood(reader, client, client.getPlayer());
                 break;
             case PET_LOOT:
-                InventoryHandler.Pickup_Pet(slea, c, c.getPlayer());
+                InventoryHandler.handlePetLoot(reader, client, client.getPlayer());
                 break;
             case PET_AUTO_POT:
-                PetHandler.Pet_AutoPotion(slea, c, c.getPlayer());
+                PetHandler.handlePetAutoPotion(reader, client, client.getPlayer());
                 break;
             case MONSTER_CARNIVAL:
-                MonsterCarnivalHandler.MonsterCarnival(slea, c);
+                MonsterCarnivalHandler.handleMonsterCarnival(reader, client);
                 break;
             case DUEY_ACTION:
-                DueyHandler.DueyOperation(slea, c);
+                DueyHandler.handleDueyOperation(reader, client);
                 break;
             case USE_HIRED_MERCHANT:
-                HiredMerchantHandler.UseHiredMerchant(slea, c);
+                HiredMerchantHandler.handleUseHiredMerchant(reader, client);
                 break;
             case MERCH_ITEM_STORE:
-                HiredMerchantHandler.MerchantItemStore(slea, c);
+                HiredMerchantHandler.handleMerchantItemStore(reader, client);
                 break;
             case CANCEL_DEBUFF:
                 // Ignore for now
@@ -512,9 +515,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 // ignore, not done
                 break;
             case MOVE_DRAGON:
-
-                SummonHandler.MoveDragon(slea, c.getPlayer());
-
+                SummonHandler.handleMoveDragon(reader, client.getPlayer());
                 break;
             default:
                 //		System.out.println("[UNHANDLED] ["+header.toString()+"] found");

@@ -112,7 +112,7 @@ public class MapleInventory implements Iterable<IItem>, InventoryContainer, Seri
 	return slotId;
     }
 
-    public void addFromDB(IItem item) {
+    public void addFromDb(IItem item) {
 	if (item.getPosition() < 0 && !type.equals(MapleInventoryType.EQUIPPED)) {
 	    // This causes a lot of stuck problem, until we are done with position checking
 	    return;

@@ -10,6 +10,7 @@ import client.MapleInventoryType;
 import client.MaplePet;
 import handling.world.CharacterTransfer;
 import handling.world.remote.CashShopInterface;
+import org.javastory.io.PacketFormatException;
 import org.javastory.server.cashshop.CashShopServer;
 import server.CashItemFactory;
 import server.CashItemInfo;
@@ -17,11 +18,11 @@ import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import tools.MaplePacketCreator;
 import tools.packet.MTSCSPacket;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class CashShopOperation {
 
-    public static void LeaveCS(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void leaveCashShop(final PacketReader reader, final MapleClient c, final MapleCharacter chr) {
         final CashShopServer cs = CashShopServer.getInstance();
         cs.getPlayerStorage().deregisterPlayer(chr);
         c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION, c.getSessionIPAddress());
@@ -34,24 +35,24 @@ public class CashShopOperation {
         } catch (RemoteException e) {
             c.getChannelServer().pingWorld();
         } finally {
-            c.getSession().close();
-            chr.saveToDB(false, true);
+            c.getSession().close(true);
+            chr.saveToDb(false, true);
             c.setPlayer(null);
         }
     }
 
-    public static void EnterCS(final int playerid, final MapleClient c) {
+    public static void enterCashShop(final int playerid, final MapleClient c) {
         final CashShopServer cs = CashShopServer.getInstance();
         final CharacterTransfer transfer = cs.getPlayerStorage().getPendingCharacter(playerid);
         if (transfer == null) {
-            c.getSession().close();
+            c.getSession().close(true);
             return;
         }
-        MapleCharacter chr = MapleCharacter.ReconstructChr(transfer, c, false);
+        MapleCharacter chr = MapleCharacter.reconstructCharacter(transfer, c, false);
         c.setPlayer(chr);
         c.setAccID(chr.getAccountID());
         if (!c.CheckIPAddress()) { // Remote hack
-            c.getSession().close();
+            c.getSession().close(true);
             return;
         }
         final int state = c.getLoginState();
@@ -67,7 +68,7 @@ public class CashShopOperation {
         }
         if (!allowLogin) {
             c.setPlayer(null);
-            c.getSession().close();
+            c.getSession().close(true);
             return;
         }
         c.updateLoginState(MapleClient.LOGIN_LOGGEDIN, c.getSessionIPAddress());
@@ -81,15 +82,15 @@ public class CashShopOperation {
         c.getSession().write(MTSCSPacket.sendWishList(chr, false));
     }
 
-    public static final void CSUpdate(final MapleClient c, final MapleCharacter chr) {
+    public static final void handleCashShopUpdate(final MapleClient c, final MapleCharacter chr) {
         c.getSession().write(MTSCSPacket.showNXMapleTokens(c.getPlayer()));
     }
 
-    public static final void BuyCashItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final int action = slea.readByte();
+    public static final void handleBuyCashItem(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final int action = reader.readByte();
         if (action == 3) {
-            slea.skip(1);
-            final CashItemInfo item = CashItemFactory.getInstance().getItem(slea.readInt());
+            reader.skip(1);
+            final CashItemInfo item = CashItemFactory.getInstance().getItem(reader.readInt());
             if (item != null && chr.getCSPoints(1) >= item.getPrice()) {
                 if (chr.getInventory(GameConstants.getInventoryType(item.getId())).getNextFreeSlot() > -1) {
                     chr.modifyCSPoints(1, -item.getPrice(), false);
@@ -109,14 +110,14 @@ public class CashShopOperation {
             chr.clearWishlist();
             int[] wishlist = new int[10];
             for (int i = 0; i < 10; i++) {
-                wishlist[i] = slea.readInt();
+                wishlist[i] = reader.readInt();
             }
             c.getSession().write(MTSCSPacket.sendWishList(chr, true));
         } else if (action == 6) { // Increase inv
-            slea.skip(1);
-            final boolean coupon = slea.readByte() > 0;
+            reader.skip(1);
+            final boolean coupon = reader.readByte() > 0;
             if (coupon) {
-                final MapleInventoryType type = getInventoryType(slea.readInt());
+                final MapleInventoryType type = getInventoryType(reader.readInt());
                 if (chr.getCSPoints(1) >= 12000 && chr.getInventory(type).getSlotLimit() < 96) {
                     chr.modifyCSPoints(1, -12000, false);
                     chr.getInventory(type).addSlot((byte) 8);
@@ -125,7 +126,7 @@ public class CashShopOperation {
                     chr.dropMessage(1, "You have reached the Maxinum inventory slot.");
                 }
             } else {
-                final MapleInventoryType type = MapleInventoryType.getByType(slea.readByte());
+                final MapleInventoryType type = MapleInventoryType.getByType(reader.readByte());
                 if (chr.getCSPoints(1) >= 8000 && chr.getInventory(type).getSlotLimit() < 96) {
                     chr.modifyCSPoints(1, -8000, false);
                     chr.getInventory(type).addSlot((byte) 4);
@@ -147,11 +148,11 @@ public class CashShopOperation {
         } else if (action == 15) { // transferFromInvToCS
             c.getSession().write(MaplePacketCreator.enableActions());
         } else if (action == 30 || action == 36) {
-            final int idate = slea.readInt();
-            final int toCharge = slea.readInt();
-            final CashItemInfo item = CashItemFactory.getInstance().getItem(slea.readInt());
-            final String recipient = slea.readMapleAsciiString();
-            final String msg = slea.readMapleAsciiString();
+            final int idate = reader.readInt();
+            final int toCharge = reader.readInt();
+            final CashItemInfo item = CashItemFactory.getInstance().getItem(reader.readInt());
+            final String recipient = reader.readLengthPrefixedString();
+            final String msg = reader.readLengthPrefixedString();
             final int year = idate / 10000;
             final int month = (idate - year * 10000) / 100;
             final int day = idate - year * 10000 - month * 100;
@@ -161,7 +162,7 @@ public class CashShopOperation {
         } else if (action == 31) { // cash package
             c.getSession().write(MaplePacketCreator.enableActions());
         } else if (action == 33) { // quest item
-            final CashItemInfo item = CashItemFactory.getInstance().getItem(slea.readInt());
+            final CashItemInfo item = CashItemFactory.getInstance().getItem(reader.readInt());
             if (item != null && chr.getMeso() >= item.getPrice()) {
                 if (MapleItemInformationProvider.getInstance().isQuestItem(item.getId())) {
                     if (chr.getInventory(GameConstants.getInventoryType(item.getId())).getNextFreeSlot() > -1) {

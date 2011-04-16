@@ -110,7 +110,7 @@ public class MapleTrade {
 	return chr;
     }
 
-    private final boolean check() {
+    private boolean check() {
 	if (chr.getMeso() + exchangeMeso < 0) {
 	    return false;
 	}

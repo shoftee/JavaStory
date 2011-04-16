@@ -24,9 +24,9 @@ package client;
 import java.util.Map;
 import java.util.HashMap;
 
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class NPC {
 
@@ -66,19 +66,19 @@ public class NPC {
 	ready = false;
     }
 
-    private MaplePacket npcPacket(byte senddialogue) {
+    private GamePacket npcPacket(byte senddialogue) {
 	this.senddialogue = senddialogue;
 
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-	mplew.writeShort(ServerPacketOpcode.NPC_TALK.getValue());
-	mplew.write(4);
-	mplew.writeInt(npcid);
-	mplew.write(senddialogue);
-	mplew.writeMapleAsciiString(text);
+	PacketBuilder builder = new PacketBuilder();
+	builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
+	builder.writeAsByte(4);
+	builder.writeInt(npcid);
+	builder.writeByte(senddialogue);
+	builder.writeLengthPrefixedString(text);
 
 	text = "";
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
     public void proceedNext() {

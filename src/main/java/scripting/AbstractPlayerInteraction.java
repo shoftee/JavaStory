@@ -98,7 +98,7 @@ public class AbstractPlayerInteraction {
         spawnMob(id, 1, new Point(x, y));
     }
 
-    private final void spawnMob(final int id, final int qty, final Point pos) {
+    private void spawnMob(final int id, final int qty, final Point pos) {
         for (int i = 0; i < qty; i++) {
             c.getPlayer().getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(id), pos);
         }

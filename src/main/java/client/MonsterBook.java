@@ -32,7 +32,7 @@ import java.io.Serializable;
 
 import database.DatabaseConnection;
 import server.MapleItemInformationProvider;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 import tools.packet.MonsterBookPacket;
 
 public class MonsterBook implements Serializable {
@@ -102,7 +102,7 @@ public class MonsterBook implements Serializable {
 	ps.close();
     }
 
-    private final void calculateLevel() {
+    private void calculateLevel() {
 	int Size = NormalCard + SpecialCard;
 	BookLevel = 8;
 
@@ -114,21 +114,21 @@ public class MonsterBook implements Serializable {
 	}
     }
 
-    public final void addCardPacket(final MaplePacketLittleEndianWriter mplew) {
-	mplew.writeShort(cards.size());
+    public final void addCardPacket(final PacketBuilder builder) {
+	builder.writeAsShort(cards.size());
 
 	for (Entry<Integer, Integer> all : cards.entrySet()) {
-	    mplew.writeShort(GameConstants.getCardShortId(all.getKey())); // Id
-	    mplew.write(all.getValue()); // Level
+	    builder.writeAsShort(GameConstants.getCardShortId(all.getKey())); // Id
+	    builder.writeAsByte(all.getValue()); // Level
 	}
     }
 
-    public final void addCharInfoPacket(final int bookcover, final MaplePacketLittleEndianWriter mplew) {
-	mplew.writeInt(BookLevel);
-	mplew.writeInt(NormalCard);
-	mplew.writeInt(SpecialCard);
-	mplew.writeInt(NormalCard + SpecialCard);
-	mplew.writeInt(MapleItemInformationProvider.getInstance().getCardMobId(bookcover));
+    public final void addCharInfoPacket(final int bookcover, final PacketBuilder builder) {
+	builder.writeInt(BookLevel);
+	builder.writeInt(NormalCard);
+	builder.writeInt(SpecialCard);
+	builder.writeInt(NormalCard + SpecialCard);
+	builder.writeInt(MapleItemInformationProvider.getInstance().getCardMobId(bookcover));
     }
 
     public final void updateCard(final MapleClient c, final int cardid) {

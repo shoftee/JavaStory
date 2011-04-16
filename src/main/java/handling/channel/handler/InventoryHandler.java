@@ -26,7 +26,7 @@ import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;
 import handling.world.MaplePartyCharacter;
-import org.javastory.server.channel.ChannelServer;
+import org.javastory.io.PacketFormatException;
 import server.Randomizer;
 import server.RandomRewards;
 import server.MapleShopFactory;
@@ -46,17 +46,17 @@ import scripting.NPCScriptManager;
 import tools.Pair;
 import tools.packet.MTSCSPacket;
 import tools.packet.PetPacket;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 import tools.MaplePacketCreator;
 
 public class InventoryHandler {
 
-    public static final void ItemMove(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        slea.skip(4);
-        final MapleInventoryType type = MapleInventoryType.getByType(slea.readByte());
-        final byte src = (byte) slea.readShort();
-        final byte dst = (byte) slea.readShort();
-        final short quantity = slea.readShort();
+    public static final void handleItemMove(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        reader.skip(4);
+        final MapleInventoryType type = MapleInventoryType.getByType(reader.readByte());
+        final byte src = (byte) reader.readShort();
+        final byte dst = (byte) reader.readShort();
+        final short quantity = reader.readShort();
 
         if (src < 0 && dst > 0) {
             MapleInventoryManipulator.unequip(c, src, dst);
@@ -69,9 +69,9 @@ public class InventoryHandler {
         }
     }
 
-    public static final void ItemSort(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        slea.skip(4);
-        byte mode = slea.readByte();
+    public static void handleItemSort(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        reader.skip(4);
+        byte mode = reader.readByte();
         MapleInventoryType pInvType = MapleInventoryType.getByType(mode);
         MapleInventory pInv = c.getPlayer().getInventory(pInvType);
         boolean sorted = false;
@@ -96,9 +96,9 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void ItemSort2(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        /*slea.skip(4);
-        byte mode = slea.readByte();
+    public static void ItemSort2(final PacketReader reader, final MapleClient c) {
+        /*reader.skip(4);
+        byte mode = reader.readByte();
         if (mode < 0 || mode > 5) {
         return;
         }
@@ -119,9 +119,9 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());*/
     }
 
-    public static final void UseRewardItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+    public static void handleUseRewardItem(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
@@ -159,14 +159,14 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void UseItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleUseItem(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
@@ -182,14 +182,14 @@ public class InventoryHandler {
         }
     }
 
-    public static final void UseReturnScroll(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleUseReturnScroll(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
@@ -207,12 +207,12 @@ public class InventoryHandler {
         }
     }
 
-    public static final void UseUpgradeScroll(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleUseUpgradeScroll(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         //Lunar Gloves unlimited scroll
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final byte dst = (byte) slea.readShort();
-        final byte ws = (byte) slea.readShort();
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final byte dst = (byte) reader.readShort();
+        final byte ws = (byte) reader.readShort();
         boolean whiteScroll = false; // white scroll being used?
         boolean legendarySpirit = false; // legendary spirit skill
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
@@ -313,10 +313,10 @@ public class InventoryHandler {
         }
     }
 
-    public static final void UseSkillBook(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+    public static void handleUseSkillBook(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
@@ -362,11 +362,11 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.useSkillBook(chr, skill, maxlevel, canuse, success));
     }
 
-    public static final void UseCatchItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemid = slea.readInt();
-        final MapleMonster mob = chr.getMap().getMonsterByOid(slea.readInt());
+    public static void handleUseCatchItem(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemid = reader.readInt();
+        final MapleMonster mob = chr.getMap().getMonsterByOid(reader.readInt());
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemid && mob != null) {
@@ -419,10 +419,10 @@ public class InventoryHandler {
         // c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.updateAriantPQRanking(c.getPlayer().getName(), c.getPlayer().getAPQScore(), false));
     }
 
-    public static final void UseMountFood(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemid = slea.readInt(); //2260000 usually
+    public static void handleUseMountFood(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemid = reader.readInt(); //2260000 usually
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
         final MapleMount mount = chr.getMount();
 
@@ -446,10 +446,10 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void UseScriptedNPCItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+    public static void handleUseScriptedNpcItem(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
@@ -501,14 +501,14 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void UseSummonBag(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleUseSummonBag(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
@@ -536,9 +536,9 @@ public class InventoryHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void UseTreasureChest(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final short slot = slea.readShort();
-        final int itemid = slea.readInt();
+    public static void handleUseTreasureChest(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final short slot = reader.readShort();
+        final int itemid = reader.readInt();
 
         final IItem toUse = chr.getInventory(MapleInventoryType.ETC).getItem((byte) slot);
         if (toUse == null || toUse.getQuantity() <= 0 || toUse.getItemId() != itemid) {
@@ -558,7 +558,7 @@ public class InventoryHandler {
                 keyIDforRemoval = 5490001;
                 break;
             default: // Up to no good
-                c.getSession().close();
+                c.getSession().close(true);
                 return;
         }
 
@@ -595,10 +595,10 @@ public class InventoryHandler {
         }
     }
 
-    public static final void UseCashItem(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        slea.skip(4);
-        final byte slot = (byte) slea.readShort();
-        final int itemId = slea.readInt();
+    public static void handleUseCashItem(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        reader.skip(4);
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
         final IItem toUse = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem(slot);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
             c.getSession().write(MaplePacketCreator.enableActions());
@@ -607,8 +607,8 @@ public class InventoryHandler {
         boolean used = false;
         switch (itemId) {
             case 5043000: { // NPC Teleport Rock
-                final short questid = slea.readShort();
-                final int npcid = slea.readInt();
+                final short questid = reader.readShort();
+                final int npcid = reader.readInt();
                 final MapleQuest quest = MapleQuest.getInstance(questid);
 
                 if (c.getPlayer().getQuest(quest).getStatus() == 1 && quest.canComplete(c.getPlayer(), npcid)) {
@@ -624,14 +624,14 @@ public class InventoryHandler {
             case 5041000: // VIP Teleport Rock
             case 5040000: // The Teleport Rock
             case 5040001: { // Teleport Coke
-                if (slea.readByte() == 0) { // Rocktype
-                    final MapleMap target = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(slea.readInt());
+                if (reader.readByte() == 0) { // Rocktype
+                    final MapleMap target = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(reader.readInt());
                     if (!FieldLimitType.VipRock.check(c.getPlayer().getMap().getFieldLimit())) { //Makes sure this map doesn't have a forced return map
                         c.getPlayer().changeMap(target, target.getPortal(0));
                         used = true;
                     }
                 } else {
-                    final MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
+                    final MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                     if (victim != null && !victim.isGM()) {
                         if (!FieldLimitType.VipRock.check(c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(victim.getMapId()).getFieldLimit())) {
                             if (itemId == 5041000 || (victim.getMapId() / 100000000) == (c.getPlayer().getMapId() / 100000000)) { // Viprock or same continent
@@ -645,8 +645,8 @@ public class InventoryHandler {
             }
             case 5050000: { // AP Reset
                 List<Pair<MapleStat, Integer>> statupdate = new ArrayList<Pair<MapleStat, Integer>>(2);
-                final int apto = slea.readInt();
-                final int apfrom = slea.readInt();
+                final int apto = reader.readInt();
+                final int apfrom = reader.readInt();
 
                 if (apto == apfrom) {
                     break; // Hack
@@ -948,8 +948,8 @@ public class InventoryHandler {
             case 5050002: // SP Reset (2nd job)
             case 5050003: // SP Reset (3rd job)
             case 5050004: { // SP Reset (4th job)
-                int skill1 = slea.readInt();
-                int skill2 = slea.readInt();
+                int skill1 = reader.readInt();
+                int skill2 = reader.readInt();
 
                 ISkill skillSPTo = SkillFactory.getSkill(skill1);
                 ISkill skillSPFrom = SkillFactory.getSkill(skill2);
@@ -965,7 +965,7 @@ public class InventoryHandler {
                 break;
             }
             case 5060000: { // Item Tag
-                final IItem item = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(slea.readByte());
+                final IItem item = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(reader.readByte());
 
                 if (item != null && item.getOwner().equals("")) {
                     item.setOwner(c.getPlayer().getName());
@@ -975,8 +975,8 @@ public class InventoryHandler {
             }
             case 5520001:
             case 5520000: { // Karma
-                final MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
-                final IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
+                final MapleInventoryType type = MapleInventoryType.getByType((byte) reader.readInt());
+                final IItem item = c.getPlayer().getInventory(type).getItem((byte) reader.readInt());
 
                 if (item != null) {
                     if (MapleItemInformationProvider.getInstance().isKarmaEnabled(item.getItemId(), itemId)) {
@@ -995,8 +995,8 @@ public class InventoryHandler {
                 break;
             }
             case 5570000: { // Vicious Hammer
-                final byte invType = (byte) slea.readInt(); // Inventory type, Hammered eq is always EQ.
-                final Equip item = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem((byte) slea.readInt());
+                final byte invType = (byte) reader.readInt(); // Inventory type, Hammered eq is always EQ.
+                final Equip item = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem((byte) reader.readInt());
                 // another int here, D3 49 DC 00
                 if (item != null) {
                     if (item.getViciousHammer() <= 2) {
@@ -1012,8 +1012,8 @@ public class InventoryHandler {
                 break;
             }
             case 5060001: { // Sealing Lock
-                final MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
-                final IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
+                final MapleInventoryType type = MapleInventoryType.getByType((byte) reader.readInt());
+                final IItem item = c.getPlayer().getInventory(type).getItem((byte) reader.readInt());
                 // another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
                 if (item != null && item.getExpiration() == -1) {
                     byte flag = item.getFlag();
@@ -1026,8 +1026,8 @@ public class InventoryHandler {
                 break;
             }
             case 5061000: { // Sealing Lock 7 days
-                final MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
-                final IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
+                final MapleInventoryType type = MapleInventoryType.getByType((byte) reader.readInt());
+                final IItem item = c.getPlayer().getInventory(type).getItem((byte) reader.readInt());
                 // another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
                 if (item != null && item.getExpiration() == -1) {
                     byte flag = item.getFlag();
@@ -1041,8 +1041,8 @@ public class InventoryHandler {
                 break;
             }
             case 5061001: { // Sealing Lock 30 days
-                final MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
-                final IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
+                final MapleInventoryType type = MapleInventoryType.getByType((byte) reader.readInt());
+                final IItem item = c.getPlayer().getInventory(type).getItem((byte) reader.readInt());
                 // another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
                 if (item != null && item.getExpiration() == -1) {
                     byte flag = item.getFlag();
@@ -1057,8 +1057,8 @@ public class InventoryHandler {
                 break;
             }
             case 5061002: { // Sealing Lock 90 days
-                final MapleInventoryType type = MapleInventoryType.getByType((byte) slea.readInt());
-                final IItem item = c.getPlayer().getInventory(type).getItem((byte) slea.readInt());
+                final MapleInventoryType type = MapleInventoryType.getByType((byte) reader.readInt());
+                final IItem item = c.getPlayer().getInventory(type).getItem((byte) reader.readInt());
                 // another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
                 if (item != null && item.getExpiration() == -1) {
                     byte flag = item.getFlag();
@@ -1074,7 +1074,7 @@ public class InventoryHandler {
             }
             case 5071000: { // Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String message = slea.readMapleAsciiString();
+                    final String message = reader.readLengthPrefixedString();
 
                     if (message.length() > 65) {
                         break;
@@ -1094,20 +1094,20 @@ public class InventoryHandler {
             }
             case 5077000: { // 3 line Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final byte numLines = slea.readByte();
+                    final byte numLines = reader.readByte();
                     if (numLines > 3) {
                         return;
                     }
                     final List<String> messages = new LinkedList<String>();
                     String message;
                     for (int i = 0; i < numLines; i++) {
-                        message = slea.readMapleAsciiString();
+                        message = reader.readLengthPrefixedString();
                         if (message.length() > 65) {
                             break;
                         }
                         messages.add(c.getPlayer().getName() + " : " + message);
                     }
-                    final boolean ear = slea.readByte() > 0;
+                    final boolean ear = reader.readByte() > 0;
 
                     try {
                         c.getChannelServer().getWorldInterface().broadcastSmega(MaplePacketCreator.tripleSmega(messages, ear, c.getChannelId()).getBytes());
@@ -1122,7 +1122,7 @@ public class InventoryHandler {
             }
             case 5073000: { // Heart Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String message = slea.readMapleAsciiString();
+                    final String message = reader.readLengthPrefixedString();
 
                     if (message.length() > 65) {
                         break;
@@ -1133,7 +1133,7 @@ public class InventoryHandler {
                     sb.append(" : ");
                     sb.append(message);
 
-                    final boolean ear = slea.readByte() != 0;
+                    final boolean ear = reader.readByte() != 0;
 
                     try {
                         c.getChannelServer().getWorldInterface().broadcastSmega(MaplePacketCreator.serverNotice(9, c.getChannelId(), sb.toString(), ear).getBytes());
@@ -1148,7 +1148,7 @@ public class InventoryHandler {
             }
             case 5074000: { // Skull Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String message = slea.readMapleAsciiString();
+                    final String message = reader.readLengthPrefixedString();
 
                     if (message.length() > 65) {
                         break;
@@ -1159,7 +1159,7 @@ public class InventoryHandler {
                     sb.append(" : ");
                     sb.append(message);
 
-                    final boolean ear = slea.readByte() != 0;
+                    final boolean ear = reader.readByte() != 0;
 
                     try {
                         c.getChannelServer().getWorldInterface().broadcastSmega(MaplePacketCreator.serverNotice(10, c.getChannelId(), sb.toString(), ear).getBytes());
@@ -1174,7 +1174,7 @@ public class InventoryHandler {
             }
             case 5072000: { // Super Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String message = slea.readMapleAsciiString();
+                    final String message = reader.readLengthPrefixedString();
                     if (message.length() > 65) {
                         break;
                     }
@@ -1183,7 +1183,7 @@ public class InventoryHandler {
                     sb.append(c.getPlayer().getName());
                     sb.append(" : ");
                     sb.append(message);
-                    final boolean ear = slea.readByte() != 0;
+                    final boolean ear = reader.readByte() != 0;
                     try {
                         c.getChannelServer().getWorldInterface().broadcastSmega(MaplePacketCreator.serverNotice(3, c.getChannelId(), sb.toString(), ear).getBytes());
                         used = true;
@@ -1197,7 +1197,7 @@ public class InventoryHandler {
             }
             case 5076000: { // Item Megaphone
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String message = slea.readMapleAsciiString();
+                    final String message = reader.readLengthPrefixedString();
 
                     if (message.length() > 65) {
                         break;
@@ -1208,12 +1208,12 @@ public class InventoryHandler {
                     sb.append(" : ");
                     sb.append(message);
 
-                    final boolean ear = slea.readByte() > 0;
+                    final boolean ear = reader.readByte() > 0;
 
                     IItem item = null;
-                    if (slea.readByte() == 1) { //item
-                        byte invType = (byte) slea.readInt();
-                        byte pos = (byte) slea.readInt();
+                    if (reader.readByte() == 1) { //item
+                        byte invType = (byte) reader.readInt();
+                        byte pos = (byte) reader.readInt();
                         item = c.getPlayer().getInventory(MapleInventoryType.getByType(invType)).getItem(pos);
                     }
 
@@ -1240,28 +1240,28 @@ public class InventoryHandler {
                 if (tvType >= 3) {
                 megassenger = true;
                 if (tvType == 3) {
-                slea.readByte();
+                reader.readByte();
                 }
-                ear = 1 == slea.readByte();
+                ear = 1 == reader.readByte();
                 } else if (tvType != 2) {
-                slea.readByte();
+                reader.readByte();
                 }
                 if (tvType != 4) {
-                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
+                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                 }
                 }
                 List<String> messages = new LinkedList<String>();
                 StringBuilder builder = new StringBuilder();
                 String message;
                 for (int i = 0; i < 5; i++) {
-                message = slea.readMapleAsciiString();
+                message = reader.readLengthPrefixedString();
                 if (megassenger) {
                 builder.append(" ");
                 builder.append(message);
                 }
                 messages.add(message);
                 }
-                slea.readInt(); // some random shit
+                reader.readInt(); // some random shit
                 if (megassenger) {
                 try {
                 c.getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(3, c.getChannelId(), c.getPlayer().getName() + " : " + builder.toString(), ear).getBytes());
@@ -1279,8 +1279,8 @@ public class InventoryHandler {
             }
             case 5090100: // Wedding Invitation Card
             case 5090000: { // Note
-                final String sendTo = slea.readMapleAsciiString();
-                final String msg = slea.readMapleAsciiString();
+                final String sendTo = reader.readLengthPrefixedString();
+                final String msg = reader.readLengthPrefixedString();
                 c.getPlayer().sendNote(sendTo, msg);
                 used = true;
                 break;
@@ -1294,7 +1294,7 @@ public class InventoryHandler {
                 if (c.getPlayer().getPet(0) == null) {
                     break;
                 }
-                String nName = slea.readMapleAsciiString();
+                String nName = reader.readLengthPrefixedString();
                 if (MapleCharacterUtil.canChangePetName(nName)) {
                     c.getPlayer().getPet(0).setName(nName);
                     c.getSession().write(PetPacket.updatePet(c.getPlayer().getPet(0), true));
@@ -1405,12 +1405,12 @@ public class InventoryHandler {
                 break;
             }
             case 5370000: { // Chalkboard
-                c.getPlayer().setChalkboard(slea.readMapleAsciiString());
+                c.getPlayer().setChalkboard(reader.readLengthPrefixedString());
                 break;
             }
             case 5370001: { // BlackBoard
                 if (c.getPlayer().getMapId() / 1000000 == 910) {
-                    c.getPlayer().setChalkboard(slea.readMapleAsciiString());
+                    c.getPlayer().setChalkboard(reader.readLengthPrefixedString());
                 }
                 break;
             }
@@ -1422,11 +1422,11 @@ public class InventoryHandler {
             case 5390005: // Cute Tiger Messenger
             case 5390006: { // Tiger Roar's Messenger
                 if (!c.getChannelServer().getMegaphoneMuteState()) {
-                    final String text = slea.readMapleAsciiString();
+                    final String text = reader.readLengthPrefixedString();
                     if (text.length() > 55) {
                         break;
                     }
-                    final boolean ear = slea.readByte() != 0;
+                    final boolean ear = reader.readByte() != 0;
                     try {
                         c.getChannelServer().getWorldInterface().broadcastSmega(MaplePacketCreator.getAvatarMega(c.getPlayer(), c.getChannelId(), itemId, text, ear).getBytes());
                         used = true;
@@ -1446,7 +1446,7 @@ public class InventoryHandler {
             default:
                 if (itemId / 10000 == 512) {
                     final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-                    final String msg = ii.getMsg(itemId).replaceFirst("%s", c.getPlayer().getName()).replaceFirst("%s", slea.readMapleAsciiString());
+                    final String msg = ii.getMsg(itemId).replaceFirst("%s", c.getPlayer().getName()).replaceFirst("%s", reader.readLengthPrefixedString());
                     c.getPlayer().getMap().startMapEffect(msg, itemId);
 
                     final int buff = ii.getStateChangeItem(itemId);
@@ -1458,7 +1458,7 @@ public class InventoryHandler {
                     used = true;
                 } else {
                     System.out.println(":: Unhandled CS item : " + itemId + " ::");
-                    System.out.println(slea.toString());
+                    System.out.println(reader.toString());
                 }
                 break;
         }
@@ -1470,10 +1470,10 @@ public class InventoryHandler {
         }
     }
 
-    public static final void Pickup_Player(final SeekableLittleEndianAccessor slea, MapleClient c, final MapleCharacter chr) {
-        slea.skip(5); // [4] Seems to be tickcount, [1] always 0
-        final Point Client_Reportedpos = slea.readPos();
-        final MapleMapObject ob = chr.getMap().getMapObject(slea.readInt());
+    public static final void handleItemLoot(final PacketReader reader, MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(5); // [4] Seems to be tickcount, [1] always 0
+        final Point Client_Reportedpos = reader.readVector();
+        final MapleMapObject ob = chr.getMap().getMapObject(reader.readInt());
 
         if (ob == null || ob.getType() != MapleMapObjectType.ITEM) {
             c.getSession().write(MaplePacketCreator.enableActions());
@@ -1524,11 +1524,11 @@ public class InventoryHandler {
         }
     }
 
-    public static final void Pickup_Pet(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final MaplePet pet = chr.getPet(chr.getPetIndex(slea.readInt()));
-        slea.skip(9); // [4] Zero, [4] Seems to be tickcount, [1] Always zero
-        final Point Client_Reportedpos = slea.readPos();
-        final MapleMapObject ob = chr.getMap().getMapObject(slea.readInt());
+    public static final void handlePetLoot(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final MaplePet pet = chr.getPet(chr.getPetIndex(reader.readInt()));
+        reader.skip(9); // [4] Zero, [4] Seems to be tickcount, [1] Always zero
+        final Point Client_Reportedpos = reader.readVector();
+        final MapleMapObject ob = chr.getMap().getMapObject(reader.readInt());
 
         if (ob == null || pet == null || ob.getType() != MapleMapObjectType.ITEM) {
             return;

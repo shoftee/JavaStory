@@ -1,19 +1,19 @@
 package tools.packet;
 
-import handling.MaplePacket;
+import handling.GamePacket;
 import tools.HexTool;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class TestPacket {
-	public static final MaplePacket EXPTest1() {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket EXPTest1() {
+		final PacketBuilder builder = new PacketBuilder();
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 
-	public static final MaplePacket EXPTest2() {
-		final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	public static final GamePacket EXPTest2() {
+		final PacketBuilder builder = new PacketBuilder();
 
-		return mplew.getPacket();
+		return builder.getPacket();
 	}
 }

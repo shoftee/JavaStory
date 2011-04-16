@@ -6,7 +6,7 @@ import client.MapleClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.MaplePacket;
+import handling.GamePacket;
 import org.javastory.server.channel.ChannelManager;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
@@ -60,7 +60,7 @@ public class NoticeCommand implements Command {
             }
             joinmod += tfrom;
             sb.append(StringUtil.joinStringFrom(splitted, joinmod));
-            MaplePacket packet = MaplePacketCreator.serverNotice(type, sb.toString());
+            GamePacket packet = MaplePacketCreator.serverNotice(type, sb.toString());
             if (range == 0) {
                 c.getPlayer().getMap().broadcastMessage(packet);
             } else if (range == 1) {

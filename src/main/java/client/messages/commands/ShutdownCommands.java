@@ -5,7 +5,7 @@ import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.CommandProcessor;
 import client.messages.IllegalCommandSyntaxException;
-import server.ShutdownChannelServer;
+import org.javastory.server.channel.ShutdownChannelServer;
 
 public class ShutdownCommands implements Command {
 

@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import client.MapleClient;
 import client.MapleCharacter;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.world.remote.WorldChannelInterface;
 import server.TimerManager;
 import tools.MaplePacketCreator;
@@ -57,11 +57,11 @@ public class MapleTVEffect {
         active = set;
     }
 
-    private static MaplePacket removeTV() {
+    private static GamePacket removeTV() {
         return MaplePacketCreator.removeTV();
     }
 
-    public static MaplePacket startTV() {
+    public static GamePacket startTV() {
         return MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type - 3, partner);
     }
 

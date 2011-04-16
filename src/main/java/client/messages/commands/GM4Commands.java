@@ -67,7 +67,7 @@ public class GM4Commands implements Command {
 		} else if (splitted[0].equals("-saveall")) {
 			for (ChannelServer chan : ChannelManager.getAllInstances()) {
 				for (MapleCharacter chr : chan.getPlayerStorage().getAllCharacters()) {
-					chr.saveToDB(false, false);
+					chr.saveToDb(false, false);
 				}
 			}
 			c.getPlayer().dropMessage(6, "Done.");

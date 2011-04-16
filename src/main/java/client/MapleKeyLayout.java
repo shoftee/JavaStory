@@ -29,7 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.io.Serializable;
 
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 import database.DatabaseConnection;
 
@@ -44,16 +44,16 @@ public class MapleKeyLayout implements Serializable {
 	return keymap;
     }
 
-    public final void writeData(final MaplePacketLittleEndianWriter mplew) {
+    public final void writeData(final PacketBuilder builder) {
 	MapleKeyBinding binding;
 	for (int x = 0; x < 90; x++) {
 	    binding = keymap.get(Integer.valueOf(x));
 	    if (binding != null) {
-		mplew.write(binding.getType());
-		mplew.writeInt(binding.getAction());
+		builder.writeAsByte(binding.getType());
+		builder.writeInt(binding.getAction());
 	    } else {
-		mplew.write(0);
-		mplew.writeInt(0);
+		builder.writeAsByte(0);
+		builder.writeInt(0);
 	    }
 	}
     }

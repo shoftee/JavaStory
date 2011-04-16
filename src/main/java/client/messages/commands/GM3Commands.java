@@ -10,7 +10,7 @@ import client.SkillFactory;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import handling.MaplePacket;
+import handling.GamePacket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +38,7 @@ public class GM3Commands implements Command {
                 sb.append(c.getPlayer().getName());
                 sb.append("] ");
                 sb.append(StringUtil.joinStringFrom(splitted, 1));
-                MaplePacket packet = MaplePacketCreator.serverNotice(6, sb.toString());
+                GamePacket packet = MaplePacketCreator.serverNotice(6, sb.toString());
                 try {
                     ChannelManager.getInstance(c.getChannelId()).getWorldInterface().broadcastMessage(packet.getBytes());
                 } catch (RemoteException e) {

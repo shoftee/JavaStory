@@ -9,14 +9,15 @@ import client.messages.CommandProcessor;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
 import handling.world.remote.WorldChannelInterface;
+import org.javastory.io.PacketFormatException;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.MaplePacketCreator;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class ChatHandler {
 
-    public static final void GeneralChat(final String text, final byte unk, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleGeneralChat(final String text, final byte unk, final MapleClient c, final MapleCharacter chr) {
         if (!CommandProcessor.getInstance().processCommand(c, text)) {
             if (!chr.isGM() && text.length() >= 80) {
                 return;
@@ -25,15 +26,15 @@ public class ChatHandler {
         }
     }
 
-    public static final void Others(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final int type = slea.readByte();
-        final byte numRecipients = slea.readByte();
+    public static final void handlePartyChat(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final int type = reader.readByte();
+        final byte numRecipients = reader.readByte();
         int recipients[] = new int[numRecipients];
 
         for (byte i = 0; i < numRecipients; i++) {
-            recipients[i] = slea.readInt();
+            recipients[i] = reader.readInt();
         }
-        final String chattext = slea.readMapleAsciiString();
+        final String chattext = reader.readLengthPrefixedString();
 
         try {
             switch (type) {
@@ -55,15 +56,15 @@ public class ChatHandler {
         }
     }
 
-    public static final void Messenger(final SeekableLittleEndianAccessor slea, final MapleClient c) {
+    public static final void handleMessenger(final PacketReader reader, final MapleClient c) throws PacketFormatException {
         String input;
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         MapleMessenger messenger = c.getPlayer().getMessenger();
 
-        switch (slea.readByte()) {
+        switch (reader.readByte()) {
             case 0x00: // open
                 if (messenger == null) {
-                    int messengerid = slea.readInt();
+                    int messengerid = reader.readInt();
                     if (messengerid == 0) { // create
                         try {
                             final MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(c.getPlayer());
@@ -105,7 +106,7 @@ public class ChatHandler {
                 break;
             case 0x03: // invite
                 if (messenger.getMembers().size() < 3) {
-                    input = slea.readMapleAsciiString();
+                    input = reader.readLengthPrefixedString();
                     final MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
 
                     if (target != null) {
@@ -134,7 +135,7 @@ public class ChatHandler {
                 }
                 break;
             case 0x05: // decline
-                final String targeted = slea.readMapleAsciiString();
+                final String targeted = reader.readLengthPrefixedString();
                 final MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
@@ -153,7 +154,7 @@ public class ChatHandler {
             case 0x06: // message
                 if (messenger != null) {
                     final MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(c.getPlayer());
-                    input = slea.readMapleAsciiString();
+                    input = reader.readLengthPrefixedString();
                     try {
                         wci.messengerChat(messenger.getId(), input, messengerplayer.getName());
                     } catch (RemoteException e) {
@@ -164,12 +165,12 @@ public class ChatHandler {
         }
     }
 
-    public static final void Whisper_Find(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final byte mode = slea.readByte();
-        slea.readInt();
+    public static final void handleWhisper(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final byte mode = reader.readByte();
+        reader.readInt();
         switch (mode) {
             case 5: { // Find
-                final String recipient = slea.readMapleAsciiString();
+                final String recipient = reader.readLengthPrefixedString();
                 MapleCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {
                     if (!player.isGM() || c.getPlayer().isGM() && player.isGM()) {
@@ -207,8 +208,8 @@ public class ChatHandler {
                 break;
             }
             case 6: { // Whisper
-                final String recipient = slea.readMapleAsciiString();
-                final String text = slea.readMapleAsciiString();
+                final String recipient = reader.readLengthPrefixedString();
+                final String text = reader.readLengthPrefixedString();
 
                 MapleCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {

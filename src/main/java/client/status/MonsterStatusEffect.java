@@ -25,65 +25,67 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import client.ISkill;
+import com.google.common.collect.Maps;
+import java.util.EnumMap;
 import server.life.MobSkill;
 import tools.ArrayMap;
 
-public class MonsterStatusEffect {
+public final class MonsterStatusEffect {
 
-    private final Map<MonsterStatus, Integer> stati;
+    private final Map<MonsterStatus, Integer> effects;
     private final ISkill skill;
     private final MobSkill mobskill;
     private final boolean monsterSkill;
     private ScheduledFuture<?> cancelTask;
     private ScheduledFuture<?> poisonSchedule;
 
-    public MonsterStatusEffect(final Map<MonsterStatus, Integer> stati, final ISkill skillId, final MobSkill mobskill, final boolean monsterSkill) {
-	this.stati = new ArrayMap<MonsterStatus, Integer>(stati);
+    public MonsterStatusEffect(final Map<MonsterStatus, Integer> effects, final ISkill skillId, final MobSkill mobskill, final boolean monsterSkill) {
+	this.effects = Maps.newEnumMap(effects);
 	this.skill = skillId;
 	this.monsterSkill = monsterSkill;
 	this.mobskill = mobskill;
     }
 
-    public final Map<MonsterStatus, Integer> getStati() {
-	return stati;
+    public Map<MonsterStatus, Integer> getEffects() {
+	return effects;
     }
 
-    public final Integer setValue(final MonsterStatus status, final Integer newVal) {
-	return stati.put(status, newVal);
+    public Integer setEffect(final MonsterStatus status, final Integer newVal) {
+	return effects.put(status, newVal);
     }
 
-    public final ISkill getSkill() {
+    public ISkill getSkill() {
 	return skill;
     }
 
-    public final MobSkill getMobSkill() {
+    public MobSkill getMobSkill() {
 	return mobskill;
     }
 
-    public final boolean isMonsterSkill() {
+    public boolean isMonsterSkill() {
 	return monsterSkill;
     }
 
-    public final void setCancelTask(final ScheduledFuture<?> cancelTask) {
+    public void setCancelTask(final ScheduledFuture<?> cancelTask) {
 	this.cancelTask = cancelTask;
     }
 
-    public final void removeActiveStatus(final MonsterStatus stat) {
-        stati.remove(stat);
+    public  void removeActiveStatus(final MonsterStatus stat) {
+        effects.remove(stat);
     }
 
-    public final void setPoisonSchedule(final ScheduledFuture<?> poisonSchedule) {
+    public void setPoisonSchedule(final ScheduledFuture<?> poisonSchedule) {
 	this.poisonSchedule = poisonSchedule;
     }
 
-    public final void cancelTask() {
+    public void cancelTask() {
 	if (cancelTask != null) {
 	    cancelTask.cancel(false);
 	}
 	cancelTask = null;
     }
 
-    public final void cancelPoisonSchedule() {
+    public void cancelPoisonSchedule() {
 	if (poisonSchedule != null) {
 	    poisonSchedule.cancel(false);
 	}

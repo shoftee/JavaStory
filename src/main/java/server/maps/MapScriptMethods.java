@@ -9,7 +9,7 @@ import server.Randomizer;
 import server.MapleItemInformationProvider;
 import server.life.MapleLifeFactory;
 import tools.MaplePacketCreator;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 import tools.packet.UIPacket;
 
 public class MapScriptMethods {
@@ -380,15 +380,15 @@ public class MapScriptMethods {
 	c.getSession().write(MaplePacketCreator.environmentChange("dojang/start/stage", 3));
 	c.getSession().write(MaplePacketCreator.environmentChange("dojang/start/number/" + stage, 3));
 
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+	PacketBuilder builder = new PacketBuilder();
 
 	// 79 00 01 00 01 00 00 00
-	mplew.writeShort(ServerPacketOpcode.BOSS_ENV.getValue());
-	mplew.writeShort(1);
-	mplew.writeShort(1);
-	mplew.writeShort(0);
+	builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
+	builder.writeAsShort(1);
+	builder.writeAsShort(1);
+	builder.writeAsShort(0);
 
-	c.getSession().write(mplew.getPacket());
+	c.getSession().write(builder.getPacket());
 	}
 
 	private static void handlePinkBeanStart(MapleClient c) {

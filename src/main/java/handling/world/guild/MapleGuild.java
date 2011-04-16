@@ -17,22 +17,17 @@ import java.util.concurrent.locks.ReentrantLock;
 import client.MapleCharacter;
 import client.MapleClient;
 import database.DatabaseConnection;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.WorldRegistryImpl;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.StringUtil;
 import tools.MaplePacketCreator;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class MapleGuild implements java.io.Serializable {
-
-    private static enum BCOp {
-
-        NONE, DISBAND, EMBELMCHANGE
-    }
-    public static final long serialVersionUID = 6322150443228168192L;
+    public static long serialVersionUID = 6322150443228168192L;
     private final List<MapleGuildCharacter> members;
     private final String rankTitles[] = new String[5]; // 1 = master, 2 = jr, 5 = lowest member
     private String name, notice;
@@ -269,16 +264,16 @@ public class MapleGuild implements java.io.Serializable {
         return signature;
     }
 
-    public final void broadcast(final MaplePacket packet) {
-        broadcast(packet, -1, BCOp.NONE);
+    public final void broadcast(final GamePacket packet) {
+        broadcast(packet, -1, GuildOperationType.NONE);
     }
 
-    public final void broadcast(final MaplePacket packet, final int exception) {
-        broadcast(packet, exception, BCOp.NONE);
+    public final void broadcast(final GamePacket packet, final int exception) {
+        broadcast(packet, exception, GuildOperationType.NONE);
     }
 
     // multi-purpose function that reaches every member of guild (except the character with exceptionId) in all channels with as little access to rmi as possible
-    public final void broadcast(final MaplePacket packet, final int exceptionId, final BCOp bcop) {
+    public final void broadcast(final GamePacket packet, final int exceptionId, final GuildOperationType bcop) {
         final WorldRegistryImpl wr = WorldRegistryImpl.getInstance();
         final Set<Integer> chs = wr.getChannelServer();
         lock.lock();
@@ -288,9 +283,9 @@ public class MapleGuild implements java.io.Serializable {
                 for (final Integer ch : chs) {
                     final ChannelWorldInterface cwi = wr.getChannel(ch);
                     if (notifications.get(ch).size() > 0) {
-                        if (bcop == BCOp.DISBAND) {
+                        if (bcop == GuildOperationType.DISBAND) {
                             cwi.setGuildAndRank(notifications.get(ch), 0, 5, exceptionId);
-                        } else if (bcop == BCOp.EMBELMCHANGE) {
+                        } else if (bcop == GuildOperationType.EMBELMCHANGE) {
                             cwi.changeEmblem(id, notifications.get(ch), new MapleGuildSummary(this));
                         } else {
                             cwi.sendPacket(notifications.get(ch), packet, exceptionId);
@@ -305,7 +300,7 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    private final void buildNotifications() {
+    private void buildNotifications() {
         // any function that calls this should be wrapped in synchronized(notifications) to make sure that it doesn't change before that function finishes with the updated notifications
         if (!bDirty) {
             return;
@@ -335,7 +330,7 @@ public class MapleGuild implements java.io.Serializable {
         bDirty = false;
     }
 
-    public final void guildMessage(final MaplePacket serverNotice) {
+    public final void guildMessage(final GamePacket serverNotice) {
         for (final MapleGuildCharacter mgc : members) {
             for (final ChannelServer cs : ChannelManager.getAllInstances()) {
                 if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
@@ -382,7 +377,7 @@ public class MapleGuild implements java.io.Serializable {
     }
 
     // function to create guild, returns the guild id if successful, 0 if not
-    public static final int createGuild(final int leaderId, final String name) {
+    public static int createGuild(final int leaderId, final String name) {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT guildid FROM guilds WHERE name = ?");
@@ -584,7 +579,7 @@ public class MapleGuild implements java.io.Serializable {
 
     public final void disbandGuild() {
         writeToDB(true);
-        broadcast(null, -1, BCOp.DISBAND);
+        broadcast(null, -1, GuildOperationType.DISBAND);
     }
 
     public final void setGuildEmblem(final short bg, final byte bgcolor, final short logo, final byte logocolor) {
@@ -592,7 +587,7 @@ public class MapleGuild implements java.io.Serializable {
         this.logoBGColor = bgcolor;
         this.logo = logo;
         this.logoColor = logocolor;
-        broadcast(null, -1, BCOp.EMBELMCHANGE);
+        broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?");
@@ -651,19 +646,19 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final void addMemberData(final MaplePacketLittleEndianWriter mplew) {
-        mplew.write(members.size());
+    public final void addMemberData(final PacketBuilder builder) {
+        builder.writeAsByte(members.size());
         for (final MapleGuildCharacter mgc : members) {
-            mplew.writeInt(mgc.getId());
+            builder.writeInt(mgc.getId());
         }
         for (final MapleGuildCharacter mgc : members) {
-            mplew.writeAsciiString(StringUtil.getRightPaddedStr(mgc.getName(), '\0', 13));
-            mplew.writeInt(mgc.getJobId());
-            mplew.writeInt(mgc.getLevel());
-            mplew.writeInt(mgc.getGuildRank());
-            mplew.writeInt(mgc.isOnline() ? 1 : 0);
-            mplew.writeInt(signature);
-            mplew.writeInt(mgc.getGuildRank());
+            builder.writePaddedString(mgc.getName(), 13);
+            builder.writeInt(mgc.getJobId());
+            builder.writeInt(mgc.getLevel());
+            builder.writeInt(mgc.getGuildRank());
+            builder.writeInt(mgc.isOnline() ? 1 : 0);
+            builder.writeInt(signature);
+            builder.writeInt(mgc.getGuildRank());
         }
     }
 
@@ -671,7 +666,7 @@ public class MapleGuild implements java.io.Serializable {
     // keep in mind that this will be called by a handler most of the time
     // so this will be running mostly on a channel server, unlike the rest
     // of the class
-    public static final MapleGuildResponse sendInvite(final MapleClient c, final String targetName) {
+    public static MapleGuildResponse sendInvite(final MapleClient c, final String targetName) {
         final MapleCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
         if (mc == null) {
             return MapleGuildResponse.NOT_IN_CHANNEL;

@@ -21,7 +21,7 @@
 package handling.world.guild;
 
 import tools.MaplePacketCreator;
-import handling.MaplePacket;
+import handling.GamePacket;
 
 public enum MapleGuildResponse {
 
@@ -38,7 +38,7 @@ public enum MapleGuildResponse {
 	return value;
     }
 
-    public MaplePacket getPacket() {
+    public GamePacket getPacket() {
 	return MaplePacketCreator.genericGuildMessage((byte) value);
     }
 }

@@ -17,6 +17,10 @@ import client.MapleCharacter;
 import client.MapleKeyBinding;
 import client.PlayerStats;
 import client.anticheat.CheatingOffense;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 import org.javastory.server.channel.ChannelManager;
 import server.AutobanManager;
 import server.MapleInventoryManipulator;
@@ -36,7 +40,6 @@ import server.movement.LifeMovementFragment;
 import tools.MaplePacketCreator;
 import tools.packet.MobPacket;
 import tools.packet.MTSCSPacket;
-import tools.data.input.SeekableLittleEndianAccessor;
 import tools.packet.UIPacket;
 
 public class PlayerHandler {
@@ -54,50 +57,55 @@ public class PlayerHandler {
         return false;
     }
 
-    public static final void ChangeMonsterBookCover(final int bookid, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleChangeMonsterBookCover(final int bookid, final MapleClient c, final MapleCharacter chr) {
         if (bookid == 0 || GameConstants.isMonsterCard(bookid)) {
             chr.setMonsterBookCover(bookid);
             chr.getMonsterBook().updateCard(c, bookid);
         }
     }
 
-    public static final void ChangeSkillMacro(final SeekableLittleEndianAccessor slea, final MapleCharacter chr) {
-        final int num = slea.readByte();
+    public static final void handleSkillMacro(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+        final int num = reader.readByte();
         String name;
         int shout, skill1, skill2, skill3;
         SkillMacro macro;
 
         for (int i = 0; i < num; i++) {
-            name = slea.readMapleAsciiString();
-            shout = slea.readByte();
-            skill1 = slea.readInt();
-            skill2 = slea.readInt();
-            skill3 = slea.readInt();
+            name = reader.readLengthPrefixedString();
+            shout = reader.readByte();
+            skill1 = reader.readInt();
+            skill2 = reader.readInt();
+            skill3 = reader.readInt();
 
             macro = new SkillMacro(skill1, skill2, skill3, name, shout, i);
             chr.updateMacros(i, macro);
         }
     }
 
-    public static final void ChangeKeymap(final SeekableLittleEndianAccessor slea, final MapleCharacter chr) {
-        if (slea.available() != 8) { // else = pet auto pot
-            slea.skip(4);
-            final int numChanges = slea.readInt();
+    public static final void HandleChangeKeymap(final PacketReader reader, final MapleCharacter chr) {
+        if (reader.remaining() != 8) {
+            try {
+                // else = pet auto pot
+                reader.skip(4);
+                final int numChanges = reader.readInt();
 
-            int key, type, action;
-            MapleKeyBinding newbinding;
+                int key, type, action;
+                MapleKeyBinding newbinding;
 
-            for (int i = 0; i < numChanges; i++) {
-                key = slea.readInt();
-                type = slea.readByte();
-                action = slea.readInt();
-                newbinding = new MapleKeyBinding(type, action);
-                chr.changeKeybinding(key, newbinding);
+                for (int i = 0; i < numChanges; i++) {
+                    key = reader.readInt();
+                    type = reader.readByte();
+                    action = reader.readInt();
+                    newbinding = new MapleKeyBinding(type, action);
+                    chr.changeKeybinding(key, newbinding);
+                }
+            } catch (PacketFormatException ex) {
+                Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    public static final void UseChair(final int itemId, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleUseChair(final int itemId, final MapleClient c, final MapleCharacter chr) {
         final IItem toUse = chr.getInventory(MapleInventoryType.SETUP).findById(itemId);
 
         if (toUse == null || toUse.getItemId() != itemId) {
@@ -120,7 +128,7 @@ public class PlayerHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void CancelChair(final short id, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleCancelChair(final short id, final MapleClient c, final MapleCharacter chr) {
         if (id == -1) { // Cancel Chair
             if (chr.getChair() == 3011000) {
                 chr.cancelFishingTask();
@@ -134,12 +142,12 @@ public class PlayerHandler {
         }
     }
 
-    public static final void TrockAddMap(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final byte addrem = slea.readByte();
-        final byte vip = slea.readByte();
+    public static final void handleTeleportRockAddMap(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final byte addrem = reader.readByte();
+        final byte vip = reader.readByte();
 
         if (addrem == 0) {
-            chr.deleteFromRocks(slea.readInt());
+            chr.deleteFromRocks(reader.readInt());
         } else if (addrem == 1) {
             if (chr.getMap().getForcedReturnId() == 999999999) {
                 chr.addRockMap();
@@ -148,7 +156,7 @@ public class PlayerHandler {
         c.getSession().write(MTSCSPacket.getTrockRefresh(chr, vip == 1, addrem == 3));
     }
 
-    public static final void CharInfoRequest(final int objectid, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleCharacterInfoRequest(final int objectid, final MapleClient c, final MapleCharacter chr) {
         final MapleCharacter player = (MapleCharacter) c.getPlayer().getMap().getMapObject(objectid);
 
         if (player != null) {
@@ -160,11 +168,11 @@ public class PlayerHandler {
         }
     }
 
-    public static final void TakeDamage(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        slea.skip(4); // Ticks
-        final byte type = slea.readByte();
-        slea.skip(1); // Element - 0x00 = elementless, 0x01 = ice, 0x02 = fire, 0x03 = lightning
-        int damage = slea.readInt();
+    public static final void handleTakeDamage(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4); // Ticks
+        final byte type = reader.readByte();
+        reader.skip(1); // Element - 0x00 = elementless, 0x01 = ice, 0x02 = fire, 0x03 = lightning
+        int damage = reader.readInt();
 
         int oid = 0;
         int monsteridfrom = 0;
@@ -180,10 +188,10 @@ public class PlayerHandler {
         final PlayerStats stats = chr.getStat();
 
         if (type != -2 && type != -3 && type != -4) { // Not map damage
-            monsteridfrom = slea.readInt();
-            oid = slea.readInt();
+            monsteridfrom = reader.readInt();
+            oid = reader.readInt();
             attacker = (MapleMonster) chr.getMap().getMonsterByOid(oid);
-            direction = slea.readByte();
+            direction = reader.readByte();
 
             if (attacker == null) {
                 return;
@@ -307,7 +315,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void AranCombo(final MapleClient c, final MapleCharacter chr) {
+    public static final void handleAranCombo(final MapleClient c, final MapleCharacter chr) {
         if (chr.getJob() >= 2000 && chr.getJob() <= 2112) {
             short combo = chr.getCombo();
             final long curr = System.currentTimeMillis();
@@ -338,7 +346,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void UseItemEffect(final int itemId, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleUseItemEffect(final int itemId, final MapleClient c, final MapleCharacter chr) {
         final IItem toUse = chr.getInventory(MapleInventoryType.CASH).findById(itemId);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
             c.getSession().write(MaplePacketCreator.enableActions());
@@ -348,12 +356,12 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.itemEffect(chr.getId(), itemId), false);
     }
 
-    public static final void CancelItemEffect(final int id, final MapleCharacter chr) {
+    public static final void handleCancelItemEffect(final int id, final MapleCharacter chr) {
         chr.cancelEffect(
                 MapleItemInformationProvider.getInstance().getItemEffect(-id), false, -1);
     }
 
-    public static final void CancelBuffHandler(final int sourceid, final MapleCharacter chr) {
+    public static final void handleCancelBuff(final int sourceid, final MapleCharacter chr) {
         final ISkill skill = SkillFactory.getSkill(sourceid);
 
         if (skill.isChargeSkill()) {
@@ -364,12 +372,12 @@ public class PlayerHandler {
         }
     }
 
-    public static final void SkillEffect(final SeekableLittleEndianAccessor slea, final MapleCharacter chr) {
-        final int skillId = slea.readInt();
-        final byte level = slea.readByte();
-        final byte flags = slea.readByte();
-        final byte speed = slea.readByte();
-        final byte unk = slea.readByte(); // Added on v.82
+    public static final void handleSkillEffect(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+        final int skillId = reader.readInt();
+        final byte level = reader.readByte();
+        final byte flags = reader.readByte();
+        final byte speed = reader.readByte();
+        final byte unk = reader.readByte(); // Added on v.82
 
         final ISkill skill = SkillFactory.getSkill(skillId);
         final int skilllevel_serv = chr.getSkillLevel(skill);
@@ -380,19 +388,19 @@ public class PlayerHandler {
         }
     }
 
-    public static final void SpecialMove(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleSpecialMove(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        slea.skip(4); // Old X and Y
-        final int skillid = slea.readInt();
-        final int skillLevel = slea.readByte();
+        reader.skip(4); // Old X and Y
+        final int skillid = reader.readInt();
+        final int skillLevel = reader.readByte();
         final ISkill skill = SkillFactory.getSkill(skillid);
 
         if (chr.getSkillLevel(skill) == 0 || chr.getSkillLevel(skill) != skillLevel) {
             if (!GameConstants.isMulungSkill(skillid)) {
-                c.getSession().close();
+                c.getSession().close(true);
                 return;
             }
             if (chr.getMapId() / 10000 != 92502) {
@@ -420,24 +428,24 @@ public class PlayerHandler {
             case 1221001:
             case 1321001:
             case 9001020: // GM magnet
-                final byte number_of_mobs = slea.readByte();
-                slea.skip(3);
+                final byte number_of_mobs = reader.readByte();
+                reader.skip(3);
                 for (int i = 0; i < number_of_mobs; i++) {
-                    int mobId = slea.readInt();
+                    int mobId = reader.readInt();
 
                     final MapleMonster mob = chr.getMap().getMonsterByOid(mobId);
                     if (mob != null) {
-//			chr.getMap().broadcastMessage(chr, MaplePacketCreator.showMagnet(mobId, slea.readByte()), chr.getPosition());
+//			chr.getMap().broadcastMessage(chr, MaplePacketCreator.showMagnet(mobId, reader.readByte()), chr.getPosition());
                         mob.switchController(chr, mob.isControllerHasAggro());
                     }
                 }
-                chr.getMap().broadcastMessage(chr, MaplePacketCreator.showBuffeffect(chr.getId(), skillid, 1, slea.readByte()), chr.getPosition());
+                chr.getMap().broadcastMessage(chr, MaplePacketCreator.showBuffeffect(chr.getId(), skillid, 1, reader.readByte()), chr.getPosition());
                 c.getSession().write(MaplePacketCreator.enableActions());
                 break;
             default:
                 Point pos = null;
-                if (slea.available() == 7) {
-                    pos = slea.readPos();
+                if (reader.remaining() == 7) {
+                    pos = reader.readVector();
                 }
                 if (skill.getId() == 2311002) { // Mystic Door
                     if (chr.canDoor()) {
@@ -462,12 +470,12 @@ public class PlayerHandler {
         }
     }
 
-    public static final void closeRangeAttack(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleMeleeAttack(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
         }
-        final AttackInfo attack = DamageParse.parseDmgM(slea);
+        final AttackInfo attack = DamageParse.parseDmgM(reader);
 
         double maxdamage = chr.getStat().getCurrentMaxBaseDamage();
         final boolean mirror = chr.getBuffedValue(MapleBuffStat.MIRROR_IMAGE) != null;
@@ -479,7 +487,7 @@ public class PlayerHandler {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
             skillLevel = chr.getSkillLevel(skill);
             if (skillLevel == 0) {
-                c.getSession().close();
+                c.getSession().close(true);
                 return;
             }
             effect = attack.getAttackEffect(chr, skillLevel, skill);
@@ -567,12 +575,12 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void rangedAttack(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleRangedAttack(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
         }
-        final AttackInfo attack = DamageParse.parseDmgR(slea);
+        final AttackInfo attack = DamageParse.parseDmgR(reader);
 
         int bulletCount = 1, skillLevel = 0;
         MapleStatEffect effect = null;
@@ -582,7 +590,7 @@ public class PlayerHandler {
             skill = SkillFactory.getSkill(attack.skill);
             skillLevel = chr.getSkillLevel(skill);
             if (skillLevel == 0) {
-                c.getSession().close();
+                c.getSession().close(true);
                 return;
             }
             effect = attack.getAttackEffect(chr, skillLevel, skill);
@@ -674,16 +682,16 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.rangedAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void MagicDamage(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static final void MagicDamage(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
         }
-        final AttackInfo attack = DamageParse.parseDmgMa(slea);
+        final AttackInfo attack = DamageParse.parseDmgMa(reader);
         final ISkill skill = SkillFactory.getSkill(attack.skill);
         final int skillLevel = chr.getSkillLevel(skill);
         if (skillLevel == 0) {
-            c.getSession().close();
+            c.getSession().close(true);
             return;
         }
         final MapleStatEffect effect = attack.getAttackEffect(chr, skillLevel, skill);
@@ -701,7 +709,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, attack.charge, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void WheelOfFortuneEffect(final int itemId, final MapleCharacter chr) {
+    public static final void handleWheelOfFortuneEffect(final int itemId, final MapleCharacter chr) {
         // BA 03 00 00   72 01 00 00 << extra int
         switch (itemId) {
             case 5510000: {
@@ -716,7 +724,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void DropMeso(final int meso, final MapleCharacter chr) {
+    public static final void handleMesoDrop(final int meso, final MapleCharacter chr) {
         if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
             chr.getClient().getSession().write(MaplePacketCreator.enableActions());
             return;
@@ -725,7 +733,7 @@ public class PlayerHandler {
         chr.getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
     }
 
-    public static final void ChangeEmotion(final int emote, final MapleCharacter chr) {
+    public static final void handleFaceExpression(final int emote, final MapleCharacter chr) {
         if (emote > 7) {
             final int emoteid = 5159992 + emote;
             final MapleInventoryType type = GameConstants.getInventoryType(emoteid);
@@ -739,10 +747,10 @@ public class PlayerHandler {
         }
     }
 
-    public static final void Heal(final SeekableLittleEndianAccessor slea, final MapleCharacter chr) {
-        slea.skip(4);
-        final int healHP = slea.readShort();
-        final int healMP = slea.readShort();
+    public static final void handleHealthRegeneration(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+        reader.skip(4);
+        final int healHP = reader.readShort();
+        final int healMP = reader.readShort();
         final PlayerStats stats = chr.getStat();
         if (stats.getHp() <= 0) {
             return;
@@ -761,17 +769,17 @@ public class PlayerHandler {
         }
     }
 
-    public static final void MovePlayer(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-//	slea.skip(5); // unknown
+    public static final void handleMovePlayer(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+//	reader.skip(5); // unknown
         final Point Original_Pos = chr.getPosition(); // 4 bytes Added on v.80 MSEA
-        slea.skip(37);
+        reader.skip(37);
 
         // log.trace("Movement command received: unk1 {} unk2 {}", new Object[] { unk1, unk2 });
-        final List<LifeMovementFragment> res = MovementParse.parseMovement(slea);
+        final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
         if (res != null) { // TODO more validation of input data
-            if (slea.available() != 18) {
-                //System.out.println("slea.available != 18 (movement parsing error)");
+            if (reader.remaining() != 18) {
+                //System.out.println("reader.remaining != 18 (movement parsing error)");
                 return;
             }
             final MapleMap map = c.getPlayer().getMap();
@@ -816,27 +824,27 @@ public class PlayerHandler {
         }
     }
 
-    public static final void ChangeMapSpecial(final String portal_name, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleChangeMapSpecial(final String portal_name, final MapleClient c, final MapleCharacter chr) {
         final MaplePortal portal = chr.getMap().getPortal(portal_name);
-//	slea.skip(2);
+//	reader.skip(2);
 
         if (portal != null) {
             portal.enterPortal(c);
         }
     }
 
-    public static final void ChangeMap(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        if (slea.available() != 0) {
-            slea.skip(7); // 1 = from dying 2 = regular portals
-            final int targetid = slea.readInt(); // FF FF FF FF
-            final MaplePortal portal = chr.getMap().getPortal(slea.readMapleAsciiString());
-            if (slea.available() >= 7) {
+    public static final void handleChangeMap(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        if (reader.remaining() != 0) {
+            reader.skip(7); // 1 = from dying 2 = regular portals
+            final int targetid = reader.readInt(); // FF FF FF FF
+            final MaplePortal portal = chr.getMap().getPortal(reader.readLengthPrefixedString());
+            if (reader.remaining() >= 7) {
 
-                slea.skip(4); //2F 03 04 00
+                reader.skip(4); //2F 03 04 00
 
             }
-            slea.skip(1);
-            final boolean wheel = slea.readShort() > 0;
+            reader.skip(1);
+            final boolean wheel = reader.readShort() > 0;
 
             if (targetid != -1 && !chr.isAlive()) {
                 if (chr.getEventInstance() != null) {
@@ -944,12 +952,12 @@ public class PlayerHandler {
         }
     }
 
-    public static final void InnerPortal(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final MaplePortal portal = c.getPlayer().getMap().getPortal(slea.readMapleAsciiString());
-        final int toX = slea.readShort();
-        final int toY = slea.readShort();
-//	slea.readShort(); // Original X pos
-//	slea.readShort(); // Original Y pos
+    public static final void handleUseInnerPortal(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+        final MaplePortal portal = c.getPlayer().getMap().getPortal(reader.readLengthPrefixedString());
+        final int toX = reader.readShort();
+        final int toY = reader.readShort();
+//	reader.readShort(); // Original X pos
+//	reader.readShort(); // Original Y pos
 
         if (portal == null) {
             c.disconnect(true, false);

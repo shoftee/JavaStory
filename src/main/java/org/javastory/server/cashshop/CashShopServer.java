@@ -17,6 +17,10 @@ import handling.world.remote.WorldRegistry;
 import handling.cashshop.remote.CashShopWorldInterface;
 import handling.world.remote.CashShopInterface;
 import java.io.InputStreamReader;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.javastory.server.EndpointInfo;
 import org.javastory.server.GameService;
 import org.javastory.tools.PropertyUtil;
@@ -28,9 +32,6 @@ public class CashShopServer extends GameService {
 
     private CashShopWorldInterface lwi;
     private CashShopInterface wli;
-    private Properties csProp;
-    private Boolean worldReady = Boolean.TRUE;
-    private WorldRegistry worldRegistry = null;
     private PlayerStorage_CS players;
     private static CashShopServer instance;
 
@@ -38,8 +39,8 @@ public class CashShopServer extends GameService {
         return instance;
     }
 
-    private CashShopServer() {
-        super(8686);
+    private CashShopServer(EndpointInfo info) {
+        super(info);
     }
 
     public final void pingWorld() {
@@ -47,60 +48,32 @@ public class CashShopServer extends GameService {
         try {
             wli.isAvailable();
         } catch (RemoteException ex) {
-            synchronized (worldReady) {
-                worldReady = Boolean.FALSE;
-            }
-            synchronized (lwi) {
-                synchronized (worldReady) {
-                    if (worldReady) {
-                        return;
-                    }
-                }
-                System.out.println("Reconnecting to world server");
-                synchronized (wli) {
-                    reconnectWorld();
-                }
-            }
-            synchronized (worldReady) {
-                worldReady.notifyAll();
+            if (isWorldReady.compareAndSet(true, false)) {
+                connectToWorld();
             }
         }
-
     }
 
-    private void reconnectWorld() {
-        // completely re-establish the rmi connection
+    protected final void connectToWorld() {
         try {
-            final String config =
-                    System.getProperty("org.javastory.cashshop.config");
-            FileReader fileReader = new FileReader(config);
-            super.settings.load(fileReader);
-            fileReader.close();
-
             worldRegistry = super.getRegistry();
-
             lwi = new CashShopWorldInterfaceImpl();
             wli = worldRegistry.registerCSServer(lwi);
-        } catch (Exception e) {
-            System.err.println("Reconnecting failed" + e);
+        } catch (AccessException ex) {
+            Logger.getLogger(CashShopServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NotBoundException ex) {
+            Logger.getLogger(CashShopServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RemoteException ex) {
+            Logger.getLogger(CashShopServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        worldReady = Boolean.TRUE;
+        isWorldReady.compareAndSet(false, true);
+    }
+
+    protected final void loadSettings() {
     }
 
     public final void initialize() {
-        try {
-            final String config =
-                    System.getProperty("org.javastory.cashshop.config");
-            PropertyUtil.loadInto(config, settings);
-            
-            worldRegistry = super.getRegistry();
-
-            lwi = new CashShopWorldInterfaceImpl(this);
-            wli = worldRegistry.registerCSServer(lwi);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not connect to world server.", e);
-        }
+        connectToWorld();
 
         TimerManager.getInstance().start();
         CashItemFactory.getInstance();
@@ -111,10 +84,10 @@ public class CashShopServer extends GameService {
         final PacketHandler handler = new PacketHandler(ServerType.CASHSHOP);
         super.bind(handler);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownListener()));
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownListener()));
     }
 
-    private final class ShutDownListener implements Runnable {
+    private class ShutdownListener implements Runnable {
 
         @Override
         public void run() {
@@ -124,7 +97,8 @@ public class CashShopServer extends GameService {
 
     public static void startCashShop_main() {
         try {
-            instance = new CashShopServer();
+            // TODO: Load config from DB.
+            instance = new CashShopServer(new EndpointInfo(8686));
             instance.initialize();
         } catch (final Exception ex) {
             System.err.println("Error initializing Cash Shop server" + ex);
@@ -136,31 +110,21 @@ public class CashShopServer extends GameService {
     }
 
     public final CashShopInterface getCSInterface() {
-        synchronized (worldReady) {
-            while (!worldReady) {
-                try {
-                    worldReady.wait();
-                } catch (final InterruptedException e) {
-                }
-            }
+        if (!isWorldReady.get()) {
+            throw new IllegalStateException("The world server is not ready.");
         }
         return wli;
-    }
-
-    public final void shutdown2() {
-        System.out.println("Shutting down...");
-        try {
-            worldRegistry.deregisterCSServer();
-        } catch (final RemoteException e) {
-            // doesn't matter we're shutting down anyway
-        }
-        System.exit(0);
     }
 
     public final void shutdown() {
         System.out.println("Saving all connected clients...");
         players.disconnectAll();
         super.unbind();
+
+        try {
+            worldRegistry.deregisterCSServer();
+        } catch (RemoteException e) {
+        }
         System.exit(0);
     }
 }

@@ -22,7 +22,7 @@ package server.movement;
 
 import java.awt.Point;
 
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class RelativeLifeMovement extends AbstractLifeMovement {
 
@@ -31,11 +31,11 @@ public class RelativeLifeMovement extends AbstractLifeMovement {
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-	lew.write(getType());
-	lew.writeShort(getPosition().x);
-	lew.writeShort(getPosition().y);
-	lew.write(getNewstate());
-	lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+	lew.writeAsByte(getType());
+	lew.writeAsShort(getPosition().x);
+	lew.writeAsShort(getPosition().y);
+	lew.writeAsByte(getNewstate());
+	lew.writeAsShort(getDuration());
     }
 }

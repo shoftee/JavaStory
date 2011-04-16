@@ -21,8 +21,7 @@
 package server.movement;
 
 import java.awt.Point;
-
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class ChairMovement extends AbstractLifeMovement {
 
@@ -41,13 +40,13 @@ public class ChairMovement extends AbstractLifeMovement {
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-	lew.write(getType());
-	lew.writeShort(getPosition().x);
-	lew.writeShort(getPosition().y);
-	lew.writeShort(unk);
-	lew.write(getNewstate());
-	lew.writeShort(getDuration());
+    public void serialize(PacketBuilder builder) {
+	builder.writeAsByte(getType());
+	builder.writeAsShort(getPosition().x);
+	builder.writeAsShort(getPosition().y);
+	builder.writeAsShort(unk);
+	builder.writeAsByte(getNewstate());
+	builder.writeAsShort(getDuration());
     }
 }
 

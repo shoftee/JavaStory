@@ -61,7 +61,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         initWithStats(monster.stats);
     }
 
-    private final void initWithStats(final MapleMonsterStats stats) {
+    private void initWithStats(final MapleMonsterStats stats) {
         setStance(5);
         this.stats = stats;
         hp = stats.getHp();
@@ -268,7 +268,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
     }
 
-    private final void giveExpToCharacter(final MapleCharacter attacker, int exp, final boolean highestDamage, final int numExpSharers, final byte pty, final byte CLASS_EXP_PERCENT) {
+    private void giveExpToCharacter(final MapleCharacter attacker, int exp, final boolean highestDamage, final int numExpSharers, final byte pty, final byte CLASS_EXP_PERCENT) {
         if (highestDamage) {
             if (eventInstance != null) {
                 eventInstance.monsterKilled(attacker, this);
@@ -578,7 +578,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 break;
             }
         }
-        final Map<MonsterStatus, Integer> statis = status.getStati();
+        final Map<MonsterStatus, Integer> statis = status.getEffects();
         if (stats.isBoss()) {
             if (!(statis.containsKey(MonsterStatus.SPEED)
                     && statis.containsKey(MonsterStatus.NINJA_AMBUSH)
@@ -590,7 +590,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             final MonsterStatusEffect oldEffect = stati.get(stat);
             if (oldEffect != null) {
                 oldEffect.removeActiveStatus(stat);
-                if (oldEffect.getStati().size() == 0) {
+                if (oldEffect.getEffects().isEmpty()) {
                     oldEffect.cancelTask();
                     oldEffect.cancelPoisonSchedule();
                 }
@@ -616,7 +616,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         };
         if (poison && getHp() > 1) {
             final int poisonDamage = Math.min(Short.MAX_VALUE, (int) (getMobMaxHp() / (70.0 - from.getSkillLevel(status.getSkill())) + 0.999));
-            status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
+            status.setEffect(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
             status.setPoisonSchedule(timerManager.register(new PoisonTask(poisonDamage, from, status, cancelTask, false), 1000, 1000));
         } else if (venom) {
             int poisonLevel = 0;
@@ -660,7 +660,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 poisonDamage = poisonDamage + ((int) (gap * Math.random()) + minDmg);
             }
             poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
-            status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
+            status.setEffect(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
             status.setPoisonSchedule(timerManager.register(new PoisonTask(poisonDamage, from, status, cancelTask, false), 1000, 1000));
 
         } else if (statusSkill == 4111003 || statusSkill == 14111001) { // shadow web

@@ -1,29 +1,25 @@
 package handling.login.handler;
 
 import java.util.List;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Calendar;
 
 import client.IItem;
-import client.Item;
 import client.LoginCrypto;
 import client.MapleClient;
 import client.MapleCharacter;
 import client.MapleCharacterUtil;
 import client.MapleInventory;
 import client.MapleInventoryType;
-import client.MapleQuestStatus;
 import handling.login.LoginInformationProvider;
+import org.javastory.io.PacketFormatException;
 import org.javastory.server.login.LoginServer;
 import handling.login.LoginWorker;
+import org.javastory.io.PacketReader;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
-import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 import tools.packet.LoginPacket;
 import tools.KoreanDateUtil;
-import tools.data.input.SeekableLittleEndianAccessor;
 
 public class CharLoginHandler {
 
@@ -35,9 +31,9 @@ public class CharLoginHandler {
         return false;
     }
 
-    public static void handleLogin(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final String login = slea.readMapleAsciiString();
-        final String pwd = LoginCrypto.decryptRSA(slea.readMapleAsciiString());
+    public static void handleLogin(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final String login = reader.readLengthPrefixedString();
+        final String pwd = LoginCrypto.decryptRSA(reader.readLengthPrefixedString());
         c.setAccountName(login);
         final boolean ipBan = c.hasBannedIP();
         final boolean macBan = false; // MSEA doesn't sent mac
@@ -74,7 +70,7 @@ public class CharLoginHandler {
         for (ChannelServer cserv : ChannelManager.getAllInstances()) {
             numPlayer += cserv.getPlayerStorage().getConnectedClients();
         }
-        final int userLimit = LoginServer.getInstance().getUserLimit();
+        final int userLimit = LoginServer.USER_LIMIT;
         if (numPlayer >= userLimit) {
             c.getSession().write(LoginPacket.getWorldStatus(2));
         } else if (numPlayer * 2 >= userLimit) {
@@ -84,15 +80,17 @@ public class CharLoginHandler {
         }
     }
 
-    public static void handleCharacterListRequest(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final int server = slea.readByte();
-        final int channel = slea.readByte() + 1;
+    public static void handleCharacterListRequest(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final int server = reader.readByte();
+        final int channel = reader.readByte() + 1;
         c.setWorld(server);
         System.out.println(":: Client is connecting to server " + server + " channel " + channel + " ::");
         c.setChannel(channel);
         final List<MapleCharacter> chars = c.loadCharacters(server);
         if (chars != null) {
-            c.getSession().write(LoginPacket.getCharList(c.getSecondPassword() != null, chars));
+            // TODO: max characters should be set in account, 
+            // not in LoginServer config, wtf.
+            c.getSession().write(LoginPacket.getCharacterList(c.getSecondPassword() != null, chars, 3));
         } else {
             c.getSession().close(false);
         }
@@ -103,18 +101,18 @@ public class CharLoginHandler {
                                                           !MapleCharacterUtil.canCreateChar(name) || LoginInformationProvider.getInstance().isForbiddenName(name)));
     }
 
-    public static void handleCreateCharacter(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final String name = slea.readMapleAsciiString();
-        final int JobType = slea.readInt();
-        final short db = slea.readShort();
-        final int face = slea.readInt();
-        final int hair = slea.readInt();
-        final int hairColor = slea.readInt();
-        final int skinColor = slea.readInt();
-        final int top = slea.readInt();
-        final int bottom = slea.readInt();
-        final int shoes = slea.readInt();
-        final int weapon = slea.readInt();
+    public static void handleCreateCharacter(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final String name = reader.readLengthPrefixedString();
+        final int JobType = reader.readInt();
+        final short db = reader.readShort();
+        final int face = reader.readInt();
+        final int hair = reader.readInt();
+        final int hairColor = reader.readInt();
+        final int skinColor = reader.readInt();
+        final int top = reader.readInt();
+        final int bottom = reader.readInt();
+        final int shoes = reader.readInt();
+        final int weapon = reader.readInt();
         final byte gender = c.getGender();
 
         MapleCharacter newchar = MapleCharacter.getDefault(c, JobType);
@@ -128,19 +126,19 @@ public class CharLoginHandler {
         final LoginInformationProvider li = LoginInformationProvider.getInstance();
         IItem item = li.getEquipById(top);
         item.setPosition((byte) -5);
-        equip.addFromDB(item);
+        equip.addFromDb(item);
         item = li.getEquipById(bottom);
         item.setPosition((byte) -6);
-        equip.addFromDB(item);
+        equip.addFromDb(item);
         item = li.getEquipById(shoes);
         item.setPosition((byte) -7);
-        equip.addFromDB(item);
+        equip.addFromDb(item);
         item = li.getEquipById(weapon);
         item.setPosition((byte) -11);
-        equip.addFromDB(item);
+        equip.addFromDb(item);
 
         if (MapleCharacterUtil.canCreateChar(name) && !li.isForbiddenName(name)) {
-            MapleCharacter.saveNewCharToDB(newchar, JobType, JobType == 1 && db > 0);
+            MapleCharacter.saveNewCharacterToDb(newchar, JobType, JobType == 1 && db > 0);
             c.getSession().write(LoginPacket.addNewCharEntry(newchar, true));
             c.createdChar(newchar.getId());
         } else {
@@ -148,13 +146,13 @@ public class CharLoginHandler {
         }
     }
 
-    public static void handleDeleteCharacter(final SeekableLittleEndianAccessor slea, final MapleClient c) {
+    public static void handleDeleteCharacter(final PacketReader reader, final MapleClient c) throws PacketFormatException {
         String Secondpw_Client = null;
-        if (slea.readByte() > 0) {
-            Secondpw_Client = slea.readMapleAsciiString();
+        if (reader.readByte() > 0) {
+            Secondpw_Client = reader.readLengthPrefixedString();
         }
-        final String AS13Digit = slea.readMapleAsciiString();
-        final int Character_ID = slea.readInt();
+        final String AS13Digit = reader.readLengthPrefixedString();
+        final int Character_ID = reader.readInt();
         if (!c.login_Auth(Character_ID)) {
             c.getSession().close(true);
             return;
@@ -178,16 +176,16 @@ public class CharLoginHandler {
         c.getSession().write(LoginPacket.deleteCharResponse(Character_ID, state));
     }
 
-    public static void Character_WithoutSecondPassword(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        slea.skip(1);
-        final int charId = slea.readInt();
+    public static void handleWithoutSecondPassword(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        reader.skip(1);
+        final int charId = reader.readInt();
         final String currentpw = c.getSecondPassword();
-        if (slea.available() != 0) {
+        if (reader.remaining() != 0) {
             if (currentpw != null) { // Hack
                 c.getSession().close(true);
                 return;
             }
-            final String setpassword = slea.readMapleAsciiString();
+            final String setpassword = reader.readLengthPrefixedString();
             if (setpassword.length() >= 4 && setpassword.length() <= 16) {
                 c.setSecondPassword(setpassword);
                 c.updateSecondPassword();
@@ -210,9 +208,9 @@ public class CharLoginHandler {
         c.getSession().write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
     }
 
-    public static void Character_WithSecondPassword(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final String password = slea.readMapleAsciiString();
-        final int charId = slea.readInt();
+    public static void handleWithSecondPassword(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final String password = reader.readLengthPrefixedString();
+        final int charId = reader.readInt();
         if (loginFailCount(c) || c.getSecondPassword() == null || !c.login_Auth(charId)) {
             c.getSession().close(false);
             return;

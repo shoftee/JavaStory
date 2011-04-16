@@ -21,10 +21,10 @@
 package tools.packet;
 
 import client.MapleCharacter;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.MapleCarnivalParty;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class MonsterCarnivalPacket {
 
@@ -34,57 +34,57 @@ public class MonsterCarnivalPacket {
     MONSTER_CARNIVAL_SUMMON = 0xE5
     MONSTER_CARNIVAL_DIED = 0xE7*/
 
-    public static MaplePacket startMonsterCarnival(final MapleCharacter chr, final int enemyavailable, final int enemytotal) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket startMonsterCarnival(final MapleCharacter chr, final int enemyavailable, final int enemytotal) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());
+	builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());
         final MapleCarnivalParty friendly = chr.getCarnivalParty();
-	mplew.write(friendly.getTeam());
-        mplew.writeShort(chr.getAvailableCP());
-        mplew.writeShort(chr.getTotalCP());
-	mplew.writeShort(friendly.getAvailableCP());
-        mplew.writeShort(friendly.getTotalCP());
-        mplew.writeShort(enemyavailable);
-        mplew.writeShort(enemytotal);
-	mplew.writeLong(0);
-	mplew.writeShort(0);
+	builder.writeAsByte(friendly.getTeam());
+        builder.writeAsShort(chr.getAvailableCP());
+        builder.writeAsShort(chr.getTotalCP());
+	builder.writeAsShort(friendly.getAvailableCP());
+        builder.writeAsShort(friendly.getTotalCP());
+        builder.writeAsShort(enemyavailable);
+        builder.writeAsShort(enemytotal);
+	builder.writeLong(0);
+	builder.writeAsShort(0);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket playerDiedMessage(String name, int lostCP, int team) { //CPQ
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket playerDiedMessage(String name, int lostCP, int team) { //CPQ
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.MONSTER_CARNIVAL_DIED.getValue());
-	mplew.write(team); //team
-	mplew.writeMapleAsciiString(name);
-	mplew.write(lostCP);
+	builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_DIED.getValue());
+	builder.writeAsByte(team); //team
+	builder.writeLengthPrefixedString(name);
+	builder.writeAsByte(lostCP);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket CPUpdate(boolean party, int curCP, int totalCP, int team) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket CPUpdate(boolean party, int curCP, int totalCP, int team) {
+	PacketBuilder builder = new PacketBuilder();
 	if (!party) {
-	    mplew.writeShort(ServerPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
+	    builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
 	} else {
-	    mplew.writeShort(ServerPacketOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
-	    mplew.write(team);
+	    builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
+	    builder.writeAsByte(team);
 	}
-	mplew.writeShort(curCP);
-	mplew.writeShort(totalCP);
+	builder.writeAsShort(curCP);
+	builder.writeAsShort(totalCP);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket playerSummoned(String name, int tab, int number) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket playerSummoned(String name, int tab, int number) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
-	mplew.write(tab);
-	mplew.write(number);
-	mplew.writeMapleAsciiString(name);
+	builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
+	builder.writeAsByte(tab);
+	builder.writeAsByte(number);
+	builder.writeLengthPrefixedString(name);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 }

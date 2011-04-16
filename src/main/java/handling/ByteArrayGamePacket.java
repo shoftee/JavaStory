@@ -18,34 +18,37 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package tools.data.input;
+package handling;
 
-import java.io.IOException;
+import tools.HexTool;
 
-/**
- * Provides an abstract interface to a stream of bytes. This stream can be
- * seeked.
- * 
- * @author Frz
- * @version 1.0
- * @since 299
- */
-public interface SeekableInputStreamBytestream extends ByteInputStream {
+public class ByteArrayGamePacket implements GamePacket {
 
-    /**
-     * Seeks the stream by the specified offset.
-     *
-     * @param offset
-     *            Number of bytes to seek.
-     * @throws IOException
-     */
-    void seek(long offset) throws IOException;
+    public static final long serialVersionUID = -7997681658570958848L;
+    private byte[] data;
+    private Runnable onSend;
 
-    /**
-     * Gets the current position of the stream.
-     *
-     * @return The stream position as a long integer.
-     * @throws IOException
-     */
-    long getPosition() throws IOException;
+    public ByteArrayGamePacket(final byte[] data) {
+	this.data = data;
+    }
+
+    @Override
+    public final byte[] getBytes() {
+	return data;
+    }
+
+    @Override
+    public final Runnable getOnSend() {
+	return onSend;
+    }
+
+    @Override
+    public void setOnSend(final Runnable onSend) {
+	this.onSend = onSend;
+    }
+
+    @Override
+    public String toString() {
+	return HexTool.toString(data);
+    }
 }

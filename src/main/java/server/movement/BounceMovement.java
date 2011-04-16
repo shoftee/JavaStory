@@ -21,7 +21,8 @@
 package server.movement;
 
 import java.awt.Point;
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
+import org.javastory.io.PacketBuilder;
 
 public class BounceMovement extends AbstractLifeMovement {
 
@@ -49,12 +50,12 @@ public class BounceMovement extends AbstractLifeMovement {
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-        lew.write(getType());
-	lew.writePos(getPosition());
-	lew.writeShort(getUnk());
-	lew.writeShort(getFH());
-        lew.write(getNewstate());
-        lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+        lew.writeAsByte(getType());
+	lew.writeVector(getPosition());
+	lew.writeAsShort(getUnk());
+	lew.writeAsShort(getFH());
+        lew.writeAsByte(getNewstate());
+        lew.writeAsShort(getDuration());
     }
 }

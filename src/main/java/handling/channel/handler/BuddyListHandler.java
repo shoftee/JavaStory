@@ -39,8 +39,9 @@ import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.remote.WorldChannelInterface;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 import tools.MaplePacketCreator;
-import tools.data.input.SeekableLittleEndianAccessor;
 
 public class BuddyListHandler {
 
@@ -83,14 +84,14 @@ public class BuddyListHandler {
 	return ret;
     }
 
-    public static final void BuddyOperation(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-	final int mode = slea.readByte();
+    public static final void handleBuddyOperation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+	final int mode = reader.readByte();
 	final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
 	final BuddyList buddylist = c.getPlayer().getBuddylist();
 
 	if (mode == 1) { // add
-	    final String addName = slea.readMapleAsciiString();
-	    final String groupName = slea.readMapleAsciiString();
+	    final String addName = reader.readLengthPrefixedString();
+	    final String groupName = reader.readLengthPrefixedString();
 	    final BuddylistEntry ble = buddylist.get(addName);
 
 	    if (addName.length() > 13 || groupName.length() > 16) {
@@ -180,7 +181,7 @@ public class BuddyListHandler {
 		}
 	    }
 	} else if (mode == 2) { // accept buddy
-	    int otherCid = slea.readInt();
+	    int otherCid = reader.readInt();
 	    if (!buddylist.isFull()) {
 		try {
 		    final int channel = worldInterface.find(otherCid);
@@ -215,7 +216,7 @@ public class BuddyListHandler {
 	    }
 	    nextPendingRequest(c);
 	} else if (mode == 3) { // delete
-	    final int otherCid = slea.readInt();
+	    final int otherCid = reader.readInt();
 	    if (buddylist.containsVisible(otherCid)) {
 		try {
 		    notifyRemoteChannel(c, worldInterface.find(otherCid), otherCid, DELETED);

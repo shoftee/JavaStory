@@ -21,7 +21,7 @@
 package server.movement;
 
 import java.awt.Point;
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class AranMovement extends AbstractLifeMovement {
     
@@ -30,9 +30,9 @@ public class AranMovement extends AbstractLifeMovement {
     }
     
     @Override
-    public void serialize(LittleEndianWriter lew) {
-        lew.write(getType());
-        lew.write(getNewstate());
-        lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+        lew.writeAsByte(getType());
+        lew.writeAsByte(getNewstate());
+        lew.writeAsShort(getDuration());
     }
 }

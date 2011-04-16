@@ -21,7 +21,7 @@
 package org.javastory.server.mina;
 
 import client.MapleClient;
-import handling.MaplePacket;
+import handling.GamePacket;
 import org.javastory.cryptography.AesTransform;
 import org.javastory.cryptography.CustomEncryption;
 
@@ -46,7 +46,7 @@ public class PacketEncoder implements ProtocolEncoder {
 	    try {
 		final AesTransform serverCrypto = client.getServerCrypto();
 
-		final byte[] packet = ((MaplePacket) message).getBytes();
+		final byte[] packet = ((GamePacket) message).getBytes();
 		final byte[] packetCopy = new byte[packet.length];
 		System.arraycopy(packet, 0, packetCopy, 0, packet.length); 
 
@@ -64,7 +64,7 @@ public class PacketEncoder implements ProtocolEncoder {
 		mutex.unlock();
 	    }
 	} else { 
-	    out.write(IoBuffer.wrap(((MaplePacket) message).getBytes()));
+	    out.write(IoBuffer.wrap(((GamePacket) message).getBytes()));
 	}
     }
 

@@ -4,10 +4,13 @@
  */
 package org.javastory.server;
 
+import database.DatabaseConnection;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldRegistry;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
+import org.javastory.server.channel.ChannelServer;
+import org.javastory.server.channel.ChannelWorldInterfaceImpl;
 import org.javastory.server.mina.PacketHandler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,6 +20,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.RMIClientSocketFactory;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
@@ -34,6 +38,27 @@ public abstract class GameService {
             new ProtocolCodecFilter(new GameCodecFactory());
     private static final RMIClientSocketFactory socketFactory =
             new SslRMIClientSocketFactory();
+    protected static WorldRegistry worldRegistry;
+    private IoAcceptor acceptor;
+    private volatile ServerStatus status;
+    protected EndpointInfo endpointInfo;
+    protected Properties settings = new Properties();
+    protected AtomicBoolean isWorldReady;
+
+    private GameService() {
+        isWorldReady = new AtomicBoolean(false);
+        DatabaseConnection.initialize();
+    }
+
+    protected GameService(EndpointInfo endpointInfo) {
+        this();
+        this.endpointInfo = endpointInfo;
+    }
+
+    protected GameService(int port) {
+        this();
+        this.endpointInfo = new EndpointInfo("127.0.0.1", port);
+    }
 
     private static IoFilter getPacketFilter() {
         return packetFilter;
@@ -42,31 +67,19 @@ public abstract class GameService {
     private static RMIClientSocketFactory getSocketFactory() {
         return socketFactory;
     }
-    
-    private IoAcceptor acceptor;
-    protected EndpointInfo endpointInfo;
-    protected Properties settings = new Properties();
-    private volatile ServerStatus status;
 
-    public abstract void shutdown();
-
-    public final void unbind() {
-        this.acceptor.unbind();
-    }
-    
-    protected GameService(EndpointInfo endpointInfo) {
-        this.endpointInfo = endpointInfo;
-    }
-    
-    protected GameService(int port) {
-        this.endpointInfo = new EndpointInfo("127.0.0.1", port);
-    }
-    
-    protected GameService(String host, int port) {
-        this.endpointInfo = new EndpointInfo(host, port);
+    private void getNewAcceptor(final PacketHandler handler) {
+        if (acceptor != null) {
+            acceptor.unbind();
+            acceptor.dispose(false);
+        }
+        acceptor = new NioSocketAcceptor();
+        acceptor.getSessionConfig().setWriterIdleTime(0);
+        acceptor.getFilterChain().addLast("codec", getPacketFilter());
+        acceptor.setHandler(handler);
     }
 
-    protected final WorldRegistry getRegistry() 
+    protected final WorldRegistry getRegistry()
             throws RemoteException, AccessException, NotBoundException {
         final String registryIP =
                 System.getProperty("org.javastory.world.ip");
@@ -76,35 +89,48 @@ public abstract class GameService {
         return (WorldRegistry) registry.lookup("WorldRegistry");
     }
 
-    protected void bind(final PacketHandler handler) {
+    protected final void bind(final PacketHandler handler) {
         getNewAcceptor(handler);
-        
-        int port = endpointInfo.getPort();
 
+        SocketAddress address = endpointInfo.asSocketAddress();
+        
         try {
-            acceptor.bind(new InetSocketAddress(port));
-            System.out.println(":: Listening on port " + port + " ::");
+            acceptor.bind(address);
+            System.out.println(":: Successfully bound to " + address + " ::");
         } catch (final IOException e) {
-            System.err.println("Binding to port " + port + " failed" + e);
+            System.err.println("Binding to port " + address + " failed" + e);
         }
     }
 
-    private void getNewAcceptor(final PacketHandler handler) {
-        acceptor = new NioSocketAcceptor();
-        acceptor.getSessionConfig().setWriterIdleTime(0);
-        acceptor.getFilterChain().addLast("codec", getPacketFilter());
-        acceptor.setHandler(handler);
+    protected final void unbind() {
+        this.acceptor.unbind();
     }
 
     public final String getIP() {
         return endpointInfo.getHost();
     }
 
-    public ServerStatus getStatus() {
+    public final ServerStatus getStatus() {
         return status;
     }
 
-    protected void setStatus(ServerStatus status) {
+    protected final void setStatus(ServerStatus status) {
         this.status = status;
+    }
+
+    protected final void reconnectWorld() {
+        if (isWorldReady.compareAndSet(false, true)) {
+            connectToWorld();
+        }
+    }
+
+    protected abstract void connectToWorld();
+
+    protected abstract void loadSettings();
+
+    public abstract void shutdown();
+
+    public static WorldRegistry getWorldRegistry() {
+        return worldRegistry;
     }
 }

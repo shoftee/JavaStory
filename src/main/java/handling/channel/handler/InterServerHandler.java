@@ -16,13 +16,14 @@ import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.remote.WorldChannelInterface;
+import org.javastory.io.PacketFormatException;
 import server.MapleTrade;
 import server.maps.FieldLimitType;
 import server.shops.IMaplePlayerShop;
 import tools.FileOutputUtil;
 import tools.MaplePacketCreator;
 import tools.packet.FamilyPacket;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 import server.maps.MapleMap;
 import client.MapleCharacter;
 import client.SkillFactory;
@@ -33,7 +34,7 @@ import server.maps.SavedLocationType;
 
 public class InterServerHandler {
 
-    public static void EnterMTS(final MapleClient c) {
+    public static void handleEnterMTS(final MapleClient c) {
         final MapleMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(910000000);
         if ((c.getPlayer().getMapId() < 910000000) || (c.getPlayer().getMapId() > 910000022)) {
             if (c.getPlayer().getLevel() >= 10) {
@@ -50,7 +51,7 @@ public class InterServerHandler {
         }
     }
 
-    public static void EnterCashShop(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleEnterCashShop(final PacketReader reader, final MapleClient c, final MapleCharacter chr) {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
@@ -106,20 +107,20 @@ public class InterServerHandler {
         // TODO: I don't know what this is but it's crazy.
         final int cashShopPort = 8686;
         c.getSession().write(MaplePacketCreator.getChannelChange(cashShopPort));
-        chr.saveToDB(false, false);
+        chr.saveToDb(false, false);
         chr.getMap().removePlayer(chr);
         c.setPlayer(null);
     }
 
-    public static void Loggedin(final int playerid, final MapleClient c) {
+    public static void handlePlayerLoggedIn(final int playerid, final MapleClient c) {
         final ChannelServer channelServer = c.getChannelServer();
         MapleCharacter player;
         final CharacterTransfer transfer = channelServer.getPlayerStorage().getPendingCharacter(playerid);
         if (transfer == null) { 
             // Player isn't in storage, probably isn't CC
-            player = MapleCharacter.loadCharFromDB(playerid, c, true);
+            player = MapleCharacter.loadFromDb(playerid, c, true);
         } else {
-            player = MapleCharacter.ReconstructChr(transfer, c, true);
+            player = MapleCharacter.reconstructCharacter(transfer, c, true);
         }
         c.setPlayer(player);
         c.setAccID(player.getAccountID());
@@ -215,12 +216,12 @@ public class InterServerHandler {
         }
     }
 
-    public static void ChangeChannel(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+    public static void handleChannelChange(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        final int channel = slea.readByte() + 1;
+        final int channel = reader.readByte() + 1;
         final ChannelServer toch = ChannelManager.getInstance(channel);
 
         if (FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit()) || channel == c.getChannelId()) {
@@ -279,7 +280,7 @@ public class InterServerHandler {
 
         final String[] socket = ch.getIP(channel).split(":");
         c.getSession().write(MaplePacketCreator.getChannelChange(Integer.parseInt(socket[1])));
-        chr.saveToDB(false, false);
+        chr.saveToDb(false, false);
         chr.getMap().removePlayer(chr);
         c.setPlayer(null);
     }

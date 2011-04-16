@@ -115,7 +115,7 @@ public class MapleClient implements Serializable {
         final List<MapleCharacter> chars = new LinkedList<MapleCharacter>();
 
         for (final CharNameAndId cni : loadCharactersInternal(serverId)) {
-            final MapleCharacter chr = MapleCharacter.loadCharFromDB(cni.id, this, false);
+            final MapleCharacter chr = MapleCharacter.loadFromDb(cni.id, this, false);
             chars.add(chr);
             allowedChar.add(chr.getId());
         }
@@ -633,7 +633,7 @@ public class MapleClient implements Serializable {
         if (player != null && isLoggedIn()) {
             removalTask();
 
-            player.saveToDB(true, fromCS);
+            player.saveToDb(true, fromCS);
 
 
             if (!fromCS) {

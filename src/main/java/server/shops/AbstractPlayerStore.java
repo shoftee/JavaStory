@@ -33,7 +33,7 @@ import client.IItem;
 import client.Equip;
 import client.MapleCharacter;
 import database.DatabaseConnection;
-import handling.MaplePacket;
+import handling.GamePacket;
 import server.maps.AbstractMapleMapObject;
 import tools.Pair;
 import tools.packet.PlayerShopPacket;
@@ -60,11 +60,11 @@ public abstract class AbstractPlayerStore extends AbstractMapleMapObject impleme
     }
 
     @Override
-    public void broadcastToVisitors(MaplePacket packet) {
+    public void broadcastToVisitors(GamePacket packet) {
 	broadcastToVisitors(packet, true);
     }
 
-    public void broadcastToVisitors(MaplePacket packet, boolean owner) {
+    public void broadcastToVisitors(GamePacket packet, boolean owner) {
 	MapleCharacter chr = chr1.get();
 	if (chr != null) {
 	    chr.getClient().getSession().write(packet);
@@ -315,7 +315,7 @@ public abstract class AbstractPlayerStore extends AbstractMapleMapObject impleme
     }
 
     @Override
-    public int getOwnerAccId() {
+    public int getOwnerAccountId() {
 	return owneraccount;
     }
 

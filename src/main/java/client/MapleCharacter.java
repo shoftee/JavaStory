@@ -27,7 +27,7 @@ import java.io.Serializable;
 import client.anticheat.CheatTracker;
 import database.DatabaseConnection;
 import database.DatabaseException;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.world.CharacterTransfer;
 import handling.world.MapleMessenger;
 import handling.world.MapleParty;
@@ -79,6 +79,7 @@ import server.MapleInventoryManipulator;
 import server.life.MobSkill;
 import server.maps.MapleDragon;
 import server.movement.LifeMovementFragment;
+import org.javastory.io.PacketBuilder;
 
 public class MapleCharacter extends AbstractAnimatedMapleMapObject implements InventoryContainer, Serializable {
 
@@ -125,7 +126,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
     private transient CheatTracker anticheat;
     private MapleClient client;
     private PlayerStats stats;
-    private PlayerRandomStream CRand;
+    private PlayerRandomStream randomStream;
     private transient MapleMap map;
     private transient MapleShop shop;
     private MapleStorage storage;
@@ -230,7 +231,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         return ret;
     }
 
-    public final static MapleCharacter ReconstructChr(final CharacterTransfer ct, final MapleClient client, final boolean isChannel) {
+    public final static MapleCharacter reconstructCharacter(final CharacterTransfer ct, final MapleClient client, final boolean isChannel) {
         final MapleCharacter ret = new MapleCharacter(true); // Always true, it's change channel
         ret.client = client;
         if (!isChannel) {
@@ -241,7 +242,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         ret.level = ct.level;
         ret.fame = ct.fame;
 
-        ret.CRand = new PlayerRandomStream();
+        ret.randomStream = new PlayerRandomStream();
 
         ret.stats.setStr(ct.str);
         ret.stats.setDex(ct.dex);
@@ -398,7 +399,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         return ret;
     }
 
-    public static MapleCharacter loadCharFromDB(int charid, MapleClient client, boolean channelserver) {
+    public static MapleCharacter loadFromDb(int charid, MapleClient client, boolean channelserver) {
         final MapleCharacter ret = new MapleCharacter(channelserver);
         ret.client = client;
         ret.id = charid;
@@ -553,7 +554,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             pse.close();
 
             if (channelserver) {
-                ret.CRand = new PlayerRandomStream();
+                ret.randomStream = new PlayerRandomStream();
                 ret.monsterbook = new MonsterBook();
                 ret.monsterbook.loadCards(charid);
 
@@ -612,13 +613,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                         equip.setLevel(rs.getByte("level"));
                         equip.setExpiration(expiration);
                         equip.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventory(type).addFromDB(equip);
+                        ret.getInventory(type).addFromDb(equip);
                     } else {
                         item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
                         item.setExpiration(expiration);
                         item.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventory(type).addFromDB(item);
+                        ret.getInventory(type).addFromDb(item);
 
                         if (rs.getInt("petid") > -1) {
                             pet = MaplePet.loadFromDb(item.getItemId(), rs.getInt("petid"), item.getPosition());
@@ -808,11 +809,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                         equip.setItemEXP(rs.getShort("itemEXP"));
                         equip.setUpgradeSlots(rs.getByte("upgradeslots"));
                         equip.setLevel(rs.getByte("level"));*/
-                        ret.getInventory(type).addFromDB(equip);
+                        ret.getInventory(type).addFromDb(equip);
                         /*		} else {
                         Item item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getInt("petid"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
-                        ret.getInventory(type).addFromDB(item);*/
+                        ret.getInventory(type).addFromDb(item);*/
                     }
                 }
                 rs.close();
@@ -835,7 +836,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         return ret;
     }
 
-    public static void saveNewCharToDB(final MapleCharacter chr, final int type, final boolean db) {
+    public static void saveNewCharacterToDb(final MapleCharacter chr, final int type, final boolean db) {
         Connection con = DatabaseConnection.getConnection();
 
         PreparedStatement ps = null;
@@ -1042,7 +1043,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         }
     }
 
-    public void saveToDB(boolean dc, boolean fromcs) {
+    public void saveToDb(boolean dc, boolean fromcs) {
         Connection con = DatabaseConnection.getConnection();
 
         PreparedStatement ps = null;
@@ -1128,7 +1129,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                     pet.saveToDb(); // Only save those summoned :P
                 }
             }
-            deleteWhereCharacterId(con, "DELETE FROM skillmacros WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM skillmacros WHERE characterid = ?");
             for (int i = 0; i < 5; i++) {
                 final SkillMacro macro = skillMacros[i];
                 if (macro != null) {
@@ -1145,7 +1146,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                 }
             }
 
-            deleteWhereCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, id);
             ps.setInt(2, getInventory(MapleInventoryType.EQUIP).getSlotLimit());
@@ -1156,7 +1157,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             ps.execute();
             ps.close();
 
-            deleteWhereCharacterId(con, "DELETE FROM inventoryitems WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM inventoryitems WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -1213,7 +1214,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             ps.close();
             pse.close();
 
-            deleteWhereCharacterId(con, "DELETE FROM questinfo WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM questinfo WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO questinfo (`characterid`, `quest`, `data`) VALUES (?, ?, ?)");
             ps.setInt(1, id);
             for (final Entry<Integer, String> q : questinfo.entrySet()) {
@@ -1223,7 +1224,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             }
             ps.close();
 
-            deleteWhereCharacterId(con, "DELETE FROM queststatus WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM queststatus WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
             ps.setInt(1, id);
@@ -1250,7 +1251,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             ps.close();
             pse.close();
 
-            deleteWhereCharacterId(con, "DELETE FROM skills WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM skills WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO skills (characterid, skillid, skilllevel, masterlevel) VALUES (?, ?, ?, ?)");
             ps.setInt(1, id);
 
@@ -1274,7 +1275,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                 ps.close();
             }
 
-            deleteWhereCharacterId(con, "DELETE FROM savedlocations WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM savedlocations WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
             ps.setInt(1, id);
             for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
@@ -1286,7 +1287,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             }
             ps.close();
 
-            deleteWhereCharacterId(con, "DELETE FROM buddies WHERE characterid = ? AND pending = 0");
+            deleteByCharacterId(con, "DELETE FROM buddies WHERE characterid = ? AND pending = 0");
             ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, 0)");
             ps.setInt(1, id);
             for (BuddylistEntry entry : buddylist.getBuddies()) {
@@ -1312,7 +1313,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             mount.saveMount(id);
             monsterbook.saveCards(id);
 
-            deleteWhereCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
             for (int i = 0; i < getWishlistSize(); i++) {
                 ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?) ");
                 ps.setInt(1, getId());
@@ -1321,7 +1322,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                 ps.close();
             }
 
-            deleteWhereCharacterId(con, "DELETE FROM trocklocations WHERE characterid = ?");
+            deleteByCharacterId(con, "DELETE FROM trocklocations WHERE characterid = ?");
             for (int i = 0; i < getRockSize(); i++) {
                 if (rocks[i] != 999999999) {
                     ps = con.prepareStatement("INSERT INTO trocklocations(characterid, mapid) VALUES(?, ?) ");
@@ -1360,7 +1361,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         }
     }
 
-    private void deleteWhereCharacterId(Connection con, String sql) throws SQLException {
+    private void deleteByCharacterId(Connection con, String sql) throws SQLException {
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, id);
         ps.executeUpdate();
@@ -1371,18 +1372,18 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         return stats;
     }
 
-    public final PlayerRandomStream CRand() {
-        return CRand;
+    public final PlayerRandomStream getRandomStream() {
+        return randomStream;
     }
 
-    public final void QuestInfoPacket(final tools.data.output.MaplePacketLittleEndianWriter mplew) {
-        mplew.writeShort(questinfo.size());
+    public final void QuestInfoPacket(final PacketBuilder builder) {
+        builder.writeAsShort(questinfo.size());
 
         for (final Entry<Integer, String> q : questinfo.entrySet()) {
-            mplew.writeShort(q.getKey());
-            mplew.writeMapleAsciiString(q.getValue() == null ? "" : q.getValue());
+            builder.writeAsShort(q.getKey());
+            builder.writeLengthPrefixedString(q.getValue() == null ? "" : q.getValue());
         }
-        mplew.writeInt(0); //PQ rank and stuff
+        builder.writeInt(0); //PQ rank and stuff
     }
 
     public final void updateInfoQuest(final int questid, final String data) {
@@ -2330,7 +2331,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
         changeMapInternal(to, pto.getPosition(), MaplePacketCreator.getWarpToMap(to, pto.getId(), this));
     }
 
-    private void changeMapInternal(final MapleMap to, final Point pos, MaplePacket warpPacket) {
+    private void changeMapInternal(final MapleMap to, final Point pos, GamePacket warpPacket) {
         if (eventInstance != null) {
             eventInstance.changedMap(this, to.getId());
         }
@@ -3167,7 +3168,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
             ps.execute();
             ps.close();
 
-            client.getSession().close();
+            client.getSession().close(true);
 
             ps = con.prepareStatement("UPDATE accounts SET tempban = ?, banreason = ?, greason = ? WHERE id = ?");
             Timestamp TS = new Timestamp(duration.getTimeInMillis());
@@ -3784,7 +3785,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements In
                     }
                     giveCoolDowns(rs.getInt("SkillID"), rs.getLong("StartTime"), rs.getLong("length"));
                 }
-                deleteWhereCharacterId(con, "DELETE FROM skills_cooldowns WHERE charid = ?");
+                deleteByCharacterId(con, "DELETE FROM skills_cooldowns WHERE charid = ?");
 
             } catch (SQLException e) {
                 System.err.println("Error while retriving cooldown from SQL storage");

@@ -23,16 +23,17 @@ package handling.channel.handler;
 import java.awt.Point;
 import client.MapleClient;
 //import net.sf.odinms.server.Randomizer;
+import org.javastory.io.PacketFormatException;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import tools.packet.MonsterCarnivalPacket;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class MonsterCarnivalHandler  {
 
-    public static final void MonsterCarnival(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final int tab = slea.readByte();
-        final int num = slea.readByte();
+    public static final void handleMonsterCarnival(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+        final int tab = reader.readByte();
+        final int num = reader.readByte();
         c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, num));
 
 	if (tab == 0) { //only spawning for now..

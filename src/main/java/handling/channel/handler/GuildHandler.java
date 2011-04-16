@@ -26,12 +26,13 @@ import java.util.Iterator;
 import client.MapleCharacter;
 import client.MapleClient;
 import handling.world.guild.*;
+import org.javastory.io.PacketFormatException;
 import tools.MaplePacketCreator;
-import tools.data.input.SeekableLittleEndianAccessor;
+import org.javastory.io.PacketReader;
 
 public class GuildHandler {
     
-    public static final void DenyGuildRequest(final String from, final MapleClient c) {
+    public static final void handleDenyGuildInvitation(final String from, final MapleClient c) {
 	final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
 	if (cfrom != null) {
 	    cfrom.getClient().getSession().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
@@ -79,7 +80,7 @@ public class GuildHandler {
     private static final java.util.List<Invited> invited = new java.util.LinkedList<Invited>();
     private static long nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
 
-    public static final void Guild(final SeekableLittleEndianAccessor slea, final MapleClient c) {
+    public static final void handleGuildOperation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
 	if (System.currentTimeMillis() >= nextPruneTime) {
 	    Iterator<Invited> itr = invited.iterator();
 	    Invited inv;
@@ -92,7 +93,7 @@ public class GuildHandler {
 	    nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
 	}
 
-	switch (slea.readByte()) {
+	switch (reader.readByte()) {
 	    case 0x02: // Create guild
 		if (c.getPlayer().getGuildId() > 0 || c.getPlayer().getMapId() != 200000301) {
 		    c.getPlayer().dropMessage(1, "You cannot create a new Guild while in one.");
@@ -101,7 +102,7 @@ public class GuildHandler {
 		    c.getPlayer().dropMessage(1, "You do not have enough mesos to create a Guild.");
 		    return;
 		}
-		final String guildName = slea.readMapleAsciiString();
+		final String guildName = reader.readLengthPrefixedString();
 
 		if (!isGuildNameAcceptable(guildName)) {
 		    c.getPlayer().dropMessage(1, "The Guild name you have chosen is not accepted.");
@@ -132,7 +133,7 @@ public class GuildHandler {
 		if (c.getPlayer().getGuildId() <= 0 || c.getPlayer().getGuildRank() > 2) { // 1 == guild master, 2 == jr
 		    return;
 		}
-		String name = slea.readMapleAsciiString();
+		String name = reader.readLengthPrefixedString();
 		final MapleGuildResponse mgr = MapleGuild.sendInvite(c, name);
 
 		if (mgr != null) {
@@ -148,8 +149,8 @@ public class GuildHandler {
 		if (c.getPlayer().getGuildId() > 0) {
 		    return;
 		}
-		guildId = slea.readInt();
-		int cid = slea.readInt();
+		guildId = reader.readInt();
+		int cid = reader.readInt();
 
 		if (cid != c.getPlayer().getId()) {
 		    return;
@@ -187,8 +188,8 @@ public class GuildHandler {
 		}
 		break;
 	    case 0x07: // leaving
-		cid = slea.readInt();
-		name = slea.readMapleAsciiString();
+		cid = reader.readInt();
+		name = reader.readLengthPrefixedString();
 
 		if (cid != c.getPlayer().getId() || !name.equals(c.getPlayer().getName()) || c.getPlayer().getGuildId() <= 0) {
 		    return;
@@ -206,8 +207,8 @@ public class GuildHandler {
 		respawnPlayer(c.getPlayer());
 		break;
 	    case 0x08: // Expel
-		cid = slea.readInt();
-		name = slea.readMapleAsciiString();
+		cid = reader.readInt();
+		name = reader.readLengthPrefixedString();
 
 		if (c.getPlayer().getGuildRank() > 2 || c.getPlayer().getGuildId() <= 0) {
 		    return;
@@ -220,13 +221,13 @@ public class GuildHandler {
 		    return;
 		}
 		break;
-	    case 0x0d: // Guild rank titles change
+	    case 0x0d: // handleGuildOperation rank titles change
 		if (c.getPlayer().getGuildId() <= 0 || c.getPlayer().getGuildRank() != 1) {
 		    return;
 		}
 		String ranks[] = new String[5];
 		for (int i = 0; i < 5; i++) {
-		    ranks[i] = slea.readMapleAsciiString();
+		    ranks[i] = reader.readLengthPrefixedString();
 		}
 
 		try {
@@ -238,8 +239,8 @@ public class GuildHandler {
 		}
 		break;
 	    case 0x0e: // Rank change
-		cid = slea.readInt();
-		byte newRank = slea.readByte();
+		cid = reader.readInt();
+		byte newRank = reader.readByte();
 
 		if ((newRank <= 1 || newRank > 5) || c.getPlayer().getGuildRank() > 2 || (newRank <= 2 && c.getPlayer().getGuildRank() != 1) || c.getPlayer().getGuildId() <= 0) {
 		    return;
@@ -262,10 +263,10 @@ public class GuildHandler {
 		    c.getPlayer().dropMessage(1, "You do not have enough mesos to create a Guild.");
 		    return;
 		}
-		final short bg = slea.readShort();
-		final byte bgcolor = slea.readByte();
-		final short logo = slea.readShort();
-		final byte logocolor = slea.readByte();
+		final short bg = reader.readShort();
+		final byte bgcolor = reader.readByte();
+		final short logo = reader.readShort();
+		final byte logocolor = reader.readByte();
 
 		try {
 		    c.getChannelServer().getWorldInterface().setGuildEmblem(c.getPlayer().getGuildId(), bg, bgcolor, logo, logocolor);
@@ -279,7 +280,7 @@ public class GuildHandler {
 		respawnPlayer(c.getPlayer());
 		break;
 	    case 0x10: // guild notice change
-		final String notice = slea.readMapleAsciiString();
+		final String notice = reader.readLengthPrefixedString();
 		if (notice.length() > 100 || c.getPlayer().getGuildId() <= 0 || c.getPlayer().getGuildRank() > 2) {
 		    return;
 		}

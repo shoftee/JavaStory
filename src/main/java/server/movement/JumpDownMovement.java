@@ -22,7 +22,7 @@ package server.movement;
 
 import java.awt.Point;
 
-import tools.data.output.LittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class JumpDownMovement extends AbstractLifeMovement {
 
@@ -68,14 +68,14 @@ public class JumpDownMovement extends AbstractLifeMovement {
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
-	lew.write(getType());
-	lew.writePos(getPosition());
-	lew.writePos(pixelsPerSecond);
-	lew.writeShort(unk);
-	lew.writeShort(fh);
-	lew.writePos(offset);
-	lew.write(getNewstate());
-	lew.writeShort(getDuration());
+    public void serialize(PacketBuilder lew) {
+	lew.writeAsByte(getType());
+	lew.writeVector(getPosition());
+	lew.writeVector(pixelsPerSecond);
+	lew.writeAsShort(unk);
+	lew.writeAsShort(fh);
+	lew.writeVector(offset);
+	lew.writeAsByte(getNewstate());
+	lew.writeAsShort(getDuration());
     }
 }

@@ -53,7 +53,7 @@ public class OdinSEA {
             public final void run() {
                 for (ChannelServer cserv : ChannelManager.getAllInstances()) {
                     for (MapleCharacter chr : cserv.getPlayerStorage().getAllCharacters()) {
-                        chr.saveToDB(false, false);
+                        chr.saveToDb(false, false);
                     }
                 }
             }

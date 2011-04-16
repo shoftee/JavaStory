@@ -30,7 +30,7 @@ import client.MaplePet;
 import client.OdinSEA;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.world.PartyOperation;
 import handling.world.MaplePartyCharacter;
 import org.javastory.server.channel.ChannelManager;
@@ -238,7 +238,7 @@ public class MapleMap {
         }
     }
 
-    private final void spawnAndAddRangedMapObject(final MapleMapObject mapobject, final DelayedPacketCreation packetbakery, final SpawnCondition condition) {
+    private void spawnAndAddRangedMapObject(final MapleMapObject mapobject, final DelayedPacketCreation packetbakery, final SpawnCondition condition) {
         mutex.lock();
 
         try {
@@ -298,7 +298,7 @@ public class MapleMap {
         return new Point(initial.x, dropY);
     }
 
-    private final Point calcDropPos(final Point initial, final Point fallback) {
+    private Point calcDropPos(final Point initial, final Point fallback) {
         final Point ret = calcPointBelow(new Point(initial.x, initial.y - 50));
         if (ret == null) {
             return fallback;
@@ -306,7 +306,7 @@ public class MapleMap {
         return ret;
     }
 
-    private final void dropFromMonster(final MapleCharacter chr, final MapleMonster mob) {
+    private void dropFromMonster(final MapleCharacter chr, final MapleMonster mob) {
         if (dropsDisabled || mob.dropsDisabled()) {
             return;
         }
@@ -376,7 +376,7 @@ public class MapleMap {
         }
     }
 
-    private final void killMonster(final MapleMonster monster) { // For mobs with removeAfter
+    private void killMonster(final MapleMonster monster) { // For mobs with removeAfter
         spawnedMonstersOnMap.decrementAndGet();
         monster.setHp(0);
         monster.spawnRevives(this);
@@ -483,7 +483,7 @@ public class MapleMap {
         }
     }
 
-    private final String MapDebug_Log() {
+    private String MapDebug_Log() {
         final StringBuilder sb = new StringBuilder("Defeat time : ");
         sb.append(FileOutputUtil.CurrentReadable_Time());
 
@@ -723,7 +723,7 @@ public class MapleMap {
         spawnFakeMonster(mob);
     }
 
-    private final void checkRemoveAfter(final MapleMonster monster) {
+    private void checkRemoveAfter(final MapleMonster monster) {
         final int ra = monster.getStats().getRemoveAfter();
 
         if (ra > 0) {
@@ -818,7 +818,7 @@ public class MapleMap {
         }, null);
     }
 
-    private final void respawnReactor(final MapleReactor reactor) {
+    private void respawnReactor(final MapleReactor reactor) {
         reactor.setState((byte) 0);
         reactor.setAlive(true);
         spawnReactor(reactor);
@@ -936,7 +936,7 @@ public class MapleMap {
         MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
     }
 
-    private final void spawnMobDrop(final IItem idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
+    private void spawnMobDrop(final IItem idrop, final Point dropPos, final MapleMonster mob, final MapleCharacter chr, final byte droptype, final short questid) {
         final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
@@ -968,7 +968,7 @@ public class MapleMap {
         }
     }
 
-    private final void activateItemReactors(final MapleMapItem drop, final MapleClient c) {
+    private void activateItemReactors(final MapleMapItem drop, final MapleClient c) {
         final IItem item = drop.getItem();
 
         for (final MapleMapObject o : getAllReactor()) {
@@ -1161,26 +1161,26 @@ public class MapleMap {
         }
     }
 
-    public final void broadcastMessage(final MaplePacket packet) {
+    public final void broadcastMessage(final GamePacket packet) {
         broadcastMessage(null, packet, Double.POSITIVE_INFINITY, null);
     }
 
-    public final void broadcastMessage(final MapleCharacter source, final MaplePacket packet, final boolean repeatToSource) {
+    public final void broadcastMessage(final MapleCharacter source, final GamePacket packet, final boolean repeatToSource) {
         broadcastMessage(repeatToSource ? null : source, packet, Double.POSITIVE_INFINITY, source.getPosition());
     }
 
-    /*	public void broadcastMessage(MapleCharacter source, MaplePacket packet, boolean repeatToSource, boolean ranged) {
+    /*	public void broadcastMessage(MapleCharacter source, GamePacket packet, boolean repeatToSource, boolean ranged) {
     broadcastMessage(repeatToSource ? null : source, packet, ranged ? MapleCharacter.MAX_VIEW_RANGE_SQ : Double.POSITIVE_INFINITY, source.getPosition());
     }*/
-    public final void broadcastMessage(final MaplePacket packet, final Point rangedFrom) {
+    public final void broadcastMessage(final GamePacket packet, final Point rangedFrom) {
         broadcastMessage(null, packet, GameConstants.maxViewRangeSq(), rangedFrom);
     }
 
-    public final void broadcastMessage(final MapleCharacter source, final MaplePacket packet, final Point rangedFrom) {
+    public final void broadcastMessage(final MapleCharacter source, final GamePacket packet, final Point rangedFrom) {
         broadcastMessage(source, packet, GameConstants.maxViewRangeSq(), rangedFrom);
     }
 
-    private final void broadcastMessage(final MapleCharacter source, final MaplePacket packet, final double rangeSq, final Point rangedFrom) {
+    private void broadcastMessage(final MapleCharacter source, final GamePacket packet, final double rangeSq, final Point rangedFrom) {
         mutex.lock();
         try {
             final Iterator<MapleCharacter> ltr = characters.iterator();
@@ -1202,7 +1202,7 @@ public class MapleMap {
         }
     }
 
-    private final void sendObjectPlacement(final MapleCharacter c) {
+    private void sendObjectPlacement(final MapleCharacter c) {
         if (c == null) {
             return;
         }
@@ -1452,7 +1452,7 @@ public class MapleMap {
         return null;
     }
 
-    private final void updateMapObjectVisibility(final MapleCharacter chr, final MapleMapObject mo) {
+    private void updateMapObjectVisibility(final MapleCharacter chr, final MapleMapObject mo) {
         if (!chr.isMapObjectVisible(mo)) { // monster entered view range
             if (mo.getType() == MapleMapObjectType.SUMMON || mo.getPosition().distanceSq(chr.getPosition()) <= GameConstants.maxViewRangeSq()) {
                 chr.addVisibleMapObject(mo);

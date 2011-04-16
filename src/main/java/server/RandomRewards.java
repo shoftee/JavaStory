@@ -14,56 +14,56 @@ public class RandomRewards {
     private List<Integer> compiledFishing = null;
 
     public static RandomRewards getInstance() {
-	return instance;
+        return instance;
     }
 
     protected RandomRewards() {
-	System.out.println(":: Loading RandomRewards ::");
-	// Gold Box
-	List<Integer> returnArray = new ArrayList<Integer>();
+        System.out.println(":: Loading RandomRewards ::");
+        // Gold Box
+        List<Integer> returnArray = new ArrayList<Integer>();
 
-	processRewards(returnArray, GameConstants.goldrewards);
+        processRewards(returnArray, GameConstants.goldrewards);
 
-	compiledGold = returnArray;
+        compiledGold = returnArray;
 
-	// Silver Box
-	returnArray = new ArrayList<Integer>();
+        // Silver Box
+        returnArray = new ArrayList<Integer>();
 
-	processRewards(returnArray, GameConstants.silverrewards);
+        processRewards(returnArray, GameConstants.silverrewards);
 
-	compiledSilver = returnArray;
+        compiledSilver = returnArray;
 
-	// Fishing Rewards
-	returnArray = new ArrayList<Integer>();
+        // Fishing Rewards
+        returnArray = new ArrayList<Integer>();
 
-	processRewards(returnArray, GameConstants.fishingReward);
+        processRewards(returnArray, GameConstants.fishingReward);
 
-	compiledFishing = returnArray;
+        compiledFishing = returnArray;
     }
 
-    private final void processRewards(final List<Integer> returnArray, final int[] list) {
-	int lastitem = 0;
-	for (int i = 0; i < list.length; i++) {
-	    if (i % 2 == 0) { // Even
-		lastitem = list[i];
-	    } else { // Odd
-		for (int j = 0; j < list[i]; j++) {
-		    returnArray.add(lastitem);
-		}
-	    }
-	}
-	Collections.shuffle(returnArray);
+    private void processRewards(final List<Integer> returnArray, final int[] list) {
+        int lastitem = 0;
+        for (int i = 0; i < list.length; i++) {
+            if (i % 2 == 0) { // Even
+                lastitem = list[i];
+            } else { // Odd
+                for (int j = 0; j < list[i]; j++) {
+                    returnArray.add(lastitem);
+                }
+            }
+        }
+        Collections.shuffle(returnArray);
     }
 
     public final int getGoldBoxReward() {
-	return compiledGold.get(Randomizer.nextInt(compiledGold.size()));
+        return compiledGold.get(Randomizer.nextInt(compiledGold.size()));
     }
 
     public final int getSilverBoxReward() {
-	return compiledSilver.get(Randomizer.nextInt(compiledSilver.size()));
+        return compiledSilver.get(Randomizer.nextInt(compiledSilver.size()));
     }
 
     public final int getFishingReward() {
-	return compiledFishing.get(Randomizer.nextInt(compiledFishing.size()));
+        return compiledFishing.get(Randomizer.nextInt(compiledFishing.size()));
     }
 }

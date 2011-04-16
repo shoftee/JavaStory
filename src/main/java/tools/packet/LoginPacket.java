@@ -6,48 +6,48 @@ import java.util.Set;
 
 import client.MapleClient;
 import client.MapleCharacter;
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import java.util.Map.Entry;
 import org.javastory.server.LoginChannelInfo;
 import org.javastory.server.login.LoginServer;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 import tools.HexTool;
 
 public final class LoginPacket {
 
-    public static MaplePacket getHello(final short version, final byte[] clientIv, final byte[] serverIv) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
+    public static GamePacket getHello(final short version, final byte[] clientIv, final byte[] serverIv) {
+        final PacketBuilder builder = new PacketBuilder(16);
 
-        mplew.writeShort(14);
-        mplew.writeShort(version);
-        mplew.writeMapleAsciiString("1");
-        mplew.write(clientIv);
-        mplew.write(serverIv);
-        mplew.write(7);
+        builder.writeAsShort(14);
+        builder.writeAsShort(version);
+        builder.writeLengthPrefixedString("1");
+        builder.writeBytes(clientIv);
+        builder.writeBytes(serverIv);
+        builder.writeAsByte(7);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getPing() {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
+    public static GamePacket getPing() {
+        final PacketBuilder builder = new PacketBuilder(16);
 
-        mplew.writeShort(ServerPacketOpcode.PING.getValue());
+        builder.writeAsShort(ServerPacketOpcode.PING.getValue());
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket StrangeDATA() {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
+    public static GamePacket StrangeDATA() {
+        final PacketBuilder builder = new PacketBuilder(16);
 
-        mplew.writeShort(0x12);
-        mplew.writeMapleAsciiString("30819F300D06092A864886F70D010101050003818D0030818902818100994F4E66B003A7843C944E67BE4375203DAA203C676908E59839C9BADE95F53E848AAFE61DB9C09E80F48675CA2696F4E897B7F18CCB6398D221C4EC5823D11CA1FB9764A78F84711B8B6FCA9F01B171A51EC66C02CDA9308887CEE8E59C4FF0B146BF71F697EB11EDCEBFCE02FB0101A7076A3FEB64F6F6022C8417EB6B87270203010001");
+        builder.writeAsShort(0x12);
+        builder.writeLengthPrefixedString("30819F300D06092A864886F70D010101050003818D0030818902818100994F4E66B003A7843C944E67BE4375203DAA203C676908E59839C9BADE95F53E848AAFE61DB9C09E80F48675CA2696F4E897B7F18CCB6398D221C4EC5823D11CA1FB9764A78F84711B8B6FCA9F01B171A51EC66C02CDA9308887CEE8E59C4FF0B146BF71F697EB11EDCEBFCE02FB0101A7076A3FEB64F6F6022C8417EB6B87270203010001");
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getLoginFailed(final int reason) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
+    public static GamePacket getLoginFailed(final int reason) {
+        final PacketBuilder builder = new PacketBuilder(16);
 
         /*	* 3: ID deleted or blocked
          * 4: Incorrect password
@@ -68,48 +68,48 @@ public final class LoginPacket {
          * 25: Maple Europe notice
          * 27: Some weird full client notice, probably for trial versions*/
 
-        mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.writeInt(reason);
-        mplew.writeShort(0);
+        builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
+        builder.writeInt(reason);
+        builder.writeAsShort(0);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getPermBan(final byte reason) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
+    public static GamePacket getPermBan(final byte reason) {
+        final PacketBuilder builder = new PacketBuilder(16);
 
-        mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.writeShort(2); // Account is banned
-        mplew.write(0);
-        mplew.write(reason);
-        mplew.write(HexTool.getByteArrayFromHexString("01 01 01 01 00"));
+        builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
+        builder.writeAsShort(2); // Account is banned
+        builder.writeAsByte(0);
+        builder.writeByte(reason);
+        builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 01 01 00"));
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getTempBan(final long timestampTill, final byte reason) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(17);
+    public static GamePacket getTempBan(final long timestampTill, final byte reason) {
+        final PacketBuilder builder = new PacketBuilder(17);
 
-        mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.write(2);
-        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00"));
-        mplew.write(reason);
-        mplew.writeLong(timestampTill); // Tempban date is handled as a 64-bit long, number of 100NS intervals since 1/1/1601. Lulz.
+        builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
+        builder.writeAsByte(2);
+        builder.writeBytes(HexTool.getByteArrayFromHexString("00 00 00 00 00"));
+        builder.writeByte(reason);
+        builder.writeLong(timestampTill); // Tempban date is handled as a 64-bit long, number of 100NS intervals since 1/1/1601. Lulz.
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getAuthSuccessRequest(final MapleClient client) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket getAuthSuccessRequest(final MapleClient client) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.write(0);
-        mplew.writeInt(client.getAccID());
-        mplew.write(client.getGender());
-        mplew.write(client.isGm() ? 1 : 0); // Admin byte
-        mplew.write(0);
-        mplew.writeMapleAsciiString("T13333333337W");
-        mplew.writeZeroBytes(12);
+        builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
+        builder.writeAsByte(0);
+        builder.writeInt(client.getAccID());
+        builder.writeByte(client.getGender());
+        builder.writeAsByte(client.isGm() ? 1 : 0); // Admin byte
+        builder.writeAsByte(0);
+        builder.writeLengthPrefixedString("T13333333337W");
+        builder.writeZeroBytes(12);
         /*00 00
         00
         9C 7E 0F 00
@@ -120,118 +120,122 @@ public final class LoginPacket {
         00 00 00 00
         00 00 00 00
         ...?~.......T06110504318K............*/
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket deleteCharResponse(final int cid, final int state) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket deleteCharResponse(final int cid, final int state) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.DELETE_CHAR_RESPONSE.getValue());
-        mplew.writeInt(cid);
-        mplew.write(state);
+        builder.writeAsShort(ServerPacketOpcode.DELETE_CHAR_RESPONSE.getValue());
+        builder.writeInt(cid);
+        builder.writeAsByte(state);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket secondPwError(final byte mode) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
+    public static GamePacket secondPwError(final byte mode) {
+        final PacketBuilder builder = new PacketBuilder(3);
 
-        mplew.writeShort(ServerPacketOpcode.SECONDPW_ERROR.getValue());
-        mplew.write(mode);
+        builder.writeAsShort(ServerPacketOpcode.SECONDPW_ERROR.getValue());
+        builder.writeByte(mode);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getWorldList(
+    public static GamePacket getWorldList(
             final int worldId,
             final String worldName,
             final Map<Integer, LoginChannelInfo> channels) {
 
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(ServerPacketOpcode.SERVERLIST.getValue());
-        mplew.write(worldId);
-        mplew.writeMapleAsciiString(worldName);
-        mplew.write(LoginServer.getInstance().getFlag());
-        mplew.writeMapleAsciiString(LoginServer.getInstance().getEventMessage());
-        mplew.write(0x64);
-        mplew.write(0);
-        mplew.write(0x64);
-        mplew.write(0);
+        final PacketBuilder builder = new PacketBuilder();
+        builder.writeAsShort(ServerPacketOpcode.SERVERLIST.getValue());
+        builder.writeAsByte(worldId);
+        builder.writeLengthPrefixedString(worldName);
+        
+        // TODO, fairly sure this flag is world-specific, not loginserver stuff.
+        builder.writeAsByte(0);
+        
+        // TODO: another world-specific thing.
+        builder.writeLengthPrefixedString("");
+        builder.writeAsByte(0x64);
+        builder.writeAsByte(0);
+        builder.writeAsByte(0x64);
+        builder.writeAsByte(0);
         int count = channels.size();
-        mplew.write(count);
+        builder.writeAsByte(count);
         int load;
         for (LoginChannelInfo info : channels.values()) {
-            mplew.writeMapleAsciiString(info.getName());
-            mplew.writeInt(info.getLoad());
-            mplew.write(worldId);
-            mplew.writeShort(info.getId());
+            builder.writeLengthPrefixedString(info.getName());
+            builder.writeInt(info.getLoad());
+            builder.writeAsByte(worldId);
+            builder.writeAsShort(info.getId());
         }
-        mplew.writeShort(0);
+        builder.writeAsShort(0);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getEndOfWorldList() {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket getEndOfWorldList() {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.SERVERLIST.getValue());
-        mplew.write(0xFF);
+        builder.writeAsShort(ServerPacketOpcode.SERVERLIST.getValue());
+        builder.writeAsByte(0xFF);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static MaplePacket getWorldStatus(final int status) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket getWorldStatus(final int status) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.SERVERSTATUS.getValue());
-        mplew.writeShort(status);
+        builder.writeAsShort(ServerPacketOpcode.SERVERSTATUS.getValue());
+        builder.writeAsShort(status);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static final MaplePacket getCharList(final boolean secondpw, final List<MapleCharacter> chars) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static final GamePacket getCharacterList(final boolean secondpw, final List<MapleCharacter> chars, int maxCharacters) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.CHARLIST.getValue());
-        mplew.write(0);
-        mplew.write(chars.size());
+        builder.writeAsShort(ServerPacketOpcode.CHARLIST.getValue());
+        builder.writeAsByte(0);
+        builder.writeAsByte(chars.size());
         for (final MapleCharacter chr : chars) {
-            addCharEntry(mplew, chr);
+            addCharEntry(builder, chr);
         }
-        mplew.write(secondpw ? 1 : 0);
-        mplew.write(0);
-        mplew.write(LoginServer.getInstance().getMaxCharacters());
-        mplew.write(0);
-        mplew.writeShort(0);
-        mplew.writeInt(0);
+        builder.writeAsByte(secondpw ? 1 : 0);
+        builder.writeAsByte(0);
+        builder.writeAsByte(maxCharacters);
+        builder.writeAsByte(0);
+        builder.writeAsShort(0);
+        builder.writeInt(0);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static final MaplePacket addNewCharEntry(final MapleCharacter chr, final boolean worked) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static final GamePacket addNewCharEntry(final MapleCharacter chr, final boolean worked) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
-        mplew.write(worked ? 0 : 1);
-        addCharEntry(mplew, chr);
+        builder.writeAsShort(ServerPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
+        builder.writeAsByte(worked ? 0 : 1);
+        addCharEntry(builder, chr);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    public static final MaplePacket charNameResponse(final String charname, final boolean nameUsed) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static final GamePacket charNameResponse(final String charname, final boolean nameUsed) {
+        final PacketBuilder builder = new PacketBuilder();
 
-        mplew.writeShort(ServerPacketOpcode.CHAR_NAME_RESPONSE.getValue());
-        mplew.writeMapleAsciiString(charname);
-        mplew.write(nameUsed ? 1 : 0);
+        builder.writeAsShort(ServerPacketOpcode.CHAR_NAME_RESPONSE.getValue());
+        builder.writeLengthPrefixedString(charname);
+        builder.writeAsByte(nameUsed ? 1 : 0);
 
-        return mplew.getPacket();
+        return builder.getPacket();
     }
 
-    private static final void addCharEntry(final MaplePacketLittleEndianWriter mplew, final MapleCharacter chr) {
-        PacketHelper.addCharStats(mplew, chr);
-        PacketHelper.addCharLook(mplew, chr, true);
-        mplew.write(0);
-        mplew.write(0);
+    private static final void addCharEntry(final PacketBuilder builder, final MapleCharacter chr) {
+        PacketHelper.addCharStats(builder, chr);
+        PacketHelper.addCharLook(builder, chr, true);
+        builder.writeAsByte(0);
+        builder.writeAsByte(0);
     }
 }

@@ -1,5 +1,7 @@
 package org.javastory.server.channel;
 
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import org.javastory.server.ChannelInfo;
 import org.javastory.server.GameService;
 import java.rmi.RemoteException;
@@ -18,7 +20,7 @@ import client.MapleCharacter;
 import client.SkillFactory;
 import database.DatabaseConnection;
 import handling.ServerType;
-import handling.MaplePacket;
+import handling.GamePacket;
 import org.javastory.server.mina.PacketHandler;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.MaplePartyCharacter;
@@ -33,7 +35,6 @@ import handling.world.remote.WorldRegistry;
 import scripting.EventScriptManager;
 import server.AutobanManager;
 import server.MapleSquad;
-import server.ShutdownChannelServer;
 import server.TimerManager;
 import server.ItemMakerFactory;
 import server.RandomRewards;
@@ -43,13 +44,10 @@ import server.maps.MapleMapFactory;
 import server.shops.HiredMerchant;
 import tools.MaplePacketCreator;
 
-public class ChannelServer extends GameService {
+public final class ChannelServer extends GameService {
 
-    private static WorldRegistry worldRegistry;
     private ChannelWorldInterface cwi;
     private WorldChannelInterface wci = null;
-    private Properties worldProperties;
-    private Boolean worldReady = true;
     private boolean MegaphoneMuteState = false;
     private PlayerStorage players;
     private final MapleMapFactory mapFactories[] = new MapleMapFactory[2];
@@ -58,9 +56,9 @@ public class ChannelServer extends GameService {
     private final Map<Integer, HiredMerchant> merchants = new HashMap<Integer, HiredMerchant>();
     private String serverMessage, name;
     private byte expRate, mesoRate, dropRate;
-    private int channelId, running_MerchantID = 0;
+    private int channelId, currentMerchantId = 0;
     private final ChannelInfo channelInfo;
-    private final Lock merchant_mutex = new ReentrantLock();
+    private final Lock merchantMutex = new ReentrantLock();
     private EventScriptManager eventManagers[] = new EventScriptManager[2];
 
     public ChannelServer(ChannelInfo info) {
@@ -76,74 +74,48 @@ public class ChannelServer extends GameService {
         return channelInfo;
     }
 
-    public static WorldRegistry getWorldRegistry() {
-        return worldRegistry;
-    }
-
-    public final void pingWorld() {
+    public void pingWorld() {
         try {
             wci.isAvailable();
         } catch (RemoteException ex) {
-            synchronized (worldReady) {
-                worldReady = false;
-            }
-            synchronized (cwi) {
-                synchronized (worldReady) {
-                    if (worldReady) {
-                        return;
-                    }
-                }
-                System.out.println("Reconnecting to world server");
-                synchronized (wci) {
-                    reconnectWorld();
-                }
-            }
-            synchronized (worldReady) {
-                worldReady.notifyAll();
+            if (isWorldReady.compareAndSet(true, false)) {
+                connectToWorld();
             }
         }
     }
 
-    private void reconnectWorld() {
+    protected void connectToWorld() {
         try {
-
             worldRegistry = super.getRegistry();
-
             cwi = new ChannelWorldInterfaceImpl(this);
             wci = worldRegistry.registerChannelServer(this.channelInfo, cwi);
-            worldProperties = wci.getGameProperties();
-            expRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.exp"));
-            mesoRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.meso"));
-            dropRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.drop"));
-            serverMessage = worldProperties.getProperty("org.javastory.world.serverMessage");
-
             wci.serverReady();
-        } catch (Exception e) {
-            System.err.println("Reconnecting failed" + e);
+        } catch (AccessException ex) {
+            Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NotBoundException ex) {
+            Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RemoteException ex) {
+            Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        worldReady = true;
+        isWorldReady.compareAndSet(false, true);
+    }
+
+    protected final void loadSettings() {
+        // TODO: load settings from DB;
+        expRate = 1;
+        mesoRate = 1;
+        dropRate = 1;
+        serverMessage = "";
     }
 
     public void initialize() {
-        try {
-            DatabaseConnection.initialize();
-
-            worldRegistry = super.getRegistry();
-
-            cwi = new ChannelWorldInterfaceImpl(this);
-            wci = worldRegistry.registerChannelServer(this.channelInfo, cwi);
-            worldProperties = wci.getGameProperties();
-            expRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.exp"));
-            mesoRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.meso"));
-            dropRate = Byte.parseByte(worldProperties.getProperty("org.javastory.world.drop"));
-            serverMessage = worldProperties.getProperty("org.javastory.world.serverMessage");
-            final String[] events = worldProperties.getProperty("org.javastory.events").split(",");
-            for (int i = 0; i < eventManagers.length; i++) {
-                eventManagers[i] = new EventScriptManager(this, events, i == 0 ? 6 : 5);
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        connectToWorld();
+        loadSettings();
+        
+        // TODO: load events from DB.
+        final String[] events = new String[0];
+        for (int i = 0; i < eventManagers.length; i++) {
+            eventManagers[i] = new EventScriptManager(this, events, i == 0 ? 6 : 5);
         }
 
         TimerManager.getInstance().start();
@@ -172,51 +144,51 @@ public class ChannelServer extends GameService {
         }
         System.out.printf(":: Channel %d : Listening on port %d ::",
                           this.getChannelId(), super.endpointInfo.getPort());
-        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownListener()));
-        for (EventScriptManager esm : eventManagers) {
-            esm.init();
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownListener()));
+        for (EventScriptManager manager : eventManagers) {
+            manager.init();
         }
     }
 
-    public final MapleMapFactory getMapFactory(int world) {
+    public MapleMapFactory getMapFactory(int world) {
         return mapFactories[world == 6 ? 0 : 1];
     }
 
-    public final void addPlayer(final MapleCharacter chr) {
+    public void addPlayer(final MapleCharacter chr) {
         players.registerPlayer(chr);
         chr.getClient().getSession().write(MaplePacketCreator.serverMessage(serverMessage));
     }
 
-    public final PlayerStorage getPlayerStorage() {
+    public PlayerStorage getPlayerStorage() {
         return players;
     }
 
-    public final void removePlayer(final MapleCharacter chr) {
+    public void removePlayer(final MapleCharacter chr) {
         players.deregisterPlayer(chr);
     }
 
-    public final String getServerMessage() {
+    public String getServerMessage() {
         return serverMessage;
     }
 
-    public final void setServerMessage(final String newMessage) {
+    public void setServerMessage(final String newMessage) {
         serverMessage = newMessage;
         broadcastPacket(MaplePacketCreator.serverMessage(serverMessage));
     }
 
-    public final void broadcastPacket(final MaplePacket data) {
+    public void broadcastPacket(final GamePacket data) {
         players.broadcastPacket(data);
     }
 
-    public final void broadcastSmegaPacket(final MaplePacket data) {
+    public void broadcastSmegaPacket(final GamePacket data) {
         players.broadcastSmegaPacket(data);
     }
 
-    public final void broadcastGMPacket(final MaplePacket data) {
+    public void broadcastGMPacket(final GamePacket data) {
         players.broadcastGMPacket(data);
     }
 
-    public final String getIP(final int channel) {
+    public String getIP(final int channel) {
         try {
             return getWorldInterface().getIP(channel);
         } catch (RemoteException e) {
@@ -225,17 +197,11 @@ public class ChannelServer extends GameService {
         }
     }
 
-    public final WorldChannelInterface getWorldInterface() {
-        synchronized (worldReady) {
-            while (!worldReady) {
-                try {
-                    worldReady.wait();
-                } catch (InterruptedException e) {
-                    //
-                }
-            }
+    public WorldChannelInterface getWorldInterface() {
+        if (isWorldReady.get()) {
+            return wci;
         }
-        return wci;
+        return null;
     }
 
     public final void shutdownWorld(final int time) {
@@ -263,11 +229,14 @@ public class ChannelServer extends GameService {
     }
 
     public final void reloadEvents() {
-        final String[] events = worldProperties.getProperty("org.javastory.channel.events").split(",");
-        for (int i = 0; i < eventManagers.length; i++) {
-            eventManagers[i].cancel();
-            eventManagers[i] = new EventScriptManager(this, events, i == 0 ? 6 : 5);
-            eventManagers[i].init();
+        int i = 0;
+        final String[] events = new String[0];
+
+        for (EventScriptManager manager : eventManagers) {
+            manager.cancel();
+            manager = new EventScriptManager(this, events, i == 0 ? 6 : 5);
+            manager.init();
+            i++;
         }
     }
 
@@ -296,38 +265,39 @@ public class ChannelServer extends GameService {
     }
 
     public final MapleGuild getGuild(final MapleGuildCharacter mgc) {
-        final int gid = mgc.getGuildId();
-        MapleGuild g = null;
+        final int guildId = mgc.getGuildId();
+        MapleGuild guild = null;
         try {
-            g = getWorldInterface().getGuild(gid, mgc);
+            guild = getWorldInterface().getGuild(guildId, mgc);
         } catch (RemoteException re) {
             System.err.println("RemoteException while fetching MapleGuild." + re);
             return null;
         }
-        if (gsStore.get(gid) == null) {
-            gsStore.put(gid, new MapleGuildSummary(g));
+        if (gsStore.get(guildId) == null) {
+            gsStore.put(guildId, new MapleGuildSummary(guild));
         }
-        return g;
+        return guild;
     }
 
-    public final MapleGuildSummary getGuildSummary(final int gid) {
-        if (gsStore.containsKey(gid)) {
-            return gsStore.get(gid);
+    public final MapleGuildSummary getGuildSummary(final int guildId) {
+        if (gsStore.containsKey(guildId)) {
+            return gsStore.get(guildId);
         }
         try {
-            final MapleGuild g = this.getWorldInterface().getGuild(gid, null);
-            if (g != null) {
-                gsStore.put(gid, new MapleGuildSummary(g));
+            final MapleGuild guild = 
+                    this.getWorldInterface().getGuild(guildId, null);
+            if (guild != null) {
+                gsStore.put(guildId, new MapleGuildSummary(guild));
             }
-            return gsStore.get(gid);
+            return gsStore.get(guildId);
         } catch (RemoteException re) {
             System.err.println("RemoteException while fetching GuildSummary." + re);
             return null;
         }
     }
 
-    public final void updateGuildSummary(final int gid, final MapleGuildSummary mgs) {
-        gsStore.put(gid, mgs);
+    public final void updateGuildSummary(final int guildId, final MapleGuildSummary summary) {
+        gsStore.put(guildId, summary);
     }
 
     public final MapleSquad getMapleSquad(final String type) {
@@ -352,53 +322,57 @@ public class ChannelServer extends GameService {
     }
 
     public final void closeAllMerchant() {
-        merchant_mutex.lock();
-        final Iterator<HiredMerchant> merchants_ = merchants.values().iterator();
+        merchantMutex.lock();
+        final Iterator<HiredMerchant> iterator = 
+                merchants.values().iterator();
         try {
-            while (merchants_.hasNext()) {
-                merchants_.next().closeShop(true, false);
-                merchants_.remove();
+            while (iterator.hasNext()) {
+                HiredMerchant merchant = iterator.next();
+                merchant.closeShop(true, false);
+                iterator.remove();
             }
         } finally {
-            merchant_mutex.unlock();
+            merchantMutex.unlock();
         }
     }
 
-    public final int addMerchant(final HiredMerchant hMerchant) {
-        merchant_mutex.lock();
-        int runningmer = 0;
+    public final int addMerchant(final HiredMerchant merchant) {
+        merchantMutex.lock();
+        int id = 0;
         try {
-            runningmer = running_MerchantID;
-            merchants.put(running_MerchantID, hMerchant);
-            running_MerchantID++;
+            id = currentMerchantId;
+            merchants.put(id, merchant);
+            currentMerchantId++;
         } finally {
-            merchant_mutex.unlock();
+            merchantMutex.unlock();
         }
-        return runningmer;
+        return id;
     }
 
-    public final void removeMerchant(final HiredMerchant hMerchant) {
-        merchant_mutex.lock();
+    public final void removeMerchant(final HiredMerchant merchant) {
+        merchantMutex.lock();
         try {
-            merchants.remove(hMerchant.getStoreId());
+            merchants.remove(merchant.getStoreId());
         } finally {
-            merchant_mutex.unlock();
+            merchantMutex.unlock();
         }
     }
 
-    public final boolean constainsMerchant(final int accid) {
+    public final boolean hasMerchant(final int accountId) {
         boolean contains = false;
-        merchant_mutex.lock();
+        merchantMutex.lock();
         try {
-            final Iterator itr = merchants.values().iterator();
-            while (itr.hasNext()) {
-                if (((HiredMerchant) itr.next()).getOwnerAccId() == accid) {
+            final Iterator<HiredMerchant> iterator = 
+                    merchants.values().iterator();
+            while (iterator.hasNext()) {
+                HiredMerchant merchant = iterator.next();
+                if (merchant.getOwnerAccountId() == accountId) {
                     contains = true;
                     break;
                 }
             }
         } finally {
-            merchant_mutex.unlock();
+            merchantMutex.unlock();
         }
         return contains;
     }
@@ -414,7 +388,8 @@ public class ChannelServer extends GameService {
     public final List<MapleCharacter> getPartyMembers(final MapleParty party) {
         List<MapleCharacter> partym = new LinkedList<MapleCharacter>();
         for (final MaplePartyCharacter partychar : party.getMembers()) {
-            if (partychar.getChannel() == getChannelId()) { // Make sure the thing doesn't get duplicate plays due to ccing bug.
+            if (partychar.getChannel() == getChannelId()) {
+                // Make sure the thing doesn't get duplicate plays due to ccing bug.
                 MapleCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     partym.add(chr);
@@ -424,7 +399,7 @@ public class ChannelServer extends GameService {
         return partym;
     }
 
-    private final class ShutDownListener implements Runnable {
+    private class ShutdownListener implements Runnable {
 
         @Override
         public void run() {

@@ -20,55 +20,55 @@
 */
 package tools.packet;
 
-import handling.MaplePacket;
+import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import tools.data.output.MaplePacketLittleEndianWriter;
+import org.javastory.io.PacketBuilder;
 
 public class MonsterBookPacket {
 
-    public static MaplePacket addCard(boolean full, int cardid, int level) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket addCard(boolean full, int cardid, int level) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.MONSTERBOOK_ADD.getValue());
+	builder.writeAsShort(ServerPacketOpcode.MONSTERBOOK_ADD.getValue());
 
         if (!full) {
-            mplew.write(1);
-            mplew.writeInt(cardid);
-            mplew.writeInt(level);
+            builder.writeAsByte(1);
+            builder.writeInt(cardid);
+            builder.writeInt(level);
         } else {
-            mplew.write(0);
+            builder.writeAsByte(0);
         }
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket showGainCard(final int itemid) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket showGainCard(final int itemid) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
-	mplew.write(0);
-	mplew.write(2);
-	mplew.writeInt(itemid);
+	builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
+	builder.writeAsByte(0);
+	builder.writeAsByte(2);
+	builder.writeInt(itemid);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket showForeginCardEffect(int id) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket showForeginCardEffect(int id) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
-	mplew.writeInt(id);
-	mplew.write(0x0D);
+	builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
+	builder.writeInt(id);
+	builder.writeAsByte(0x0D);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 
-    public static MaplePacket changeCover(int cardid) {
-	MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static GamePacket changeCover(int cardid) {
+	PacketBuilder builder = new PacketBuilder();
 
-	mplew.writeShort(ServerPacketOpcode.MONSTERBOOK_CHANGE_COVER.getValue());
-	mplew.writeInt(cardid);
+	builder.writeAsShort(ServerPacketOpcode.MONSTERBOOK_CHANGE_COVER.getValue());
+	builder.writeInt(cardid);
 
-	return mplew.getPacket();
+	return builder.getPacket();
     }
 }

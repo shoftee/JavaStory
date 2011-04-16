@@ -27,7 +27,7 @@ import client.ISkill;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.SkillFactory;
-import handling.MaplePacket;
+import handling.GamePacket;
 import server.MapleStatEffect;
 import server.life.MapleMonster;
 import server.life.MobSkill;
@@ -125,7 +125,7 @@ public class MapleMist extends AbstractMapleMapObject {
     public void setPosition(Point position) {
     }
 
-    public MaplePacket fakeSpawnData(int level) {
+    public GamePacket fakeSpawnData(int level) {
 	if (owner != null) {
 	    return MaplePacketCreator.spawnMist(this);
 	}

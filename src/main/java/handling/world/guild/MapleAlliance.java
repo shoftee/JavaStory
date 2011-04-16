@@ -31,7 +31,7 @@ import java.rmi.RemoteException;
 import database.DatabaseConnection;
 
 import client.MapleClient;
-import handling.MaplePacket;
+import handling.GamePacket;
 
 public class MapleAlliance implements java.io.Serializable {
 
@@ -139,7 +139,7 @@ public class MapleAlliance implements java.io.Serializable {
 	}
     }
 
-    public void broadcast(MaplePacket packet) {
+    public void broadcast(GamePacket packet) {
 	for (int i = 0; i < 5; i++) {
 	    if (guilds.get(i) != null) {
 		guilds.get(i).guildMessage(packet);
@@ -194,7 +194,7 @@ public class MapleAlliance implements java.io.Serializable {
 	return guilds;
     }
 
-    public void broadcastMessage(MaplePacket packet) {
+    public void broadcastMessage(GamePacket packet) {
 	for (int i = 0; i < 5; i++) {
 	    if (guilds.get(i) != null) {
 		guilds.get(i).broadcast(packet);
