@@ -2,38 +2,38 @@ package server;
 
 import java.awt.Point;
 
-import provider.MapleData;
-import provider.MapleDataTool;
-import server.maps.MapleGenericPortal;
-import server.maps.MapleMapPortal;
+import provider.WzData;
+import provider.WzDataTool;
+import server.maps.GenericPortal;
+import server.maps.GameMapPortal;
 
 public class PortalFactory {
 
     private int nextDoorPortal = 0x80;
 
-    public MaplePortal makePortal(int type, MapleData portal) {
-	MapleGenericPortal ret = null;
-	if (type == MaplePortal.MAP_PORTAL) {
-	    ret = new MapleMapPortal();
+    public Portal makePortal(int type, WzData portal) {
+	GenericPortal ret = null;
+	if (type == Portal.MAP_PORTAL) {
+	    ret = new GameMapPortal();
 	} else {
-	    ret = new MapleGenericPortal(type);
+	    ret = new GenericPortal(type);
 	}
 	loadPortal(ret, portal);
 	return ret;
     }
 
-    private void loadPortal(MapleGenericPortal myPortal, MapleData portal) {
-	myPortal.setName(MapleDataTool.getString(portal.getChildByPath("pn")));
-	myPortal.setTarget(MapleDataTool.getString(portal.getChildByPath("tn")));
-	myPortal.setTargetMapId(MapleDataTool.getInt(portal.getChildByPath("tm")));
-	myPortal.setPosition(new Point(MapleDataTool.getInt(portal.getChildByPath("x")), MapleDataTool.getInt(portal.getChildByPath("y"))));
-	String script = MapleDataTool.getString("script", portal, null);
+    private void loadPortal(GenericPortal myPortal, WzData portal) {
+	myPortal.setName(WzDataTool.getString(portal.getChildByPath("pn")));
+	myPortal.setTarget(WzDataTool.getString(portal.getChildByPath("tn")));
+	myPortal.setTargetMapId(WzDataTool.getInt(portal.getChildByPath("tm")));
+	myPortal.setPosition(new Point(WzDataTool.getInt(portal.getChildByPath("x")), WzDataTool.getInt(portal.getChildByPath("y"))));
+	String script = WzDataTool.getString("script", portal, null);
 	if (script != null && script.equals("")) {
 	    script = null;
 	}
 	myPortal.setScriptName(script);
 
-	if (myPortal.getType() == MaplePortal.DOOR_PORTAL) {
+	if (myPortal.getType() == Portal.DOOR_PORTAL) {
 	    myPortal.setId(nextDoorPortal);
 	    nextDoorPortal++;
 	} else {

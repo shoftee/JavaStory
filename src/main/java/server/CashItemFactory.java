@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import client.IItem;
-import provider.MapleData;
-import provider.MapleDataProvider;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataTool;
+import provider.WzData;
+import provider.WzDataProvider;
+import provider.WzDataProviderFactory;
+import provider.WzDataTool;
 
 public class CashItemFactory {
 
     private static CashItemFactory instance = new CashItemFactory();
     private Map<Integer, CashItemInfo> itemStats = new HashMap<Integer, CashItemInfo>();
-    private MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz"));
+    private WzDataProvider data = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz"));
 
     public static CashItemFactory getInstance() {
         return instance;
@@ -24,15 +24,15 @@ public class CashItemFactory {
 
     protected CashItemFactory() {
         System.out.println(":: Loading CashItemFactory ::");
-        for (MapleData field : data.getData("Commodity.img").getChildren()) {
-            boolean onSale = MapleDataTool.getIntConvert("OnSale", field, 0) > 0;
+        for (WzData field : data.getData("Commodity.img").getChildren()) {
+            boolean onSale = WzDataTool.getIntConvert("OnSale", field, 0) > 0;
             if (onSale) {
                 final CashItemInfo stats = new CashItemInfo(
-                        MapleDataTool.getIntConvert("ItemId", field),
-                        MapleDataTool.getIntConvert("Count", field, 1),
-                        MapleDataTool.getIntConvert("Price", field, 0),
-                        MapleDataTool.getIntConvert("Period", field, 0));
-                itemStats.put(MapleDataTool.getIntConvert("SN", field, 0), stats);
+                        WzDataTool.getIntConvert("ItemId", field),
+                        WzDataTool.getIntConvert("Count", field, 1),
+                        WzDataTool.getIntConvert("Price", field, 0),
+                        WzDataTool.getIntConvert("Period", field, 0));
+                itemStats.put(WzDataTool.getIntConvert("SN", field, 0), stats);
             }
         }
     }
@@ -47,11 +47,11 @@ public class CashItemFactory {
 
     public List<Integer> getPackageItems(int itemId) {
         List<Integer> packageItems = new ArrayList<Integer>();
-        for (MapleData b : data.getData("CashPackage.img").getChildren()) {
+        for (WzData b : data.getData("CashPackage.img").getChildren()) {
             if (itemId == Integer.parseInt(b.getName())) {
-                for (MapleData c : b.getChildren()) {
-                    for (MapleData d : c.getChildren()) {
-                        packageItems.add(getItem(MapleDataTool.getIntConvert("" + Integer.parseInt(d.getName()), c)).getId());
+                for (WzData c : b.getChildren()) {
+                    for (WzData d : c.getChildren()) {
+                        packageItems.add(getItem(WzDataTool.getIntConvert("" + Integer.parseInt(d.getName()), c)).getId());
                     }
                 }
                 break;

@@ -2,7 +2,7 @@ package client.messages.commands;
 
 import java.rmi.RemoteException;
 
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -31,7 +31,7 @@ public class NoticeCommand implements Command {
     }
 
     @Override
-    public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         if (splitted[0].equals("-notice")) {
             int joinmod = 1;
             int range = -1;

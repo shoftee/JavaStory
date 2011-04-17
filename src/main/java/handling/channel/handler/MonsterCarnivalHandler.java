@@ -21,23 +21,23 @@
 package handling.channel.handler;
 
 import java.awt.Point;
-import client.MapleClient;
+import client.GameClient;
 //import net.sf.odinms.server.Randomizer;
 import org.javastory.io.PacketFormatException;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
+import server.life.LifeFactory;
+import server.life.Monster;
 import tools.packet.MonsterCarnivalPacket;
 import org.javastory.io.PacketReader;
 
 public class MonsterCarnivalHandler  {
 
-    public static final void handleMonsterCarnival(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleMonsterCarnival(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final int tab = reader.readByte();
         final int num = reader.readByte();
         c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, num));
 
 	if (tab == 0) { //only spawning for now..
-            final MapleMonster mob = MapleLifeFactory.getMonster(getMonsterIdByNum(num));
+            final Monster mob = LifeFactory.getMonster(getMonsterIdByNum(num));
             c.getPlayer().getMap().spawnMonsterOnGroundBelow(mob, randomizePosition(c.getPlayer().getMapId(), 1));
         }
 

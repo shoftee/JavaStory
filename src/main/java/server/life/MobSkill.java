@@ -28,12 +28,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.LinkedList;
 
-import client.MapleCharacter;
-import client.MapleDisease;
+import client.GameCharacter;
+import client.Disease;
 import client.status.MonsterStatus;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.maps.MapleMist;
+import com.google.common.collect.Maps;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
+import server.maps.Mist;
 import tools.ArrayMap;
 
 public class MobSkill {
@@ -99,7 +100,7 @@ public class MobSkill {
 	this.limit = limit;
     }
 
-    public boolean checkCurrentBuff(MapleCharacter player, MapleMonster monster) {
+    public boolean checkCurrentBuff(GameCharacter player, Monster monster) {
 	boolean stop = false;
 	switch (skillId) {
 	    case 100:
@@ -138,9 +139,9 @@ public class MobSkill {
 	return stop;
     }
 
-    public void applyEffect(MapleCharacter player, MapleMonster monster, boolean skill) {
-	MapleDisease disease = null;
-	Map<MonsterStatus, Integer> stats = new ArrayMap<MonsterStatus, Integer>();
+    public void applyEffect(GameCharacter player, Monster monster, boolean skill) {
+	Disease disease = null;
+	Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
 	List<Integer> reflection = new LinkedList<Integer>();
 
 	switch (skillId) {
@@ -162,39 +163,39 @@ public class MobSkill {
 		break;
 	    case 114:
 		if (lt != null && rb != null && skill) {
-		    List<MapleMapObject> objects = getObjectsInRange(monster, MapleMapObjectType.MONSTER);
+		    List<GameMapObject> objects = getObjectsInRange(monster, GameMapObjectType.MONSTER);
 		    final int hp = (getX() / 1000) * (int) (950 + 1050 * Math.random());
-		    for (MapleMapObject mons : objects) {
-			((MapleMonster) mons).heal(hp, getY(), true);
+		    for (GameMapObject mons : objects) {
+			((Monster) mons).heal(hp, getY(), true);
 		    }
 		} else {
 		    monster.heal(getX(), getY(), true);
 		}
 		break;
 	    case 120:
-		disease = MapleDisease.SEAL;
+		disease = Disease.SEAL;
 		break;
 	    case 121:
-		disease = MapleDisease.DARKNESS;
+		disease = Disease.DARKNESS;
 		break;
 	    case 122:
-		disease = MapleDisease.WEAKEN;
+		disease = Disease.WEAKEN;
 		break;
 	    case 123:
-		disease = MapleDisease.STUN;
+		disease = Disease.STUN;
 		break;
 	    case 124:
-		disease = MapleDisease.CURSE;
+		disease = Disease.CURSE;
 		break;
 	    case 125:
-		disease = MapleDisease.POISON;
+		disease = Disease.POISON;
 		break;
 	    case 126: // Slow
-		disease = MapleDisease.SLOW;
+		disease = Disease.SLOW;
 		break;
 	    case 127:
 		if (lt != null && rb != null && skill) {
-		    for (MapleCharacter character : getPlayersInRange(monster, player)) {
+		    for (GameCharacter character : getPlayersInRange(monster, player)) {
 			character.dispel();
 		    }
 		} else {
@@ -202,12 +203,12 @@ public class MobSkill {
 		}
 		break;
 	    case 128: // Seduce
-		disease = MapleDisease.SEDUCE;
+		disease = Disease.SEDUCE;
 		break;
 	    case 129: // Banish
 		final BanishInfo info = monster.getStats().getBanishInfo();
 		if (lt != null && rb != null && skill) {
-		    for (MapleCharacter chr : getPlayersInRange(monster, player)) {
+		    for (GameCharacter chr : getPlayersInRange(monster, player)) {
 			chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
 		    }
 		} else {
@@ -215,13 +216,13 @@ public class MobSkill {
 		}
 		break;
 	    case 131: // Mist
-		monster.getMap().spawnMist(new MapleMist(calculateBoundingBox(monster.getPosition(), true), monster, this), x * 10, false, false);
+		monster.getMap().spawnMist(new Mist(calculateBoundingBox(monster.getPosition(), true), monster, this), x * 10, false, false);
 		break;
 	    case 132:
-		disease = MapleDisease.REVERSE_DIRECTION;
+		disease = Disease.REVERSE_DIRECTION;
 		break;
 	    case 133:
-		disease = MapleDisease.ZOMBIFY;
+		disease = Disease.ZOMBIFY;
 		break;
 	    case 140:
 		if (makeChanceResult()) {
@@ -253,7 +254,7 @@ public class MobSkill {
 		break;
 	    case 200:
 		for (Integer mobId : getSummons()) {
-		    final MapleMonster toSpawn = MapleLifeFactory.getMonster(mobId);
+		    final Monster toSpawn = LifeFactory.getMonster(mobId);
 		    toSpawn.setPosition(monster.getPosition());
 		    int ypos = (int) monster.getPosition().getY(), xpos = (int) monster.getPosition().getX();
 
@@ -301,8 +302,8 @@ public class MobSkill {
 
 	if (stats.size() > 0) {
 	    if (lt != null && rb != null && skill) {
-		for (MapleMapObject mons : getObjectsInRange(monster, MapleMapObjectType.MONSTER)) {
-		    ((MapleMonster) mons).applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
+		for (GameMapObject mons : getObjectsInRange(monster, GameMapObjectType.MONSTER)) {
+		    ((Monster) mons).applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
 		}
 	    } else {
 		monster.applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
@@ -310,7 +311,7 @@ public class MobSkill {
 	}
 	if (disease != null) {
 	    if (lt != null && rb != null && skill) {
-		for (MapleCharacter chr : getPlayersInRange(monster, player)) {
+		for (GameCharacter chr : getPlayersInRange(monster, player)) {
 		    chr.giveDebuff(disease, this);
 		}
 	    } else {
@@ -392,16 +393,16 @@ public class MobSkill {
 	return bounds;
     }
 
-    private List<MapleCharacter> getPlayersInRange(MapleMonster monster, MapleCharacter player) {
+    private List<GameCharacter> getPlayersInRange(Monster monster, GameCharacter player) {
 	final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-	List<MapleCharacter> players = new ArrayList<MapleCharacter>();
+	List<GameCharacter> players = new ArrayList<GameCharacter>();
 	players.add(player);
 	return monster.getMap().getPlayersInRect(bounds, players);
     }
 
-    private List<MapleMapObject> getObjectsInRange(MapleMonster monster, MapleMapObjectType objectType) {
+    private List<GameMapObject> getObjectsInRange(Monster monster, GameMapObjectType objectType) {
 	final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-	List<MapleMapObjectType> objectTypes = new ArrayList<MapleMapObjectType>();
+	List<GameMapObjectType> objectTypes = new ArrayList<GameMapObjectType>();
 	objectTypes.add(objectType);
 	return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
     }

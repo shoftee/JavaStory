@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import client.SkillFactory;
 import database.DatabaseConnection;
 import handling.ServerType;
@@ -34,14 +34,14 @@ import handling.world.remote.WorldRegistry;
 
 import scripting.EventScriptManager;
 import server.AutobanManager;
-import server.MapleSquad;
+import server.Squad;
 import server.TimerManager;
 import server.ItemMakerFactory;
 import server.RandomRewards;
-import server.MapleItemInformationProvider;
+import server.ItemInfoProvider;
 import server.maps.MapTimer;
-import server.maps.MapleMapFactory;
-import server.shops.HiredMerchant;
+import server.maps.GameMapFactory;
+import server.shops.HiredMerchantStore;
 import tools.MaplePacketCreator;
 
 public final class ChannelServer extends GameService {
@@ -50,10 +50,10 @@ public final class ChannelServer extends GameService {
     private WorldChannelInterface wci = null;
     private boolean MegaphoneMuteState = false;
     private PlayerStorage players;
-    private final MapleMapFactory mapFactories[] = new MapleMapFactory[2];
+    private final GameMapFactory mapFactories[] = new GameMapFactory[2];
     private final Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
-    private final Map<String, MapleSquad> mapleSquads = new HashMap<String, MapleSquad>();
-    private final Map<Integer, HiredMerchant> merchants = new HashMap<Integer, HiredMerchant>();
+    private final Map<String, Squad> mapleSquads = new HashMap<String, Squad>();
+    private final Map<Integer, HiredMerchantStore> merchants = new HashMap<Integer, HiredMerchantStore>();
     private String serverMessage, name;
     private byte expRate, mesoRate, dropRate;
     private int channelId, currentMerchantId = 0;
@@ -123,13 +123,13 @@ public final class ChannelServer extends GameService {
         MapTimer.getInstance().start();
 
         ItemMakerFactory.getInstance();
-        MapleItemInformationProvider.getInstance();
+        ItemInfoProvider.getInstance();
         RandomRewards.getInstance();
         SkillFactory.getSkill(99999999);
         players = new PlayerStorage();
 
         for (int i = 0; i < mapFactories.length; i++) {
-            mapFactories[i] = new MapleMapFactory();
+            mapFactories[i] = new GameMapFactory();
             mapFactories[i].setWorld(i == 0 ? 6 : 5);
             mapFactories[i].setChannel(this.channelId);
         }
@@ -150,11 +150,11 @@ public final class ChannelServer extends GameService {
         }
     }
 
-    public MapleMapFactory getMapFactory(int world) {
+    public GameMapFactory getMapFactory(int world) {
         return mapFactories[world == 6 ? 0 : 1];
     }
 
-    public void addPlayer(final MapleCharacter chr) {
+    public void addPlayer(final GameCharacter chr) {
         players.registerPlayer(chr);
         chr.getClient().getSession().write(MaplePacketCreator.serverMessage(serverMessage));
     }
@@ -163,7 +163,7 @@ public final class ChannelServer extends GameService {
         return players;
     }
 
-    public void removePlayer(final MapleCharacter chr) {
+    public void removePlayer(final GameCharacter chr) {
         players.deregisterPlayer(chr);
     }
 
@@ -300,11 +300,11 @@ public final class ChannelServer extends GameService {
         gsStore.put(guildId, summary);
     }
 
-    public final MapleSquad getMapleSquad(final String type) {
+    public final Squad getMapleSquad(final String type) {
         return mapleSquads.get(type);
     }
 
-    public final boolean addMapleSquad(final MapleSquad squad, final String type) {
+    public final boolean addMapleSquad(final Squad squad, final String type) {
         if (mapleSquads.get(type) == null) {
             mapleSquads.remove(type);
             mapleSquads.put(type, squad);
@@ -323,11 +323,11 @@ public final class ChannelServer extends GameService {
 
     public final void closeAllMerchant() {
         merchantMutex.lock();
-        final Iterator<HiredMerchant> iterator = 
+        final Iterator<HiredMerchantStore> iterator = 
                 merchants.values().iterator();
         try {
             while (iterator.hasNext()) {
-                HiredMerchant merchant = iterator.next();
+                HiredMerchantStore merchant = iterator.next();
                 merchant.closeShop(true, false);
                 iterator.remove();
             }
@@ -336,7 +336,7 @@ public final class ChannelServer extends GameService {
         }
     }
 
-    public final int addMerchant(final HiredMerchant merchant) {
+    public final int addMerchant(final HiredMerchantStore merchant) {
         merchantMutex.lock();
         int id = 0;
         try {
@@ -349,7 +349,7 @@ public final class ChannelServer extends GameService {
         return id;
     }
 
-    public final void removeMerchant(final HiredMerchant merchant) {
+    public final void removeMerchant(final HiredMerchantStore merchant) {
         merchantMutex.lock();
         try {
             merchants.remove(merchant.getStoreId());
@@ -362,10 +362,10 @@ public final class ChannelServer extends GameService {
         boolean contains = false;
         merchantMutex.lock();
         try {
-            final Iterator<HiredMerchant> iterator = 
+            final Iterator<HiredMerchantStore> iterator = 
                     merchants.values().iterator();
             while (iterator.hasNext()) {
-                HiredMerchant merchant = iterator.next();
+                HiredMerchantStore merchant = iterator.next();
                 if (merchant.getOwnerAccountId() == accountId) {
                     contains = true;
                     break;
@@ -385,12 +385,12 @@ public final class ChannelServer extends GameService {
         return MegaphoneMuteState;
     }
 
-    public final List<MapleCharacter> getPartyMembers(final MapleParty party) {
-        List<MapleCharacter> partym = new LinkedList<MapleCharacter>();
+    public final List<GameCharacter> getPartyMembers(final MapleParty party) {
+        List<GameCharacter> partym = new LinkedList<GameCharacter>();
         for (final MaplePartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == getChannelId()) {
                 // Make sure the thing doesn't get duplicate plays due to ccing bug.
-                MapleCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
+                GameCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     partym.add(chr);
                 }

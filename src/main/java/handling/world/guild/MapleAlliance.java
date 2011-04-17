@@ -30,7 +30,7 @@ import java.rmi.RemoteException;
 
 import database.DatabaseConnection;
 
-import client.MapleClient;
+import client.GameClient;
 import handling.GamePacket;
 
 public class MapleAlliance implements java.io.Serializable {
@@ -42,7 +42,7 @@ public class MapleAlliance implements java.io.Serializable {
     private String notice;
     private int id;
 
-    public MapleAlliance(MapleClient c, int id) {
+    public MapleAlliance(GameClient c, int id) {
 	guilds = new ArrayList<MapleGuild>();
 	this.id = id;
 
@@ -87,7 +87,7 @@ public class MapleAlliance implements java.io.Serializable {
 	}
     }
 
-    public void addGuild(MapleClient c, int guildid) {
+    public void addGuild(GameClient c, int guildid) {
 	for (int i = 0; i < 5; i++) {
 	    if (guilds.get(i) == null) {
 		try {

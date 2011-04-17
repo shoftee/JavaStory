@@ -1,20 +1,20 @@
 package handling.channel.handler;
 
 import client.IItem;
-import client.MapleInventoryType;
-import client.MapleClient;
-import client.MapleCharacter;
+import client.InventoryType;
+import client.GameClient;
+import client.GameCharacter;
 import client.GameConstants;
 import handling.ServerPacketOpcode;
 import org.javastory.io.PacketFormatException;
 import server.AutobanManager;
-import server.MapleShop;
-import server.MapleInventoryManipulator;
-import server.MapleStorage;
-import server.life.MapleNPC;
-import server.quest.MapleQuest;
-import scripting.NPCScriptManager;
-import scripting.NPCConversationManager;
+import server.Shop;
+import server.InventoryManipulator;
+import server.Storage;
+import server.life.Npc;
+import server.quest.Quest;
+import scripting.NpcScriptManager;
+import scripting.NpcConversationManager;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketReader;
 import org.javastory.io.PacketBuilder;
@@ -22,7 +22,7 @@ import org.javastory.io.PacketReader;
 
 public class NpcHandler {
 
-    public static final void handleNpcAnimation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleNpcAnimation(final PacketReader reader, final GameClient c) throws PacketFormatException {
         PacketBuilder builder = new PacketBuilder();
         final int length = (int) reader.remaining();
 
@@ -39,12 +39,12 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleNpcShop(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handleNpcShop(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte bmode = reader.readByte();
 
         switch (bmode) {
             case 0: {
-                final MapleShop shop = chr.getShop();
+                final Shop shop = chr.getShop();
                 if (shop == null) {
                     return;
                 }
@@ -55,7 +55,7 @@ public class NpcHandler {
                 break;
             }
             case 1: {
-                final MapleShop shop = chr.getShop();
+                final Shop shop = chr.getShop();
                 if (shop == null) {
                     return;
                 }
@@ -66,7 +66,7 @@ public class NpcHandler {
                 break;
             }
             case 2: {
-                final MapleShop shop = chr.getShop();
+                final Shop shop = chr.getShop();
                 if (shop == null) {
                     return;
                 }
@@ -80,8 +80,8 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleNpcTalk(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
-        final MapleNPC npc = (MapleNPC) chr.getMap().getNPCByOid(reader.readInt());
+    public static final void handleNpcTalk(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+        final Npc npc = (Npc) chr.getMap().getNPCByOid(reader.readInt());
         if (npc == null || chr.getConversation() != 0) {
             return;
         }
@@ -89,33 +89,33 @@ public class NpcHandler {
             chr.setConversation(1);
             npc.sendShop(c);
         } else {
-            NPCScriptManager.getInstance().start(c, npc.getId());
+            NpcScriptManager.getInstance().start(c, npc.getId());
         }
     }
 
-    public static final void handleQuestAction(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handleQuestAction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
         final int quest = reader.readUnsignedShort();
         switch (action) {
             case 0: { // Restore lost item
                 reader.skip(4);
                 final int itemid = reader.readInt();
-                MapleQuest.getInstance(quest).RestoreLostItem(chr, itemid);
+                Quest.getInstance(quest).RestoreLostItem(chr, itemid);
                 break;
             }
             case 1: { // Start Quest
                 final int npc = reader.readInt();
                 reader.skip(4);
-                MapleQuest.getInstance(quest).start(chr, npc);
+                Quest.getInstance(quest).start(chr, npc);
                 break;
             }
             case 2: { // Complete Quest
                 final int npc = reader.readInt();
                 reader.skip(4);
                 if (reader.remaining() >= 4) {
-                    MapleQuest.getInstance(quest).complete(chr, npc, reader.readInt());
+                    Quest.getInstance(quest).complete(chr, npc, reader.readInt());
                 } else {
-                    MapleQuest.getInstance(quest).complete(chr, npc);
+                    Quest.getInstance(quest).complete(chr, npc);
                 }
                 // c.getSession().writeAsByte(MaplePacketCreator.completeQuest(c.getPlayer(), quest));
                 //c.getSession().writeAsByte(MaplePacketCreator.updateQuestInfo(c.getPlayer(), quest, npc, (byte)14));
@@ -128,19 +128,19 @@ public class NpcHandler {
                 break;
             }
             case 3: { // Forefit Quest
-                MapleQuest.getInstance(quest).forfeit(chr);
+                Quest.getInstance(quest).forfeit(chr);
                 break;
             }
             case 4: { // Scripted Start Quest
                 final int npc = reader.readInt();
                 reader.skip(4);
-                NPCScriptManager.getInstance().startQuest(c, npc, quest);
+                NpcScriptManager.getInstance().startQuest(c, npc, quest);
                 break;
             }
             case 5: { // Scripted End Quest
                 final int npc = reader.readInt();
                 reader.skip(4);
-                NPCScriptManager.getInstance().endQuest(c, npc, quest, false);
+                NpcScriptManager.getInstance().endQuest(c, npc, quest, false);
                 c.getSession().write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
                 chr.getMap().broadcastMessage(chr, MaplePacketCreator.showSpecialEffect(chr.getId(), 9), false);
                 break;
@@ -148,19 +148,19 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleStorage(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handleStorage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte mode = reader.readByte();
-        final MapleStorage storage = chr.getStorage();
+        final Storage storage = chr.getStorage();
 
         switch (mode) {
             case 4: { // Take Out
                 final byte type = reader.readByte();
-                final byte slot = storage.getSlot(MapleInventoryType.getByType(type), reader.readByte());
+                final byte slot = storage.getSlot(InventoryType.getByType(type), reader.readByte());
                 final IItem item = storage.takeOut(slot);
 
                 if (item != null) {
-                    if (MapleInventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
-                        MapleInventoryManipulator.addFromDrop(c, item, false);
+                    if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
+                        InventoryManipulator.addFromDrop(c, item, false);
                     } else {
                         storage.store(item);
                         chr.dropMessage(1, "Your inventory is full");
@@ -188,7 +188,7 @@ public class NpcHandler {
                 if (chr.getMeso() < 100) {
                     chr.dropMessage(1, "You don't have enough mesos to store the item");
                 } else {
-                    MapleInventoryType type = GameConstants.getInventoryType(itemId);
+                    InventoryType type = GameConstants.getInventoryType(itemId);
                     IItem item = chr.getInventory(type).getItem(slot).copy();
 
                     if (GameConstants.isPet(item.getItemId())) {
@@ -200,7 +200,7 @@ public class NpcHandler {
                             quantity = item.getQuantity();
                         }
                         chr.gainMeso(-100, false, true, false);
-                        MapleInventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
+                        InventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
                         item.setQuantity(quantity);
                         storage.store(item);
                     } else {
@@ -248,11 +248,11 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleNpcTalkMore(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleNpcTalkMore(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte lastMsg = reader.readByte(); // 00 (last msg type I think)
         final byte action = reader.readByte(); // 00 = end chat, 01 == follow
 
-        final NPCConversationManager cm = NPCScriptManager.getInstance().getCM(c);
+        final NpcConversationManager cm = NpcScriptManager.getInstance().getCM(c);
 
         if (cm == null || c.getPlayer().getConversation() == 0) {
             return;
@@ -261,11 +261,11 @@ public class NpcHandler {
             if (action != 0) {
                 cm.setGetText(reader.readLengthPrefixedString());
                 if (cm.getType() == 0) {
-                    NPCScriptManager.getInstance().startQuest(c, action, lastMsg, -1);
+                    NpcScriptManager.getInstance().startQuest(c, action, lastMsg, -1);
                 } else if (cm.getType() == 1) {
-                    NPCScriptManager.getInstance().endQuest(c, action, lastMsg, -1);
+                    NpcScriptManager.getInstance().endQuest(c, action, lastMsg, -1);
                 } else {
-                    NPCScriptManager.getInstance().action(c, action, lastMsg, -1);
+                    NpcScriptManager.getInstance().action(c, action, lastMsg, -1);
                 }
             } else {
                 cm.dispose();
@@ -279,11 +279,11 @@ public class NpcHandler {
             }
             if (action != -1) {
                 if (cm.getType() == 0) {
-                    NPCScriptManager.getInstance().startQuest(c, action, lastMsg, selection);
+                    NpcScriptManager.getInstance().startQuest(c, action, lastMsg, selection);
                 } else if (cm.getType() == 1) {
-                    NPCScriptManager.getInstance().endQuest(c, action, lastMsg, selection);
+                    NpcScriptManager.getInstance().endQuest(c, action, lastMsg, selection);
                 } else {
-                    NPCScriptManager.getInstance().action(c, action, lastMsg, selection);
+                    NpcScriptManager.getInstance().action(c, action, lastMsg, selection);
                 }
             } else {
                 cm.dispose();
@@ -291,7 +291,7 @@ public class NpcHandler {
         }
     }
     /*    @Override
-    public void handlePacket(PacketReader reader, MapleClient c) {
+    public void handlePacket(PacketReader reader, GameClient c) {
     final NPC npc = c.getPlayer().getNpc();
     if (npc == null) {
     return;

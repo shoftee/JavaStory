@@ -14,8 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import client.MapleCharacter;
-import client.MapleClient;
+import client.GameCharacter;
+import client.GameClient;
 import database.DatabaseConnection;
 import handling.GamePacket;
 import handling.channel.remote.ChannelWorldInterface;
@@ -189,7 +189,7 @@ public class MapleGuild implements java.io.Serializable {
         return leader;
     }
 
-    public final MapleCharacter getLeader(final MapleClient c) {
+    public final GameCharacter getLeader(final GameClient c) {
         return c.getChannelServer().getPlayerStorage().getCharacterById(leader);
     }
 
@@ -240,7 +240,7 @@ public class MapleGuild implements java.io.Serializable {
         return allianceid;
     }
 
-    public final MapleAlliance getAlliance(final MapleClient c) {
+    public final MapleAlliance getAlliance(final GameClient c) {
         if (ally != null) {
             return ally;
         } else if (allianceid > 0) {
@@ -334,7 +334,7 @@ public class MapleGuild implements java.io.Serializable {
         for (final MapleGuildCharacter mgc : members) {
             for (final ChannelServer cs : ChannelManager.getAllInstances()) {
                 if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
-                    final MapleCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
+                    final GameCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
                     if (serverNotice != null) {
                         chr.getClient().getSession().write(serverNotice);
                     } else {
@@ -513,7 +513,7 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final void createAlliance(final MapleClient c, final String name) {
+    public final void createAlliance(final GameClient c, final String name) {
         if (allianceid != 0) {
             c.getPlayer().dropMessage(1, "You are already in an Alliance!");
             return;
@@ -666,8 +666,8 @@ public class MapleGuild implements java.io.Serializable {
     // keep in mind that this will be called by a handler most of the time
     // so this will be running mostly on a channel server, unlike the rest
     // of the class
-    public static MapleGuildResponse sendInvite(final MapleClient c, final String targetName) {
-        final MapleCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
+    public static MapleGuildResponse sendInvite(final GameClient c, final String targetName) {
+        final GameCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
         if (mc == null) {
             return MapleGuildResponse.NOT_IN_CHANNEL;
         }

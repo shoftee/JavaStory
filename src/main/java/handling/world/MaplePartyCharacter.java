@@ -4,8 +4,8 @@ import java.awt.Point;
 import java.util.List;
 import java.io.Serializable;
 
-import client.MapleCharacter;
-import server.maps.MapleDoor;
+import client.GameCharacter;
+import server.maps.Door;
 
 public class MaplePartyCharacter implements Serializable {
 	private static final long serialVersionUID = 6215463252132450750L;
@@ -20,7 +20,7 @@ public class MaplePartyCharacter implements Serializable {
 	private Point doorPosition = new Point(0, 0);
 	private boolean online;
 
-	public MaplePartyCharacter(MapleCharacter maplechar) {
+	public MaplePartyCharacter(GameCharacter maplechar) {
 		this.name = maplechar.getName();
 		this.level = maplechar.getLevel();
 		this.channel = maplechar.getClient().getChannelId();
@@ -28,9 +28,9 @@ public class MaplePartyCharacter implements Serializable {
 		this.jobid = maplechar.getJob();
 		this.mapid = maplechar.getMapId();
 		this.online = true;
-		final List<MapleDoor> doors = maplechar.getDoors();
+		final List<Door> doors = maplechar.getDoors();
 		if (doors.size() > 0) {
-			final MapleDoor door = doors.get(0);
+			final Door door = doors.get(0);
 			this.doorTown = door.getTown().getId();
 			this.doorTarget = door.getTarget().getId();
 			this.doorPosition = door.getTargetPosition();

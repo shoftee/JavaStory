@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
 
-import client.MapleCharacter;
-import client.MapleClient;
+import client.GameCharacter;
+import client.GameClient;
 import client.messages.commands.*;
 import server.TimerManager;
 import tools.FileOutputUtil;
@@ -143,7 +143,7 @@ public class CommandProcessor {
 		return null;
 	}
 
-	public boolean processCommand(MapleClient c, String line) {
+	public boolean processCommand(GameClient c, String line) {
 		return instance.processCommandInternal(c, line);
 	}
 
@@ -151,7 +151,7 @@ public class CommandProcessor {
 		persister.run();
 	}
 
-	public void dropHelp(MapleCharacter chr, int page) {
+	public void dropHelp(GameCharacter chr, int page) {
 		List<DefinitionCommandPair> allCommands = new ArrayList<DefinitionCommandPair>(commands.values());
 		int startEntry = (page - 1) * 20;
 		chr.dropMessage(6, "Command Help Page: --------" + page + "---------");
@@ -163,7 +163,7 @@ public class CommandProcessor {
 		}
 	}
 
-	private boolean processCommandInternal(MapleClient c, String line) {
+	private boolean processCommandInternal(GameClient c, String line) {
 		if (line.charAt(0) == '-' || line.charAt(0) == '@') {
 			String[] splitted = line.split(" ");
 			if (splitted.length > 0 && splitted[0].length() > 1) {

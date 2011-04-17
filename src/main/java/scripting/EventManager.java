@@ -29,17 +29,17 @@ import java.util.concurrent.ScheduledFuture;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import handling.world.MapleParty;
 import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;
-import server.MapleSquad;
-import server.life.MapleMonster;
-import server.life.MapleLifeFactory;
+import server.Squad;
+import server.life.Monster;
+import server.life.LifeFactory;
 import server.life.OverrideMonsterStats;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapFactory;
+import server.maps.GameMap;
+import server.maps.GameMapObject;
+import server.maps.GameMapFactory;
 import tools.MaplePacketCreator;
 
 public class EventManager {
@@ -165,7 +165,7 @@ public class EventManager {
 	}
     }
 
-    public void startInstance(MapleCharacter character) {
+    public void startInstance(GameCharacter character) {
 	try {
 	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
 	    eim.registerPlayer(character);
@@ -177,7 +177,7 @@ public class EventManager {
     }
 
     //PQ method: starts a PQ
-    public void startInstance(MapleParty party, MapleMap map) {
+    public void startInstance(MapleParty party, GameMap map) {
 	try {
 	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
 	    eim.registerParty(party, map);
@@ -200,7 +200,7 @@ public class EventManager {
 	}
     }
 
-    public void startInstance(MapleSquad squad, MapleMap map) {
+    public void startInstance(Squad squad, GameMap map) {
 	try {
 	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", squad.getLeader().getId()));
 	    eim.registerSquad(squad, map);
@@ -212,13 +212,13 @@ public class EventManager {
     }
 
     public void warpAllPlayer(int from, int to) {
-	final MapleMap tomap = cserv.getMapFactory(world).getMap(to);
-	for (MapleMapObject mmo : cserv.getMapFactory(world).getMap(from).getAllPlayer()) {
-	    ((MapleCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
+	final GameMap tomap = cserv.getMapFactory(world).getMap(to);
+	for (GameMapObject mmo : cserv.getMapFactory(world).getMap(from).getAllPlayer()) {
+	    ((GameCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 	}
     }
 
-    public MapleMapFactory getMapFactory(int world) {
+    public GameMapFactory getMapFactory(int world) {
 	return cserv.getMapFactory(world);
     }
 
@@ -226,8 +226,8 @@ public class EventManager {
 	return new OverrideMonsterStats();
     }
 
-    public MapleMonster getMonster(final int id) {
-	return MapleLifeFactory.getMonster(id);
+    public Monster getMonster(final int id) {
+	return LifeFactory.getMonster(id);
     }
 
     public void broadcastShip(final int mapid, final int effect) {
@@ -238,8 +238,8 @@ public class EventManager {
 	if (!weather) {
 	    cserv.broadcastPacket(MaplePacketCreator.serverNotice(type, msg));
 	} else {
-	    for (Entry<Integer, MapleMap> map : cserv.getMapFactory(world).getMaps().entrySet()) {
-		final MapleMap load = map.getValue();
+	    for (Entry<Integer, GameMap> map : cserv.getMapFactory(world).getMaps().entrySet()) {
+		final GameMap load = map.getValue();
 		if (load.getCharactersSize() > 0) {
 		    load.startMapEffect(msg, type);
 		}

@@ -27,14 +27,14 @@ import java.io.ObjectOutput;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import client.MapleMount;
-import client.MapleCharacter;
-import client.MapleQuestStatus;
+import client.Mount;
+import client.GameCharacter;
+import client.QuestStatus;
 import client.ISkill;
 import client.SkillEntry;
-import client.BuddylistEntry;
+import client.BuddyListEntry;
 import client.CharacterNameAndId;
-import server.quest.MapleQuest;
+import server.quest.Quest;
 
 public class CharacterTransfer implements Externalizable {
 
@@ -58,7 +58,7 @@ public class CharacterTransfer implements Externalizable {
     public CharacterTransfer() {
     }
 
-    public CharacterTransfer(final MapleCharacter chr) {
+    public CharacterTransfer(final GameCharacter chr) {
 	this.characterid = chr.getId();
 	this.accountid = chr.getAccountID();
 	this.accountname = chr.getClient().getAccountName();
@@ -104,7 +104,7 @@ public class CharacterTransfer implements Externalizable {
 	this.ondmg = chr.isOnDMG();
 	this.callgm = chr.isCallGM();
         
-	for (final BuddylistEntry qs : chr.getBuddylist().getBuddies()) {
+	for (final BuddyListEntry qs : chr.getBuddylist().getBuddies()) {
 	    this.buddies.put(new CharacterNameAndId(qs.getCharacterId(), qs.getName(), qs.getLevel(), qs.getJob()), qs.isVisible());
 	}
 	this.buddysize = chr.getBuddyCapacity();
@@ -125,7 +125,7 @@ public class CharacterTransfer implements Externalizable {
         this.reborns = chr.getReborns();
 	this.InfoQuest = chr.getInfoQuest_Map();
 
-	for (final Map.Entry<MapleQuest, MapleQuestStatus> qs : chr.getQuest_Map().entrySet()) {
+	for (final Map.Entry<Quest, QuestStatus> qs : chr.getQuest_Map().entrySet()) {
 	    this.Quest.put(qs.getKey().getId(), qs.getValue());
 	}
 
@@ -146,7 +146,7 @@ public class CharacterTransfer implements Externalizable {
 	this.rocks = chr.getRocks();
 	this.wishlist = chr.getWishlist();
 
-	final MapleMount mount = chr.getMount();
+	final Mount mount = chr.getMount();
 	this.mount_itemid = mount.getItemId();
 	this.mount_Fatigue = mount.getFatigue();
 	this.mount_level = mount.getLevel();

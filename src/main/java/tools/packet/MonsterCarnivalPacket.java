@@ -20,10 +20,10 @@
 */
 package tools.packet;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import server.MapleCarnivalParty;
+import server.CarnivalParty;
 import org.javastory.io.PacketBuilder;
 
 public class MonsterCarnivalPacket {
@@ -34,11 +34,11 @@ public class MonsterCarnivalPacket {
     MONSTER_CARNIVAL_SUMMON = 0xE5
     MONSTER_CARNIVAL_DIED = 0xE7*/
 
-    public static GamePacket startMonsterCarnival(final MapleCharacter chr, final int enemyavailable, final int enemytotal) {
+    public static GamePacket startMonsterCarnival(final GameCharacter chr, final int enemyavailable, final int enemytotal) {
 	PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());
-        final MapleCarnivalParty friendly = chr.getCarnivalParty();
+        final CarnivalParty friendly = chr.getCarnivalParty();
 	builder.writeAsByte(friendly.getTeam());
         builder.writeAsShort(chr.getAvailableCP());
         builder.writeAsShort(chr.getTotalCP());

@@ -23,8 +23,8 @@ package handling.channel.handler;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 
-import client.MapleCharacter;
-import client.MapleClient;
+import client.GameCharacter;
+import client.GameClient;
 import handling.world.guild.*;
 import org.javastory.io.PacketFormatException;
 import tools.MaplePacketCreator;
@@ -32,8 +32,8 @@ import org.javastory.io.PacketReader;
 
 public class GuildHandler {
     
-    public static final void handleDenyGuildInvitation(final String from, final MapleClient c) {
-	final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
+    public static final void handleDenyGuildInvitation(final String from, final GameClient c) {
+	final GameCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
 	if (cfrom != null) {
 	    cfrom.getClient().getSession().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
 	}
@@ -51,7 +51,7 @@ public class GuildHandler {
 	return true;
     }
 
-    private static final void respawnPlayer(final MapleCharacter mc) {
+    private static final void respawnPlayer(final GameCharacter mc) {
 		mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(mc.getId()), false);
 		mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
     }
@@ -80,7 +80,7 @@ public class GuildHandler {
     private static final java.util.List<Invited> invited = new java.util.LinkedList<Invited>();
     private static long nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
 
-    public static final void handleGuildOperation(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleGuildOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
 	if (System.currentTimeMillis() >= nextPruneTime) {
 	    Iterator<Invited> itr = invited.iterator();
 	    Invited inv;

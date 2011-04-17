@@ -3,11 +3,11 @@ package handling.channel.handler;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import client.BuddylistEntry;
+import client.BuddyListEntry;
 import client.CharacterNameAndId;
-import client.MapleClient;
-import client.MapleQuestStatus;
-import client.MapleBuffStat;
+import client.GameClient;
+import client.QuestStatus;
+import client.BuffStat;
 import handling.world.CharacterTransfer;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
@@ -17,15 +17,15 @@ import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.remote.WorldChannelInterface;
 import org.javastory.io.PacketFormatException;
-import server.MapleTrade;
+import server.Trade;
 import server.maps.FieldLimitType;
-import server.shops.IMaplePlayerShop;
+import server.shops.PlayerShop;
 import tools.FileOutputUtil;
 import tools.MaplePacketCreator;
 import tools.packet.FamilyPacket;
 import org.javastory.io.PacketReader;
-import server.maps.MapleMap;
-import client.MapleCharacter;
+import server.maps.GameMap;
+import client.GameCharacter;
 import client.SkillFactory;
 import handling.world.remote.ServerStatus;
 import org.javastory.server.channel.ChannelManager;
@@ -34,8 +34,8 @@ import server.maps.SavedLocationType;
 
 public class InterServerHandler {
 
-    public static void handleEnterMTS(final MapleClient c) {
-        final MapleMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(910000000);
+    public static void handleEnterMTS(final GameClient c) {
+        final GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(910000000);
         if ((c.getPlayer().getMapId() < 910000000) || (c.getPlayer().getMapId() > 910000022)) {
             if (c.getPlayer().getLevel() >= 10) {
                 c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET);
@@ -51,76 +51,15 @@ public class InterServerHandler {
         }
     }
 
-    public static void handleEnterCashShop(final PacketReader reader, final MapleClient c, final MapleCharacter chr) {
-        if (!chr.isAlive()) {
-            c.getSession().write(MaplePacketCreator.enableActions());
-            return;
-        }
-        final ChannelServer ch = ChannelManager.getInstance(c.getChannelId());
-        ServerStatus csStatus = ServerStatus.OFFLINE;
-        try {
-            csStatus = ch.getWorldInterface().getCashShopStatus();
-        } catch (RemoteException e) {
-            c.getChannelServer().pingWorld();
-        }
-        if (csStatus == ServerStatus.OFFLINE) {
-            c.getPlayer().dropMessage(5, "You cannot go into the cash shop. Please try again later.");
-            c.getSession().write(MaplePacketCreator.enableActions());
-        }
-        if (chr.getTrade() != null) {
-            MapleTrade.cancelTrade(chr.getTrade());
-        }
-        if (chr.getCheatTracker() != null) {
-            chr.getCheatTracker().dispose();
-        }
-        if (chr.getBuffedValue(MapleBuffStat.SUMMON) != null) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
-        }
-        if (chr.getBuffedValue(MapleBuffStat.PUPPET) != null) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
-        }
-        if (chr.getBuffedValue(MapleBuffStat.MIRROR_TARGET) != null) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.MIRROR_TARGET);
-        }
-        final IMaplePlayerShop shop = chr.getPlayerShop();
-        if (shop != null) {
-            shop.removeVisitor(chr);
-            if (shop.isOwner(chr)) {
-                shop.setOpen(true);
-            }
-        }
-        try {
-            final WorldChannelInterface wci = ch.getWorldInterface();
-            if (chr.getMessenger() != null) {
-                MapleMessengerCharacter messengerplayer = new MapleMessengerCharacter(chr);
-                wci.leaveMessenger(chr.getMessenger().getId(), messengerplayer);
-            }
-            wci.addBuffsToStorage(chr.getId(), chr.getAllBuffs());
-            wci.addCooldownsToStorage(chr.getId(), chr.getAllCooldowns());
-            wci.addDiseaseToStorage(chr.getId(), chr.getAllDiseases());
-            wci.ChannelChange_Data(new CharacterTransfer(chr), chr.getId(), -10);
-        } catch (RemoteException e) {
-            c.getChannelServer().pingWorld();
-        }
-        ch.removePlayer(chr);
-        c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
-        // TODO: I don't know what this is but it's crazy.
-        final int cashShopPort = 8686;
-        c.getSession().write(MaplePacketCreator.getChannelChange(cashShopPort));
-        chr.saveToDb(false, false);
-        chr.getMap().removePlayer(chr);
-        c.setPlayer(null);
-    }
-
-    public static void handlePlayerLoggedIn(final int playerid, final MapleClient c) {
+    public static void handlePlayerLoggedIn(final int playerid, final GameClient c) {
         final ChannelServer channelServer = c.getChannelServer();
-        MapleCharacter player;
+        GameCharacter player;
         final CharacterTransfer transfer = channelServer.getPlayerStorage().getPendingCharacter(playerid);
         if (transfer == null) { 
             // Player isn't in storage, probably isn't CC
-            player = MapleCharacter.loadFromDb(playerid, c, true);
+            player = GameCharacter.loadFromDb(playerid, c, true);
         } else {
-            player = MapleCharacter.reconstructCharacter(transfer, c, true);
+            player = GameCharacter.reconstructCharacter(transfer, c);
         }
         c.setPlayer(player);
         c.setAccID(player.getAccountID());
@@ -131,7 +70,7 @@ public class InterServerHandler {
         final int state = c.getLoginState();
         boolean allowLogin = false;
         try {
-            if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL) {
+            if (state == GameClient.LOGIN_SERVER_TRANSITION || state == GameClient.CHANGE_CHANNEL) {
                 if (!channelServer.getWorldInterface().isCharacterListConnected(c.loadCharacterNames(c.getWorld()))) {
                     allowLogin = true;
                 }
@@ -144,7 +83,7 @@ public class InterServerHandler {
             c.getSession().close(true);
             return;
         }
-        c.updateLoginState(MapleClient.LOGIN_LOGGEDIN, c.getSessionIPAddress());
+        c.updateLoginState(GameClient.LOGIN_LOGGEDIN, c.getSessionIPAddress());
         final ChannelServer cserv = ChannelManager.getInstance(c.getChannelId());
         cserv.addPlayer(player);
         c.getSession().write(MaplePacketCreator.getCharInfo(player));
@@ -167,7 +106,7 @@ public class InterServerHandler {
             }
             final CharacterIdChannelPair[] onlineBuddies = cserv.getWorldInterface().multiBuddyFind(player.getId(), buddyIds);
             for (CharacterIdChannelPair onlineBuddy : onlineBuddies) {
-                final BuddylistEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
+                final BuddyListEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
                 ble.setChannel(onlineBuddy.getChannel());
                 player.getBuddylist().put(ble);
             }
@@ -197,14 +136,14 @@ public class InterServerHandler {
         player.showNote();
         player.updatePartyMemberHP();
         c.getSession().write(MaplePacketCreator.getKeymap(player.getKeyLayout()));
-        for (MapleQuestStatus status : player.getStartedQuests()) {
+        for (QuestStatus status : player.getStartedQuests()) {
             if (status.hasMobKills()) {
                 c.getSession().write(MaplePacketCreator.updateQuestMobKills(status));
             }
         }
         final CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
-            player.getBuddylist().put(new BuddylistEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+            player.getBuddylist().put(new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
             c.getSession().write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
         }
         player.expirationTask();
@@ -216,7 +155,7 @@ public class InterServerHandler {
         }
     }
 
-    public static void handleChannelChange(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleChannelChange(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
@@ -234,7 +173,7 @@ public class InterServerHandler {
 
         {
             if (chr.getTrade() != null) {
-                MapleTrade.cancelTrade(chr.getTrade());
+                Trade.cancelTrade(chr.getTrade());
             }
             if (chr.getPets() != null) {
                 chr.unequipAllPets();
@@ -242,16 +181,16 @@ public class InterServerHandler {
             if (chr.getCheatTracker() != null) {
                 chr.getCheatTracker().dispose();
             }
-            if (chr.getBuffedValue(MapleBuffStat.SUMMON) != null) {
-                chr.cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
+            if (chr.getBuffedValue(BuffStat.SUMMON) != null) {
+                chr.cancelEffectFromBuffStat(BuffStat.SUMMON);
             }
-            if (chr.getBuffedValue(MapleBuffStat.PUPPET) != null) {
-                chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
+            if (chr.getBuffedValue(BuffStat.PUPPET) != null) {
+                chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
             }
-            if (chr.getBuffedValue(MapleBuffStat.MIRROR_TARGET) != null) {
-                chr.cancelEffectFromBuffStat(MapleBuffStat.MIRROR_TARGET);
+            if (chr.getBuffedValue(BuffStat.MIRROR_TARGET) != null) {
+                chr.cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
             }
-            final IMaplePlayerShop shop = chr.getPlayerShop();
+            final PlayerShop shop = chr.getPlayerShop();
             if (shop != null) {
                 shop.removeVisitor(chr);
                 if (shop.isOwner(chr)) {
@@ -276,11 +215,11 @@ public class InterServerHandler {
             c.getChannelServer().pingWorld();
         }
         ch.removePlayer(chr);
-        c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
+        c.updateLoginState(GameClient.CHANGE_CHANNEL, c.getSessionIPAddress());
 
         final String[] socket = ch.getIP(channel).split(":");
         c.getSession().write(MaplePacketCreator.getChannelChange(Integer.parseInt(socket[1])));
-        chr.saveToDb(false, false);
+        chr.saveToDb(false);
         chr.getMap().removePlayer(chr);
         c.setPlayer(null);
     }

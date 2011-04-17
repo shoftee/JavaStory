@@ -3,7 +3,6 @@ package server;
 import org.javastory.server.login.LoginServer;
 import handling.world.WorldServer;
 import java.util.Scanner;
-import org.javastory.server.cashshop.CashShopServer;
 import org.javastory.server.channel.ChannelManager;
 
 public class Start {
@@ -22,10 +21,6 @@ public class Start {
         
         if (serverType.equals("WORLD")) {
             WorldServer.startWorld_Main();
-        } else if (serverType.equals("CASHSHOP")) {
-            System.setProperty("org.javastory.cashshop.config",
-                               "cashshop.properties");
-            CashShopServer.startCashShop_main();
         } else if (serverType.equals("CHANNEL")) {
             System.setProperty("org.javastory.channels.config",
                                "channels.properties");
@@ -35,7 +30,7 @@ public class Start {
                                "login.properties");
             LoginServer.startLogin_Main();
         } else {
-            System.out.println("Invalid input for selected servers: 'CASHSHOP', 'CHANNEL', 'LOGIN' and 'WORLD'.");
+            System.out.println("Invalid input for selected servers: 'CHANNEL', 'LOGIN' and 'WORLD'.");
         }
     }
 }

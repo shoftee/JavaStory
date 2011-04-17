@@ -5,20 +5,20 @@ import java.util.Arrays;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.MapleClient;
-import client.MapleCharacter;
-import client.MapleInventoryType;
+import client.GameClient;
+import client.GameCharacter;
+import client.InventoryType;
 import org.javastory.io.PacketFormatException;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
-import server.MapleTrade;
-import server.shops.HiredMerchant;
-import server.shops.IMaplePlayerShop;
-import server.shops.MaplePlayerShop;
-import server.shops.MaplePlayerShopItem;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.shops.AbstractPlayerStore;
+import server.InventoryManipulator;
+import server.ItemInfoProvider;
+import server.Trade;
+import server.shops.HiredMerchantStore;
+import server.shops.PlayerShop;
+import server.shops.GenericPlayerStore;
+import server.shops.PlayerShopItem;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
+import server.shops.AbstractPlayerShop;
 import tools.MaplePacketCreator;
 import tools.packet.PlayerShopPacket;
 import org.javastory.io.PacketReader;
@@ -47,7 +47,7 @@ public class PlayerInteractionHandler {
             VIEW_MERCHANT_VISITOR = 0x2C,
             VIEW_MERCHANT_BLACKLIST = 0x2D;
 
-    public static final void handlePlayerInteraction(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handlePlayerInteraction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
 
         switch (action) { // Mode
@@ -56,9 +56,9 @@ public class PlayerInteractionHandler {
                 if (createType == 1) { // omok
                     // nvm
                 } else if (createType == 3) { // trade
-                    MapleTrade.startTrade(chr);
+                    Trade.startTrade(chr);
                 } else if (createType == 4 || createType == 5) { // shop
-                    if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 19500, Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.HIRED_MERCHANT)).size() != 0) {
+                    if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 19500, Arrays.asList(GameMapObjectType.SHOP, GameMapObjectType.HIRED_MERCHANT)).size() != 0) {
                         chr.dropMessage(1, "You may not establish a store here.");
                         return;
                     }
@@ -66,10 +66,10 @@ public class PlayerInteractionHandler {
                     reader.skip(3);
                     final int itemId = reader.readInt();
                     if (createType == 4) {
-                        chr.setPlayerShop(new MaplePlayerShop(chr, itemId, desc));
+                        chr.setPlayerShop(new GenericPlayerStore(chr, itemId, desc));
                         c.getSession().write(PlayerShopPacket.getPlayerStore(chr, true));
                     } else {
-                        final HiredMerchant merch = new HiredMerchant(chr, itemId, desc);
+                        final HiredMerchantStore merch = new HiredMerchantStore(chr, itemId, desc);
                         chr.setPlayerShop(merch);
                         c.getSession().write(PlayerShopPacket.getHiredMerch(chr, merch, true));
                     }
@@ -77,29 +77,29 @@ public class PlayerInteractionHandler {
                 break;
             }
             case INVITE_TRADE: {
-                MapleCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
+                GameCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
                 if (ochr.getWorld() != chr.getWorld()) {
                     chr.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
                     return;
                 }
-                MapleTrade.inviteTrade(chr, ochr);
+                Trade.inviteTrade(chr, ochr);
                 break;
             }
             case DENY_TRADE: {
-                MapleTrade.declineTrade(chr);
+                Trade.declineTrade(chr);
                 break;
             }
             case VISIT: {
                 if (chr.getTrade() != null && chr.getTrade().getPartner() != null) {
-                    MapleTrade.visitTrade(chr, chr.getTrade().getPartner().getChr());
+                    Trade.visitTrade(chr, chr.getTrade().getPartner().getChr());
                 } else {
-                    final MapleMapObject ob = chr.getMap().getMapObject(reader.readInt());
+                    final GameMapObject ob = chr.getMap().getMapObject(reader.readInt());
 
-                    if (ob instanceof IMaplePlayerShop && chr.getPlayerShop() == null) {
-                        final IMaplePlayerShop ips = (IMaplePlayerShop) ob;
+                    if (ob instanceof PlayerShop && chr.getPlayerShop() == null) {
+                        final PlayerShop ips = (PlayerShop) ob;
 
-                        if (ob instanceof HiredMerchant) {
-                            final HiredMerchant merchant = (HiredMerchant) ips;
+                        if (ob instanceof HiredMerchantStore) {
+                            final HiredMerchantStore merchant = (HiredMerchantStore) ips;
                             if (merchant.isOwner(chr)) {
                                 merchant.setOpen(false);
                                 merchant.broadcastToVisitors(PlayerShopPacket.shopErrorMessage(0x0D, 1));
@@ -120,7 +120,7 @@ public class PlayerInteractionHandler {
                                 }
                             }
                         } else if (ips.getShopType() == 2) {
-                            if (((MaplePlayerShop) ips).isBanned(chr.getName())) {
+                            if (((GenericPlayerStore) ips).isBanned(chr.getName())) {
                                 chr.dropMessage(1, "You have been banned from this store.");
                                 return;
                             }
@@ -142,7 +142,7 @@ public class PlayerInteractionHandler {
                 if (chr.getTrade() != null) {
                     chr.getTrade().chat(reader.readLengthPrefixedString());
                 } else if (chr.getPlayerShop() != null) {
-                    final IMaplePlayerShop ips = chr.getPlayerShop();
+                    final PlayerShop ips = chr.getPlayerShop();
                     final String message = reader.readLengthPrefixedString();
                     ips.broadcastToVisitors(PlayerShopPacket.shopChat(chr.getName() + " : " + message, ips.isOwner(chr) ? 0 : ips.getVisitorSlot(chr)));
                 }
@@ -151,18 +151,18 @@ public class PlayerInteractionHandler {
 
             case EXIT: {
                 if (chr.getTrade() != null) {
-                    MapleTrade.cancelTrade(chr.getTrade());
+                    Trade.cancelTrade(chr.getTrade());
                 } else {
-                    final IMaplePlayerShop ips = chr.getPlayerShop();
+                    final PlayerShop ips = chr.getPlayerShop();
                     if (ips == null) {
                         return;
                     }
                     if (ips.isOwner(chr)) {
                         if (ips.getShopType() == 2) {
                             boolean save = false;
-                            for (MaplePlayerShopItem items : ips.getItems()) {
+                            for (PlayerShopItem items : ips.getItems()) {
                                 if (items.bundles > 0) {
-                                    if (MapleInventoryManipulator.addFromDrop(c, items.item, false)) {
+                                    if (InventoryManipulator.addFromDrop(c, items.item, false)) {
                                         items.bundles = 0;
                                     } else {
                                         save = true;
@@ -183,12 +183,12 @@ public class PlayerInteractionHandler {
             case OPEN: {
                 // c.getPlayer().haveItem(mode, 1, false, true)
                 if (chr.getMap().allowPersonalShop()) {
-                    final IMaplePlayerShop shop = chr.getPlayerShop();
+                    final PlayerShop shop = chr.getPlayerShop();
                     if (shop != null && shop.isOwner(chr)) {
-                        chr.getMap().addMapObject((AbstractPlayerStore) shop);
+                        chr.getMap().addMapObject((AbstractPlayerShop) shop);
 
                         if (shop.getShopType() == 1) {
-                            final HiredMerchant merchant = (HiredMerchant) shop;
+                            final HiredMerchantStore merchant = (HiredMerchantStore) shop;
                             merchant.setStoreid(c.getChannelServer().addMerchant(merchant));
                             merchant.setOpen(true);
                             chr.getMap().broadcastMessage(PlayerShopPacket.spawnHiredMerchant(merchant));
@@ -205,8 +205,8 @@ public class PlayerInteractionHandler {
                 break;
             }
             case SET_ITEMS: {
-                final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-                final MapleInventoryType ivType = MapleInventoryType.getByType(reader.readByte());
+                final ItemInfoProvider ii = ItemInfoProvider.getInstance();
+                final InventoryType ivType = InventoryType.getByType(reader.readByte());
                 final IItem item = chr.getInventory(ivType).getItem((byte) reader.readShort());
                 final short quantity = reader.readShort();
                 final byte targetSlot = reader.readByte();
@@ -228,10 +228,10 @@ public class PlayerInteractionHandler {
                         IItem tradeItem = item.copy();
                         if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
                             tradeItem.setQuantity(item.getQuantity());
-                            MapleInventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), item.getQuantity(), true);
+                            InventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), item.getQuantity(), true);
                         } else {
                             tradeItem.setQuantity(quantity);
-                            MapleInventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), quantity, true);
+                            InventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), quantity, true);
                         }
                         tradeItem.setPosition(targetSlot);
                         chr.getTrade().addItem(tradeItem);
@@ -240,7 +240,7 @@ public class PlayerInteractionHandler {
                 break;
             }
             case SET_MESO: {
-                final MapleTrade trade = chr.getTrade();
+                final Trade trade = chr.getTrade();
                 if (trade != null) {
                     trade.setMeso(reader.readInt());
                 }
@@ -248,7 +248,7 @@ public class PlayerInteractionHandler {
             }
             case CONFIRM_TRADE: {
                 if (chr.getTrade() != null) {
-                    MapleTrade.completeTrade(chr);
+                    Trade.completeTrade(chr);
                 }
                 break;
             }
@@ -261,7 +261,7 @@ public class PlayerInteractionHandler {
                 break;
             }
             case ADD_ITEM: {
-                final MapleInventoryType type = MapleInventoryType.getByType(reader.readByte());
+                final InventoryType type = InventoryType.getByType(reader.readByte());
                 final byte slot = (byte) reader.readShort();
                 final short bundles = reader.readShort(); // How many in a bundle
                 final short perBundle = reader.readShort(); // Price per bundle
@@ -270,7 +270,7 @@ public class PlayerInteractionHandler {
                 if (price <= 0 || bundles <= 0 || perBundle <= 0) {
                     return;
                 }
-                final IMaplePlayerShop shop = chr.getPlayerShop();
+                final PlayerShop shop = chr.getPlayerShop();
 
                 if (shop == null || !shop.isOwner(chr)) {
                     return;
@@ -289,7 +289,7 @@ public class PlayerInteractionHandler {
                             c.getSession().write(MaplePacketCreator.enableActions());
                             return;
                         }
-                        if (MapleItemInformationProvider.getInstance().isDropRestricted(ivItem.getItemId())) {
+                        if (ItemInfoProvider.getInstance().isDropRestricted(ivItem.getItemId())) {
                             if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
                                 c.getSession().write(MaplePacketCreator.enableActions());
                                 return;
@@ -297,16 +297,16 @@ public class PlayerInteractionHandler {
                         }
                         if (GameConstants.isThrowingStar(ivItem.getItemId()) || GameConstants.isBullet(ivItem.getItemId())) {
                             // Ignore the bundles
-                            MapleInventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
+                            InventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
 
                             final IItem sellItem = ivItem.copy();
-                            shop.addItem(new MaplePlayerShopItem(sellItem, (short) 1, price));
+                            shop.addItem(new PlayerShopItem(sellItem, (short) 1, price));
                         } else {
-                            MapleInventoryManipulator.removeFromSlot(c, type, slot, bundles_perbundle, true);
+                            InventoryManipulator.removeFromSlot(c, type, slot, bundles_perbundle, true);
 
                             final IItem sellItem = ivItem.copy();
                             sellItem.setQuantity(perBundle);
-                            shop.addItem(new MaplePlayerShopItem(sellItem, bundles, price));
+                            shop.addItem(new PlayerShopItem(sellItem, bundles, price));
                         }
                         c.getSession().write(PlayerShopPacket.shopItemUpdate(shop));
                     }
@@ -317,12 +317,12 @@ public class PlayerInteractionHandler {
             case BUY_ITEM_HIREDMERCHANT: { // Buy and Merchant buy
                 final int item = reader.readByte();
                 final short quantity = reader.readShort();
-                final IMaplePlayerShop shop = chr.getPlayerShop();
+                final PlayerShop shop = chr.getPlayerShop();
 
                 if (shop == null || shop.isOwner(chr)) {
                     return;
                 }
-                final MaplePlayerShopItem tobuy = shop.getItems().get(item);
+                final PlayerShopItem tobuy = shop.getItems().get(item);
 
                 if (quantity < 0
                         || tobuy == null
@@ -341,18 +341,18 @@ public class PlayerInteractionHandler {
             }
             case REMOVE_ITEM: {
                 final int slot = reader.readShort();
-                final IMaplePlayerShop shop = chr.getPlayerShop();
+                final PlayerShop shop = chr.getPlayerShop();
 
                 if (shop == null || !shop.isOwner(chr)) {
                     return;
                 }
-                final MaplePlayerShopItem item = shop.getItems().get(slot);
+                final PlayerShopItem item = shop.getItems().get(slot);
 
                 if (item != null) {
                     if (item.bundles > 0) {
                         IItem item_get = item.item.copy();
                         item_get.setQuantity((short) (item.bundles * item.item.getQuantity()));
-                        if (MapleInventoryManipulator.addFromDrop(c, item_get, false)) {
+                        if (InventoryManipulator.addFromDrop(c, item_get, false)) {
                             item.bundles = 0;
                             shop.removeFromSlot(slot);
                         }
@@ -362,15 +362,15 @@ public class PlayerInteractionHandler {
                 break;
             }
             case MAINTANCE_OFF: {
-                final IMaplePlayerShop shop = chr.getPlayerShop();
-                if (shop != null && shop instanceof HiredMerchant && shop.isOwner(chr)) {
+                final PlayerShop shop = chr.getPlayerShop();
+                if (shop != null && shop instanceof HiredMerchantStore && shop.isOwner(chr)) {
                     shop.setOpen(true);
                     chr.setPlayerShop(null);
                 }
                 break;
             }
             case MAINTANCE_ORGANISE: {
-                final IMaplePlayerShop imps = chr.getPlayerShop();
+                final PlayerShop imps = chr.getPlayerShop();
                 if (imps.isOwner(chr)) {
                     for (int i = 0; i < imps.getItems().size(); i++) {
                         if (imps.getItems().get(i).bundles == 0) {
@@ -388,7 +388,7 @@ public class PlayerInteractionHandler {
                 break;
             }
             case CLOSE_MERCHANT: {
-                final IMaplePlayerShop merchant = chr.getPlayerShop();
+                final PlayerShop merchant = chr.getPlayerShop();
                 if (merchant != null && merchant.getShopType() == 1 && merchant.isOwner(chr)) {
                     boolean save = false;
 
@@ -401,11 +401,11 @@ public class PlayerInteractionHandler {
                         merchant.setMeso(0);
 
                         if (merchant.getItems().size() > 0) {
-                            for (MaplePlayerShopItem items : merchant.getItems()) {
+                            for (PlayerShopItem items : merchant.getItems()) {
                                 if (items.bundles > 0) {
                                     IItem item_get = items.item.copy();
                                     item_get.setQuantity((short) (items.bundles * items.item.getQuantity()));
-                                    if (MapleInventoryManipulator.addFromDrop(c, item_get, false)) {
+                                    if (InventoryManipulator.addFromDrop(c, item_get, false)) {
                                         items.bundles = 0;
                                     } else {
                                         save = true;

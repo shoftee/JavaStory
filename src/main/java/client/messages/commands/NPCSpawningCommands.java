@@ -3,21 +3,21 @@ package client.messages.commands;
 import java.awt.Point;
 import java.util.List;
 
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import server.life.MapleLifeFactory;
-import server.life.MapleNPC;
-import server.maps.MapleMapObject;
+import server.life.LifeFactory;
+import server.life.Npc;
+import server.maps.GameMapObject;
 import tools.MaplePacketCreator;
 
 public class NPCSpawningCommands implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-npc")) {
 			int npcId = Integer.parseInt(splitted[1]);
-			MapleNPC npc = MapleLifeFactory.getNPC(npcId);
+			Npc npc = LifeFactory.getNPC(npcId);
 			if (npc != null && !npc.getName().equals("MISSINGNO")) {
 				npc.setPosition(c.getPlayer().getPosition());
 				npc.setCy(c.getPlayer().getPosition().y);
@@ -31,9 +31,9 @@ public class NPCSpawningCommands implements Command {
 				c.getPlayer().dropMessage(6, "You have entered an invalid Npc-Id");
 			}
 		} else if (splitted[0].equals("-removenpcs")) {
-			List<MapleMapObject> npcs = c.getPlayer().getMap().getAllNPC();
-			for (MapleMapObject npcmo : npcs) {
-				MapleNPC npc = (MapleNPC) npcmo;
+			List<GameMapObject> npcs = c.getPlayer().getMap().getAllNPC();
+			for (GameMapObject npcmo : npcs) {
+				Npc npc = (Npc) npcmo;
 				if (npc.isCustom()) {
 					c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.spawnNPC(npc, false));
 					c.getPlayer().getMap().removeMapObject(npc.getObjectId());

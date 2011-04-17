@@ -1,17 +1,17 @@
 package client.messages.commands;
 
-import client.MapleCharacter;
-import client.MapleClient;
+import client.GameCharacter;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
 
 public class CharInfoCommand implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
 		final StringBuilder builder = new StringBuilder();
-		final MapleCharacter other = c.getChannelServer().getPlayerStorage().getCharacterByName(splittedLine[1]);
-		builder.append(MapleClient.getLogMessage(other, ""));
+		final GameCharacter other = c.getChannelServer().getPlayerStorage().getCharacterByName(splittedLine[1]);
+		builder.append(GameClient.getLogMessage(other, ""));
 		builder.append(" at ");
 		builder.append(" x : ");
 		builder.append(other.getPosition().x);

@@ -23,12 +23,12 @@ package handling.channel.handler;
 import java.awt.Point;
 import java.util.List;
 
-import client.MapleClient;
-import client.MapleCharacter;
+import client.GameClient;
+import client.GameCharacter;
 import org.javastory.io.PacketFormatException;
 import server.Randomizer;
-import server.maps.MapleMap;
-import server.life.MapleMonster;
+import server.maps.GameMap;
+import server.life.Monster;
 import server.life.MobSkill;
 import server.life.MobSkillFactory;
 import server.movement.LifeMovementFragment;
@@ -38,8 +38,8 @@ import org.javastory.io.PacketReader;
 
 public class MobHandler {
 
-    public static final void handleMoveMonster(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
-        final MapleMonster monster = chr.getMap().getMonsterByOid(reader.readInt());
+    public static final void handleMoveMonster(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+        final Monster monster = chr.getMap().getMonsterByOid(reader.readInt());
 
         if (monster == null) { // movin something which is not a monster
             return;
@@ -118,7 +118,7 @@ public class MobHandler {
             final short toy = reader.readShort();
             System.out.println("x1 : "+fromx+", y2 : "+fromy+" x2 : "+tox+", y2 : " + toy);
             System.out.println(map.getFootholds().checkRelevantFH(fromx, fromy, tox, toy));*/
-            final MapleMap map = c.getPlayer().getMap();
+            final GameMap map = c.getPlayer().getMap();
 
             MovementParse.updatePosition(res, monster, -1);
             map.moveMonster(monster, monster.getPosition());
@@ -127,11 +127,11 @@ public class MobHandler {
         }
     }
 
-    public static final void handleFriendlyDamage(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
-        final MapleMap map = chr.getMap();
-        final MapleMonster mobfrom = map.getMonsterByOid(reader.readInt());
+    public static final void handleFriendlyDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+        final GameMap map = chr.getMap();
+        final Monster mobfrom = map.getMonsterByOid(reader.readInt());
         reader.skip(4); // Player ID
-        final MapleMonster mobto = map.getMonsterByOid(reader.readInt());
+        final Monster mobto = map.getMonsterByOid(reader.readInt());
 
         if (mobfrom != null && mobto != null && mobto.getStats().isFriendly()) {
             final int damage = (mobto.getStats().getLevel() * Randomizer.nextInt(99)) / 2; // Temp for now until I figure out something more effective
@@ -139,8 +139,8 @@ public class MobHandler {
         }
     }
 
-    public static final void handleMonsterBomb(final int oid, final MapleCharacter chr) {
-        final MapleMonster monster = chr.getMap().getMonsterByOid(oid);
+    public static final void handleMonsterBomb(final int oid, final GameCharacter chr) {
+        final Monster monster = chr.getMap().getMonsterByOid(oid);
 
         if (monster == null || !chr.isAlive() || chr.isHidden()) {
             return;
@@ -151,8 +151,8 @@ public class MobHandler {
         }
     }
 
-    public static final void handleAutoAggro(final int monsteroid, final MapleCharacter chr) {
-        final MapleMonster monster = chr.getMap().getMonsterByOid(monsteroid);
+    public static final void handleAutoAggro(final int monsteroid, final GameCharacter chr) {
+        final Monster monster = chr.getMap().getMonsterByOid(monsteroid);
 
         if (monster != null && chr.getPosition().distance(monster.getPosition()) < 200000) {
             if (monster.getController() != null) {
@@ -167,8 +167,8 @@ public class MobHandler {
         }
     }
 
-    public static final void handleHypnotizeDamage(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
-        final MapleMonster mob_from = chr.getMap().getMonsterByOid(reader.readInt()); // From
+    public static final void handleHypnotizeDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+        final Monster mob_from = chr.getMap().getMonsterByOid(reader.readInt()); // From
         reader.skip(4); // Player ID
         final int to = reader.readInt(); // mobto
         reader.skip(1); // Same as player damage, -1 = bump, integer = skill ID
@@ -176,7 +176,7 @@ public class MobHandler {
 //	reader.skip(1); // Facing direction
 //	reader.skip(4); // Some type of pos, damage display, I think
 
-        final MapleMonster mob_to = chr.getMap().getMonsterByOid(to);
+        final Monster mob_to = chr.getMap().getMonsterByOid(to);
 
         if (mob_from != null && mob_to != null) {
             if (damage > 30000) {

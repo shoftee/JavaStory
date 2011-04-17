@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import client.Equip;
-import provider.MapleData;
-import provider.MapleDataDirectoryEntry;
-import provider.MapleDataFileEntry;
-import provider.MapleDataProvider;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataTool;
+import provider.WzData;
+import provider.WzDataDirectoryEntry;
+import provider.WzDataFileEntry;
+import provider.WzDataProvider;
+import provider.WzDataProviderFactory;
+import provider.WzDataTool;
 
 import client.IItem;
 
@@ -41,52 +41,52 @@ public class LoginInformationProvider {
             1072001, 1072005, 1072037, 1072038, 1072383, 1072418// Shoes
         };
         final String WZpath = System.getProperty("org.javastory.wzpath");
-        final MapleDataProvider equipData = MapleDataProviderFactory.getDataProvider(new File(WZpath + "/Character.wz"));
+        final WzDataProvider equipData = WzDataProviderFactory.getDataProvider(new File(WZpath + "/Character.wz"));
         for (int i = 0; i < LoadEquipment.length; i++) {
             loadEquipStats(LoadEquipment[i], equipData);
         }
 
-        final MapleData nameData = MapleDataProviderFactory.getDataProvider(new File(WZpath + "/Etc.wz")).getData("ForbiddenName.img");
-        for (final MapleData data : nameData.getChildren()) {
-            ForbiddenName.add(MapleDataTool.getString(data));
+        final WzData nameData = WzDataProviderFactory.getDataProvider(new File(WZpath + "/Etc.wz")).getData("ForbiddenName.img");
+        for (final WzData data : nameData.getChildren()) {
+            ForbiddenName.add(WzDataTool.getString(data));
         }
     }
 
-    private void loadEquipStats(final int itemId, final MapleDataProvider equipData) {
-        final MapleData item = getItemData(itemId, equipData);
+    private void loadEquipStats(final int itemId, final WzDataProvider equipData) {
+        final WzData item = getItemData(itemId, equipData);
         if (item == null) {
             return;
         }
-        final MapleData info = item.getChildByPath("info");
+        final WzData info = item.getChildByPath("info");
         if (info == null) {
             return;
         }
         final Map<String, Integer> ret = new LinkedHashMap<String, Integer>();
 
-        for (final MapleData data : info.getChildren()) {
+        for (final WzData data : info.getChildren()) {
             if (data.getName().startsWith("inc")) {
-                ret.put(data.getName().substring(3), MapleDataTool.getIntConvert(data));
+                ret.put(data.getName().substring(3), WzDataTool.getIntConvert(data));
             }
         }
-        ret.put("tuc", MapleDataTool.getInt("tuc", info, 0));
-        ret.put("reqLevel", MapleDataTool.getInt("reqLevel", info, 0));
-        ret.put("reqJob", MapleDataTool.getInt("reqJob", info, 0));
-        ret.put("reqSTR", MapleDataTool.getInt("reqSTR", info, 0));
-        ret.put("reqDEX", MapleDataTool.getInt("reqDEX", info, 0));
-        ret.put("reqINT", MapleDataTool.getInt("reqINT", info, 0));
-        ret.put("reqLUK", MapleDataTool.getInt("reqLUK", info, 0));
-        ret.put("cash", MapleDataTool.getInt("cash", info, 0));
-        ret.put("cursed", MapleDataTool.getInt("cursed", info, 0));
-        ret.put("success", MapleDataTool.getInt("success", info, 0));
+        ret.put("tuc", WzDataTool.getInt("tuc", info, 0));
+        ret.put("reqLevel", WzDataTool.getInt("reqLevel", info, 0));
+        ret.put("reqJob", WzDataTool.getInt("reqJob", info, 0));
+        ret.put("reqSTR", WzDataTool.getInt("reqSTR", info, 0));
+        ret.put("reqDEX", WzDataTool.getInt("reqDEX", info, 0));
+        ret.put("reqINT", WzDataTool.getInt("reqINT", info, 0));
+        ret.put("reqLUK", WzDataTool.getInt("reqLUK", info, 0));
+        ret.put("cash", WzDataTool.getInt("cash", info, 0));
+        ret.put("cursed", WzDataTool.getInt("cursed", info, 0));
+        ret.put("success", WzDataTool.getInt("success", info, 0));
         equipStatsCache.put(itemId, ret);
     }
 
-    private MapleData getItemData(final int itemId, final MapleDataProvider equipData) {
-        MapleData ret = null;
+    private WzData getItemData(final int itemId, final WzDataProvider equipData) {
+        WzData ret = null;
         String idStr = "0" + String.valueOf(itemId);
-        MapleDataDirectoryEntry root = equipData.getRoot();
-        for (MapleDataDirectoryEntry topDir : root.getSubdirectories()) {
-            for (MapleDataFileEntry iFile : topDir.getFiles()) {
+        WzDataDirectoryEntry root = equipData.getRoot();
+        for (WzDataDirectoryEntry topDir : root.getSubdirectories()) {
+            for (WzDataFileEntry iFile : topDir.getFiles()) {
                 if (iFile.getName().equals(idStr + ".img")) {
                     return equipData.getData(topDir.getName() + "/" + iFile.getName());
                 }

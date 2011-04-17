@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import client.MapleClient;
-import client.MapleCharacter;
+import client.GameClient;
+import client.GameCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import java.util.Map.Entry;
@@ -99,7 +99,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket getAuthSuccessRequest(final MapleClient client) {
+    public static GamePacket getAuthSuccessRequest(final GameClient client) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
@@ -193,13 +193,13 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static final GamePacket getCharacterList(final boolean secondpw, final List<MapleCharacter> chars, int maxCharacters) {
+    public static final GamePacket getCharacterList(final boolean secondpw, final List<GameCharacter> chars, int maxCharacters) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CHARLIST.getValue());
         builder.writeAsByte(0);
         builder.writeAsByte(chars.size());
-        for (final MapleCharacter chr : chars) {
+        for (final GameCharacter chr : chars) {
             addCharEntry(builder, chr);
         }
         builder.writeAsByte(secondpw ? 1 : 0);
@@ -212,7 +212,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static final GamePacket addNewCharEntry(final MapleCharacter chr, final boolean worked) {
+    public static final GamePacket addNewCharEntry(final GameCharacter chr, final boolean worked) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
@@ -232,7 +232,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    private static final void addCharEntry(final PacketBuilder builder, final MapleCharacter chr) {
+    private static final void addCharEntry(final PacketBuilder builder, final GameCharacter chr) {
         PacketHelper.addCharStats(builder, chr);
         PacketHelper.addCharLook(builder, chr, true);
         builder.writeAsByte(0);

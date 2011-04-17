@@ -7,9 +7,9 @@ import java.util.List;
 
 import client.ISkill;
 import client.GameConstants;
-import client.MapleBuffStat;
-import client.MapleCharacter;
-import client.MapleClient;
+import client.BuffStat;
+import client.GameCharacter;
+import client.GameClient;
 import client.PlayerStats;
 import client.SkillFactory;
 import client.anticheat.CheatTracker;
@@ -18,35 +18,35 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
-import server.MapleStatEffect;
+import server.StatEffect;
 import server.TimerManager;
 import server.Randomizer;
 import server.life.Element;
-import server.life.MapleMonster;
-import server.life.MapleMonsterStats;
-import server.maps.MapleMap;
-import server.maps.MapleMapItem;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
+import server.life.Monster;
+import server.life.MonsterStats;
+import server.maps.GameMap;
+import server.maps.GameMapItem;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
 import tools.AttackPair;
 
 public class DamageParse {
 
     //MapleClient instance start
-    public static MapleClient c;
+    public static GameClient c;
 
-    public DamageParse(final MapleClient c) {
+    public DamageParse(final GameClient c) {
         this.c = c;
     }
 
-    public final MapleClient getClient() {
+    public final GameClient getClient() {
         return c;
     }
     //MapleClient isntance end
     private final static int[] charges = {1211005, 1211006};
 
-    public static void applyAttack(final AttackInfo attack, final ISkill theSkill, final MapleCharacter player, int attackCount, final double maxDamagePerMonster, final MapleStatEffect effect, final AttackType attack_type) {
+    public static void applyAttack(final AttackInfo attack, final ISkill theSkill, final GameCharacter player, int attackCount, final double maxDamagePerMonster, final StatEffect effect, final AttackType attack_type) {
         if (!player.isAlive()) {
             player.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -77,17 +77,17 @@ public class DamageParse {
             }
         }
         int totDamage = 0;
-        final MapleMap map = player.getMap();
+        final GameMap map = player.getMap();
 
         if (attack.skill == 4211006) { // meso explosion
             for (AttackPair oned : attack.allDamage) {
                 if (oned.attack != null) {
                     continue;
                 }
-                final MapleMapObject mapobject = map.getMapObject(oned.objectid);
+                final GameMapObject mapobject = map.getMapObject(oned.objectid);
 
-                if (mapobject != null && mapobject.getType() == MapleMapObjectType.ITEM) {
-                    final MapleMapItem mapitem = (MapleMapItem) mapobject;
+                if (mapobject != null && mapobject.getType() == GameMapObjectType.ITEM) {
+                    final GameMapItem mapitem = (GameMapItem) mapobject;
 
                     if (mapitem.getMeso() > 0) {
                         if (mapitem.isPickedUp()) {
@@ -111,11 +111,11 @@ public class DamageParse {
 
         int CriticalDamage = stats.passive_sharpeye_percent();
 
-        final Integer SharpEye = player.getBuffedSkill_Y(MapleBuffStat.SHARP_EYES);
+        final Integer SharpEye = player.getBuffedSkill_Y(BuffStat.SHARP_EYES);
         if (SharpEye != null) {
             CriticalDamage += SharpEye - 100; // Additional damage in percentage
         }
-        final Integer SharpEye_ = player.getBuffedSkill_Y(MapleBuffStat.THORNS);
+        final Integer SharpEye_ = player.getBuffedSkill_Y(BuffStat.THORNS);
         if (SharpEye_ != null) {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
@@ -136,7 +136,7 @@ public class DamageParse {
                         break;
                 } // x = normal atk, y = skill
             }
-            final MapleStatEffect shadowPartnerEffect = SP.getEffect(player.getSkillLevel(SP));
+            final StatEffect shadowPartnerEffect = SP.getEffect(player.getSkillLevel(SP));
             if (attack.skill != 0) {
                 ShdowPartnerAttackPercentage = (byte) shadowPartnerEffect.getY();
             } else {
@@ -147,8 +147,8 @@ public class DamageParse {
 
         byte overallAttackCount; // Tracking of Shadow Partner additional damage.
         double maxDamagePerHit = 0;
-        MapleMonster monster;
-        MapleMonsterStats monsterstats;
+        Monster monster;
+        MonsterStats monsterstats;
         boolean Tempest;
 
         for (final AttackPair oned : attack.allDamage) {
@@ -211,7 +211,7 @@ public class DamageParse {
                     player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER); // , Double.toString(Math.sqrt(distance))
                 }
                 // pickpocket
-                if (player.getBuffedValue(MapleBuffStat.PICKPOCKET) != null) {
+                if (player.getBuffedValue(BuffStat.PICKPOCKET) != null) {
                     switch (attack.skill) {
                         case 0:
                         case 4001334:
@@ -234,7 +234,7 @@ public class DamageParse {
                         if (totDamageToOneMonster >= 199999) {
                             //HACK
                             //Damage formula
-                            totDamageToOneMonster = (int) Math.min(MapleCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalWatk() / 50) * (player.haveItem(MapleCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                            totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalWatk() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                             if (player.isOnDMG()) {
                                 player.dropMessage(5, "Damage: " + totDamageToOneMonster);
                             }
@@ -283,7 +283,7 @@ public class DamageParse {
                             final ISkill skill2 = SkillFactory.getSkill(4220005);
                             final ISkill skill3 = SkillFactory.getSkill(4340001);
                             if (player.getSkillLevel(skill) > 0) {
-                                final MapleStatEffect venomEffect = skill.getEffect(player.getSkillLevel(skill));
+                                final StatEffect venomEffect = skill.getEffect(player.getSkillLevel(skill));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -296,7 +296,7 @@ public class DamageParse {
                                     }
                                 }
                             } else if (player.getSkillLevel(skill2) > 0) {
-                                final MapleStatEffect venomEffect = skill2.getEffect(player.getSkillLevel(skill2));
+                                final StatEffect venomEffect = skill2.getEffect(player.getSkillLevel(skill2));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -309,7 +309,7 @@ public class DamageParse {
                                     }
                                 }
                             } else if (player.getSkillLevel(skill3) > 0) {
-                                final MapleStatEffect venomEffect = skill3.getEffect(player.getSkillLevel(skill3));
+                                final StatEffect venomEffect = skill3.getEffect(player.getSkillLevel(skill3));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -339,20 +339,20 @@ public class DamageParse {
                         case 21120006: // Tempest
                         case 21120009: // (hidden) Overswing - Double Attack
                         case 21120010: { // (hidden) Overswing - Triple Attack
-                            if (player.getBuffedValue(MapleBuffStat.WK_CHARGE) != null) {
+                            if (player.getBuffedValue(BuffStat.WK_CHARGE) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21111005);
-                                final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
                                 monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false), false, eff.getY() * 1000, false);
                             }
-                            if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null) {
+                            if (player.getBuffedValue(BuffStat.BODY_PRESSURE) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21101003);
-                                final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
                                 if (eff.makeChanceResult()) {
                                     monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() * 1000, false);
                                 }
                             }
-                            if (player.getBuffedValue(MapleBuffStat.COMBO_DRAIN) != null) {
+                            if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21100005);
                                 final PlayerStats stat = player.getStat();
                                 stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
@@ -361,18 +361,18 @@ public class DamageParse {
                         }
                         default: //passives attack bonuses
                             if (totDamageToOneMonster > 0) {
-                                if (player.getBuffedValue(MapleBuffStat.BLIND) != null) {
+                                if (player.getBuffedValue(BuffStat.BLIND) != null) {
                                     final ISkill skill = SkillFactory.getSkill(3221006);
-                                    final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                    final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.ACC, eff.getX()), skill, null, false);
                                         monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 1000, false);
                                     }
 
-                                } else if (player.getBuffedValue(MapleBuffStat.HAMSTRING) != null) {
+                                } else if (player.getBuffedValue(BuffStat.HAMSTRING) != null) {
                                     final ISkill skill = SkillFactory.getSkill(3121007);
-                                    final MapleStatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                    final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false);
@@ -381,7 +381,7 @@ public class DamageParse {
                                 } else if (player.getJob() == 121) { // WHITEKNIGHT
                                     for (int charge : charges) {
                                         final ISkill skill = SkillFactory.getSkill(charge);
-                                        if (player.isBuffFrom(MapleBuffStat.WK_CHARGE, skill)) {
+                                        if (player.isBuffFrom(BuffStat.WK_CHARGE, skill)) {
                                             final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.FREEZE, 1), skill, null, false);
                                             monster.applyStatus(player, monsterStatusEffect, false, skill.getEffect(player.getSkillLevel(skill)).getY() * 2000, false);
                                             break;
@@ -422,7 +422,7 @@ public class DamageParse {
         }
     }
 
-    public static final void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final MapleCharacter player, final MapleStatEffect effect) {
+    public static final void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final GameCharacter player, final StatEffect effect) {
         player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
 
         if (effect == null) {
@@ -452,30 +452,30 @@ public class DamageParse {
         }
         maxDamagePerHit *= 1.04; // Avoid any errors for now
 
-        final Element element = player.getBuffedValue(MapleBuffStat.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
+        final Element element = player.getBuffedValue(BuffStat.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
 
         double MaxDamagePerHit = 0;
         int totDamageToOneMonster, totDamage = 0, fixeddmg;
         byte overallAttackCount;
         boolean Tempest;
-        MapleMonsterStats monsterstats;
+        MonsterStats monsterstats;
 
         int CriticalDamage = stats.passive_sharpeye_percent();
-        final Integer SharpEye = player.getBuffedSkill_Y(MapleBuffStat.SHARP_EYES);
+        final Integer SharpEye = player.getBuffedSkill_Y(BuffStat.SHARP_EYES);
         if (SharpEye != null) {
             CriticalDamage += SharpEye - 100; // Additional damage in percentage
         }
-        final Integer SharpEye_ = player.getBuffedSkill_Y(MapleBuffStat.THORNS);
+        final Integer SharpEye_ = player.getBuffedSkill_Y(BuffStat.THORNS);
         if (SharpEye_ != null) {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
         final ISkill eaterSkill = SkillFactory.getSkill(GameConstants.getMPEaterForJob(player.getJob()));
         final int eaterLevel = player.getSkillLevel(eaterSkill);
 
-        final MapleMap map = player.getMap();
+        final GameMap map = player.getMap();
 
         for (final AttackPair oned : attack.allDamage) {
-            final MapleMonster monster = map.getMonsterByOid(oned.objectid);
+            final Monster monster = map.getMonsterByOid(oned.objectid);
 
             if (monster != null) {
                 Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) == 21120006;
@@ -538,7 +538,7 @@ public class DamageParse {
                     if (totDamageToOneMonster >= 199999) {
                         //HACK
                         //Damage Formula
-                        totDamageToOneMonster = (int) Math.min(MapleCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalMagic() / 50) * (player.haveItem(MapleCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                        totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalMagic() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                         if (player.isOnDMG()) {
                             player.dropMessage(5, "Damage: " + totDamageToOneMonster);
                         }
@@ -578,7 +578,7 @@ public class DamageParse {
         }
     }
 
-    private static final double CalculateMaxMagicDamagePerHit(final MapleCharacter chr, final ISkill skill, final MapleMonster monster, final MapleMonsterStats mobstats, final PlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
+    private static final double CalculateMaxMagicDamagePerHit(final GameCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final PlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
         final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
         final int Accuracy = (int) (Math.floor((double) (stats.getTotalInt() / 10)) + Math.floor((double) (stats.getTotalLuk() / 10)));
         final int MinAccuracy = mobstats.getEva() * (dLevel * 2 + 51) / 120;
@@ -629,8 +629,8 @@ public class DamageParse {
                 elemMaxDamagePerMob = 40;
                 break;
         }
-        if (elemMaxDamagePerMob > MapleCharacter.getDamageCap()) {
-            elemMaxDamagePerMob = MapleCharacter.getDamageCap();
+        if (elemMaxDamagePerMob > GameCharacter.getDamageCap()) {
+            elemMaxDamagePerMob = GameCharacter.getDamageCap();
         } else if (elemMaxDamagePerMob < 0) {
             elemMaxDamagePerMob = 1;
         }
@@ -652,10 +652,10 @@ public class DamageParse {
         }
     }
 
-    private static void handlePickPocket(final MapleCharacter player, final MapleMonster mob, AttackPair oned) {
-        final int maxmeso = player.getBuffedValue(MapleBuffStat.PICKPOCKET).intValue();
+    private static void handlePickPocket(final GameCharacter player, final Monster mob, AttackPair oned) {
+        final int maxmeso = player.getBuffedValue(BuffStat.PICKPOCKET).intValue();
         final ISkill skill = SkillFactory.getSkill(4211003);
-        final MapleStatEffect s = skill.getEffect(player.getSkillLevel(skill));
+        final StatEffect s = skill.getEffect(player.getSkillLevel(skill));
 
         for (final Integer eachd : oned.attack) {
             if (s.makeChanceResult()) {
@@ -671,7 +671,7 @@ public class DamageParse {
         }
     }
 
-    private static double CalculateMaxWeaponDamagePerHit(final MapleCharacter player, final MapleMonster monster, final AttackInfo attack, final ISkill theSkill, final MapleStatEffect attackEffect, double maximumDamageToMonster, final Integer CriticalDamagePercent) {
+    private static double CalculateMaxWeaponDamagePerHit(final GameCharacter player, final Monster monster, final AttackInfo attack, final ISkill theSkill, final StatEffect attackEffect, double maximumDamageToMonster, final Integer CriticalDamagePercent) {
         if (player.getMapId() / 1000000 == 914) { //aran
             return 199999;
         }
@@ -687,10 +687,10 @@ public class DamageParse {
                     maximumDamageToMonster = 40;
                     break;
                 case 3221007: // Sniping
-                    maximumDamageToMonster = MapleCharacter.getDamageCap();
+                    maximumDamageToMonster = GameCharacter.getDamageCap();
                     break;
                 case 4211006: // Meso Explosion
-                    maximumDamageToMonster = MapleCharacter.getDamageCap();
+                    maximumDamageToMonster = GameCharacter.getDamageCap();
                     break;
                 /*		case 4221001: // Assasinate
                 maximumDamageToMonster = 400000;
@@ -708,8 +708,8 @@ public class DamageParse {
                     break;
             }
         }
-        if (player.getBuffedValue(MapleBuffStat.WK_CHARGE) != null) {
-            int chargeSkillId = player.getBuffSource(MapleBuffStat.WK_CHARGE);
+        if (player.getBuffedValue(BuffStat.WK_CHARGE) != null) {
+            int chargeSkillId = player.getBuffSource(BuffStat.WK_CHARGE);
 
             switch (chargeSkillId) {
                 case 1211003:
@@ -787,8 +787,8 @@ public class DamageParse {
             return 0;
         }
 
-        if (elementalMaxDamagePerMonster > MapleCharacter.getDamageCap()) {
-            elementalMaxDamagePerMonster = MapleCharacter.getDamageCap();
+        if (elementalMaxDamagePerMonster > GameCharacter.getDamageCap()) {
+            elementalMaxDamagePerMonster = GameCharacter.getDamageCap();
         } else if (elementalMaxDamagePerMonster < 0) {
             elementalMaxDamagePerMonster = 1;
         }

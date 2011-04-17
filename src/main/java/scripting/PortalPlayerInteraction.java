@@ -20,19 +20,19 @@
 */
 package scripting;
 
-import client.MapleClient;
-import server.MaplePortal;
+import client.GameClient;
+import server.Portal;
 
 public class PortalPlayerInteraction extends AbstractPlayerInteraction {
 
-    private final MaplePortal portal;
+    private final Portal portal;
 
-    public PortalPlayerInteraction(final MapleClient c, final MaplePortal portal) {
+    public PortalPlayerInteraction(final GameClient c, final Portal portal) {
 	super(c);
 	this.portal = portal;
     }
 
-    public final MaplePortal getPortal() {
+    public final Portal getPortal() {
 	return portal;
     }
 

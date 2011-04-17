@@ -29,19 +29,19 @@ import client.Equip;
 import client.IItem;
 import client.Item;
 import client.GameConstants;
-import client.MapleClient;
-import client.MapleInventoryType;
+import client.GameClient;
+import client.InventoryType;
 import org.javastory.server.channel.ChannelManager;
-import server.MapleItemInformationProvider;
-import server.life.MapleLifeFactory;
+import server.ItemInfoProvider;
+import server.life.LifeFactory;
 import server.maps.ReactorDropEntry;
-import server.maps.MapleReactor;
+import server.maps.Reactor;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {
 
-    private MapleReactor reactor;
+    private Reactor reactor;
 
-    public ReactorActionManager(MapleClient c, MapleReactor reactor) {
+    public ReactorActionManager(GameClient c, Reactor reactor) {
 	super(c);
 	this.reactor = reactor;
     }
@@ -87,7 +87,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 	dropPos.x -= (12 * numItems);
 
 	int range, mesoDrop;
-	final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+	final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 	for (final ReactorDropEntry d : items) {
 	    if (d.itemId == 0) {
 		range = maxMeso - minMeso;
@@ -95,7 +95,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 		reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, reactor, getPlayer(), false, (byte) 0);
 	    } else {
 		IItem drop;
-		if (GameConstants.getInventoryType(d.itemId) != MapleInventoryType.EQUIP) {
+		if (GameConstants.getInventoryType(d.itemId) != InventoryType.EQUIP) {
 		    drop = new Item(d.itemId, (byte) 0, (short) 1, (byte) 0);
 		} else {
 		    drop = ii.randomizeStats((Equip) ii.getEquipById(d.itemId));
@@ -129,7 +129,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
     // handler for all spawnMonster
     private void spawnMonster(int id, int qty, Point pos) {
 	for (int i = 0; i < qty; i++) {
-	    reactor.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(id), pos);
+	    reactor.getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
 	}
     }
 
@@ -145,7 +145,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 	return pos;
     }
 
-    public MapleReactor getReactor() {
+    public Reactor getReactor() {
 	return reactor;
     }
 
@@ -175,7 +175,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
     // handler for all spawnFakeMonster
     private void spawnFakeMonster(int id, int qty, Point pos) {
 	for (int i = 0; i < qty; i++) {
-	    reactor.getMap().spawnFakeMonsterOnGroundBelow(MapleLifeFactory.getMonster(id), pos);
+	    reactor.getMap().spawnFakeMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
 	}
     }
 

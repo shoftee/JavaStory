@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import client.IItem;
-import client.MapleClient;
-import client.MapleCharacter;
-import client.MapleInventoryType;
-import client.MaplePet;
-import client.MapleStat;
+import client.GameClient;
+import client.GameCharacter;
+import client.InventoryType;
+import client.Pet;
+import client.Stat;
 import client.GameConstants;
 import client.SkillFactory;
 import client.PetCommand;
@@ -17,8 +17,8 @@ import client.PetDataFactory;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 import server.Randomizer;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
+import server.InventoryManipulator;
+import server.ItemInfoProvider;
 import server.movement.LifeMovementFragment;
 import tools.Pair;
 import tools.MaplePacketCreator;
@@ -26,23 +26,23 @@ import tools.packet.PetPacket;
 
 public class PetHandler {
 
-    public static final void handleSpawnPet(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handleSpawnPet(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = reader.readByte();
-        final IItem item = chr.getInventory(MapleInventoryType.CASH).getItem(slot);
+        final IItem item = chr.getInventory(InventoryType.CASH).getItem(slot);
 
         switch (item.getItemId()) {
             case 5000047:
             case 5000028: {
-                final MaplePet pet = MaplePet.createPet(item.getItemId() + 1);
+                final Pet pet = Pet.createPet(item.getItemId() + 1);
                 if (pet != null) {
-                    MapleInventoryManipulator.addById(c, item.getItemId() + 1, (short) 1, null, pet);
-                    MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.CASH, slot, (short) 1, false);
+                    InventoryManipulator.addById(c, item.getItemId() + 1, (short) 1, null, pet);
+                    InventoryManipulator.removeFromSlot(c, InventoryType.CASH, slot, (short) 1, false);
                 }
                 break;
             }
             default: {
-                final MaplePet pet = item.getPet();
+                final Pet pet = item.getPet();
                 if (pet != null) {
                     if (pet.getSummoned()) { // Already summoned, let's keep it
                         chr.unequipPet(pet, true, false);
@@ -62,8 +62,8 @@ public class PetHandler {
                         chr.addPet(pet);
                         chr.getMap().broadcastMessage(chr, PetPacket.showPet(chr, pet, false, false), true);
 
-                        final List<Pair<MapleStat, Integer>> stats = new ArrayList<Pair<MapleStat, Integer>>(1);
-                        stats.add(new Pair<MapleStat, Integer>(MapleStat.PET, Integer.valueOf(pet.getUniqueId())));
+                        final List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(1);
+                        stats.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(pet.getUniqueId())));
 
                         c.getSession().write(PetPacket.petStatUpdate(chr));
                         chr.startFullnessSchedule(PetDataFactory.getHunger(pet.getPetItemId()), pet, chr.getPetIndex(pet));
@@ -75,29 +75,29 @@ public class PetHandler {
         c.getSession().write(PetPacket.emptyStatUpdate());
     }
 
-    public static final void handlePetAutoPotion(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(13);
         final byte slot = reader.readByte();
-        final IItem toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
+        final IItem toUse = chr.getInventory(InventoryType.USE).getItem(slot);
 
         if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
-        MapleItemInformationProvider.getInstance().getItemEffect(toUse.getItemId()).applyTo(chr);
+        InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
+        ItemInfoProvider.getInstance().getItemEffect(toUse.getItemId()).applyTo(chr);
     }
 
-    public static final void handlePetChat(final int petid, final short command, final String text, MapleCharacter chr) {
+    public static final void handlePetChat(final int petid, final short command, final String text, GameCharacter chr) {
         chr.getMap().broadcastMessage(chr, PetPacket.petChat(chr.getId(), command, text, chr.getPetIndex(petid)), true);
     }
 
-    public static final void handlePetCommand(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handlePetCommand(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte petIndex = chr.getPetIndex(reader.readInt());
         if (petIndex == -1) {
             return;
         }
-        MaplePet pet = chr.getPet(petIndex);
+        Pet pet = chr.getPet(petIndex);
         reader.skip(5);
         final byte command = reader.readByte();
         final PetCommand petCommand = PetDataFactory.getPetCommand(pet.getPetItemId(), (int) command);
@@ -121,10 +121,10 @@ public class PetHandler {
         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), command, petIndex, success, false), true);
     }
 
-    public static final void handlePetFood(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handlePetFood(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         int previousFullness = 100;
 
-        for (final MaplePet pet : chr.getPets()) {
+        for (final Pet pet : chr.getPets()) {
             if (pet.getSummoned()) {
                 if (pet.getFullness() < previousFullness) {
                     previousFullness = pet.getFullness();
@@ -174,7 +174,7 @@ public class PetHandler {
                         c.getSession().write(PetPacket.updatePet(pet, true));
                         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), (byte) 1, chr.getPetIndex(pet), false, true), true);
                     }
-                    MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, itemId, 1, true, false);
+                    InventoryManipulator.removeById(c, InventoryType.USE, itemId, 1, true, false);
                     return;
                 }
             }
@@ -182,7 +182,7 @@ public class PetHandler {
         c.getSession().write(MaplePacketCreator.enableActions());
     }
 
-    public static final void handleMovePet(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handleMovePet(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int petId = reader.readInt();
         reader.skip(4);
         reader.skip(8); // Start POS

@@ -3,9 +3,9 @@ package server.maps;
 import java.awt.Point;
 import java.rmi.RemoteException;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import server.TimerManager;
-import server.life.MapleLifeFactory;
+import server.life.LifeFactory;
 import tools.MaplePacketCreator;
 
 public class AramiaFireWorks {
@@ -26,7 +26,7 @@ public class AramiaFireWorks {
         return instance;
     }
     
-    public final void giveKegs(final MapleCharacter c, final int kegs) {
+    public final void giveKegs(final GameCharacter c, final int kegs) {
         this.kegs += kegs;
         if (this.kegs >= 2000) {
             this.kegs = 0;
@@ -38,7 +38,7 @@ public class AramiaFireWorks {
         return (short) ((kegs / 2000) * 10000);
     }
     
-    private void broadcastEvent(final MapleCharacter c) {
+    private void broadcastEvent(final GameCharacter c) {
         try {
             c.getClient().getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
         } catch (RemoteException e) {
@@ -54,7 +54,7 @@ public class AramiaFireWorks {
         }, 10000);
     }
     
-    private void startEvent(final MapleMap map) {
+    private void startEvent(final GameMap map) {
         map.startMapEffect("Who's going crazy with the fireworks?", 5121010);
         TimerManager.getInstance().schedule(new Runnable() {
 
@@ -65,11 +65,11 @@ public class AramiaFireWorks {
         }, 5000);
     }
     
-    private void spawnMonster(final MapleMap map) {
+    private void spawnMonster(final GameMap map) {
         Point pos;
         for (int i = 0; i < arrayMob.length; i++) {
             pos = new Point(arrayX[i], arrayY[i]);
-            map.spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(arrayMob[i]), pos);
+            map.spawnMonsterOnGroundBelow(LifeFactory.getMonster(arrayMob[i]), pos);
         }
     }
 }

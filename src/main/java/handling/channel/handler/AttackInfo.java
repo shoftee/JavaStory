@@ -25,9 +25,9 @@ import java.awt.Point;
 
 import client.ISkill;
 import client.GameConstants;
-import client.MapleCharacter;
+import client.GameCharacter;
 import client.SkillFactory;
-import server.MapleStatEffect;
+import server.StatEffect;
 import server.AutobanManager;
 import tools.AttackPair;
 
@@ -38,7 +38,7 @@ public class AttackInfo {
     public Point position;
     public byte hits, targets, tbyte, display, animation, speed, csstar, AOE, slot;
 
-    public final MapleStatEffect getAttackEffect(final MapleCharacter chr, int skillLevel, final ISkill skill_) {
+    public final StatEffect getAttackEffect(final GameCharacter chr, int skillLevel, final ISkill skill_) {
 	if (GameConstants.isMulungSkill(skill)) {
 	    skillLevel = 1;
 	} else if (skillLevel == 0) {

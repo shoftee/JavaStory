@@ -1,6 +1,6 @@
 package client.messages.commands;
 
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.CommandProcessor;
@@ -10,7 +10,7 @@ import org.javastory.server.channel.ShutdownChannelServer;
 public class ShutdownCommands implements Command {
 
     @Override
-    public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         if (splitted[0].equals("-shutdown")) {
             int time = 60000;
             if (splitted.length > 1) {
@@ -19,9 +19,6 @@ public class ShutdownCommands implements Command {
             CommandProcessor.forcePersisting();
             c.getChannelServer().shutdown(time);
             c.getPlayer().dropMessage(6, "Shutting down... in " + time + "");
-        } else if (splitted[0].equals("-shutdowncs")) {
-            c.getChannelServer().getWorldRegistry().deregisterCSServer();
-            c.getPlayer().dropMessage(6, "Cash Shop server has been deregistered.");
         } else if (splitted[0].equals("-shutdownworld")) {
             int time = 60000;
             if (splitted.length > 1) {
@@ -47,7 +44,6 @@ public class ShutdownCommands implements Command {
     public CommandDefinition[] getDefinition() {
         return new CommandDefinition[]{
                     new CommandDefinition("shutdownmerchant", "", "Shuts down all merchants in this channel", 5),
-                    new CommandDefinition("shutdowncs", "", "Shuts down the cs", 5),
                     new CommandDefinition("shutdown", "[when in Minutes]", "Shuts down the current channel - don't use atm", 5),
                     new CommandDefinition("shutdownnow", "", "Shuts down the current channel now", 5),
                     new CommandDefinition("shutdownlogin", "", "Shuts down the current login - don't use atm", 5),

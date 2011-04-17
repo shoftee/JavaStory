@@ -25,7 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import client.MapleClient;
+import client.GameClient;
 import database.DatabaseConnection;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
@@ -40,7 +40,7 @@ public class BbsHandler {
 	return in;
     }
 
-    public static final void handleBbsOperatopn(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleBbsOperatopn(final PacketReader reader, final GameClient c) throws PacketFormatException {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing bbs or hax
 	}
@@ -93,7 +93,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void listBBSThreads(MapleClient c, int start) {
+    private static void listBBSThreads(GameClient c, int start) {
 	try {
 	    Connection con = DatabaseConnection.getConnection();
 	    PreparedStatement ps = con.prepareStatement("SELECT * FROM bbs_threads WHERE guildid = ? ORDER BY localthreadid DESC");
@@ -109,7 +109,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void newBBSReply(final MapleClient c, final int localthreadid, final String text) {
+    private static final void newBBSReply(final GameClient c, final int localthreadid, final String text) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
@@ -148,7 +148,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void editBBSThread(final MapleClient c, final String title, final String text, final int icon, final int localthreadid) {
+    private static final void editBBSThread(final GameClient c, final String title, final String text, final int icon, final int localthreadid) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
@@ -172,7 +172,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void newBBSThread(final MapleClient c, final String title, final String text, final int icon, final boolean bNotice) {
+    private static final void newBBSThread(final GameClient c, final String title, final String text, final int icon, final boolean bNotice) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
@@ -209,7 +209,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void deleteBBSThread(final MapleClient c, final int localthreadid) {
+    private static final void deleteBBSThread(final GameClient c, final int localthreadid) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
@@ -248,7 +248,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void deleteBBSReply(final MapleClient c, final int replyid) {
+    private static final void deleteBBSReply(final GameClient c, final int replyid) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
@@ -290,7 +290,7 @@ public class BbsHandler {
 	}
     }
 
-    private static final void displayThread(final MapleClient c, final int threadid, final boolean bIsThreadIdLocal) {
+    private static final void displayThread(final GameClient c, final int threadid, final boolean bIsThreadIdLocal) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}

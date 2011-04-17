@@ -2,12 +2,12 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.MapleClient;
+import client.GameClient;
 import client.SkillFactory;
 import handling.ServerPacketOpcode;
 import server.Randomizer;
-import server.MapleItemInformationProvider;
-import server.life.MapleLifeFactory;
+import server.ItemInfoProvider;
+import server.life.LifeFactory;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketBuilder;
 import tools.packet.UIPacket;
@@ -96,7 +96,7 @@ public class MapScriptMethods {
 		}
 	};
 
-	public static void startScript_FirstUser(MapleClient c, String scriptName) {
+	public static void startScript_FirstUser(GameClient c, String scriptName) {
 		switch (onFirstUserEnter.fromString(scriptName)) {
 			case dojang_Eff: {
 				int temp = (c.getPlayer().getMapId() - 925000000) / 100;
@@ -124,7 +124,7 @@ public class MapScriptMethods {
 		}
 	}
 
-	public static void startScript_User(MapleClient c, String scriptName) {
+	public static void startScript_User(GameClient c, String scriptName) {
 		String data = "";
 	switch (onUserEnter.fromString(scriptName)) {
 		case cygnusTest:
@@ -158,7 +158,7 @@ public class MapScriptMethods {
 		}
 		case undomorphdarco:
 		case reundodraco: {
-		c.getPlayer().cancelEffect(MapleItemInformationProvider.getInstance().getItemEffect(2210016), false, -1);
+		c.getPlayer().cancelEffect(ItemInfoProvider.getInstance().getItemEffect(2210016), false, -1);
 		break;
 		}
 		case goAdventure: {
@@ -196,7 +196,7 @@ public class MapScriptMethods {
 			c.getSession().write(UIPacket.IntroDisableUI(false));
 			c.getSession().write(UIPacket.IntroLock(false));
 			c.getSession().write(MaplePacketCreator.enableActions());
-			final MapleMap mapto = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(910000000);
+			final GameMap mapto = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(910000000);
 			c.getPlayer().changeMap(mapto, mapto.getPortal(0));
 			return;
 		}
@@ -365,17 +365,17 @@ public class MapScriptMethods {
 	return 0;
 	}
 
-	private static void showIntro(final MapleClient c, final String data) {
+	private static void showIntro(final GameClient c, final String data) {
 	c.getSession().write(UIPacket.IntroDisableUI(true));
 	c.getSession().write(UIPacket.IntroLock(true));
 	c.getSession().write(UIPacket.ShowWZEffect(data));
 	}
 
-	private static void sendDojoClock(MapleClient c, int time) {
+	private static void sendDojoClock(GameClient c, int time) {
 	c.getSession().write(MaplePacketCreator.getClock(time));
 	}
 
-	private static void sendDojoStart(MapleClient c, int stage) {
+	private static void sendDojoStart(GameClient c, int stage) {
 	c.getSession().write(MaplePacketCreator.environmentChange("Dojang/start", 4));
 	c.getSession().write(MaplePacketCreator.environmentChange("dojang/start/stage", 3));
 	c.getSession().write(MaplePacketCreator.environmentChange("dojang/start/number/" + stage, 3));
@@ -391,8 +391,8 @@ public class MapScriptMethods {
 	c.getSession().write(builder.getPacket());
 	}
 
-	private static void handlePinkBeanStart(MapleClient c) {
-	final MapleMap map = c.getPlayer().getMap();
+	private static void handlePinkBeanStart(GameClient c) {
+	final GameMap map = c.getPlayer().getMap();
 	map.killAllMonsters(true);
 	map.respawn(true);
 
@@ -401,8 +401,8 @@ public class MapScriptMethods {
 	}
 	}
 
-	private static void reloadWitchTower(MapleClient c) {
-	final MapleMap map = c.getPlayer().getMap();
+	private static void reloadWitchTower(GameClient c) {
+	final GameMap map = c.getPlayer().getMap();
 	map.killAllMonsters(false);
 
 	final int level = c.getPlayer().getLevel();
@@ -430,6 +430,6 @@ public class MapScriptMethods {
 	} else {
 		mob = 9300377;
 	}
-	map.spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(mob), witchTowerPos);
+	map.spawnMonsterOnGroundBelow(LifeFactory.getMonster(mob), witchTowerPos);
 	}
 }

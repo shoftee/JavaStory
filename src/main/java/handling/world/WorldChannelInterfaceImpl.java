@@ -1,6 +1,5 @@
 package handling.world;
 
-import handling.cashshop.remote.CashShopWorldInterface;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
@@ -23,7 +22,6 @@ import handling.login.remote.LoginWorldInterface;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildCharacter;
 import handling.world.remote.CheaterData;
-import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLocation;
 import tools.CollectionUtil;
@@ -218,21 +216,6 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         return -1;
     }
 
-    @Override
-    public boolean isCharacterInCS(String name) throws RemoteException {
-        final CashShopWorldInterface cashShopServer =
-                WorldRegistryImpl.getInstance().getCashShopServer();
-        if (cashShopServer == null) {
-            return false; // CS might not be init
-        }
-        return cashShopServer.isCharacterInCS(name);
-    }
-
-    @Override
-    public ServerStatus getCashShopStatus() {
-        return WorldRegistryImpl.getInstance().getCashShopStatus();
-    }
-
     public void shutdownLogin() throws RemoteException {
         for (LoginWorldInterface lwi : WorldRegistryImpl.getInstance().getLoginServer()) {
             try {
@@ -326,7 +309,8 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
                 party.setLeader(target);
                 break;
             default:
-                throw new RuntimeException("Unhandeled updateParty operation " + operation.name());
+                throw new RuntimeException("Unhandeled updateParty operation " +
+                        operation.name());
         }
         for (int i : WorldRegistryImpl.getInstance().getChannelServer()) {
             final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
@@ -424,20 +408,17 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     @Override
     public void ChannelChange_Data(CharacterTransfer Data, int characterid, int toChannel) throws RemoteException {
-        if (toChannel != -10) {
-            for (int i : WorldRegistryImpl.getInstance().getChannelServer()) {
-                if (i == toChannel) {
-                    final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
-                    try {
-                        cwi.ChannelChange_Data(Data, characterid);
-                    } catch (RemoteException e) {
-                        WorldRegistryImpl.getInstance().deregisterChannelServer(i);
-                    }
+        for (int i : WorldRegistryImpl.getInstance().getChannelServer()) {
+            if (i == toChannel) {
+                final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+                try {
+                    cwi.ChannelChange_Data(Data, characterid);
+                } catch (RemoteException e) {
+                    WorldRegistryImpl.getInstance().deregisterChannelServer(i);
                 }
             }
-        } else {
-            WorldRegistryImpl.getInstance().getCashShopServer().ChannelChange_Data(Data, characterid);
         }
+
     }
 
     @Override

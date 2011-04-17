@@ -24,9 +24,9 @@ package client;
 import java.util.ArrayList;
 import java.util.List;
 
-import provider.MapleData;
-import provider.MapleDataTool;
-import server.MapleStatEffect;
+import provider.WzData;
+import provider.WzDataTool;
+import server.StatEffect;
 import server.life.Element;
 
 
@@ -35,7 +35,7 @@ import server.life.Element;
 public class Skill implements ISkill {	
     public static final int[] skills = new int[] {4311003, 4321000, 4331002, 4331005, 4341004, 4341007};
     private int id;
-    private final List<MapleStatEffect> effects = new ArrayList<MapleStatEffect>();
+    private final List<StatEffect> effects = new ArrayList<StatEffect>();
     private Element element;
     private byte level;
     private int animationTime, requiredSkill, masterLevel;
@@ -56,30 +56,30 @@ public class Skill implements ISkill {
 	return id;
     }
 
-    public static final Skill loadFromData(final int id, final MapleData data) {
+    public static final Skill loadFromData(final int id, final WzData data) {
 	Skill ret = new Skill(id);
 
 	boolean isBuff = false;
-	final int skillType = MapleDataTool.getInt("skillType", data, -1);
-	final String elem = MapleDataTool.getString("elemAttr", data, null);
+	final int skillType = WzDataTool.getInt("skillType", data, -1);
+	final String elem = WzDataTool.getString("elemAttr", data, null);
 	if (elem != null) {
 	    ret.element = Element.getFromChar(elem.charAt(0));
 	} else {
 	    ret.element = Element.NEUTRAL;
 	}
-	ret.invisible = MapleDataTool.getInt("invisible", data, 0) > 0;
-	ret.masterLevel = MapleDataTool.getInt("masterLevel", data, 0);
+	ret.invisible = WzDataTool.getInt("invisible", data, 0) > 0;
+	ret.masterLevel = WzDataTool.getInt("masterLevel", data, 0);
 
 	// unfortunatly this is only set for a few skills so we have to do some more to figure out if it's a buff �.o
-	final MapleData effect = data.getChildByPath("effect");
+	final WzData effect = data.getChildByPath("effect");
 	if (skillType != -1) {
 	    if (skillType == 2) {
 		isBuff = true;
 	    }
 	} else {
-	    final MapleData action_ = data.getChildByPath("action");
-	    final MapleData hit = data.getChildByPath("hit");
-	    final MapleData ball = data.getChildByPath("ball");
+	    final WzData action_ = data.getChildByPath("action");
+	    final WzData hit = data.getChildByPath("hit");
+	    final WzData ball = data.getChildByPath("ball");
 
 	    boolean action = false;
 	    if (action_ == null) {
@@ -98,7 +98,7 @@ public class Skill implements ISkill {
 	    }
 	    ret.action = action;
 	    isBuff = effect != null && hit == null && ball == null;
-	    isBuff |= action_ != null && MapleDataTool.getString("0", action_, "").equals("alert2");
+	    isBuff |= action_ != null && WzDataTool.getString("0", action_, "").equals("alert2");
 	    switch (id) {
 		case 2301002: // heal is alert2 but not overtime...
 		case 2111003: // poison mist
@@ -153,32 +153,32 @@ public class Skill implements ISkill {
 	}
 	ret.chargeskill = data.getChildByPath("keydown") != null;
 
-	for (final MapleData level : data.getChildByPath("level")) {
-	    ret.effects.add(MapleStatEffect.loadSkillEffectFromData(level, id, isBuff));
+	for (final WzData level : data.getChildByPath("level")) {
+	    ret.effects.add(StatEffect.loadSkillEffectFromData(level, id, isBuff));
 	}
-	final MapleData reqDataRoot = data.getChildByPath("req");
+	final WzData reqDataRoot = data.getChildByPath("req");
 	if (reqDataRoot != null) {
-	    for (final MapleData reqData : reqDataRoot.getChildren()) {
+	    for (final WzData reqData : reqDataRoot.getChildren()) {
 		ret.requiredSkill = Integer.parseInt(reqData.getName());
-		ret.level = (byte) MapleDataTool.getInt(reqData, 1);
+		ret.level = (byte) WzDataTool.getInt(reqData, 1);
 	    }
 	}
 	ret.animationTime = 0;
 	if (effect != null) {
-	    for (final MapleData effectEntry : effect) {
-		ret.animationTime += MapleDataTool.getIntConvert("delay", effectEntry, 0);
+	    for (final WzData effectEntry : effect) {
+		ret.animationTime += WzDataTool.getIntConvert("delay", effectEntry, 0);
 	    }
 	}
 	return ret;
     }
 
     @Override
-    public MapleStatEffect getEffect(final int level) {
+    public StatEffect getEffect(final int level) {
 	return effects.get(level - 1);
     }
 
     @Override
-    public MapleStatEffect getEffect(final MapleCharacter chr, final int level) {
+    public StatEffect getEffect(final GameCharacter chr, final int level) {
 	return effects.get(level - 1);
     }
 

@@ -22,18 +22,15 @@ package handling.world.remote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import handling.cashshop.remote.CashShopWorldInterface;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
 import org.javastory.server.ChannelInfo;
 
 public interface WorldRegistry extends Remote {
 
-    public CashShopInterface registerCSServer(CashShopWorldInterface cs) throws RemoteException;
     public WorldLoginInterface registerLoginServer(LoginWorldInterface login) throws RemoteException;
     public WorldChannelInterface registerChannelServer(ChannelInfo info, ChannelWorldInterface channel) throws RemoteException;
 
-    public void deregisterCSServer() throws RemoteException;
     public void deregisterLoginServer(LoginWorldInterface cb) throws RemoteException;
     public void deregisterChannelServer(int channelId) throws RemoteException;
 

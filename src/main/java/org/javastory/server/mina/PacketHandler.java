@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-import client.MapleClient;
+import client.GameClient;
 import handling.ClientPacketOpcode;
 import handling.GamePacket;
 import handling.ServerConstants;
 import handling.ServerType;
-import handling.cashshop.handler.*;
 import handling.channel.handler.*;
 import handling.login.handler.*;
 import handling.world.remote.ServerStatus;
@@ -89,7 +88,8 @@ public class PacketHandler extends IoHandlerAdapter {
         }
         tracker.put(address, new Pair(System.currentTimeMillis(), count));
         if (channelId > -1) {
-            if (ChannelManager.getInstance(channelId).getStatus() != ServerStatus.ONLINE) {
+            if (ChannelManager.getInstance(channelId).getStatus() !=
+                    ServerStatus.ONLINE) {
                 session.close(true);
                 return;
             }
@@ -102,8 +102,8 @@ public class PacketHandler extends IoHandlerAdapter {
         final AesTransform clientCrypto = new AesTransform(
                 clientIv, ServerConstants.GAME_VERSION, VersionType.REGULAR);
 
-        final MapleClient client =
-                new MapleClient(clientCrypto, serverCrypto, session);
+        final GameClient client =
+                new GameClient(clientCrypto, serverCrypto, session);
         client.setChannel(channelId);
         PacketDecoder.DecoderState decoderState =
                 new PacketDecoder.DecoderState();
@@ -111,20 +111,20 @@ public class PacketHandler extends IoHandlerAdapter {
         final GamePacket helloPacket = LoginPacket.getHello(
                 ServerConstants.GAME_VERSION, clientIv, serverIv);
         session.write(helloPacket);
-        session.setAttribute(MapleClient.CLIENT_KEY, client);
+        session.setAttribute(GameClient.CLIENT_KEY, client);
         session.getConfig().setBothIdleTime(30);
         System.out.println(":: IoSession opened " + address + " ::");
     }
 
     @Override
     public void sessionClosed(final IoSession session) throws Exception {
-        final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+        final GameClient client = (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
         if (client != null) {
             try {
-                client.disconnect(true, type == ServerType.CASHSHOP ? true : false);
+                client.disconnect(true);
             } finally {
                 session.close(false);
-                session.removeAttribute(MapleClient.CLIENT_KEY);
+                session.removeAttribute(GameClient.CLIENT_KEY);
             }
         }
         super.sessionClosed(session);
@@ -136,7 +136,7 @@ public class PacketHandler extends IoHandlerAdapter {
         final short header_num = reader.readShort();
         for (final ClientPacketOpcode code : ClientPacketOpcode.values()) {
             if (code.getValue() == header_num) {
-                final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+                final GameClient client = (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
                 if (code.NeedsChecking()) {
                     if (!client.isLoggedIn()) {
                         return;
@@ -145,7 +145,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 try {
                     handlePacket(code, reader, client, type);
                 } catch (PacketFormatException ex) {
-                    client.disconnect(true, true);
+                    client.disconnect(true);
                 }
                 return;
             }
@@ -154,7 +154,7 @@ public class PacketHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionIdle(final IoSession session, final IdleStatus status) throws Exception {
-        final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+        final GameClient client = (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
         if (client != null) {
             client.sendPing();
         }
@@ -164,7 +164,7 @@ public class PacketHandler extends IoHandlerAdapter {
     public static void handlePacket(
             final ClientPacketOpcode header,
             final PacketReader reader,
-            final MapleClient client,
+            final GameClient client,
             final ServerType type) throws PacketFormatException {
         switch (header) {
             case PONG:
@@ -209,14 +209,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 break;
             case PLAYER_LOGGEDIN:
                 final int playerid = reader.readInt();
-                if (type == ServerType.CHANNEL) {
-                    InterServerHandler.handlePlayerLoggedIn(playerid, client);
-                } else {
-                    CashShopOperation.enterCashShop(playerid, client);
-                }
-                break;
-            case ENTER_CASH_SHOP:
-                InterServerHandler.handleEnterCashShop(reader, client, client.getPlayer());
+                InterServerHandler.handlePlayerLoggedIn(playerid, client);
                 break;
             case ENTER_MTS:
                 InterServerHandler.handleEnterMTS(client);
@@ -283,11 +276,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 PlayerHandler.HandleChangeKeymap(reader, client.getPlayer());
                 break;
             case CHANGE_MAP:
-                if (type == ServerType.CHANNEL) {
-                    PlayerHandler.handleChangeMap(reader, client, client.getPlayer());
-                } else {
-                    CashShopOperation.leaveCashShop(reader, client, client.getPlayer());
-                }
+                PlayerHandler.handleChangeMap(reader, client, client.getPlayer());
                 break;
             case CHANGE_MAP_SPECIAL:
                 reader.skip(1);
@@ -458,12 +447,6 @@ public class PacketHandler extends IoHandlerAdapter {
                 break;
             case SHIP_OBJECT:
                 UserInterfaceHandler.handleShipObjectRequest(reader.readInt(), client);
-                break;
-            case BUY_CS_ITEM:
-                CashShopOperation.handleBuyCashItem(reader, client, client.getPlayer());
-                break;
-            case CS_UPDATE:
-                CashShopOperation.handleCashShopUpdate(client, client.getPlayer());
                 break;
             case DAMAGE_SUMMON:
                 reader.skip(4);

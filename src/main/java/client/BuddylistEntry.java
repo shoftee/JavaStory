@@ -21,7 +21,7 @@
 
 package client;
 
-public class BuddylistEntry {
+public class BuddyListEntry {
 
     private String name, group;
     private int cid, channel, level, job;
@@ -34,7 +34,7 @@ public class BuddylistEntry {
      * @param channel should be -1 if the buddy is offline
      * @param visible
      */
-    public BuddylistEntry(String name, int characterId, String group, int channel, boolean visible, int level, int job) {
+    public BuddyListEntry(String name, int characterId, String group, int channel, boolean visible, int level, int job) {
 	super();
 	this.name = name;
 	this.cid = characterId;
@@ -111,7 +111,7 @@ public class BuddylistEntry {
 	if (getClass() != obj.getClass()) {
 	    return false;
 	}
-	final BuddylistEntry other = (BuddylistEntry) obj;
+	final BuddyListEntry other = (BuddyListEntry) obj;
 	if (cid != other.cid) {
 	    return false;
 	}

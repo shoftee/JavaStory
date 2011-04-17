@@ -24,15 +24,15 @@ package client;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import provider.MapleData;
-import provider.MapleDataProvider;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataTool;
+import provider.WzData;
+import provider.WzDataProvider;
+import provider.WzDataProviderFactory;
+import provider.WzDataTool;
 import tools.Pair;
 
 public class PetDataFactory {
 
-    private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Item.wz"));
+    private static WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Item.wz"));
     private static Map<Pair<Integer, Integer>, PetCommand> petCommands = new HashMap<Pair<Integer, Integer>, PetCommand>();
     private static Map<Integer, Integer> petHunger = new HashMap<Integer, Integer>();
 
@@ -41,12 +41,12 @@ public class PetDataFactory {
         if (ret != null) {
             return ret;
         }
-        final MapleData skillData = dataRoot.getData("Pet/" + petId + ".img");
+        final WzData skillData = dataRoot.getData("Pet/" + petId + ".img");
         int prob = 0;
         int inc = 0;
         if (skillData != null) {
-            prob = MapleDataTool.getInt("interact/" + skillId + "/prob", skillData, 0);
-            inc = MapleDataTool.getInt("interact/" + skillId + "/inc", skillData, 0);
+            prob = WzDataTool.getInt("interact/" + skillId + "/prob", skillData, 0);
+            inc = WzDataTool.getInt("interact/" + skillId + "/inc", skillData, 0);
         }
         ret = new PetCommand(petId, skillId, prob, inc);
         petCommands.put(new Pair<Integer, Integer>(Integer.valueOf(petId), Integer.valueOf(skillId)), ret);
@@ -59,8 +59,8 @@ public class PetDataFactory {
         if (ret != null) {
             return ret;
         }
-        final MapleData hungerData = dataRoot.getData("Pet/" + petId + ".img").getChildByPath("info/hungry");
-        ret = Integer.valueOf(MapleDataTool.getInt(hungerData, 1));
+        final WzData hungerData = dataRoot.getData("Pet/" + petId + ".img").getChildByPath("info/hungry");
+        ret = Integer.valueOf(WzDataTool.getInt(hungerData, 1));
         petHunger.put(petId, ret);
 
         return ret;

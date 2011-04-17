@@ -1,10 +1,9 @@
 package handling.channel.handler;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
 
-import client.MapleClient;
-import client.MapleCharacter;
+import client.GameClient;
+import client.GameCharacter;
 import client.messages.CommandProcessor;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
@@ -17,7 +16,7 @@ import org.javastory.io.PacketReader;
 
 public class ChatHandler {
 
-    public static final void handleGeneralChat(final String text, final byte unk, final MapleClient c, final MapleCharacter chr) {
+    public static final void handleGeneralChat(final String text, final byte unk, final GameClient c, final GameCharacter chr) {
         if (!CommandProcessor.getInstance().processCommand(c, text)) {
             if (!chr.isGM() && text.length() >= 80) {
                 return;
@@ -26,7 +25,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handlePartyChat(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static final void handlePartyChat(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final int type = reader.readByte();
         final byte numRecipients = reader.readByte();
         int recipients[] = new int[numRecipients];
@@ -56,7 +55,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleMessenger(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleMessenger(final PacketReader reader, final GameClient c) throws PacketFormatException {
         String input;
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         MapleMessenger messenger = c.getPlayer().getMessenger();
@@ -107,7 +106,7 @@ public class ChatHandler {
             case 0x03: // invite
                 if (messenger.getMembers().size() < 3) {
                     input = reader.readLengthPrefixedString();
-                    final MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
+                    final GameCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
 
                     if (target != null) {
                         if (target.getMessenger() == null) {
@@ -119,7 +118,9 @@ public class ChatHandler {
                                 c.getSession().write(MaplePacketCreator.messengerNote(input, 4, 0));
                             }
                         } else {
-                            c.getSession().write(MaplePacketCreator.messengerChat(c.getPlayer().getName() + " : " + input + " is already using Maple Messenger"));
+                            c.getSession().write(MaplePacketCreator.messengerChat(c.getPlayer().getName() +
+                                    " : " + input +
+                                    " is already using Maple Messenger"));
                         }
                     } else {
                         try {
@@ -136,7 +137,7 @@ public class ChatHandler {
                 break;
             case 0x05: // decline
                 final String targeted = reader.readLengthPrefixedString();
-                final MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
+                final GameCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
                         target.getClient().getSession().write(MaplePacketCreator.messengerNote(c.getPlayer().getName(), 5, 0));
@@ -165,13 +166,13 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleWhisper(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleWhisper(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte mode = reader.readByte();
         reader.readInt();
         switch (mode) {
             case 5: { // Find
                 final String recipient = reader.readLengthPrefixedString();
-                MapleCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
+                GameCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {
                     if (!player.isGM() || c.getPlayer().isGM() && player.isGM()) {
                         if (player == null) { // cs? lol
@@ -186,7 +187,8 @@ public class ChatHandler {
                     for (ChannelServer cserv : ChannelManager.getAllInstances()) {
                         player = cserv.getPlayerStorage().getCharacterByName(recipient);
                         if (player != null) {
-                            if (!player.isGM() || c.getPlayer().isGM() && player.isGM()) {
+                            if (!player.isGM() || c.getPlayer().isGM() &&
+                                    player.isGM()) {
                                 c.getSession().write(MaplePacketCreator.getFindReply(player.getName(), (byte) player.getClient().getChannelId()));
                             } else {
                                 c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
@@ -194,16 +196,7 @@ public class ChatHandler {
                             return;
                         }
                     }
-                    try {
-                        if (c.getChannelServer().getWorldInterface().isCharacterInCS(recipient)) {
-                            c.getSession().write(MaplePacketCreator.getFindReplyWithCS(player.getName()));
-                        } else {
-                            c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
-                        }
-                    } catch (RemoteException e) {
-                        c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
-                        c.getChannelServer().pingWorld();
-                    }
+                    c.getSession().write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
                 }
                 break;
             }
@@ -211,7 +204,7 @@ public class ChatHandler {
                 final String recipient = reader.readLengthPrefixedString();
                 final String text = reader.readLengthPrefixedString();
 
-                MapleCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
+                GameCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {
                     player.getClient().getSession().write(MaplePacketCreator.getWhisper(c.getPlayer().getName(), c.getChannelId(), text));
                     if (player.isGM()) {

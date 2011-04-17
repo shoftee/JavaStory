@@ -21,18 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.IItem;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleInventoryType;
-import client.MapleStat;
+import client.GameCharacter;
+import client.GameClient;
+import client.InventoryType;
+import client.Stat;
 import client.anticheat.CheatingOffense;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
-import server.maps.MapleDoor;
-import server.maps.MapleMapObject;
-import server.maps.MapleReactor;
+import server.InventoryManipulator;
+import server.ItemInfoProvider;
+import server.maps.Door;
+import server.maps.GameMapObject;
+import server.maps.Reactor;
 import tools.MaplePacketCreator;
 
 public final class PlayersHandler {
@@ -40,7 +40,7 @@ public final class PlayersHandler {
     private PlayersHandler() {
     }
 
-    public static void handleNoteAction(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleNoteAction(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final byte type = reader.readByte();
 
         switch (type) {
@@ -59,12 +59,12 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleGiveFame(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleGiveFame(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final int who = reader.readInt();
         final int mode = reader.readByte();
 
         final int famechange = mode == 0 ? -1 : 1;
-        final MapleCharacter target = (MapleCharacter) chr.getMap().getMapObject(who);
+        final GameCharacter target = (GameCharacter) chr.getMap().getMapObject(who);
 
         if (target == chr) { // faming self
             chr.getCheatTracker().registerOffense(CheatingOffense.FAMING_SELF);
@@ -77,7 +77,7 @@ public final class PlayersHandler {
             case OK:
                 if (Math.abs(target.getFame() + famechange) <= 30000) {
                     target.addFame(famechange);
-                    target.updateSingleStat(MapleStat.FAME, target.getFame());
+                    target.updateSingleStat(Stat.FAME, target.getFame());
                 }
                 if (!chr.isGM()) {
                     chr.hasGivenFame(target);
@@ -94,12 +94,12 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleUseDoor(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleUseDoor(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int oid = reader.readInt();
         final boolean mode = reader.readByte() == 0; // specifies if backwarp or not, 1 town to target, 0 target to town
 
-        for (MapleMapObject obj : chr.getMap().getAllDoor()) {
-            final MapleDoor door = (MapleDoor) obj;
+        for (GameMapObject obj : chr.getMap().getAllDoor()) {
+            final Door door = (Door) obj;
             if (door.getOwner().getId() == oid) {
                 door.warp(chr, mode);
                 break;
@@ -107,7 +107,7 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleTransformPlayer(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleTransformPlayer(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         // D9 A4 FD 00
         // 11 00
         // A0 C0 21 00
@@ -117,7 +117,7 @@ public final class PlayersHandler {
         final int itemId = reader.readInt();
         final String target = reader.readLengthPrefixedString().toLowerCase();
 
-        final IItem toUse = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
+        final IItem toUse = c.getPlayer().getInventory(InventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
             c.getSession().write(MaplePacketCreator.enableActions());
@@ -125,22 +125,22 @@ public final class PlayersHandler {
         }
         switch (itemId) {
             case 2212000:
-                for (final MapleCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
+                for (final GameCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
                     if (search_chr.getName().toLowerCase().equals(target)) {
-                        MapleItemInformationProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
+                        ItemInfoProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
                         search_chr.dropMessage(6, chr.getName() + " has played a prank on you!");
-                        MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
+                        InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
                     }
                 }
                 break;
         }
     }
 
-    public static void handleHitReactor(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static void handleHitReactor(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final int oid = reader.readInt();
         final int charPos = reader.readInt();
         final short stance = reader.readShort();
-        final MapleReactor reactor = c.getPlayer().getMap().getReactorByOid(oid);
+        final Reactor reactor = c.getPlayer().getMap().getReactorByOid(oid);
 
         if (reactor == null || !reactor.isAlive()) {
             return;

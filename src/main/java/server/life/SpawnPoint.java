@@ -23,12 +23,12 @@ package server.life;
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import server.maps.MapleMap;
+import server.maps.GameMap;
 import tools.MaplePacketCreator;
 
 public class SpawnPoint extends Spawns {
 
-    private MapleMonster monster;
+    private Monster monster;
     private Point pos;
     private long nextPossibleSpawn;
     private int mobTime;
@@ -37,7 +37,7 @@ public class SpawnPoint extends Spawns {
     private String msg;
     private byte carnivalTeam;
 
-    public SpawnPoint(final MapleMonster monster, final Point pos, final int mobTime, final byte carnivalTeam, final String msg) {
+    public SpawnPoint(final Monster monster, final Point pos, final int mobTime, final byte carnivalTeam, final String msg) {
 	this.monster = monster;
 	this.pos = pos;
 	this.mobTime = mobTime * 1000;
@@ -48,7 +48,7 @@ public class SpawnPoint extends Spawns {
     }
 
     @Override
-    public final MapleMonster getMonster() {
+    public final Monster getMonster() {
 	return monster;
     }
 
@@ -71,8 +71,8 @@ public class SpawnPoint extends Spawns {
     }
 
     @Override
-    public final MapleMonster spawnMonster(final MapleMap map) {
-	final MapleMonster mob = new MapleMonster(monster);
+    public final Monster spawnMonster(final GameMap map) {
+	final Monster mob = new Monster(monster);
 	mob.setPosition(pos);
         mob.setCarnivalTeam(carnivalTeam);
 	spawnedMonsters.incrementAndGet();

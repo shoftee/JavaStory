@@ -9,7 +9,7 @@ import client.status.MonsterStatusEffect;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import java.util.Collection;
-import server.life.MapleMonster;
+import server.life.Monster;
 import server.movement.LifeMovementFragment;
 import org.javastory.io.PacketBuilder;
 
@@ -26,7 +26,7 @@ public class MobPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket damageFriendlyMob(final MapleMonster mob, final int damage) {
+    public static GamePacket damageFriendlyMob(final Monster mob, final int damage) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.DAMAGE_MONSTER.getValue());
@@ -70,7 +70,7 @@ public class MobPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket showBossHP(final MapleMonster mob) {
+    public static GamePacket showBossHP(final Monster mob) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
@@ -111,7 +111,7 @@ public class MobPacket {
         }
     }
 
-    public static GamePacket spawnMonster(MapleMonster life, int spawnType, int effect, int link) {
+    public static GamePacket spawnMonster(Monster life, int spawnType, int effect, int link) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER.getValue());
@@ -143,7 +143,7 @@ public class MobPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket controlMonster(MapleMonster life, boolean newSpawn, boolean aggro) {
+    public static GamePacket controlMonster(Monster life, boolean newSpawn, boolean aggro) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
@@ -176,7 +176,7 @@ public class MobPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket makeMonsterInvisible(MapleMonster life) {
+    public static GamePacket makeMonsterInvisible(Monster life) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
@@ -186,7 +186,7 @@ public class MobPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket makeMonsterReal(MapleMonster life) {
+    public static GamePacket makeMonsterReal(Monster life) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER.getValue());

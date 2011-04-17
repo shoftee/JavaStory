@@ -20,7 +20,7 @@
 */
 package handling.world;
 
-import client.MapleDisease;
+import client.Disease;
 import java.io.Serializable;
 
 public class PlayerDiseaseValueHolder implements Serializable {
@@ -29,9 +29,9 @@ public class PlayerDiseaseValueHolder implements Serializable {
     public int diseaseid;
     public long startTime;
     public long length;
-    public MapleDisease disease;
+    public Disease disease;
 
-    public PlayerDiseaseValueHolder(final MapleDisease disease, final long startTime, final long length) {
+    public PlayerDiseaseValueHolder(final Disease disease, final long startTime, final long length) {
 	this.disease = disease;
 	this.startTime = startTime;
 	this.length = length;

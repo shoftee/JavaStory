@@ -12,17 +12,17 @@ import client.IEquip;
 import client.Item;
 import client.ISkill;
 import client.GameConstants;
-import client.MapleRing;
-import client.MaplePet;
-import client.MapleCharacter;
-import client.MapleInventory;
-import client.MapleInventoryType;
-import client.MapleQuestStatus;
+import client.Ring;
+import client.Pet;
+import client.GameCharacter;
+import client.Inventory;
+import client.InventoryType;
+import client.QuestStatus;
 import client.IItem;
 import client.SkillEntry;
 import handling.world.PlayerCoolDownValueHolder;
 import server.movement.LifeMovementFragment;
-import tools.KoreanDateUtil;
+import tools.FiletimeUtil;
 import org.javastory.io.PacketBuilder;
 import org.javastory.io.PacketBuilder;
 import tools.StringUtil;
@@ -43,31 +43,29 @@ public class PacketHelper {
         return ((time * 10000000) + FT_UT_OFFSET);
     }
 
-    public static void addQuestInfo(final PacketBuilder builder, final MapleCharacter chr) {
-        final List<MapleQuestStatus> started = chr.getStartedQuests();
+    public static void addQuestInfo(final PacketBuilder builder, final GameCharacter chr) {
+        final List<QuestStatus> started = chr.getStartedQuests();
         builder.writeAsShort(started.size());
-        for (final MapleQuestStatus q : started) {
+        for (final QuestStatus q : started) {
             builder.writeAsShort(q.getQuest().getId());
             builder.writeLengthPrefixedString(q.getCustomData() != null ? q.getCustomData() : "");
         }
-        final List<MapleQuestStatus> completed = chr.getCompletedQuests();
-        int time;
+        final List<QuestStatus> completed = chr.getCompletedQuests();
+        long time;
         builder.writeAsShort(completed.size());
-        for (final MapleQuestStatus q : completed) {
+        for (final QuestStatus q : completed) {
             builder.writeAsShort(q.getQuest().getId());
-            time = KoreanDateUtil.getQuestTimestamp(q.getCompletionTime());
-            builder.writeInt(time); // maybe start time? no effect.
-            builder.writeInt(time); // completion time
+            time = FiletimeUtil.getFiletime(q.getCompletionTime());
+            builder.writeLong(time); // maybe start time? no effect.
         }
     }
 
-    public static void addSkillInfo(final PacketBuilder builder, final MapleCharacter chr) {
+    public static void addSkillInfo(final PacketBuilder builder, final GameCharacter chr) {
         final Map<ISkill, SkillEntry> skills = chr.getSkills();
         builder.writeAsShort(skills.size());
         for (final Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
             builder.writeInt(skill.getKey().getId());
             builder.writeInt(skill.getValue().skillevel);
-            builder.writeAsByte(0);
             addExpirationTime(builder, -1);
             if (skill.getKey().isFourthJob()) {
                 builder.writeInt(skill.getValue().masterlevel);
@@ -75,7 +73,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addCoolDownInfo(final PacketBuilder builder, final MapleCharacter chr) {
+    public static void addCoolDownInfo(final PacketBuilder builder, final GameCharacter chr) {
         builder.writeAsShort(chr.getAllCooldowns().size());
         for (final PlayerCoolDownValueHolder cooling : chr.getAllCooldowns()) {
             builder.writeInt(cooling.skillId);
@@ -83,7 +81,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addRocksInfo(final PacketBuilder builder, final MapleCharacter chr) {
+    public static void addRocksInfo(final PacketBuilder builder, final GameCharacter chr) {
         builder.writeInt(999999999); // Teleport maps (TODO)
         builder.writeInt(999999999);
         builder.writeInt(999999999);
@@ -95,29 +93,29 @@ public class PacketHelper {
         }
     }
 
-    public static void addMonsterBookInfo(final PacketBuilder builder, final MapleCharacter chr) {
+    public static void addMonsterBookInfo(final PacketBuilder builder, final GameCharacter chr) {
         builder.writeInt(chr.getMonsterBookCover());
         builder.writeAsByte(0);
         chr.getMonsterBook().addCardPacket(builder);
     }
 
-    public static void addRingInfo(final PacketBuilder builder, final MapleCharacter chr) {
-        List<MapleRing> rings = new ArrayList<MapleRing>();
-        MapleInventory iv = chr.getInventory(MapleInventoryType.EQUIPPED);
+    public static void addRingInfo(final PacketBuilder builder, final GameCharacter chr) {
+        List<Ring> rings = new ArrayList<Ring>();
+        Inventory iv = chr.getInventory(InventoryType.EQUIPPED);
         for (final IItem item : iv.list()) {
             if (((IEquip) item).getRingId() > -1) {
-                rings.add(MapleRing.loadFromDb(((IEquip) item).getRingId()));
+                rings.add(Ring.loadFromDb(((IEquip) item).getRingId()));
             }
         }
-        iv = chr.getInventory(MapleInventoryType.EQUIP);
+        iv = chr.getInventory(InventoryType.EQUIP);
         for (final IItem item : iv.list()) {
             if (((IEquip) item).getRingId() > -1) {
-                rings.add(MapleRing.loadFromDb(((IEquip) item).getRingId()));
+                rings.add(Ring.loadFromDb(((IEquip) item).getRingId()));
             }
         }
         Collections.sort(rings);
         boolean FR_last = false;
-        for (final MapleRing ring : rings) {
+        for (final Ring ring : rings) {
             if ((ring.getItemId() >= 1112800 && ring.getItemId() <= 1112803 || ring.getItemId() <= 1112806 || ring.getItemId() <= 1112807 || ring.getItemId() <= 1112809) && rings.indexOf(ring) == 0) {
                 builder.writeAsShort(0);
             }
@@ -145,16 +143,16 @@ public class PacketHelper {
         }
     }
 
-    public static void addInventoryInfo(PacketBuilder builder, MapleCharacter chr) {
+    public static void addInventoryInfo(PacketBuilder builder, GameCharacter chr) {
         builder.writeInt(chr.getMeso()); // mesos
-        builder.writeByte(chr.getInventory(MapleInventoryType.EQUIP).getSlotLimit()); // equip slots
-        builder.writeByte(chr.getInventory(MapleInventoryType.USE).getSlotLimit()); // use slots
-        builder.writeByte(chr.getInventory(MapleInventoryType.SETUP).getSlotLimit()); // set-up slots
-        builder.writeByte(chr.getInventory(MapleInventoryType.ETC).getSlotLimit()); // etc slots
-        builder.writeByte(chr.getInventory(MapleInventoryType.CASH).getSlotLimit()); // cash slots
+        builder.writeByte(chr.getInventory(InventoryType.EQUIP).getSlotLimit()); // equip slots
+        builder.writeByte(chr.getInventory(InventoryType.USE).getSlotLimit()); // use slots
+        builder.writeByte(chr.getInventory(InventoryType.SETUP).getSlotLimit()); // set-up slots
+        builder.writeByte(chr.getInventory(InventoryType.ETC).getSlotLimit()); // etc slots
+        builder.writeByte(chr.getInventory(InventoryType.CASH).getSlotLimit()); // cash slots
         builder.writeBytes(unk1);
         builder.writeBytes(unk2);
-        MapleInventory iv = chr.getInventory(MapleInventoryType.EQUIPPED);
+        Inventory iv = chr.getInventory(InventoryType.EQUIPPED);
         Collection<IItem> equippedC = iv.list();
         List<Item> equipped = new ArrayList<Item>(equippedC.size());
         for (IItem item : equippedC) {
@@ -174,34 +172,34 @@ public class PacketHelper {
         }
 
         builder.writeAsShort(0); // start of equip inventory
-        iv = chr.getInventory(MapleInventoryType.EQUIP);
+        iv = chr.getInventory(InventoryType.EQUIP);
         for (IItem item : iv.list()) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeInt(0); // start of use inventory
-        iv = chr.getInventory(MapleInventoryType.USE);
+        iv = chr.getInventory(InventoryType.USE);
         for (IItem item : iv.list()) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of set-up inventory
-        iv = chr.getInventory(MapleInventoryType.SETUP);
+        iv = chr.getInventory(InventoryType.SETUP);
         for (IItem item : iv.list()) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of etc inventory
-        iv = chr.getInventory(MapleInventoryType.ETC);
+        iv = chr.getInventory(InventoryType.ETC);
         for (IItem item : iv.list()) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of cash inventory
-        iv = chr.getInventory(MapleInventoryType.CASH);
+        iv = chr.getInventory(InventoryType.CASH);
         for (IItem item : iv.list()) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0);
     }
 
-    public static void addCharStats(final PacketBuilder builder, final MapleCharacter chr) {
+    public static void addCharStats(final PacketBuilder builder, final GameCharacter chr) {
         builder.writeInt(chr.getId()); // character id
         builder.writePaddedString(chr.getName(), 13);
         builder.writeAsByte(chr.getGender()); // gender (0 = male, 1 = female)
@@ -234,7 +232,7 @@ public class PacketHelper {
         builder.writeAsShort(chr.getSubcategory()); // 1 = Dual Blade
     }
 
-    public static void addCharLook(final PacketBuilder builder, final MapleCharacter chr, final boolean mega) {
+    public static void addCharLook(final PacketBuilder builder, final GameCharacter chr, final boolean mega) {
         builder.writeAsByte(chr.getGender());
         builder.writeAsByte(chr.getSkinColor());
         builder.writeInt(chr.getFace());
@@ -243,7 +241,7 @@ public class PacketHelper {
 
         final Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         final Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
-        MapleInventory equip = chr.getInventory(MapleInventoryType.EQUIPPED);
+        Inventory equip = chr.getInventory(InventoryType.EQUIPPED);
 
         for (final IItem item : equip.list()) {
             byte pos = (byte) (item.getPosition() * -1);
@@ -278,13 +276,10 @@ public class PacketHelper {
     }
 
     public static void addExpirationTime(final PacketBuilder builder, final long time) {
-        builder.writeAsShort(1408); // 80 05
         if (time != -1) {
-            builder.writeInt(KoreanDateUtil.getItemTimestamp(time));
-            builder.writeAsByte(1);
+            builder.writeLong(FiletimeUtil.getFiletime(time));
         } else {
-            builder.writeInt(400967355); // BB 46 E6 17
-            builder.writeAsByte(2);
+            builder.writeLong(FiletimeUtil.ITEM_EXPIRATION);
         }
     }
 
@@ -315,11 +310,11 @@ public class PacketHelper {
         builder.writeInt(item.getItemId());
 
         if (item.getPet() != null) { // Pet
-            final MaplePet pet = item.getPet();
+            final Pet pet = item.getPet();
 
             builder.writeAsByte(1);
             builder.writeInt(pet.getUniqueId());
-            builder.writeZeroBytes(5);
+            builder.writeZeroBytes(4);
             addExpirationTime(builder, item.getExpiration()); // 80 F9 58 8D 3B C7 24 Time where it expired?
 
             builder.writePaddedString(pet.getName(), 13);
@@ -333,7 +328,7 @@ public class PacketHelper {
             builder.writeInt(0);
             builder.writeZeroBytes(5);
         } else {
-            builder.writeAsShort(0);
+            builder.writeAsByte(0);
             addExpirationTime(builder, item.getExpiration());
 
             if (item.getType() == 1) {

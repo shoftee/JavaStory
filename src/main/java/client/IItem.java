@@ -8,7 +8,7 @@ public interface IItem extends Comparable<IItem> {
 	String getOwner();
 	String getGMLog();
 	int getItemId();
-	MaplePet getPet();
+	Pet getPet();
 	int getUniqueId();
 	IItem copy();
 	long getExpiration();

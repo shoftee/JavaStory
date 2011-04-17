@@ -27,13 +27,13 @@ public class OdinSEA {
     public static int[] BlockedNPC = {
         9250025 // FM Maple TV
     };
-    public static MapleClient c;
+    public static GameClient c;
 
-    public OdinSEA(final MapleClient c) {
+    public OdinSEA(final GameClient c) {
         OdinSEA.c = c;
     }
 
-    public final MapleClient getClient() {
+    public final GameClient getClient() {
         return c;
     }
 
@@ -52,8 +52,8 @@ public class OdinSEA {
 
             public final void run() {
                 for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-                    for (MapleCharacter chr : cserv.getPlayerStorage().getAllCharacters()) {
-                        chr.saveToDb(false, false);
+                    for (GameCharacter chr : cserv.getPlayerStorage().getAllCharacters()) {
+                        chr.saveToDb(false);
                     }
                 }
             }

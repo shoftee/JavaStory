@@ -20,18 +20,18 @@
 */
 package handling.channel.handler;
 
-import client.MapleClient;
-import scripting.NPCScriptManager;
+import client.GameClient;
+import scripting.NpcScriptManager;
 import scripting.EventManager;
 import tools.MaplePacketCreator;
 
 public class UserInterfaceHandler {
 
-    public static final void handleNpcRequestCygnusSummon(final MapleClient c) {
-	NPCScriptManager.getInstance().start(c, 1101008);
+    public static final void handleNpcRequestCygnusSummon(final GameClient c) {
+	NpcScriptManager.getInstance().start(c, 1101008);
     }
 
-    /*public static final void InGame_Poll(final SeekableLittleEndianAccessor reader, final MapleClient c) {
+    /*public static final void InGame_Poll(final SeekableLittleEndianAccessor reader, final GameClient c) {
 	if (ServerConstants.PollEnabled) {
 	    reader.skip(4);
 	    final int selection = reader.readInt();
@@ -44,7 +44,7 @@ public class UserInterfaceHandler {
 	}
     }*/
 
-    public static final void handleShipObjectRequest(final int mapid, final MapleClient c) {
+    public static final void handleShipObjectRequest(final int mapid, final GameClient c) {
 	// BB 00 6C 24 05 06 00 - Ellinia
         // BB 00 6E 1C 4E 0E 00 - Leafre
 

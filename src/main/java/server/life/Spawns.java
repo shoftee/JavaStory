@@ -20,11 +20,11 @@
 */
 package server.life;
 
-import server.maps.MapleMap;
+import server.maps.GameMap;
 
 public abstract class Spawns {
-    public abstract MapleMonster getMonster();
+    public abstract Monster getMonster();
     public abstract byte getCarnivalTeam();
     public abstract boolean shouldSpawn();
-    public abstract MapleMonster spawnMonster(MapleMap map);
+    public abstract Monster spawnMonster(GameMap map);
 }

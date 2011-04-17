@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import client.MapleClient;
+import client.GameClient;
 import server.TimerManager;
 import tools.packet.LoginPacket;
 import tools.Pair;
@@ -52,7 +52,7 @@ public class LoginWorker {
         }
     }
 
-    public static void registerClient(final MapleClient c) {
+    public static void registerClient(final GameClient c) {
         if (c.finishLogin() == 0) {
             c.getSession().write(LoginPacket.getAuthSuccessRequest(c));
             c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {

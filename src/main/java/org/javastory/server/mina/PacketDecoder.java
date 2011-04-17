@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.javastory.server.mina;
 
-import client.MapleClient;
+import client.GameClient;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.javastory.cryptography.AesTransform;
@@ -45,8 +45,8 @@ public class PacketDecoder extends CumulativeProtocolDecoder {
         final DecoderState decoderState =
                 (DecoderState) session.getAttribute(DECODER_STATE_KEY);
 
-        final MapleClient client =
-                (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+        final GameClient client =
+                (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
 
         if (decoderState.packetLength == -1) {
             if (buffer.remaining() < 4) {

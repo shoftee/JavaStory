@@ -22,8 +22,6 @@ import handling.world.guild.MapleGuildCharacter;
 
 public interface WorldChannelInterface extends Remote, WorldChannelCommonOperations {
 
-    public ServerStatus getCashShopStatus() throws RemoteException;
-
     public Properties getGameProperties() throws RemoteException;
 
     public void serverReady() throws RemoteException;
@@ -39,8 +37,6 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
     public int find(String charName) throws RemoteException;
 
     public int find(int characterId) throws RemoteException;
-
-    public boolean isCharacterInCS(String name) throws RemoteException;
 
     public Map<Integer, Integer> getConnected() throws RemoteException;
 

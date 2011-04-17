@@ -21,14 +21,14 @@
 
 package client;
 
-import server.MapleStatEffect;
+import server.StatEffect;
 import server.life.Element;
 
 public interface ISkill {
 
     int getId();
-    MapleStatEffect getEffect(int level);
-    MapleStatEffect getEffect(MapleCharacter chr, int level);
+    StatEffect getEffect(int level);
+    StatEffect getEffect(GameCharacter chr, int level);
     byte getMaxLevel();
     int getAnimationTime();
     public boolean canBeLearnedBy(int job);

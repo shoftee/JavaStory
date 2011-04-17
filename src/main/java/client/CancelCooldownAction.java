@@ -27,16 +27,16 @@ import tools.MaplePacketCreator;
 public class CancelCooldownAction implements Runnable {
 
     private int skillId;
-    private WeakReference<MapleCharacter> target;
+    private WeakReference<GameCharacter> target;
 
-    public CancelCooldownAction(MapleCharacter target, int skillId) {
-	this.target = new WeakReference<MapleCharacter>(target);
+    public CancelCooldownAction(GameCharacter target, int skillId) {
+	this.target = new WeakReference<GameCharacter>(target);
 	this.skillId = skillId;
     }
 
     @Override
     public void run() {
-	final MapleCharacter realTarget = target.get();
+	final GameCharacter realTarget = target.get();
 	if (realTarget != null) {
 	    realTarget.removeCooldown(skillId);
 	    realTarget.getClient().getSession().write(MaplePacketCreator.skillCooldown(skillId, 0));

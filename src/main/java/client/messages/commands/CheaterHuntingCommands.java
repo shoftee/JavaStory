@@ -3,9 +3,9 @@ package client.messages.commands;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import client.MapleCharacter;
-import client.MapleCharacterUtil;
-import client.MapleClient;
+import client.GameCharacter;
+import client.GameCharacterUtil;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -13,16 +13,16 @@ import handling.world.remote.CheaterData;
 
 public class CheaterHuntingCommands implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-whosthere")) {
 			StringBuilder builder = new StringBuilder("Players on Map: ");
-			for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
+			for (GameCharacter chr : c.getPlayer().getMap().getCharacters()) {
 				if (builder.length() > 150) { // wild guess :o
 					builder.setLength(builder.length() - 2);
 					c.getPlayer().dropMessage(6, builder.toString());
 					builder = new StringBuilder();
 				}
-				builder.append(MapleCharacterUtil.makeMapleReadable(chr.getName()));
+				builder.append(GameCharacterUtil.makeMapleReadable(chr.getName()));
 				builder.append(", ");
 			}
 			builder.setLength(builder.length() - 2);

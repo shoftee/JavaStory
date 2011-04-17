@@ -10,7 +10,7 @@ public class Item implements IItem, Serializable {
 	private short quantity;
 	private byte flag;
 	private long expiration = -1;
-	private MaplePet pet = null;
+	private Pet pet = null;
 	private int uniqueid = 0;
 	private String owner = "";
 	private String GameMaster_log = null;
@@ -110,11 +110,11 @@ public class Item implements IItem, Serializable {
 		this.uniqueid = id;
 	}
 
-	public final MaplePet getPet() {
+	public final Pet getPet() {
 		return pet;
 	}
 
-	public final void setPet(final MaplePet pet) {
+	public final void setPet(final Pet pet) {
 		this.pet = pet;
 	}
 

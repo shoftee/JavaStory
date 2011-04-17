@@ -8,43 +8,43 @@ import client.Equip;
 import client.IItem;
 import client.SkillFactory;
 import client.GameConstants;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleInventoryType;
-import client.MaplePet;
-import client.MapleQuestStatus;
+import client.GameCharacter;
+import client.GameClient;
+import client.InventoryType;
+import client.Pet;
+import client.QuestStatus;
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.guild.MapleGuild;
 import org.javastory.server.channel.ChannelManager;
 import server.Randomizer;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
-import server.maps.MapleMap;
-import server.maps.MapleReactor;
-import server.maps.MapleMapObject;
+import server.InventoryManipulator;
+import server.ItemInfoProvider;
+import server.maps.GameMap;
+import server.maps.Reactor;
+import server.maps.GameMapObject;
 import server.maps.SavedLocationType;
 import server.maps.Event_DojoAgent;
-import server.life.MapleMonster;
-import server.life.MapleLifeFactory;
-import server.quest.MapleQuest;
+import server.life.Monster;
+import server.life.LifeFactory;
+import server.quest.Quest;
 import tools.MaplePacketCreator;
 import tools.packet.PetPacket;
 import tools.packet.UIPacket;
 
 public class AbstractPlayerInteraction {
 
-    private MapleClient c;
+    private GameClient c;
 
-    public AbstractPlayerInteraction(final MapleClient c) {
+    public AbstractPlayerInteraction(final GameClient c) {
         this.c = c;
     }
 
-    public final MapleClient getClient() {
+    public final GameClient getClient() {
         return c;
     }
 
-    public final MapleCharacter getPlayer() {
+    public final GameCharacter getPlayer() {
         return c.getPlayer();
     }
 
@@ -57,23 +57,23 @@ public class AbstractPlayerInteraction {
     }
 
     public final void warp(final int map) {
-        final MapleMap mapz = getWarpMap(map);
+        final GameMap mapz = getWarpMap(map);
         c.getPlayer().changeMap(mapz, mapz.getPortal(Randomizer.nextInt(mapz.getPortals().size())));
     }
 
     public final void warp(final int map, final int portal) {
-        final MapleMap mapz = getWarpMap(map);
+        final GameMap mapz = getWarpMap(map);
         c.getPlayer().changeMap(mapz, mapz.getPortal(portal));
     }
 
     public final void warp(final int map, final String portal) {
-        final MapleMap mapz = getWarpMap(map);
+        final GameMap mapz = getWarpMap(map);
         c.getPlayer().changeMap(mapz, mapz.getPortal(portal));
     }
 
     public final void warpMap(final int mapid, final int portal) {
-        final MapleMap map = getMap(mapid);
-        for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
+        final GameMap map = getMap(mapid);
+        for (GameCharacter chr : c.getPlayer().getMap().getCharacters()) {
             chr.changeMap(map, map.getPortal(portal));
         }
     }
@@ -82,15 +82,15 @@ public class AbstractPlayerInteraction {
         c.getSession().write(MaplePacketCreator.showOwnBuffEffect(0, 7));
     }
 
-    private MapleMap getWarpMap(final int map) {
+    private GameMap getWarpMap(final int map) {
         return ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(map);
     }
 
-    public final MapleMap getMap() {
+    public final GameMap getMap() {
         return c.getPlayer().getMap();
     }
 
-    public final MapleMap getMap(final int map) {
+    public final GameMap getMap(final int map) {
         return getWarpMap(map);
     }
 
@@ -100,7 +100,7 @@ public class AbstractPlayerInteraction {
 
     private void spawnMob(final int id, final int qty, final Point pos) {
         for (int i = 0; i < qty; i++) {
-            c.getPlayer().getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(id), pos);
+            c.getPlayer().getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
         }
     }
 
@@ -177,8 +177,8 @@ public class AbstractPlayerInteraction {
         return c.getPlayer().getInventory(GameConstants.getInventoryType(itemid)).getNextFreeSlot() > -1;
     }
 
-    public final MapleQuestStatus getQuestRecord(final int id) {
-        return c.getPlayer().getQuestNAdd(MapleQuest.getInstance(id));
+    public final QuestStatus getQuestRecord(final int id) {
+        return c.getPlayer().getQuestNAdd(Quest.getInstance(id));
     }
 
     public final byte getQuestStatus(final int id) {
@@ -186,11 +186,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final void forceStartQuest(final int id, final String data) {
-        MapleQuest.getInstance(id).forceStart(c.getPlayer(), 0, data);
+        Quest.getInstance(id).forceStart(c.getPlayer(), 0, data);
     }
 
     public final void forceCompleteQuest(final int id) {
-        MapleQuest.getInstance(id).forceComplete(getPlayer(), 0);
+        Quest.getInstance(id).forceComplete(getPlayer(), 0);
     }
 
     public void spawnNpc(final int npcId) {
@@ -210,10 +210,10 @@ public class AbstractPlayerInteraction {
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        MapleMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
-        MapleReactor react;
-        for (final MapleMapObject remo : map.getAllReactor()) {
-            react = (MapleReactor) remo;
+        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        Reactor react;
+        for (final GameMapObject remo : map.getAllReactor()) {
+            react = (Reactor) remo;
             if (react.getReactorId() == id) {
                 react.forceStartReactor(c);
                 break;
@@ -222,10 +222,10 @@ public class AbstractPlayerInteraction {
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        MapleMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
-        MapleReactor react;
-        for (final MapleMapObject remo : map.getAllReactor()) {
-            react = (MapleReactor) remo;
+        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        Reactor react;
+        for (final GameMapObject remo : map.getAllReactor()) {
+            react = (Reactor) remo;
             if (react.getReactorId() == id) {
                 react.hitReactor(c);
                 break;
@@ -234,10 +234,10 @@ public class AbstractPlayerInteraction {
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        MapleMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
-        MapleReactor react;
-        for (final MapleMapObject remo : map.getAllReactor()) {
-            react = (MapleReactor) remo;
+        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        Reactor react;
+        for (final GameMapObject remo : map.getAllReactor()) {
+            react = (Reactor) remo;
             if (react.getReactorId() == id) {
                 react.hitReactor(c);
                 break;
@@ -271,22 +271,22 @@ public class AbstractPlayerInteraction {
 
     public final void gainItem(final int id, final short quantity, final boolean randomStats, final long period) {
         if (quantity >= 0) {
-            final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-            final MapleInventoryType type = GameConstants.getInventoryType(id);
-            if (!MapleInventoryManipulator.checkSpace(c, id, quantity, "")) {
+            final ItemInfoProvider ii = ItemInfoProvider.getInstance();
+            final InventoryType type = GameConstants.getInventoryType(id);
+            if (!InventoryManipulator.checkSpace(c, id, quantity, "")) {
                 return;
             }
-            if (type.equals(MapleInventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
+            if (type.equals(InventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
                 final IItem item = randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id)) : ii.getEquipById(id);
                 if (period > 0) {
                     item.setExpiration(System.currentTimeMillis() + period);
                 }
-                MapleInventoryManipulator.addbyItem(c, item);
+                InventoryManipulator.addbyItem(c, item);
             } else {
-                MapleInventoryManipulator.addById(c, id, quantity, "", null, period);
+                InventoryManipulator.addById(c, id, quantity, "", null, period);
             }
         } else {
-            MapleInventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, -quantity, true, false);
+            InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, -quantity, true, false);
         }
         c.getSession().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
     }
@@ -344,7 +344,7 @@ public class AbstractPlayerInteraction {
 
     public final boolean isAllPartyMembersAllowedJob(final int job) {
         boolean allow = true;
-        for (final MapleCharacter mem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) {
+        for (final GameCharacter mem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) {
             if (mem.getJob() / 100 != job) {
                 allow = false;
                 break;
@@ -355,7 +355,7 @@ public class AbstractPlayerInteraction {
 
     public final boolean allMembersHere() {
         boolean allHere = true;
-        for (final MapleCharacter partymem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
+        for (final GameCharacter partymem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
             if (partymem.getMapId() != c.getPlayer().getMapId()) {
                 allHere = false;
                 break;
@@ -366,49 +366,49 @@ public class AbstractPlayerInteraction {
 
     public final void warpParty(final int mapId) {
         final int cMap = c.getPlayer().getMapId();
-        final MapleMap target = getMap(mapId);
+        final GameMap target = getMap(mapId);
         for (final MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
-            final MapleCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+            final GameCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if (curChar != null && curChar.getMapId() == cMap) {
                 curChar.changeMap(target, target.getPortal(0));
             }
         }
     }
 
-    public final void givePartyItems(final int id, final short quantity, final List<MapleCharacter> party) {
-        for (MapleCharacter chr : party) {
+    public final void givePartyItems(final int id, final short quantity, final List<GameCharacter> party) {
+        for (GameCharacter chr : party) {
             if (quantity >= 0) {
-                MapleInventoryManipulator.addById(chr.getClient(), id, quantity);
+                InventoryManipulator.addById(chr.getClient(), id, quantity);
             } else {
-                MapleInventoryManipulator.removeById(chr.getClient(), GameConstants.getInventoryType(id), id, -quantity, true, false);
+                InventoryManipulator.removeById(chr.getClient(), GameConstants.getInventoryType(id), id, -quantity, true, false);
             }
             chr.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
         }
     }
 
-    public final void givePartyExp(final int amount, final List<MapleCharacter> party) {
-        for (final MapleCharacter chr : party) {
+    public final void givePartyExp(final int amount, final List<GameCharacter> party) {
+        for (final GameCharacter chr : party) {
             chr.gainExp(amount * c.getChannelServer().getExpRate(), true, true, true);
         }
     }
 
-    public final void removeFromParty(final int id, final List<MapleCharacter> party) {
-        for (final MapleCharacter chr : party) {
+    public final void removeFromParty(final int id, final List<GameCharacter> party) {
+        for (final GameCharacter chr : party) {
             final int possesed = chr.getInventory(GameConstants.getInventoryType(id)).countById(id);
             if (possesed > 0) {
-                MapleInventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possesed, true, false);
+                InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possesed, true, false);
                 chr.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, (short) -possesed, true));
             }
         }
     }
 
     public final void useItem(final int id) {
-        MapleItemInformationProvider.getInstance().getItemEffect(id).applyTo(c.getPlayer());
+        ItemInfoProvider.getInstance().getItemEffect(id).applyTo(c.getPlayer());
         c.getSession().write(UIPacket.getStatusMsg(id));
     }
 
     public final void cancelItem(final int id) {
-        c.getPlayer().cancelEffect(MapleItemInformationProvider.getInstance().getItemEffect(id), false, -1);
+        c.getPlayer().cancelEffect(ItemInfoProvider.getInstance().getItemEffect(id), false, -1);
     }
 
     public final int getMorphState() {
@@ -418,7 +418,7 @@ public class AbstractPlayerInteraction {
     public final void removeAll(final int id) {
         final int possessed = c.getPlayer().getInventory(GameConstants.getInventoryType(id)).countById(id);
         if (possessed > 0) {
-            MapleInventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possessed, true, false);
+            InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possessed, true, false);
             c.getSession().write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
         }
     }
@@ -431,7 +431,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void gainClosenessAll(final int closeness) {
-        for (final MaplePet pet : getPlayer().getPets()) {
+        for (final Pet pet : getPlayer().getPets()) {
             if (pet != null) {
                 pet.setCloseness(pet.getCloseness() + closeness);
                 getClient().getSession().write(PetPacket.updatePet(pet, true));
@@ -440,16 +440,16 @@ public class AbstractPlayerInteraction {
     }
 
     public final void resetMap(final int mapid) {
-        final MapleMap map = getMap(mapid);
+        final GameMap map = getMap(mapid);
         map.resetReactors();
         map.killAllMonsters(false);
-        for (final MapleMapObject i : map.getAllItems()) {
+        for (final GameMapObject i : map.getAllItems()) {
             map.removeMapObject(i);
         }
     }
 
     public final void openNpc(final int id) {
-        NPCScriptManager.getInstance().start(getClient(), id);
+        NpcScriptManager.getInstance().start(getClient(), id);
     }
 
     public final int getMapId() {
@@ -457,8 +457,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final boolean haveMonster(final int mobid) {
-        for (MapleMapObject obj : c.getPlayer().getMap().getAllMonster()) {
-            final MapleMonster mob = (MapleMonster) obj;
+        for (GameMapObject obj : c.getPlayer().getMap().getAllMonster()) {
+            final Monster mob = (Monster) obj;
             if (mob.getId() == mobid) {
                 return true;
             }

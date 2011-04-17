@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import client.MapleClient;
+import client.GameClient;
 import tools.MaplePacketCreator;
 
 public class AutobanManager implements Runnable {
@@ -38,7 +38,7 @@ public class AutobanManager implements Runnable {
 	return instance;
     }
 
-    public final void autoban(final MapleClient c, final String reason) {
+    public final void autoban(final GameClient c, final String reason) {
 	if (c.getPlayer().isGM()) {
 	    c.getPlayer().dropMessage(5, "[WARNING] A/b triggled : " + reason);
 	    return;
@@ -46,7 +46,7 @@ public class AutobanManager implements Runnable {
 	addPoints(c, AUTOBAN_POINTS, 0, reason);
     }
 
-    public final synchronized void addPoints(final MapleClient c, final int points, final long expiration, final String reason) {
+    public final synchronized void addPoints(final GameClient c, final int points, final long expiration, final String reason) {
 	List<String> reasonList;
 	final int acc = c.getPlayer().getAccountID();
 
@@ -88,7 +88,7 @@ public class AutobanManager implements Runnable {
 //		cal.add(Calendar.DATE, 60);
 //		c.getPlayer().tempban(sb.toString(), cal, 1, false);
 	    c.getPlayer().ban(sb.toString(), false, true);
-	    c.disconnect(true, false);
+	    c.disconnect(true);
 	} else {
 	    if (expiration > 0) {
 		expirations.add(new ExpirationEntry(System.currentTimeMillis() + expiration, acc, points));

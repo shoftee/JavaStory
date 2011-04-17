@@ -14,23 +14,23 @@ import java.rmi.RemoteException;
 import client.Equip;
 import client.ISkill;
 import client.IItem;
-import client.MapleCharacter;
+import client.GameCharacter;
 import client.GameConstants;
-import client.MapleClient;
-import client.MapleInventory;
-import client.MapleInventoryType;
+import client.GameClient;
+import client.Inventory;
+import client.InventoryType;
 import client.SkillFactory;
 import client.SkillEntry;
-import client.MapleStat;
-import server.MapleCarnivalParty;
+import client.Stat;
+import server.CarnivalParty;
 import server.Randomizer;
-import server.MapleInventoryManipulator;
-import server.MapleShopFactory;
-import server.MapleSquad;
-import server.maps.MapleMap;
+import server.InventoryManipulator;
+import server.ShopFactory;
+import server.Squad;
+import server.maps.GameMap;
 import server.maps.Event_DojoAgent;
 import server.maps.AramiaFireWorks;
-import server.quest.MapleQuest;
+import server.quest.Quest;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.packet.PlayerShopPacket;
@@ -39,18 +39,18 @@ import database.DatabaseConnection;
 import handling.world.MaplePartyCharacter;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
-import server.MapleCarnivalChallenge;
-import server.MapleItemInformationProvider;
+import server.CarnivalChallenge;
+import server.ItemInfoProvider;
 
-public class NPCConversationManager extends AbstractPlayerInteraction {
+public class NpcConversationManager extends AbstractPlayerInteraction {
 
-	private MapleClient c;
+	private GameClient c;
 	private int npc, questid;
 	private String getText;
 	private byte type; // -1 = NPC, 0 = start quest, 1 = end quest
 	public boolean pendingDisposal = false;
 
-	public NPCConversationManager(MapleClient c, int npc, int questid, byte type) {
+	public NpcConversationManager(GameClient c, int npc, int questid, byte type) {
 		super(c);
 		this.c = c;
 		this.npc = npc;
@@ -101,7 +101,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void dispose() {
-		NPCScriptManager.getInstance().dispose(c);
+		NpcScriptManager.getInstance().dispose(c);
 	}
 
 	public void askMapSelection(final String sel) {
@@ -190,13 +190,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		int args = args_all[Randomizer.nextInt(args_all.length)];
 		if (args < 100) {
 			c.getPlayer().setSkinColor(args);
-			c.getPlayer().updateSingleStat(MapleStat.SKIN, args);
+			c.getPlayer().updateSingleStat(Stat.SKIN, args);
 		} else if (args < 30000) {
 			c.getPlayer().setFace(args);
-			c.getPlayer().updateSingleStat(MapleStat.FACE, args);
+			c.getPlayer().updateSingleStat(Stat.FACE, args);
 		} else {
 			c.getPlayer().setHair(args);
-			c.getPlayer().updateSingleStat(MapleStat.HAIR, args);
+			c.getPlayer().updateSingleStat(Stat.HAIR, args);
 		}
 		c.getPlayer().equipChanged();
 		return 1;
@@ -209,13 +209,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		gainItem(ticket, (short) -1);
 		if (args < 100) {
 			c.getPlayer().setSkinColor(args);
-			c.getPlayer().updateSingleStat(MapleStat.SKIN, args);
+			c.getPlayer().updateSingleStat(Stat.SKIN, args);
 		} else if (args < 30000) {
 			c.getPlayer().setFace(args);
-			c.getPlayer().updateSingleStat(MapleStat.FACE, args);
+			c.getPlayer().updateSingleStat(Stat.FACE, args);
 		} else {
 			c.getPlayer().setHair(args);
-			c.getPlayer().updateSingleStat(MapleStat.HAIR, args);
+			c.getPlayer().updateSingleStat(Stat.HAIR, args);
 		}
 		c.getPlayer().equipChanged();
 		return 1;
@@ -227,11 +227,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void openShop(int id) {
-		MapleShopFactory.getInstance().getShop(id).sendShop(c);
+		ShopFactory.getInstance().getShop(id).sendShop(c);
 	}
 
 	public int gainGachaponItem(int id, int quantity) {
-		final IItem item = MapleInventoryManipulator.addbyId_Gachapon(c, id, (short) quantity);
+		final IItem item = InventoryManipulator.addbyId_Gachapon(c, id, (short) quantity);
 		if (item == null) {
 			return -1;
 		}
@@ -251,39 +251,39 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void startQuest(int id) {
-		MapleQuest.getInstance(id).start(getPlayer(), npc);
+		Quest.getInstance(id).start(getPlayer(), npc);
 	}
 
 	public void completeQuest(int id) {
-		MapleQuest.getInstance(id).complete(getPlayer(), npc);
+		Quest.getInstance(id).complete(getPlayer(), npc);
 	}
 
 	public void forfeitQuest(int id) {
-		MapleQuest.getInstance(id).forfeit(getPlayer());
+		Quest.getInstance(id).forfeit(getPlayer());
 	}
 
 	public void forceStartQuest() {
-		MapleQuest.getInstance(questid).forceStart(getPlayer(), getNpc(), null);
+		Quest.getInstance(questid).forceStart(getPlayer(), getNpc(), null);
 	}
 
 	public void forceStartQuest(int id) {
-		MapleQuest.getInstance(id).forceStart(getPlayer(), getNpc(), null);
+		Quest.getInstance(id).forceStart(getPlayer(), getNpc(), null);
 	}
 
 	public void forceStartQuest(String customData) {
-		MapleQuest.getInstance(questid).forceStart(getPlayer(), getNpc(), customData);
+		Quest.getInstance(questid).forceStart(getPlayer(), getNpc(), customData);
 	}
 
 	public void forceCompleteQuest() {
-		MapleQuest.getInstance(questid).forceComplete(getPlayer(), getNpc());
+		Quest.getInstance(questid).forceComplete(getPlayer(), getNpc());
 	}
 
 	public String getQuestCustomData() {
-		return c.getPlayer().getQuestNAdd(MapleQuest.getInstance(questid)).getCustomData();
+		return c.getPlayer().getQuestNAdd(Quest.getInstance(questid)).getCustomData();
 	}
 
 	public void setQuestCustomData(String customData) {
-		getPlayer().getQuestNAdd(MapleQuest.getInstance(questid)).setCustomData(customData);
+		getPlayer().getQuestNAdd(Quest.getInstance(questid)).setCustomData(customData);
 	}
 
 	public int getMeso() {
@@ -303,18 +303,18 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void expandInventory(byte type, int amt) {
-		c.getPlayer().getInventory(MapleInventoryType.getByType(type)).addSlot((byte) 4);
+		c.getPlayer().getInventory(InventoryType.getByType(type)).addSlot((byte) 4);
 	}
 
 	public void unequipEverything() {
-		MapleInventory equipped = getPlayer().getInventory(MapleInventoryType.EQUIPPED);
-		MapleInventory equip = getPlayer().getInventory(MapleInventoryType.EQUIP);
+		Inventory equipped = getPlayer().getInventory(InventoryType.EQUIPPED);
+		Inventory equip = getPlayer().getInventory(InventoryType.EQUIP);
 		List<Short> ids = new LinkedList<Short>();
 		for (IItem item : equipped.list()) {
 			ids.add(item.getPosition());
 		}
 		for (short id : ids) {
-			MapleInventoryManipulator.unequip(getC(), id, equip.getNextFreeSlot());
+			InventoryManipulator.unequip(getC(), id, equip.getNextFreeSlot());
 		}
 	}
 
@@ -326,7 +326,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public final boolean isCash(final int itemid) {
-		return MapleItemInformationProvider.getInstance().isCash(itemid);
+		return ItemInfoProvider.getInstance().isCash(itemid);
 	}
 
 	public boolean hasSkill(int skillid) {
@@ -337,11 +337,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		return false;
 	}
 
-	public MapleCharacter getChar() {
+	public GameCharacter getChar() {
 		return getPlayer();
 	}
 
-	public MapleClient getC() {
+	public GameClient getC() {
 		return c;
 	}
 
@@ -379,7 +379,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
 	public int partyMembersInMap() {
 		int inMap = 0;
-		for (MapleCharacter char2 : getPlayer().getMap().getCharacters()) {
+		for (GameCharacter char2 : getPlayer().getMap().getCharacters()) {
 			if (char2.getParty() == getPlayer().getParty()) {
 			inMap++;
 			}
@@ -387,13 +387,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		return inMap;
 	}
 
-	public List<MapleCharacter> getPartyMembers() {
+	public List<GameCharacter> getPartyMembers() {
 		if (getPlayer().getParty() == null) {
 			return null;
 		}
-		List<MapleCharacter> chars = new LinkedList<MapleCharacter>(); // creates an empty array full of shit..
+		List<GameCharacter> chars = new LinkedList<GameCharacter>(); // creates an empty array full of shit..
 		for (ChannelServer channel : ChannelManager.getAllInstances()) {
-			for (MapleCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
+			for (GameCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
 				if (chr != null) { // double check <3
 					chars.add(chr);
 				}
@@ -403,9 +403,9 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void warpPartyWithExp(int mapId, int exp) {
-		MapleMap target = getMap(mapId);
+		GameMap target = getMap(mapId);
 		for (MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
-			MapleCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+			GameCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
 			curChar.changeMap(target, target.getPortal(0));
 			curChar.gainExp(exp, true, false, true);
@@ -414,9 +414,9 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
-		MapleMap target = getMap(mapId);
+		GameMap target = getMap(mapId);
 		for (MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
-			MapleCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+			GameCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
 			curChar.changeMap(target, target.getPortal(0));
 			curChar.gainExp(exp, true, false, true);
@@ -433,12 +433,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		return getPlayer().getSkillLevel(skillid);
 	}
 
-	public MapleSquad getSquad(String type) {
+	public Squad getSquad(String type) {
 		return c.getChannelServer().getMapleSquad(type);
 	}
 
 	public int getSquadAvailability(String type) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		}
@@ -446,8 +446,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void registerSquad(String type, int minutes, String startText) {
-		final MapleSquad squad = new MapleSquad(c.getChannelId(), type, c.getPlayer(), minutes * 60 * 1000);
-		final MapleMap map = c.getPlayer().getMap();
+		final Squad squad = new Squad(c.getChannelId(), type, c.getPlayer(), minutes * 60 * 1000);
+		final GameMap map = c.getPlayer().getMap();
 
 		map.broadcastMessage(MaplePacketCreator.getClock(minutes * 60));
 		map.broadcastMessage(MaplePacketCreator.serverNotice(6, c.getPlayer().getName() + startText));
@@ -455,7 +455,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public boolean getSquadList(String type, byte type_) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad == null) {
 			return false;
 		}
@@ -474,7 +474,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public byte isSquadLeader(String type) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		} else {
@@ -487,21 +487,21 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void banMember(String type, int pos) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad != null) {
 			squad.banMember(pos);
 		}
 	}
 
 	public void acceptMember(String type, int pos) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad != null) {
 			squad.acceptMember(pos);
 		}
 	}
 
 	public int addMember(String type, boolean join) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad != null) {
 			return squad.addMember(c.getPlayer(), join);
 		}
@@ -509,7 +509,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public byte isSquadMember(String type) {
-		final MapleSquad squad = c.getChannelServer().getMapleSquad(type);
+		final Squad squad = c.getChannelServer().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		} else {
@@ -550,11 +550,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		if (getPlayer().getReborns() < MAX_REBORNS) {
 			getPlayer().setReborns(getPlayer().getReborns() + 1);
 			//unequipEverything();
-			List<Pair<MapleStat, Integer>> reborns = new ArrayList<Pair<MapleStat, Integer>>(4);
+			List<Pair<Stat, Integer>> reborns = new ArrayList<Pair<Stat, Integer>>(4);
 			getPlayer().setLevel(1);
 			getPlayer().setExp(0);
-			reborns.add(new Pair<MapleStat, Integer>(MapleStat.LEVEL, Integer.valueOf(1)));
-			reborns.add(new Pair<MapleStat, Integer>(MapleStat.EXP, Integer.valueOf(0)));
+			reborns.add(new Pair<Stat, Integer>(Stat.LEVEL, Integer.valueOf(1)));
+			reborns.add(new Pair<Stat, Integer>(Stat.EXP, Integer.valueOf(0)));
 			//getPlayer().getClient().getSession().write(MaplePacketCreator.updatePlayerStats(reborns));
 			//getPlayer().getMap().broadcastMessage(getPlayer(), MaplePacketCreator.showJobChange(getPlayer().getId()), false);
 		} else {
@@ -589,7 +589,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void sendAllianceInvite(String charname) {
-		MapleCharacter z = c.getChannelServer().getPlayerStorage().getCharacterByName(charname);
+		GameCharacter z = c.getChannelServer().getPlayerStorage().getCharacterByName(charname);
 		if (z != null) {
 			if (z.getGuild().getLeader(z.getClient()) == z) {
 	//                z.dropMessage(getPlayer().getName() + " invites your guild to join his alliance");
@@ -624,7 +624,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void changeStat(byte slot, int type, short amount) {
-		Equip sel = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(slot);
+		Equip sel = (Equip) c.getPlayer().getInventory(InventoryType.EQUIPPED).getItem(slot);
 		switch (type) {
 			case 0:
 			sel.setStr(amount);
@@ -771,21 +771,21 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		AramiaFireWorks.getInstance().giveKegs(c.getPlayer(), kegs);
 	}
 
-	public final MapleInventory getInventory(byte type) {
-		return c.getPlayer().getInventory(MapleInventoryType.getByType(type));
+	public final Inventory getInventory(byte type) {
+		return c.getPlayer().getInventory(InventoryType.getByType(type));
 	}
 
-	public final MapleCarnivalParty getCarnivalParty() {
+	public final CarnivalParty getCarnivalParty() {
 		return c.getPlayer().getCarnivalParty();
 	}
 
-	public final MapleCarnivalChallenge getNextCarnivalRequest() {
+	public final CarnivalChallenge getNextCarnivalRequest() {
 		return c.getPlayer().getNextCarnivalRequest();
 	}
 
 	public void resetStats(final int str, final int dex, final int int_, final int luk) {
-		List<Pair<MapleStat, Integer>> stats = new ArrayList<Pair<MapleStat, Integer>>(2);
-		final MapleCharacter chr = c.getPlayer();
+		List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(2);
+		final GameCharacter chr = c.getPlayer();
 		int total = chr.getStat().getStr() + chr.getStat().getDex() + chr.getStat().getLuk() + chr.getStat().getInt() + chr.getRemainingAp();
 		total -= str;
 		chr.getStat().setStr(str);
@@ -796,52 +796,52 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 		total -= luk;
 		chr.getStat().setLuk(luk);
 		chr.setRemainingAp(total);
-		stats.add(new Pair<MapleStat, Integer>(MapleStat.STR, str));
-		stats.add(new Pair<MapleStat, Integer>(MapleStat.DEX, dex));
-		stats.add(new Pair<MapleStat, Integer>(MapleStat.INT, int_));
-		stats.add(new Pair<MapleStat, Integer>(MapleStat.LUK, luk));
-		stats.add(new Pair<MapleStat, Integer>(MapleStat.AVAILABLEAP, total));
+		stats.add(new Pair<Stat, Integer>(Stat.STR, str));
+		stats.add(new Pair<Stat, Integer>(Stat.DEX, dex));
+		stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
+		stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
+		stats.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, total));
 		c.getSession().write(MaplePacketCreator.updatePlayerStats(stats, false, c.getPlayer().getJob()));
 	}
 
 
 	public final boolean dropItem(int slot, int invType, int quantity) {
-		MapleInventoryType inv = MapleInventoryType.getByType((byte)invType);
+		InventoryType inv = InventoryType.getByType((byte)invType);
 		if (inv == null) {
 			return false;
 		}
-		MapleInventoryManipulator.drop(c, inv, (short)slot, (short)quantity);
+		InventoryManipulator.drop(c, inv, (short)slot, (short)quantity);
 		return true;
 	}
 
 	public void maxStats() {
-		List<Pair<MapleStat, Integer>> statup = new ArrayList<Pair<MapleStat, Integer>>(2);
+		List<Pair<Stat, Integer>> statup = new ArrayList<Pair<Stat, Integer>>(2);
 		c.getPlayer().setRemainingAp(0);
-		statup.add(new Pair(MapleStat.AVAILABLEAP, Integer.valueOf(0)));
+		statup.add(new Pair(Stat.AVAILABLEAP, Integer.valueOf(0)));
 		c.getPlayer().setRemainingSp(0);
-		statup.add(new Pair(MapleStat.AVAILABLESP, Integer.valueOf(0)));
+		statup.add(new Pair(Stat.AVAILABLESP, Integer.valueOf(0)));
 		c.getPlayer().getStat().setStr(32767);
-		statup.add(new Pair(MapleStat.STR, Integer.valueOf(32767)));
+		statup.add(new Pair(Stat.STR, Integer.valueOf(32767)));
 		c.getPlayer().getStat().setDex(32767);
-		statup.add(new Pair(MapleStat.DEX, Integer.valueOf(32767)));
+		statup.add(new Pair(Stat.DEX, Integer.valueOf(32767)));
 		c.getPlayer().getStat().setInt(32767);
-		statup.add(new Pair(MapleStat.INT, Integer.valueOf(32767)));
+		statup.add(new Pair(Stat.INT, Integer.valueOf(32767)));
 		c.getPlayer().getStat().setLuk(32767);
-		statup.add(new Pair(MapleStat.LUK, Integer.valueOf(32767)));
+		statup.add(new Pair(Stat.LUK, Integer.valueOf(32767)));
 		c.getPlayer().getStat().setHp(30000);
-		statup.add(new Pair(MapleStat.HP, Integer.valueOf(30000)));
+		statup.add(new Pair(Stat.HP, Integer.valueOf(30000)));
 		c.getPlayer().getStat().setMaxHp(30000);
-		statup.add(new Pair(MapleStat.MAXHP, Integer.valueOf(30000)));
+		statup.add(new Pair(Stat.MAXHP, Integer.valueOf(30000)));
 		c.getPlayer().getStat().setMp(30000);
-		statup.add(new Pair(MapleStat.MP, Integer.valueOf(30000)));
+		statup.add(new Pair(Stat.MP, Integer.valueOf(30000)));
 		c.getPlayer().getStat().setMaxMp(30000);
-		statup.add(new Pair(MapleStat.MAXMP, Integer.valueOf(30000)));
+		statup.add(new Pair(Stat.MAXMP, Integer.valueOf(30000)));
 		c.getSession().write(MaplePacketCreator.updatePlayerStats(statup, c.getPlayer().getJob()));
 	}
 
 	public void gainFame(int fame) {
 		c.getPlayer().setFame(fame);
-		c.getPlayer().updateSingleStat(MapleStat.FAME, Integer.valueOf(getPlayer().getFame()));
+		c.getPlayer().updateSingleStat(Stat.FAME, Integer.valueOf(getPlayer().getFame()));
 		c.getSession().write(MaplePacketCreator.serverNotice(6, "You have gained (+" + fame +") fame."));
 	}
 }

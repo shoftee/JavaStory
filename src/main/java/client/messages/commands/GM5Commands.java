@@ -8,9 +8,9 @@ import java.text.DateFormat;
 import client.Equip;
 import client.GameConstants;
 import client.IItem;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleInventoryType;
+import client.GameCharacter;
+import client.GameClient;
+import client.InventoryType;
 import client.anticheat.CheatingOffense;
 import client.messages.Command;
 import client.messages.CommandDefinition;
@@ -23,18 +23,18 @@ import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import scripting.PortalScriptManager;
 import scripting.ReactorScriptManager;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
-import server.MaplePortal;
-import server.MapleShopFactory;
-import server.life.MapleMonsterInformationProvider;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.maps.MapleReactor;
-import server.maps.MapleReactorFactory;
-import server.maps.MapleReactorStats;
-import server.quest.MapleQuest;
+import server.InventoryManipulator;
+import server.ItemInfoProvider;
+import server.Portal;
+import server.ShopFactory;
+import server.life.MonsterInfoProvider;
+import server.maps.GameMap;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
+import server.maps.Reactor;
+import server.maps.ReactorFactory;
+import server.maps.ReactorStats;
+import server.quest.Quest;
 import tools.ArrayMap;
 import tools.MaplePacketCreator;
 import tools.Pair;
@@ -43,9 +43,9 @@ import tools.StringUtil;
 public class GM5Commands implements Command {
 
     @Override
-    public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
-        final MapleCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+        final GameCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
         if (splitted[0].equalsIgnoreCase("-proitem")) {
             if (splitted.length == 3) {
                 int itemid;
@@ -56,11 +56,11 @@ public class GM5Commands implements Command {
                 } catch (NumberFormatException asd) {
                     return;
                 }
-                MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+                ItemInfoProvider ii = ItemInfoProvider.getInstance();
                 IItem item = ii.getEquipById(itemid);
-                MapleInventoryType type = GameConstants.getInventoryType(itemid);
-                if (type.equals(MapleInventoryType.EQUIP)) {
-                    MapleInventoryManipulator.addFromDrop(c, ii.hardcoreItem((Equip) item, multiply), true);
+                InventoryType type = GameConstants.getInventoryType(itemid);
+                if (type.equals(InventoryType.EQUIP)) {
+                    InventoryManipulator.addFromDrop(c, ii.hardcoreItem((Equip) item, multiply), true);
                 } else {
                     c.getPlayer().dropMessage(6, "Make sure it's an equippable item.");
                 }
@@ -71,42 +71,42 @@ public class GM5Commands implements Command {
             c.getPlayer().setCallGM(!c.getPlayer().isCallGM());
             c.getPlayer().dropMessage(6, "GM Messages set to " + c.getPlayer().isCallGM());
         } else if (splitted[0].equals("-clearinv")) {
-            Map<Pair<Short, Short>, MapleInventoryType> eqs = new ArrayMap<Pair<Short, Short>, MapleInventoryType>();
+            Map<Pair<Short, Short>, InventoryType> eqs = new ArrayMap<Pair<Short, Short>, InventoryType>();
             if (splitted[1].equals("all")) {
-                for (MapleInventoryType type : MapleInventoryType.values()) {
+                for (InventoryType type : InventoryType.values()) {
                     for (IItem item : c.getPlayer().getInventory(type)) {
                         eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), type);
                     }
                 }
             } else if (splitted[1].equals("eqp")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.EQUIPPED)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.EQUIPPED);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.EQUIPPED)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIPPED);
                 }
             } else if (splitted[1].equals("eq")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.EQUIP)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.EQUIP);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.EQUIP)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIP);
                 }
             } else if (splitted[1].equals("u")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.USE)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.USE);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.USE)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.USE);
                 }
             } else if (splitted[1].equals("s")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.SETUP)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.SETUP);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.SETUP)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.SETUP);
                 }
             } else if (splitted[1].equals("e")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.ETC)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.ETC);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.ETC)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.ETC);
                 }
             } else if (splitted[1].equals("c")) {
-                for (IItem item : c.getPlayer().getInventory(MapleInventoryType.CASH)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), MapleInventoryType.CASH);
+                for (IItem item : c.getPlayer().getInventory(InventoryType.CASH)) {
+                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.CASH);
                 }
             } else {
                 c.getPlayer().dropMessage(6, "[all/eqp/eq/u/s/e/c]");
             }
-            for (Entry<Pair<Short, Short>, MapleInventoryType> eq : eqs.entrySet()) {
-                MapleInventoryManipulator.removeFromSlot(c, eq.getValue(), eq.getKey().left, eq.getKey().right, false, false);
+            for (Entry<Pair<Short, Short>, InventoryType> eq : eqs.entrySet()) {
+                InventoryManipulator.removeFromSlot(c, eq.getValue(), eq.getKey().left, eq.getKey().right, false, false);
             }
         } else if (splitted[0].equals("-ban")) {
             if (splitted.length < 3) {
@@ -122,14 +122,14 @@ public class GM5Commands implements Command {
                     c.getPlayer().dropMessage(6, "Failed to ban.");
                 }
             } else {
-                if (MapleCharacter.ban(splitted[1], sb.toString(), false)) {
+                if (GameCharacter.ban(splitted[1], sb.toString(), false)) {
                     sb.append(" (IP: ").append(chr.getClient().getSession().getRemoteAddress().toString().split(":")[0]).append(")");
                 } else {
                     c.getPlayer().dropMessage(6, "Failed to ban " + splitted[1]);
                 }
             }
         } else if (splitted[0].equals("-tempban")) {
-            final MapleCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+            final GameCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
             final int reason = Integer.parseInt(splitted[2]);
             final int numDay = Integer.parseInt(splitted[3]);
             final Calendar cal = Calendar.getInstance();
@@ -156,7 +156,7 @@ public class GM5Commands implements Command {
             }
         } else if (splitted[0].equals("-dc")) {
             int level = 0;
-            MapleCharacter victim;
+            GameCharacter victim;
             if (splitted[1].charAt(0) == '-') {
                 level = StringUtil.countCharacters(splitted[1], 'f');
                 victim = cserv.getPlayerStorage().getCharacterByName(splitted[2]);
@@ -166,15 +166,15 @@ public class GM5Commands implements Command {
             if (level < 2) {
                 victim.getClient().getSession().close();
                 if (level >= 1) {
-                    victim.getClient().disconnect(true, false);
+                    victim.getClient().disconnect(true);
                 }
             } else {
                 c.getPlayer().dropMessage(6, "Please use dc -f instead.");
             }
         } else if (splitted[0].equals("-resetquest")) {
-            MapleQuest.getInstance(Integer.parseInt(splitted[1])).forfeit(c.getPlayer());
+            Quest.getInstance(Integer.parseInt(splitted[1])).forfeit(c.getPlayer());
         } else if (splitted[0].equals("-nearestPortal")) {
-            final MaplePortal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
+            final Portal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
             c.getPlayer().dropMessage(6, portal.getName() + " id: " + portal.getId() + " script: " + portal.getScriptName());
         } else if (splitted[0].equals("-spawndebug")) {
             c.getPlayer().dropMessage(6, c.getPlayer().getMap().spawnDebug());
@@ -223,26 +223,26 @@ public class GM5Commands implements Command {
             }
             c.getPlayer().dropMessage(6, "Megaphone state : " + (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
         } else if (splitted[0].equalsIgnoreCase("!sreactor")) {
-            MapleReactorStats reactorSt = MapleReactorFactory.getReactor(Integer.parseInt(splitted[1]));
-            MapleReactor reactor = new MapleReactor(reactorSt, Integer.parseInt(splitted[1]));
+            ReactorStats reactorSt = ReactorFactory.getReactor(Integer.parseInt(splitted[1]));
+            Reactor reactor = new Reactor(reactorSt, Integer.parseInt(splitted[1]));
             reactor.setDelay(-1);
             reactor.setPosition(c.getPlayer().getPosition());
             c.getPlayer().getMap().spawnReactor(reactor);
         } else if (splitted[0].equals("-hreactor")) {
             c.getPlayer().getMap().getReactorByOid(Integer.parseInt(splitted[1])).hitReactor(c);
         } else if (splitted[0].equals("-lreactor")) {
-            MapleMap map = c.getPlayer().getMap();
-            List<MapleMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.REACTOR));
-            for (MapleMapObject reactorL : reactors) {
-                MapleReactor reactor2l = (MapleReactor) reactorL;
+            GameMap map = c.getPlayer().getMap();
+            List<GameMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+            for (GameMapObject reactorL : reactors) {
+                Reactor reactor2l = (Reactor) reactorL;
                 c.getPlayer().dropMessage(6, "Reactor: oID: " + reactor2l.getObjectId() + " reactorID: " + reactor2l.getReactorId() + " Position: " + reactor2l.getPosition().toString() + " State: " + reactor2l.getState());
             }
         } else if (splitted[0].equals("-dreactor")) {
-            MapleMap map = c.getPlayer().getMap();
-            List<MapleMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.REACTOR));
+            GameMap map = c.getPlayer().getMap();
+            List<GameMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
             if (splitted[1].equals("all")) {
-                for (MapleMapObject reactorL : reactors) {
-                    MapleReactor reactor2l = (MapleReactor) reactorL;
+                for (GameMapObject reactorL : reactors) {
+                    Reactor reactor2l = (Reactor) reactorL;
                     c.getPlayer().getMap().destroyReactor(reactor2l.getObjectId());
                 }
             } else {
@@ -253,8 +253,8 @@ public class GM5Commands implements Command {
         } else if (splitted[0].equals("-setreactor")) {
             c.getPlayer().getMap().setReactorState();
         } else if (splitted[0].equals("-removedrops")) {
-            List<MapleMapObject> items = c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
-            for (MapleMapObject i : items) {
+            List<GameMapObject> items = c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
+            for (GameMapObject i : items) {
                 c.getPlayer().getMap().removeMapObject(i);
                 c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
             }
@@ -279,12 +279,12 @@ public class GM5Commands implements Command {
         } else if (splitted[0].equals("-reloadops")) {
             ServerPacketOpcode.reloadValues();
         } else if (splitted[0].equals("-reloaddrops")) {
-            MapleMonsterInformationProvider.getInstance().clearDrops();
+            MonsterInfoProvider.getInstance().clearDrops();
             ReactorScriptManager.getInstance().clearDrops();
         } else if (splitted[0].equals("-reloadportal")) {
             PortalScriptManager.getInstance().clearScripts();
         } else if (splitted[0].equals("-clearshops")) {
-            MapleShopFactory.getInstance().clear();
+            ShopFactory.getInstance().clear();
         } else if (splitted[0].equals("-clearevents")) {
             for (ChannelServer instance : ChannelManager.getAllInstances()) {
                 instance.reloadEvents();

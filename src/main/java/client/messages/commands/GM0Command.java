@@ -1,21 +1,21 @@
 package client.messages.commands;
 
-import client.MapleCharacterUtil;
-import client.MapleClient;
-import client.MapleStat;
+import client.GameCharacterUtil;
+import client.GameClient;
+import client.Stat;
 import client.PlayerStats;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
 import java.rmi.RemoteException;
 import org.javastory.server.channel.ChannelServer;
-import scripting.NPCScriptManager;
+import scripting.NpcScriptManager;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
 
 public class GM0Command implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		ChannelServer cserv = c.getChannelServer();
 		if (splitted[0].equals("@str")) {
 			int str = Integer.parseInt(splitted[1]);
@@ -25,8 +25,8 @@ public class GM0Command implements Command {
 			} else {
 				stat.setStr(stat.getStr() + str);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - str);
-				c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
-				c.getPlayer().updateSingleStat(MapleStat.STR, stat.getStr());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.STR, stat.getStr());
 			}
 		} else if (splitted[0].equals("@dex")) {
 			int dex = Integer.parseInt(splitted[1]);
@@ -36,8 +36,8 @@ public class GM0Command implements Command {
 			} else {
 				stat.setDex(stat.getDex() + dex);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - dex);
-				c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
-				c.getPlayer().updateSingleStat(MapleStat.DEX, stat.getDex());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.DEX, stat.getDex());
 			}
 		} else if (splitted[0].equals("@int")) {
 			int int_ = Integer.parseInt(splitted[1]);
@@ -47,8 +47,8 @@ public class GM0Command implements Command {
 			} else {
 				stat.setInt(stat.getInt() + int_);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - int_);
-				c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
-				c.getPlayer().updateSingleStat(MapleStat.INT, stat.getInt());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.INT, stat.getInt());
 			}
 		} else if (splitted[0].equals("@luk")) {
 			int luk = Integer.parseInt(splitted[1]);
@@ -58,8 +58,8 @@ public class GM0Command implements Command {
 			} else {
 				stat.setLuk(stat.getLuk() + luk);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - luk);
-				c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
-				c.getPlayer().updateSingleStat(MapleStat.LUK, stat.getLuk());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.LUK, stat.getLuk());
 			}
 		} else if (splitted[0].equals("@gmlist")) {
 			c.getPlayer().dropMessage(5, "Current GM : johnlth93, GMCOnion | User GM : UGCSkyther");
@@ -90,7 +90,7 @@ public class GM0Command implements Command {
 				c.getChannelServer().pingWorld();
 			}
 		} else if (splitted[0].equals("@dispose")) {
-			NPCScriptManager.getInstance().dispose(c);
+			NpcScriptManager.getInstance().dispose(c);
 		} else if (splitted[0].equals("@ea")) {
 			c.getSession().write(MaplePacketCreator.enableActions());
 		} else if (splitted[0].equals("@changesecondpass")) {
@@ -98,7 +98,7 @@ public class GM0Command implements Command {
 				if (splitted[2].length() < 4 || splitted[2].length() > 16) {
 					c.getPlayer().dropMessage(5, "Your new password must not be length of below 4 or above 16.");
 				} else {
-					final int output = MapleCharacterUtil.Change_SecondPassword(c.getAccID(), splitted[1], splitted[2]);
+					final int output = GameCharacterUtil.Change_SecondPassword(c.getAccID(), splitted[1], splitted[2]);
 					if (output == -2 || output == -1) {
 						c.getPlayer().dropMessage(1, "An unknown error occured");
 					} else if (output == 0) {

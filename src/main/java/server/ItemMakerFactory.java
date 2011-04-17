@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import provider.MapleData;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataTool;
+import provider.WzData;
+import provider.WzDataProviderFactory;
+import provider.WzDataTool;
 import tools.Pair;
 
 public class ItemMakerFactory {
@@ -27,33 +27,33 @@ public class ItemMakerFactory {
 	// 0 = Item upgrade crystals
 	// 1 / 2/ 4/ 8 = Item creation
 
-	final MapleData info = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz")).getData("ItemMake.img");
+	final WzData info = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz")).getData("ItemMake.img");
 
 	byte totalupgrades, reqMakerLevel;
 	int reqLevel, cost, quantity, stimulator;
 	GemCreateEntry ret;
 	ItemMakerCreateEntry imt;
 
-	for (MapleData dataType : info.getChildren()) {
+	for (WzData dataType : info.getChildren()) {
 	    int type = Integer.parseInt(dataType.getName());
 	    switch (type) {
 		case 0: { // Caching of gem
-		    for (MapleData itemFolder : dataType.getChildren()) {
-			reqLevel = MapleDataTool.getInt("reqLevel", itemFolder, 0);
-			reqMakerLevel = (byte) MapleDataTool.getInt("reqSkillLevel", itemFolder, 0);
-			cost = MapleDataTool.getInt("meso", itemFolder, 0);
-			quantity = MapleDataTool.getInt("itemNum", itemFolder, 0);
+		    for (WzData itemFolder : dataType.getChildren()) {
+			reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
+			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
+			cost = WzDataTool.getInt("meso", itemFolder, 0);
+			quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
 //			totalupgrades = MapleDataTool.getInt("tuc", itemFolder, 0); // Gem is always 0
 
 			ret = new GemCreateEntry(cost, reqLevel, reqMakerLevel, quantity);
 
-			for (MapleData rewardNRecipe : itemFolder.getChildren()) {
-			    for (MapleData ind : rewardNRecipe.getChildren()) {
+			for (WzData rewardNRecipe : itemFolder.getChildren()) {
+			    for (WzData ind : rewardNRecipe.getChildren()) {
 				if (rewardNRecipe.getName().equals("randomReward")) {
-				    ret.addRandomReward(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("prob", ind, 0));
+				    ret.addRandomReward(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("prob", ind, 0));
 // MapleDataTool.getInt("itemNum", ind, 0)
 				} else if (rewardNRecipe.getName().equals("recipe")) {
-				    ret.addReqRecipe(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("count", ind, 0));
+				    ret.addReqRecipe(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
 				}
 			    }
 			}
@@ -66,20 +66,20 @@ public class ItemMakerFactory {
 		case 4: // Bowman
 		case 8: // Thief
 		case 16: { // Pirate
-		    for (MapleData itemFolder : dataType.getChildren()) {
-			reqLevel = MapleDataTool.getInt("reqLevel", itemFolder, 0);
-			reqMakerLevel = (byte) MapleDataTool.getInt("reqSkillLevel", itemFolder, 0);
-			cost = MapleDataTool.getInt("meso", itemFolder, 0);
-			quantity = MapleDataTool.getInt("itemNum", itemFolder, 0);
-			totalupgrades = (byte) MapleDataTool.getInt("tuc", itemFolder, 0);
-			stimulator = MapleDataTool.getInt("catalyst", itemFolder, 0);
+		    for (WzData itemFolder : dataType.getChildren()) {
+			reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
+			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
+			cost = WzDataTool.getInt("meso", itemFolder, 0);
+			quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
+			totalupgrades = (byte) WzDataTool.getInt("tuc", itemFolder, 0);
+			stimulator = WzDataTool.getInt("catalyst", itemFolder, 0);
 
 			imt = new ItemMakerCreateEntry(cost, reqLevel, reqMakerLevel, quantity, totalupgrades, stimulator);
 
-			for (MapleData Recipe : itemFolder.getChildren()) {
-			    for (MapleData ind : Recipe.getChildren()) {
+			for (WzData Recipe : itemFolder.getChildren()) {
+			    for (WzData ind : Recipe.getChildren()) {
 				if (Recipe.getName().equals("recipe")) {
-				    imt.addReqItem(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("count", ind, 0));
+				    imt.addReqItem(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
 				}
 			    }
 			}

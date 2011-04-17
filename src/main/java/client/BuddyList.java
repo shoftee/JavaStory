@@ -46,7 +46,7 @@ public class BuddyList implements Serializable {
         BUDDYLIST_FULL, ALREADY_ON_LIST, OK
     }
     private static final long serialVersionUID = 1413738569L;
-    private Map<Integer, BuddylistEntry> buddies = new LinkedHashMap<Integer, BuddylistEntry>();
+    private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<Integer, BuddyListEntry>();
     private int capacity;
     private Deque<CharacterNameAndId> pendingRequests = new LinkedList<CharacterNameAndId>();
 
@@ -60,7 +60,7 @@ public class BuddyList implements Serializable {
     }
 
     public boolean containsVisible(int characterId) {
-        BuddylistEntry ble = buddies.get(characterId);
+        BuddyListEntry ble = buddies.get(characterId);
         if (ble == null) {
             return false;
         }
@@ -75,13 +75,13 @@ public class BuddyList implements Serializable {
         this.capacity = capacity;
     }
 
-    public BuddylistEntry get(int characterId) {
+    public BuddyListEntry get(int characterId) {
         return buddies.get(Integer.valueOf(characterId));
     }
 
-    public BuddylistEntry get(String characterName) {
+    public BuddyListEntry get(String characterName) {
         String lowerCaseName = characterName.toLowerCase();
-        for (BuddylistEntry ble : buddies.values()) {
+        for (BuddyListEntry ble : buddies.values()) {
             if (ble.getName().toLowerCase().equals(lowerCaseName)) {
                 return ble;
             }
@@ -89,7 +89,7 @@ public class BuddyList implements Serializable {
         return null;
     }
 
-    public void put(BuddylistEntry entry) {
+    public void put(BuddyListEntry entry) {
         buddies.put(Integer.valueOf(entry.getCharacterId()), entry);
     }
 
@@ -97,7 +97,7 @@ public class BuddyList implements Serializable {
         buddies.remove(Integer.valueOf(characterId));
     }
 
-    public Collection<BuddylistEntry> getBuddies() {
+    public Collection<BuddyListEntry> getBuddies() {
         return buddies.values();
     }
 
@@ -108,7 +108,7 @@ public class BuddyList implements Serializable {
     public int[] getBuddyIds() {
         int buddyIds[] = new int[buddies.size()];
         int i = 0;
-        for (BuddylistEntry ble : buddies.values()) {
+        for (BuddyListEntry ble : buddies.values()) {
             buddyIds[i++] = ble.getCharacterId();
         }
         return buddyIds;
@@ -123,7 +123,7 @@ public class BuddyList implements Serializable {
             if (!pair) {
                 pendingRequests.push(buddyid);
             } else {
-                put(new BuddylistEntry(buddyid.getName(), buddyid.getId(), "ETC", -1, true, buddyid.getLevel(), buddyid.getJob()));
+                put(new BuddyListEntry(buddyid.getName(), buddyid.getId(), "ETC", -1, true, buddyid.getLevel(), buddyid.getJob()));
             }
         }
     }
@@ -139,7 +139,7 @@ public class BuddyList implements Serializable {
             if (rs.getInt("pending") == 1) {
                 pendingRequests.push(new CharacterNameAndId(buddyid, buddyname, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             } else {
-                put(new BuddylistEntry(buddyname, buddyid, rs.getString("groupname"), -1, true, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
+                put(new BuddyListEntry(buddyname, buddyid, rs.getString("groupname"), -1, true, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             }
         }
         rs.close();
@@ -155,8 +155,8 @@ public class BuddyList implements Serializable {
         return pendingRequests.pollLast();
     }
 
-    public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
-        put(new BuddylistEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
+    public void addBuddyRequest(GameClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
+        put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
         if (pendingRequests.isEmpty()) {
             c.getSession().write(MaplePacketCreator.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
         } else {

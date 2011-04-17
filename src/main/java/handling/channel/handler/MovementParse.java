@@ -26,7 +26,7 @@ import java.util.List;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 
-import server.maps.AnimatedMapleMapObject;
+import server.maps.AnimatedGameMapObject;
 import server.movement.*;
 
 public class MovementParse {
@@ -200,7 +200,7 @@ public class MovementParse {
 	return res;
     }
 
-    public static final void updatePosition(final List<LifeMovementFragment> movement, final AnimatedMapleMapObject target, final int yoffset) {
+    public static final void updatePosition(final List<LifeMovementFragment> movement, final AnimatedGameMapObject target, final int yoffset) {
 	for (final LifeMovementFragment move : movement) {
 	    if (move instanceof LifeMovement) {
 		if (move instanceof AbsoluteLifeMovement) {

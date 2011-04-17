@@ -12,8 +12,8 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 import client.BuddyList;
-import client.BuddylistEntry;
-import client.MapleCharacter;
+import client.BuddyListEntry;
+import client.GameCharacter;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
@@ -130,9 +130,9 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     private void updateBuddies(int characterId, int channel, int[] buddies, boolean offline) {
         final PlayerStorage playerStorage = server.getPlayerStorage();
         for (int buddy : buddies) {
-            final MapleCharacter chr = playerStorage.getCharacterById(buddy);
+            final GameCharacter chr = playerStorage.getCharacterById(buddy);
             if (chr != null) {
-                final BuddylistEntry ble = chr.getBuddylist().get(characterId);
+                final BuddyListEntry ble = chr.getBuddylist().get(characterId);
                 if (ble != null && ble.isVisible()) {
                     int mcChannel;
                     if (offline) {
@@ -153,7 +153,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void updateParty(MapleParty party, PartyOperation operation, MaplePartyCharacter target) throws RemoteException {
         for (MaplePartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId()) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     if (operation == PartyOperation.DISBAND) {
                         chr.setParty(null);
@@ -168,7 +168,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
             case LEAVE:
             case EXPEL:
                 if (target.getChannel() == server.getChannelId()) {
-                    final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(target.getName());
+                    final GameCharacter chr = server.getPlayerStorage().getCharacterByName(target.getName());
                     if (chr != null) {
                         chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannelId(), party, operation, target));
                         chr.setParty(null);
@@ -181,7 +181,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void partyChat(MapleParty party, String chattext, String namefrom) throws RemoteException {
         for (MaplePartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId() && !(partychar.getName().equals(namefrom))) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     chr.getClient().getSession().write(MaplePacketCreator.multiChat(namefrom, chattext, 1));
                 }
@@ -196,7 +196,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public int getLocation(String name) throws RemoteException {
-        MapleCharacter chr = server.getPlayerStorage().getCharacterByName(name);
+        GameCharacter chr = server.getPlayerStorage().getCharacterByName(name);
         if (chr != null) {
             return chr.getMapId();
         }
@@ -213,7 +213,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public BuddyAddResult requestBuddyAdd(String addName, int channelFrom, int cidFrom, String nameFrom, int levelFrom, int jobFrom) {
-        final MapleCharacter addChar = server.getPlayerStorage().getCharacterByName(addName);
+        final GameCharacter addChar = server.getPlayerStorage().getCharacterByName(addName);
         if (addChar != null) {
             final BuddyList buddylist = addChar.getBuddylist();
             if (buddylist.isFull()) {
@@ -237,19 +237,19 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void buddyChanged(int cid, int cidFrom, String name, int channel, BuddyOperation operation, int level, int job) {
-        final MapleCharacter addChar = server.getPlayerStorage().getCharacterById(cid);
+        final GameCharacter addChar = server.getPlayerStorage().getCharacterById(cid);
         if (addChar != null) {
             final BuddyList buddylist = addChar.getBuddylist();
             switch (operation) {
                 case ADDED:
                     if (buddylist.contains(cidFrom)) {
-                        buddylist.put(new BuddylistEntry(name, cidFrom, "ETC", channel, true, level, job));
+                        buddylist.put(new BuddyListEntry(name, cidFrom, "ETC", channel, true, level, job));
                         addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, channel - 1));
                     }
                     break;
                 case DELETED:
                     if (buddylist.contains(cidFrom)) {
-                        buddylist.put(new BuddylistEntry(name, cidFrom, "ETC", -1, buddylist.get(cidFrom).isVisible(), level, job));
+                        buddylist.put(new BuddyListEntry(name, cidFrom, "ETC", -1, buddylist.get(cidFrom).isVisible(), level, job));
                         addChar.getClient().getSession().write(MaplePacketCreator.updateBuddyChannel(cidFrom, -1));
                     }
                     break;
@@ -261,7 +261,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void buddyChat(int[] recipientCharacterIds, int cidFrom, String nameFrom, String chattext) throws RemoteException {
         final PlayerStorage playerStorage = server.getPlayerStorage();
         for (int characterId : recipientCharacterIds) {
-            final MapleCharacter chr = playerStorage.getCharacterById(characterId);
+            final GameCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
                 if (chr.getBuddylist().containsVisible(cidFrom)) {
                     chr.getClient().getSession().write(MaplePacketCreator.multiChat(nameFrom, chattext, 0));
@@ -275,7 +275,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
         List<Integer> ret = new ArrayList<Integer>(characterIds.length);
         final PlayerStorage playerStorage = server.getPlayerStorage();
         for (int characterId : characterIds) {
-            MapleCharacter chr = playerStorage.getCharacterById(characterId);
+            GameCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
                 if (chr.getBuddylist().containsVisible(charIdFrom)) {
                     ret.add(characterId);
@@ -297,7 +297,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void sendPacket(List<Integer> targetIds, GamePacket packet, int exception) throws RemoteException {
-        MapleCharacter c;
+        GameCharacter c;
         for (int i : targetIds) {
             if (i == exception) {
                 continue;
@@ -320,7 +320,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void setGuildAndRank(int cid, int guildid, int rank) throws RemoteException {
-        final MapleCharacter mc = server.getPlayerStorage().getCharacterById(cid);
+        final GameCharacter mc = server.getPlayerStorage().getCharacterById(cid);
         if (mc == null) {
             // System.out.println("ERROR: cannot find player in given channel");
             return;
@@ -381,14 +381,14 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void addMessengerPlayer(MapleMessenger messenger, String namefrom, int fromchannel, int position) throws RemoteException {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    final MapleCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
+                    final GameCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
                     chr.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(namefrom, from, position, fromchannel - 1));
                     from.getClient().getSession().write(MaplePacketCreator.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), messengerchar.getChannel() - 1));
                 }
             } else if (messengerchar.getChannel() == server.getChannelId() && (messengerchar.getName().equals(namefrom))) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     chr.getClient().getSession().write(MaplePacketCreator.joinMessenger(messengerchar.getPosition()));
                 }
@@ -400,7 +400,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void removeMessengerPlayer(MapleMessenger messenger, int position) throws RemoteException {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId()) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     chr.getClient().getSession().write(MaplePacketCreator.removeMessengerPlayer(position));
                 }
@@ -412,7 +412,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void messengerChat(MapleMessenger messenger, String chattext, String namefrom) throws RemoteException {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     chr.getClient().getSession().write(MaplePacketCreator.messengerChat(chattext));
                 }
@@ -423,7 +423,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     @Override
     public void declineChat(String target, String namefrom) throws RemoteException {
         if (isConnected(target)) {
-            final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(target);
+            final GameCharacter chr = server.getPlayerStorage().getCharacterByName(target);
             final MapleMessenger messenger = chr.getMessenger();
             if (messenger != null) {
                 chr.getClient().getSession().write(MaplePacketCreator.messengerNote(namefrom, 5, 0));
@@ -435,9 +435,9 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     public void updateMessenger(MapleMessenger messenger, String namefrom, int position, int fromchannel) throws RemoteException {
         for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
-                final MapleCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    MapleCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
+                    GameCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
                     chr.getClient().getSession().write(MaplePacketCreator.updateMessengerPlayer(namefrom, from, position, fromchannel - 1));
                 }
             }

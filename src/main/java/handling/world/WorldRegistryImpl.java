@@ -1,6 +1,5 @@
 package handling.world;
 
-import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
@@ -28,10 +27,8 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
-import handling.cashshop.remote.CashShopWorldInterface;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildCharacter;
-import handling.world.remote.CashShopInterface;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLoginInterface;
@@ -42,7 +39,6 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
 
     private static final long serialVersionUID = -5170574938159280746L;
     private static WorldRegistryImpl instance = null;
-    private CashShopWorldInterface cashshopServer = null;
     private ServerStatus csStatus, loginStatus;
     private Map<Integer, ServerStatus> channelStatus;
     private final Map<Integer, ChannelWorldInterface> channels = new LinkedHashMap<Integer, ChannelWorldInterface>();
@@ -155,26 +151,8 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         logins.remove(cb);
     }
 
-    public CashShopInterface registerCSServer(final CashShopWorldInterface cs) throws RemoteException {
-        if (csStatus != ServerStatus.OFFLINE) {
-            throw new IllegalStateException(
-                    "The CashShop server is currently active.");
-        }
-        cashshopServer = cs;
-        return new WorldCashShopInterfaceImpl();
-
-    }
-
-    public void deregisterCSServer() throws RemoteException {
-        cashshopServer = null;
-    }
-
     public List<LoginWorldInterface> getLoginServer() {
         return new LinkedList<LoginWorldInterface>(logins);
-    }
-
-    public CashShopWorldInterface getCashShopServer() {
-        return cashshopServer;
     }
 
     public ChannelWorldInterface getChannel(final int channel) {

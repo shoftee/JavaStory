@@ -2,18 +2,18 @@ package client;
 
 import java.util.List;
 import java.util.Arrays;
-import server.maps.MapleMapObjectType;
+import server.maps.GameMapObjectType;
 
 public class GameConstants {
 
-	public static final List<MapleMapObjectType> rangedMapobjectTypes = Arrays.asList(
-		MapleMapObjectType.ITEM,
-		MapleMapObjectType.MONSTER,
-		MapleMapObjectType.DOOR,
-		MapleMapObjectType.REACTOR,
-		MapleMapObjectType.SUMMON,
-		MapleMapObjectType.NPC,
-		MapleMapObjectType.MIST
+	public static final List<GameMapObjectType> rangedMapobjectTypes = Arrays.asList(
+		GameMapObjectType.ITEM,
+		GameMapObjectType.MONSTER,
+		GameMapObjectType.DOOR,
+		GameMapObjectType.REACTOR,
+		GameMapObjectType.SUMMON,
+		GameMapObjectType.NPC,
+		GameMapObjectType.MIST
 	);
 
 	private static final int[] exp = {0, 15, 34, 57, 92, 135, 372, 560, 840, 1242, 1144,
@@ -268,54 +268,54 @@ public class GameConstants {
 		return itemId >= 1302000 && itemId < 1500000;
 	}
 
-	public static final MapleInventoryType getInventoryType(final int itemId) {
+	public static final InventoryType getInventoryType(final int itemId) {
 		final byte type = (byte) (itemId / 1000000);
 		if (type < 1 || type > 5) {
-			return MapleInventoryType.UNDEFINED;
+			return InventoryType.UNDEFINED;
 		}
-		return MapleInventoryType.getByType(type);
+		return InventoryType.getByType(type);
 	}
 
-	public static final MapleWeaponType getWeaponType(final int itemId) {
+	public static final WeaponType getWeaponType(final int itemId) {
 	int cat = itemId / 10000;
 	cat = cat % 100;
 	switch (cat) {
 		case 30:
-		return MapleWeaponType.SWORD1H;
+		return WeaponType.SWORD1H;
 		case 31:
-		return MapleWeaponType.AXE1H;
+		return WeaponType.AXE1H;
 		case 32:
-		return MapleWeaponType.BLUNT1H;
+		return WeaponType.BLUNT1H;
 		case 33:
-		return MapleWeaponType.DAGGER;
+		return WeaponType.DAGGER;
 		case 34:
-		return MapleWeaponType.KATARA;
+		return WeaponType.KATARA;
 		case 37:
-		return MapleWeaponType.WAND;
+		return WeaponType.WAND;
 		case 38:
-		return MapleWeaponType.STAFF;
+		return WeaponType.STAFF;
 		case 40:
-		return MapleWeaponType.SWORD2H;
+		return WeaponType.SWORD2H;
 		case 41:
-		return MapleWeaponType.AXE2H;
+		return WeaponType.AXE2H;
 		case 42:
-		return MapleWeaponType.BLUNT2H;
+		return WeaponType.BLUNT2H;
 		case 43:
-		return MapleWeaponType.SPEAR;
+		return WeaponType.SPEAR;
 		case 44:
-		return MapleWeaponType.POLE_ARM;
+		return WeaponType.POLE_ARM;
 		case 45:
-		return MapleWeaponType.BOW;
+		return WeaponType.BOW;
 		case 46:
-		return MapleWeaponType.CROSSBOW;
+		return WeaponType.CROSSBOW;
 		case 47:
-		return MapleWeaponType.CLAW;
+		return WeaponType.CLAW;
 		case 48:
-		return MapleWeaponType.KNUCKLE;
+		return WeaponType.KNUCKLE;
 		case 49:
-		return MapleWeaponType.GUN;
+		return WeaponType.GUN;
 	}
-	return MapleWeaponType.NOT_A_WEAPON;
+	return WeaponType.NOT_A_WEAPON;
 	}
 
 	public static final boolean isShield(final int itemId) {

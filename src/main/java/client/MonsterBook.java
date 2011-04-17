@@ -31,7 +31,7 @@ import java.sql.SQLException;
 import java.io.Serializable;
 
 import database.DatabaseConnection;
-import server.MapleItemInformationProvider;
+import server.ItemInfoProvider;
 import org.javastory.io.PacketBuilder;
 import tools.packet.MonsterBookPacket;
 
@@ -128,14 +128,14 @@ public class MonsterBook implements Serializable {
 	builder.writeInt(NormalCard);
 	builder.writeInt(SpecialCard);
 	builder.writeInt(NormalCard + SpecialCard);
-	builder.writeInt(MapleItemInformationProvider.getInstance().getCardMobId(bookcover));
+	builder.writeInt(ItemInfoProvider.getInstance().getCardMobId(bookcover));
     }
 
-    public final void updateCard(final MapleClient c, final int cardid) {
+    public final void updateCard(final GameClient c, final int cardid) {
 	c.getSession().write(MonsterBookPacket.changeCover(cardid));
     }
 
-    public final void addCard(final MapleClient c, final int cardid) {
+    public final void addCard(final GameClient c, final int cardid) {
 	changed = true;
 //	c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MonsterBookPacket.showForeginCardEffect(c.getPlayer().getId()), false);
 

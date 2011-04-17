@@ -1,7 +1,7 @@
 package client.messages.commands;
 
 import static client.messages.CommandProcessor.getOptionalIntArg;
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -11,7 +11,7 @@ import tools.packet.TestPacket;
 
 public class TestCommands implements Command {
 	@Override
-	public void execute(final MapleClient c, final String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(final GameClient c, final String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-test1")) {
 			c.getSession().write(TestPacket.EXPTest1());
 		} else if (splitted[0].equals("-test2")) {

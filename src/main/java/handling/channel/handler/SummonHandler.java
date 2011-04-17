@@ -26,23 +26,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import client.ISkill;
-import client.MapleBuffStat;
-import client.MapleClient;
-import client.MapleCharacter;
+import client.BuffStat;
+import client.GameClient;
+import client.GameCharacter;
 import client.SkillFactory;
 import client.SummonSkillEntry;
 import client.status.MonsterStatusEffect;
 import client.anticheat.CheatingOffense;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
-import server.MapleStatEffect;
+import server.StatEffect;
 import server.movement.LifeMovementFragment;
-import server.life.MapleMonster;
+import server.life.Monster;
 import server.life.SummonAttackEntry;
-import server.maps.MapleMap;
-import server.maps.MapleSummon;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
+import server.maps.GameMap;
+import server.maps.Summon;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
 import server.maps.SummonMovementType;
 import tools.MaplePacketCreator;
 
@@ -51,7 +51,7 @@ public final class SummonHandler {
     private SummonHandler() {
     }
 
-    public static void handleMoveDragon(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleMoveDragon(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         reader.skip(8); //POS
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
         if (chr.getDragon() != null) {
@@ -64,12 +64,12 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonMove(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleSummonMove(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int oid = reader.readInt();
         reader.skip(8);
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
-        for (MapleSummon sum : chr.getSummons().values()) {
+        for (Summon sum : chr.getSummons().values()) {
             if (sum.getObjectId() == oid && sum.getMovementType() != SummonMovementType.STATIONARY) {
                 final Point startPos = sum.getPosition();
                 MovementParse.updatePosition(res, sum, 0);
@@ -79,21 +79,21 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonDamage(final PacketReader reader, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleSummonDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int unkByte = reader.readByte();
         final int damage = reader.readInt();
         final int monsterIdFrom = reader.readInt();
         //       reader.readByte(); // stance
 
-        final Iterator<MapleSummon> iter = chr.getSummons().values().iterator();
-        MapleSummon summon;
+        final Iterator<Summon> iter = chr.getSummons().values().iterator();
+        Summon summon;
 
         while (iter.hasNext()) {
             summon = iter.next();
             if (summon.isPuppet() && summon.getOwnerId() == chr.getId()) { //We can only have one puppet(AFAIK O.O) so this check is safe.
                 summon.addHP((short) -damage);
                 if (summon.getHP() <= 0) {
-                    chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
+                    chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
                 }
                 chr.getMap().broadcastMessage(chr, MaplePacketCreator.damageSummon(chr.getId(), summon.getSkill(), damage, unkByte, monsterIdFrom), summon.getPosition());
                 break;
@@ -101,17 +101,17 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonAttack(final PacketReader reader, final MapleClient c, final MapleCharacter chr) throws PacketFormatException {
+    public static void handleSummonAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
         }
-        final MapleMap map = chr.getMap();
-        final MapleMapObject obj = map.getMapObject(reader.readInt());
-        if (obj == null || !obj.getType().equals(MapleMapObjectType.SUMMON)) {
+        final GameMap map = chr.getMap();
+        final GameMapObject obj = map.getMapObject(reader.readInt());
+        if (obj == null || !obj.getType().equals(GameMapObjectType.SUMMON)) {
             return;
         }
-        final MapleSummon summon = (MapleSummon) obj;
+        final Summon summon = (Summon) obj;
         if (summon.getOwnerId() != chr.getId()) {
             return;
         }
@@ -134,7 +134,7 @@ public final class SummonHandler {
         chr.getCheatTracker().checkSummonAttack();
 
         for (int i = 0; i < numAttacked; i++) {
-            final MapleMonster mob = map.getMonsterByOid(reader.readInt());
+            final Monster mob = map.getMonsterByOid(reader.readInt());
 
             if (mob == null) {
                 continue;
@@ -149,11 +149,11 @@ public final class SummonHandler {
         map.broadcastMessage(chr, MaplePacketCreator.summonAttack(summon.getOwnerId(), summon.getSkill(), animation, allDamage, chr.getLevel()), summon.getPosition());
 
         final ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
-        final MapleStatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
+        final StatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
 
         for (SummonAttackEntry attackEntry : allDamage) {
             final int toDamage = attackEntry.getDamage();
-            final MapleMonster mob = attackEntry.getMonster();
+            final Monster mob = attackEntry.getMonster();
 
             if (toDamage > 0 && summonEffect.getMonsterStati().size() > 0) {
                 if (summonEffect.makeChanceResult()) {

@@ -11,20 +11,20 @@ import java.sql.SQLException;
 import client.Equip;
 import client.IItem;
 import client.Item;
-import client.MapleInventoryType;
-import client.MapleClient;
-import client.MapleCharacter;
+import client.InventoryType;
+import client.GameClient;
+import client.GameCharacter;
 import client.GameConstants;
 import database.DatabaseConnection;
 import org.javastory.io.PacketFormatException;
-import server.MapleInventoryManipulator;
+import server.InventoryManipulator;
 import server.MerchItemPackage;
 import tools.packet.PlayerShopPacket;
 import org.javastory.io.PacketReader;
 
 public class HiredMerchantHandler {
 
-    public static final void handleUseHiredMerchant(final PacketReader reader, final MapleClient c) {
+    public static final void handleUseHiredMerchant(final PacketReader reader, final GameClient c) {
 //	reader.readInt(); // TimeStamp
 
         if (c.getPlayer().getMap().allowPersonalShop()) {
@@ -74,7 +74,7 @@ public class HiredMerchantHandler {
         }
     }
 
-    public static final void handleMerchantItemStore(final PacketReader reader, final MapleClient c) throws PacketFormatException {
+    public static final void handleMerchantItemStore(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte operation = reader.readByte();
 
         switch (operation) {
@@ -115,7 +115,7 @@ public class HiredMerchantHandler {
                 if (deletePackage(c.getPlayer().getId())) {
                     c.getPlayer().gainMeso(pack.getMesos(), false);
                     for (IItem item : pack.getItems()) {
-                        MapleInventoryManipulator.addFromDrop(c, item, false);
+                        InventoryManipulator.addFromDrop(c, item, false);
                     }
                     c.getSession().write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
                 } else {
@@ -130,30 +130,30 @@ public class HiredMerchantHandler {
         }
     }
 
-    private static final boolean check(final MapleCharacter chr, final MerchItemPackage pack) {
+    private static final boolean check(final GameCharacter chr, final MerchItemPackage pack) {
         if (chr.getMeso() + pack.getMesos() < 0) {
             return false;
         }
         byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
         for (IItem item : pack.getItems()) {
-            final MapleInventoryType invtype = GameConstants.getInventoryType(item.getItemId());
-            if (invtype == MapleInventoryType.EQUIP) {
+            final InventoryType invtype = GameConstants.getInventoryType(item.getItemId());
+            if (invtype == InventoryType.EQUIP) {
                 eq++;
-            } else if (invtype == MapleInventoryType.USE) {
+            } else if (invtype == InventoryType.USE) {
                 use++;
-            } else if (invtype == MapleInventoryType.SETUP) {
+            } else if (invtype == InventoryType.SETUP) {
                 setup++;
-            } else if (invtype == MapleInventoryType.ETC) {
+            } else if (invtype == InventoryType.ETC) {
                 etc++;
-            } else if (invtype == MapleInventoryType.CASH) {
+            } else if (invtype == InventoryType.CASH) {
                 cash++;
             }
         }
-        if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() <= eq
-                || chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() <= use
-                || chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() <= setup
-                || chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() <= etc
-                || chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() <= cash) {
+        if (chr.getInventory(InventoryType.EQUIP).getNumFreeSlot() <= eq
+                || chr.getInventory(InventoryType.USE).getNumFreeSlot() <= use
+                || chr.getInventory(InventoryType.SETUP).getNumFreeSlot() <= setup
+                || chr.getInventory(InventoryType.ETC).getNumFreeSlot() <= etc
+                || chr.getInventory(InventoryType.CASH).getNumFreeSlot() <= cash) {
             return false;
         }
         return true;
@@ -205,9 +205,9 @@ public class HiredMerchantHandler {
 
             while (rs2.next()) {
                 final int itemid = rs2.getInt("itemid");
-                final MapleInventoryType type = GameConstants.getInventoryType(itemid);
+                final InventoryType type = GameConstants.getInventoryType(itemid);
 
-                if (type == MapleInventoryType.EQUIP) {
+                if (type == InventoryType.EQUIP) {
                     final Equip equip = new Equip(rs2.getInt("itemid"), (byte) 0, -1, rs2.getByte("flag"));
                     equip.setOwner(rs2.getString("owner"));
                     equip.setQuantity(rs2.getShort("quantity"));

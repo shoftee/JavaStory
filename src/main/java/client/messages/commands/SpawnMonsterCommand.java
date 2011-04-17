@@ -3,24 +3,24 @@ package client.messages.commands;
 import static client.messages.CommandProcessor.getNamedDoubleArg;
 import static client.messages.CommandProcessor.getNamedIntArg;
 import static client.messages.CommandProcessor.getOptionalIntArg;
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
+import server.life.LifeFactory;
+import server.life.Monster;
 import server.life.OverrideMonsterStats;
 
 public class SpawnMonsterCommand implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		final int mid = Integer.parseInt(splitted[1]);
 		final int num = Math.min(getOptionalIntArg(splitted, 2, 1), 50);
 		Integer hp = getNamedIntArg(splitted, 1, "hp");
 		Integer exp = getNamedIntArg(splitted, 1, "exp");
 		Double php = getNamedDoubleArg(splitted, 1, "php");
 		Double pexp = getNamedDoubleArg(splitted, 1, "pexp");
-		final MapleMonster onemob = MapleLifeFactory.getMonster(mid);
+		final Monster onemob = LifeFactory.getMonster(mid);
 		int newhp = 0, newexp = 0;
 		final double oldExpRatio = ((double) onemob.getHp() / onemob.getMobExp());
 		if (hp != null) {
@@ -52,7 +52,7 @@ public class SpawnMonsterCommand implements Command {
 		overrideStats.setOExp(newexp);
 		overrideStats.setOMp(onemob.getMobMaxMp());
 		for (int i = 0; i < num; i++) {
-			MapleMonster mob = MapleLifeFactory.getMonster(mid);
+			Monster mob = LifeFactory.getMonster(mid);
 			mob.setHp(newhp);
 			mob.setOverrideStats(overrideStats);
 			c.getPlayer().getMap().spawnMonsterOnGroundBelow(mob, c.getPlayer().getPosition());

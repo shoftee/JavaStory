@@ -20,7 +20,7 @@
 */
 package org.javastory.server.mina;
 
-import client.MapleClient;
+import client.GameClient;
 import handling.GamePacket;
 import org.javastory.cryptography.AesTransform;
 import org.javastory.cryptography.CustomEncryption;
@@ -36,8 +36,8 @@ public class PacketEncoder implements ProtocolEncoder {
 
     @Override
     public void encode(final IoSession session, final Object message, final ProtocolEncoderOutput out) throws Exception {
-	final MapleClient client = 
-                (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
+	final GameClient client = 
+                (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
 
 	if (client != null) {
 	    final Lock mutex = client.getLock();

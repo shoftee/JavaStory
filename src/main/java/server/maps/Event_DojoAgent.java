@@ -2,11 +2,11 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import org.javastory.server.channel.ChannelServer;
 import server.Randomizer;
 import server.TimerManager;
-import server.life.MapleLifeFactory;
+import server.life.LifeFactory;
 import tools.MaplePacketCreator;
 
 public class Event_DojoAgent {
@@ -16,12 +16,12 @@ public class Event_DojoAgent {
 		point2 = new Point(-193, 0),
 		point3 = new Point(355, 0);
 
-	public static boolean warpStartAgent(final MapleCharacter c, final boolean party) {
+	public static boolean warpStartAgent(final GameCharacter c, final boolean party) {
 		final int stage = 1;
 		final int mapid = baseAgentMapId + (stage * 100);
 		final ChannelServer ch = c.getClient().getChannelServer();
 		for (int i = mapid; i < mapid + 15; i++) {
-			final MapleMap map = ch.getMapFactory(c.getWorld()).getMap(i);
+			final GameMap map = ch.getMapFactory(c.getWorld()).getMap(i);
 			if (map.getCharactersSize() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
@@ -32,10 +32,10 @@ public class Event_DojoAgent {
 		return false;
 	}
 
-	public static boolean warpNextMap_Agent(final MapleCharacter c, final boolean fromResting) {
+	public static boolean warpNextMap_Agent(final GameCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
 		final int thisStage = (currentmap - baseAgentMapId) / 100;
-		MapleMap map = c.getMap();
+		GameMap map = c.getMap();
 		if (map.getSpawnedMonstersOnMap() > 0) {
 			return false;
 		}
@@ -69,7 +69,7 @@ public class Event_DojoAgent {
 		return false;
 	}
 
-	public static boolean warpStartDojo(final MapleCharacter c, final boolean party) {
+	public static boolean warpStartDojo(final GameCharacter c, final boolean party) {
 		int stage = 1;
 		if (party || stage == -1 || stage > 38) {
 			stage = 1;
@@ -77,7 +77,7 @@ public class Event_DojoAgent {
 		final int mapid = 925020000 + (stage * 100);
 		final ChannelServer ch = c.getClient().getChannelServer();
 		for (int i = mapid; i < mapid + 15; i++) {
-			final MapleMap map = ch.getMapFactory(c.getWorld()).getMap(i);
+			final GameMap map = ch.getMapFactory(c.getWorld()).getMap(i);
 			if (map.getCharactersSize() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
@@ -95,7 +95,7 @@ public class Event_DojoAgent {
 	// 925022400 ~ 925022409
 	// 925023000 ~ 925023009
 	// 925023600 ~ 925023609
-	public static boolean warpNextMap(final MapleCharacter c, final boolean fromResting) {
+	public static boolean warpNextMap(final GameCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
 		final ChannelServer ch = c.getClient().getChannelServer();
 		if (!fromResting) {
@@ -112,7 +112,7 @@ public class Event_DojoAgent {
 			c.getClient().getSession().write(MaplePacketCreator.Mulung_Pts(10, c.getDojo()));
 		}
 		if (currentmap >= 925023800 && currentmap <= 925023814) {
-			final MapleMap map = ch.getMapFactory(c.getWorld()).getMap(925020003);
+			final GameMap map = ch.getMapFactory(c.getWorld()).getMap(925020003);
 			c.modifyCSPoints(1, 5000, true);
 			c.changeMap(map, map.getPortal(1));
 			return true;
@@ -122,7 +122,7 @@ public class Event_DojoAgent {
 		final int nextmapid = 925020000 + ((thisStage + 1) * 100);
 
 		for (int i = nextmapid; i < nextmapid + 15; i++) {
-			final MapleMap map = ch.getMapFactory(c.getWorld()).getMap(i);
+			final GameMap map = ch.getMapFactory(c.getWorld()).getMap(i);
 			if (map.getCharactersSize() == 0) {
 			clearMap(map, false);
 			c.changeMap(map, map.getPortal(0));
@@ -133,7 +133,7 @@ public class Event_DojoAgent {
 		return false;
 	}
 
-	private static void clearMap(final MapleMap map, final boolean check) {
+	private static void clearMap(final GameMap map, final boolean check) {
 		if (check) {
 			if (map.getCharactersSize() != 0) {
 			return;
@@ -143,7 +143,7 @@ public class Event_DojoAgent {
 		map.resetReactors();
 	}
 
-	private static void spawnMonster(final MapleMap map, final int stage) {
+	private static void spawnMonster(final GameMap map, final int stage) {
 		final int mobid;
 		switch (stage) {
 			case 1:
@@ -250,7 +250,7 @@ public class Event_DojoAgent {
 			TimerManager.getInstance().schedule(new Runnable() {
 				@Override
 				public void run() {
-					map.spawnMonsterWithEffect(MapleLifeFactory.getMonster(mobid), 15, rand == 0 ? point1 : rand == 1 ? point2 : point3);
+					map.spawnMonsterWithEffect(LifeFactory.getMonster(mobid), 15, rand == 0 ? point1 : rand == 1 ? point2 : point3);
 				}
 			}, 3000);
 		}

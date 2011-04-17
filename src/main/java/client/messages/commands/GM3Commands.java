@@ -4,8 +4,8 @@ import java.rmi.RemoteException;
 
 import static client.messages.CommandProcessor.getOptionalIntArg;
 import client.ISkill;
-import client.MapleClient;
-import client.MapleStat;
+import client.GameClient;
+import client.Stat;
 import client.SkillFactory;
 import client.messages.Command;
 import client.messages.CommandDefinition;
@@ -16,17 +16,17 @@ import java.util.Collection;
 import java.util.List;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
-import server.MapleShopFactory;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
+import server.ShopFactory;
+import server.maps.GameMap;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
 
 public class GM3Commands implements Command {
 
     @Override
-    public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         if (splitted[0].equals("-online")) {
             c.getPlayer().dropMessage(6, "Characters connected to channel " + c.getChannelId() + ":");
@@ -56,7 +56,7 @@ public class GM3Commands implements Command {
                 c.getPlayer().gainExp(-c.getPlayer().getExp(), false, false, true);
             }
         } else if (splitted[0].equals("-shop")) {
-            MapleShopFactory shop = MapleShopFactory.getInstance();
+            ShopFactory shop = ShopFactory.getInstance();
             int shopId = Integer.parseInt(splitted[1]);
             if (shop.getShop(shopId) != null) {
                 shop.getShop(shopId).sendShop(c);
@@ -67,10 +67,10 @@ public class GM3Commands implements Command {
             c.getPlayer().changeJob(Integer.parseInt(splitted[1]));
         } else if (splitted[0].equals("-ap")) {
             c.getPlayer().setRemainingAp(getOptionalIntArg(splitted, 1, 1));
-            c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+            c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
         } else if (splitted[0].equals("-sp")) {
             c.getPlayer().setRemainingSp(getOptionalIntArg(splitted, 1, 1));
-            c.getPlayer().updateSingleStat(MapleStat.AVAILABLESP, c.getPlayer().getRemainingSp());
+            c.getPlayer().updateSingleStat(Stat.AVAILABLESP, c.getPlayer().getRemainingSp());
         } else if (splitted[0].equals("-skill")) {
             ISkill skill = SkillFactory.getSkill(Integer.parseInt(splitted[1]));
             byte level = (byte) getOptionalIntArg(splitted, 2, 1);
@@ -82,12 +82,12 @@ public class GM3Commands implements Command {
         } else if (splitted[0].equals("-heal")) {
             c.getPlayer().getStat().setHp(c.getPlayer().getStat().getMaxHp());
             c.getPlayer().getStat().setMp(c.getPlayer().getStat().getMaxMp());
-            c.getPlayer().updateSingleStat(MapleStat.HP, c.getPlayer().getStat().getMaxHp());
-            c.getPlayer().updateSingleStat(MapleStat.MP, c.getPlayer().getStat().getMaxMp());
+            c.getPlayer().updateSingleStat(Stat.HP, c.getPlayer().getStat().getMaxHp());
+            c.getPlayer().updateSingleStat(Stat.MP, c.getPlayer().getStat().getMaxMp());
         } else if (splitted[0].equals("-cleardrops")) {
-            MapleMap map = c.getPlayer().getMap();
-            List<MapleMapObject> items = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
-            for (MapleMapObject i : items) {
+            GameMap map = c.getPlayer().getMap();
+            List<GameMapObject> items = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
+            for (GameMapObject i : items) {
                 map.removeMapObject(i);
                 map.broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, c.getPlayer().getId()));
             }

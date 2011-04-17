@@ -20,23 +20,23 @@
 */
 package tools.packet;
 
-import client.MapleCharacter;
+import client.GameCharacter;
 import client.IItem;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.MerchItemPackage;
-import server.shops.HiredMerchant;
-import server.shops.IMaplePlayerShop;
-import server.shops.MaplePlayerShop;
-import server.shops.MaplePlayerShopItem;
+import server.shops.HiredMerchantStore;
+import server.shops.PlayerShop;
+import server.shops.GenericPlayerStore;
+import server.shops.PlayerShopItem;
 import tools.Pair;
 import org.javastory.io.PacketBuilder;
 
 public class PlayerShopPacket {
 
-    private static final void addAnnounceBox(final PacketBuilder builder, final IMaplePlayerShop shop) {
+    private static final void addAnnounceBox(final PacketBuilder builder, final PlayerShop shop) {
 	builder.writeAsByte(4);
-	builder.writeInt(((MaplePlayerShop) shop).getObjectId());
+	builder.writeInt(((GenericPlayerStore) shop).getObjectId());
 	builder.writeLengthPrefixedString(shop.getDescription());
 	builder.writeAsByte(0);
 	builder.writeAsByte(shop.getItemId() % 10);
@@ -45,7 +45,7 @@ public class PlayerShopPacket {
 	builder.writeAsByte(0);
     }
 
-    public static final GamePacket addCharBox(final MapleCharacter c, final int type) {
+    public static final GamePacket addCharBox(final GameCharacter c, final int type) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -55,7 +55,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket removeCharBox(final MapleCharacter c) {
+    public static final GamePacket removeCharBox(final GameCharacter c) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -74,7 +74,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket sendPlayerShopBox(final MapleCharacter c) {
+    public static final GamePacket sendPlayerShopBox(final GameCharacter c) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -84,7 +84,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket getHiredMerch(final MapleCharacter chr, final HiredMerchant merch, final boolean firstTime) {
+    public static final GamePacket getHiredMerch(final GameCharacter chr, final HiredMerchantStore merch, final boolean firstTime) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -96,7 +96,7 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	builder.writeInt(merch.getItemId());
 	builder.writeLengthPrefixedString("Hired Merchant");
 
-	for (final Pair<Byte, MapleCharacter> storechr : merch.getVisitors()) {
+	for (final Pair<Byte, GameCharacter> storechr : merch.getVisitors()) {
 	    builder.writeByte(storechr.left);
 	    PacketHelper.addCharLook(builder, storechr.right, false);
 	    builder.writeLengthPrefixedString(storechr.right.getName());
@@ -116,7 +116,7 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	builder.writeInt(merch.getMeso()); // meso
 	builder.writeAsByte(merch.getItems().size());
 
-	for (final MaplePlayerShopItem item : merch.getItems()) {
+	for (final PlayerShopItem item : merch.getItems()) {
 	    builder.writeAsShort(item.bundles);
 	    builder.writeAsShort(item.item.getQuantity());
 	    builder.writeInt(item.price);
@@ -125,11 +125,11 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket getPlayerStore(final MapleCharacter chr, final boolean firstTime) {
+    public static final GamePacket getPlayerStore(final GameCharacter chr, final boolean firstTime) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
-	IMaplePlayerShop ips = chr.getPlayerShop();
+	PlayerShop ips = chr.getPlayerShop();
 
 	switch (ips.getShopType()) {
 	    case 2:
@@ -150,10 +150,10 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	}
 builder.writeAsShort(ips.getVisitorSlot(chr));
 
-	PacketHelper.addCharLook(builder, ((MaplePlayerShop) ips).getMCOwner(), false);
+	PacketHelper.addCharLook(builder, ((GenericPlayerStore) ips).getMCOwner(), false);
 	builder.writeLengthPrefixedString(ips.getOwnerName());
 
-	for (final Pair<Byte, MapleCharacter> storechr : ips.getVisitors()) {
+	for (final Pair<Byte, GameCharacter> storechr : ips.getVisitors()) {
 	    builder.writeByte(storechr.left);
 	    PacketHelper.addCharLook(builder, storechr.right, false);
 	    builder.writeLengthPrefixedString(storechr.right.getName());
@@ -163,7 +163,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	builder.writeAsByte(10);
 	builder.writeAsByte(ips.getItems().size());
 
-	for (final MaplePlayerShopItem item : ips.getItems()) {
+	for (final PlayerShopItem item : ips.getItems()) {
 	    builder.writeAsShort(item.bundles);
 	    builder.writeAsShort(item.item.getQuantity());
 	    builder.writeInt(item.price);
@@ -195,7 +195,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket spawnHiredMerchant(final HiredMerchant hm) {
+    public static final GamePacket spawnHiredMerchant(final HiredMerchantStore hm) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.SPAWN_HIRED_MERCHANT.getValue());
@@ -223,7 +223,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket shopItemUpdate(final IMaplePlayerShop shop) {
+    public static final GamePacket shopItemUpdate(final PlayerShop shop) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -233,7 +233,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	}
 	builder.writeAsByte(shop.getItems().size());
 
-	for (final MaplePlayerShopItem item : shop.getItems()) {
+	for (final PlayerShopItem item : shop.getItems()) {
 	    builder.writeAsShort(item.bundles);
 	    builder.writeAsShort(item.item.getQuantity());
 	    builder.writeInt(item.price);
@@ -242,7 +242,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket shopVisitorAdd(final MapleCharacter chr, final int slot) {
+    public static final GamePacket shopVisitorAdd(final GameCharacter chr, final int slot) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -276,7 +276,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket updateHiredMerchant(final HiredMerchant shop) {
+    public static final GamePacket updateHiredMerchant(final HiredMerchantStore shop) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_HIRED_MERCHANT.getValue());

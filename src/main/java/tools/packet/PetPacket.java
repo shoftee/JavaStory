@@ -2,9 +2,9 @@ package tools.packet;
 
 import java.util.List;
 
-import client.MaplePet;
-import client.MapleStat;
-import client.MapleCharacter;
+import client.Pet;
+import client.Stat;
+import client.GameCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.movement.LifeMovementFragment;
@@ -14,7 +14,7 @@ import org.javastory.io.PacketBuilder;
 public class PetPacket {
 	private final static byte[] ITEM_MAGIC = new byte[]{(byte) 0x80, 5};
 
-	public static final GamePacket updatePet(final MaplePet pet, final boolean alive) {
+	public static final GamePacket updatePet(final Pet pet, final boolean alive) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -51,7 +51,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPet(final MapleCharacter chr, final MaplePet pet, final boolean remove, final boolean hunger) {
+	public static final GamePacket showPet(final GameCharacter chr, final Pet pet, final boolean remove, final boolean hunger) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
@@ -129,7 +129,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPetLevelUp(final MapleCharacter chr, final byte index) {
+	public static final GamePacket showPetLevelUp(final GameCharacter chr, final byte index) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
@@ -151,18 +151,18 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket petStatUpdate(final MapleCharacter chr) {
+	public static final GamePacket petStatUpdate(final GameCharacter chr) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
 		builder.writeAsByte(0);
 
 		int mask = 0;
-		mask |= MapleStat.PET.getValue();
+		mask |= Stat.PET.getValue();
 		builder.writeInt(mask);
 
 		byte count = 0;
-		for (final MaplePet pet : chr.getPets()) {
+		for (final Pet pet : chr.getPets()) {
 			if (pet.getSummoned()) {
 				builder.writeInt(pet.getUniqueId());
 				builder.writeZeroBytes(4);
@@ -178,7 +178,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket weirdStatUpdate(final MaplePet pet) {
+	public static final GamePacket weirdStatUpdate(final Pet pet) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());

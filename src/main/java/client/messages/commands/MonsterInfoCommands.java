@@ -2,19 +2,19 @@ package client.messages.commands;
 
 import java.util.Arrays;
 
-import client.MapleClient;
+import client.GameClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
-import server.life.MapleMonster;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
+import server.life.Monster;
+import server.maps.GameMap;
+import server.maps.GameMapObject;
+import server.maps.GameMapObjectType;
 
 public class MonsterInfoCommands implements Command {
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
-		MapleMap map = c.getPlayer().getMap();
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+		GameMap map = c.getPlayer().getMap();
 		double range = Double.POSITIVE_INFINITY;
 		if (splitted.length > 1) {
 			int irange = Integer.parseInt(splitted[1]);
@@ -25,24 +25,24 @@ public class MonsterInfoCommands implements Command {
 			}
 		}
 		if (splitted[0].equals("-killall")) {
-			MapleMonster mob;
-			for (MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER))) {
-				mob = (MapleMonster) monstermo;
+			Monster mob;
+			for (GameMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(GameMapObjectType.MONSTER))) {
+				mob = (Monster) monstermo;
 				map.killMonster(mob, c.getPlayer(), false, false, (byte) 1);
 			}
 		} else if (splitted[0].equals("-killalldrops")) {
-			MapleMonster mob;
-			for (MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER))) {
-				mob = (MapleMonster) monstermo;
+			Monster mob;
+			for (GameMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(GameMapObjectType.MONSTER))) {
+				mob = (Monster) monstermo;
 				map.killMonster(mob, c.getPlayer(), true, false, (byte) 1);
 			}
 		} else if (splitted[0].equals("-killallnospawn")) {
 			map.killAllMonsters(false);
 
 		} else if (splitted[0].equals("-monsterdebug")) {
-			MapleMonster mob;
-			for (MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER))) {
-				mob = (MapleMonster) monstermo;
+			Monster mob;
+			for (GameMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(GameMapObjectType.MONSTER))) {
+				mob = (Monster) monstermo;
 				c.getPlayer().dropMessage(6, "Monster " + mob.toString());
 			}
 		}

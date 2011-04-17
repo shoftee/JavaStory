@@ -1,8 +1,8 @@
 package client.messages;
 
-import client.MapleClient;
+import client.GameClient;
 
 public interface Command {
 	CommandDefinition[] getDefinition();
-	void execute (final MapleClient c, final String []splittedLine) throws Exception, IllegalCommandSyntaxException;
+	void execute (final GameClient c, final String []splittedLine) throws Exception, IllegalCommandSyntaxException;
 }

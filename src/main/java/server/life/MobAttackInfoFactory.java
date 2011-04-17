@@ -23,44 +23,44 @@ package server.life;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import provider.MapleData;
-import provider.MapleDataProvider;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataTool;
+import provider.WzData;
+import provider.WzDataProvider;
+import provider.WzDataProviderFactory;
+import provider.WzDataTool;
 import tools.Pair;
 import tools.StringUtil;
 
 public class MobAttackInfoFactory {
 
     private static final MobAttackInfoFactory instance = new MobAttackInfoFactory();
-    private static final MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Mob.wz"));
+    private static final WzDataProvider dataSource = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Mob.wz"));
     private static Map<Pair<Integer, Integer>, MobAttackInfo> mobAttacks = new HashMap<Pair<Integer, Integer>, MobAttackInfo>();
 
     public static MobAttackInfoFactory getInstance() {
         return instance;
     }
 
-    public MobAttackInfo getMobAttackInfo(MapleMonster mob, int attack) {
+    public MobAttackInfo getMobAttackInfo(Monster mob, int attack) {
         MobAttackInfo ret = mobAttacks.get(new Pair<Integer, Integer>(Integer.valueOf(mob.getId()), Integer.valueOf(attack)));
         if (ret != null) {
             return ret;
         }
 
-        MapleData mobData = dataSource.getData(StringUtil.getLeftPaddedStr(Integer.toString(mob.getId()) + ".img", '0', 11));
+        WzData mobData = dataSource.getData(StringUtil.getLeftPaddedStr(Integer.toString(mob.getId()) + ".img", '0', 11));
         if (mobData != null) {
-            MapleData infoData = mobData.getChildByPath("info/link");
+            WzData infoData = mobData.getChildByPath("info/link");
             if (infoData != null) {
-                String linkedmob = MapleDataTool.getString("info/link", mobData);
+                String linkedmob = WzDataTool.getString("info/link", mobData);
                 mobData = dataSource.getData(StringUtil.getLeftPaddedStr(linkedmob + ".img", '0', 11));
             }
-            final MapleData attackData = mobData.getChildByPath("attack" + (attack + 1) + "/info");
+            final WzData attackData = mobData.getChildByPath("attack" + (attack + 1) + "/info");
             if (attackData != null) {
                 ret = new MobAttackInfo(mob.getId(), attack);
                 ret.setDeadlyAttack(attackData.getChildByPath("deadlyAttack") != null);
-                ret.setMpBurn(MapleDataTool.getInt("mpBurn", attackData, 0));
-                ret.setDiseaseSkill(MapleDataTool.getInt("disease", attackData, 0));
-                ret.setDiseaseLevel(MapleDataTool.getInt("level", attackData, 0));
-                ret.setMpCon(MapleDataTool.getInt("conMP", attackData, 0));
+                ret.setMpBurn(WzDataTool.getInt("mpBurn", attackData, 0));
+                ret.setDiseaseSkill(WzDataTool.getInt("disease", attackData, 0));
+                ret.setDiseaseLevel(WzDataTool.getInt("level", attackData, 0));
+                ret.setMpCon(WzDataTool.getInt("conMP", attackData, 0));
             }
         }
         mobAttacks.put(new Pair<Integer, Integer>(Integer.valueOf(mob.getId()), Integer.valueOf(attack)), ret);

@@ -22,16 +22,16 @@ package server.life;
 
 public class SummonAttackEntry {
 
-    private MapleMonster mob;
+    private Monster mob;
     private int damage;
 
-    public SummonAttackEntry(MapleMonster mob, int damage) {
+    public SummonAttackEntry(Monster mob, int damage) {
 	super();
 	this.mob = mob;
 	this.damage = damage;
     }
 
-    public MapleMonster getMonster() {
+    public Monster getMonster() {
 	return mob;
     }
 

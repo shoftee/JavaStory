@@ -14,8 +14,8 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import client.MapleClient;
-import server.MaplePortal;
+import client.GameClient;
+import server.Portal;
 
 public class PortalScriptManager {
 
@@ -60,7 +60,7 @@ public class PortalScriptManager {
         return script;
     }
 
-    public final void executePortalScript(final MaplePortal portal, final MapleClient c) {
+    public final void executePortalScript(final Portal portal, final GameClient c) {
         final PortalScript script = getPortalScript(portal.getScriptName());
         if (script != null) {
             script.enter(new PortalPlayerInteraction(c, portal));

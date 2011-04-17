@@ -32,10 +32,10 @@ import java.util.Map;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import client.MapleClient;
+import client.GameClient;
 import database.DatabaseConnection;
 import server.maps.ReactorDropEntry;
-import server.maps.MapleReactor;
+import server.maps.Reactor;
 
 public class ReactorScriptManager extends AbstractScriptManager {
 
@@ -46,7 +46,7 @@ public class ReactorScriptManager extends AbstractScriptManager {
 	return instance;
     }
 
-    public final void act(final MapleClient c, final MapleReactor reactor) {
+    public final void act(final GameClient c, final Reactor reactor) {
 	try {
 	    final Invocable iv = getInvocable("reactor/" + reactor.getReactorId() + ".js", c);
 	    final ScriptEngine scriptengine = (ScriptEngine) iv;

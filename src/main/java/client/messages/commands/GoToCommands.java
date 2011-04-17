@@ -5,9 +5,9 @@ import java.util.HashMap;
 import client.messages.CommandDefinition;
 import client.messages.Command;
 import client.messages.IllegalCommandSyntaxException;
-import server.MaplePortal;
-import server.maps.MapleMap;
-import client.MapleClient;
+import server.Portal;
+import server.maps.GameMap;
+import client.GameClient;
 
 public class GoToCommands implements Command {
 	private static final HashMap<String, Integer> gotomaps = new HashMap<String, Integer>();
@@ -62,13 +62,13 @@ public class GoToCommands implements Command {
 	}
 
 	@Override
-	public void execute(MapleClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted.length < 2) {
 			c.getPlayer().dropMessage(6, "Syntax: !goto <mapname>");
 		} else {
 			if (gotomaps.containsKey(splitted[1])) {
-				MapleMap target = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(gotomaps.get(splitted[1]));
-				MaplePortal targetPortal = target.getPortal(0);
+				GameMap target = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(gotomaps.get(splitted[1]));
+				Portal targetPortal = target.getPortal(0);
 				c.getPlayer().changeMap(target, targetPortal);
 			} else {
 				if (splitted[1].equals("locations")) {

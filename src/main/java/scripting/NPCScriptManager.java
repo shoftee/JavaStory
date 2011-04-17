@@ -25,20 +25,20 @@ import java.util.WeakHashMap;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import client.MapleClient;
-import server.quest.MapleQuest;
+import client.GameClient;
+import server.quest.Quest;
 
-public class NPCScriptManager extends AbstractScriptManager {
+public class NpcScriptManager extends AbstractScriptManager {
 
-    private final Map<MapleClient, NPCConversationManager> cms = new WeakHashMap<MapleClient, NPCConversationManager>();
-    private final Map<MapleClient, Invocable> scripts = new WeakHashMap<MapleClient, Invocable>();
-    private static final NPCScriptManager instance = new NPCScriptManager();
+    private final Map<GameClient, NpcConversationManager> cms = new WeakHashMap<GameClient, NpcConversationManager>();
+    private final Map<GameClient, Invocable> scripts = new WeakHashMap<GameClient, Invocable>();
+    private static final NpcScriptManager instance = new NpcScriptManager();
 
-    public static final NPCScriptManager getInstance() {
+    public static final NpcScriptManager getInstance() {
 	return instance;
     }
 
-    public final void start(final MapleClient c, final int npc) {
+    public final void start(final GameClient c, final int npc) {
 	try {
 	    if (!(cms.containsKey(c) && scripts.containsKey(c))) {
 		final Invocable iv = getInvocable("npc/" + npc + ".js", c);
@@ -46,7 +46,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 		if (iv == null) {
 		    return;
 		}
-		final NPCConversationManager cm = new NPCConversationManager(c, npc, -1, (byte) -1);
+		final NpcConversationManager cm = new NpcConversationManager(c, npc, -1, (byte) -1);
 		cms.put(c, cm);
 		scriptengine.put("cm", cm);
 
@@ -67,7 +67,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void action(final MapleClient c, final byte mode, final byte type, final int selection) {
+    public final void action(final GameClient c, final byte mode, final byte type, final int selection) {
 	if (mode != -1) {
 	    try {
 		if (cms.get(c).pendingDisposal) {
@@ -83,8 +83,8 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void startQuest(final MapleClient c, final int npc, final int quest) {
-	if (!MapleQuest.getInstance(quest).canStart(c.getPlayer(), null)) {
+    public final void startQuest(final GameClient c, final int npc, final int quest) {
+	if (!Quest.getInstance(quest).canStart(c.getPlayer(), null)) {
 	    return;
 	}
 	try {
@@ -94,7 +94,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 		if (iv == null) {
 		    return;
 		}
-		final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, (byte) 0);
+		final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 0);
 		cms.put(c, cm);
 		scriptengine.put("qm", cm);
 
@@ -110,7 +110,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void startQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
+    public final void startQuest(final GameClient c, final byte mode, final byte type, final int selection) {
 	try {
 	    if (cms.get(c).pendingDisposal) {
 		dispose(c);
@@ -123,8 +123,8 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void endQuest(final MapleClient c, final int npc, final int quest, final boolean customEnd) {
-	if (!customEnd && !MapleQuest.getInstance(quest).canComplete(c.getPlayer(), null)) {
+    public final void endQuest(final GameClient c, final int npc, final int quest, final boolean customEnd) {
+	if (!customEnd && !Quest.getInstance(quest).canComplete(c.getPlayer(), null)) {
 	    return;
 	}
 	try {
@@ -135,7 +135,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 		    dispose(c);
 		    return;
 		}
-		final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, (byte) 1);
+		final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 1);
 		cms.put(c, cm);
 		scriptengine.put("qm", cm);
 
@@ -151,7 +151,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void endQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
+    public final void endQuest(final GameClient c, final byte mode, final byte type, final int selection) {
 	try {
 	    if (cms.get(c).pendingDisposal) {
 		dispose(c);
@@ -164,8 +164,8 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final void dispose(final MapleClient c) {
-	final NPCConversationManager npccm = cms.get(c);
+    public final void dispose(final GameClient c) {
+	final NpcConversationManager npccm = cms.get(c);
 	if (npccm != null) {
 	    cms.remove(npccm.getC());
 	    scripts.remove(npccm.getC());
@@ -181,7 +181,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 	}
     }
 
-    public final NPCConversationManager getCM(final MapleClient c) {
+    public final NpcConversationManager getCM(final GameClient c) {
 	return cms.get(c);
     }
 }
