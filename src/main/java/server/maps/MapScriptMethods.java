@@ -5,7 +5,7 @@ import java.awt.Point;
 import client.GameClient;
 import client.SkillFactory;
 import handling.ServerPacketOpcode;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.ItemInfoProvider;
 import server.life.LifeFactory;
 import tools.MaplePacketCreator;

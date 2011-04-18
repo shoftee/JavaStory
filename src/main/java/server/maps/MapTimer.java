@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import tools.FileOutputUtil;
+import tools.LogUtil;
 
 // This is here temporary, to test out if the spawn bug is with map object
 
@@ -98,7 +98,7 @@ public class MapTimer {
 	    try {
 		r.run();
 	    } catch (Throwable t) {
-		FileOutputUtil.outputFileError(FileOutputUtil.MapTimer_Log, t);
+		LogUtil.outputFileError(LogUtil.MapTimer_Log, t);
 	    }
 	}
     }

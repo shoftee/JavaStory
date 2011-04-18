@@ -23,7 +23,7 @@ package server.life;
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.maps.GameMap;
 import tools.MaplePacketCreator;
 

@@ -4,7 +4,7 @@ import java.awt.Point;
 
 import client.GameCharacter;
 import org.javastory.server.channel.ChannelServer;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.TimerManager;
 import server.life.LifeFactory;
 import tools.MaplePacketCreator;

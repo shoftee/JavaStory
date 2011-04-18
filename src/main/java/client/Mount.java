@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.io.Serializable;
 
 import database.DatabaseConnection;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
 
 public class Mount implements Serializable {

@@ -48,7 +48,7 @@ import server.ShopItem;
 import server.StatEffect;
 import server.Trade;
 import server.DueyActions;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.life.MobSkill;
 import server.life.SummonAttackEntry;
 import server.maps.Summon;

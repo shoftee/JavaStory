@@ -23,7 +23,7 @@ import client.SkillFactory;
 import client.SkillEntry;
 import client.Stat;
 import server.CarnivalParty;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.ShopFactory;
 import server.Squad;

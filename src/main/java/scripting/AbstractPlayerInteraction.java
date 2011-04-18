@@ -17,7 +17,7 @@ import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.guild.MapleGuild;
 import org.javastory.server.channel.ChannelManager;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
 import server.maps.GameMap;

@@ -12,7 +12,7 @@ import client.PlayerStats;
 import client.SkillFactory;
 import org.javastory.io.PacketFormatException;
 import server.AutobanManager;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import org.javastory.io.PacketReader;

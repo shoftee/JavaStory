@@ -20,7 +20,7 @@ import org.javastory.io.PacketFormatException;
 import server.Trade;
 import server.maps.FieldLimitType;
 import server.shops.PlayerShop;
-import tools.FileOutputUtil;
+import tools.LogUtil;
 import tools.MaplePacketCreator;
 import tools.packet.FamilyPacket;
 import org.javastory.io.PacketReader;
@@ -129,7 +129,7 @@ public class InterServerHandler {
         } catch (RemoteException e) {
             channelServer.pingWorld();
         } catch (Exception e) {
-            FileOutputUtil.outputFileError(FileOutputUtil.Login_Error, e);
+            LogUtil.outputFileError(LogUtil.Login_Error, e);
         }
         c.getSession().write(FamilyPacket.getFamilyData());
         player.sendMacros();

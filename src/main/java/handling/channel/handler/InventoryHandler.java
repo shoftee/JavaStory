@@ -27,7 +27,7 @@ import client.SkillFactory;
 import client.anticheat.CheatingOffense;
 import handling.world.MaplePartyCharacter;
 import org.javastory.io.PacketFormatException;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.RandomRewards;
 import server.ShopFactory;
 import server.ItemInfoProvider;

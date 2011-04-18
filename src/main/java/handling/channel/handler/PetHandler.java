@@ -16,7 +16,7 @@ import client.PetCommand;
 import client.PetDataFactory;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
 import server.movement.LifeMovementFragment;

@@ -50,7 +50,7 @@ import server.StatEffect;
 import server.Storage;
 import server.Trade;
 import server.TimerManager;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.RandomRewards;
 import server.CarnivalParty;
 import server.ItemInfoProvider;

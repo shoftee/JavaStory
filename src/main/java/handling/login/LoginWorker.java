@@ -13,7 +13,7 @@ import client.GameClient;
 import server.TimerManager;
 import tools.packet.LoginPacket;
 import tools.Pair;
-import tools.FileOutputUtil;
+import tools.LogUtil;
 
 public class LoginWorker {
 
@@ -26,7 +26,7 @@ public class LoginWorker {
         persister = new PersistingTask();
         TimerManager.getInstance().register(persister, 1800000); // 30 min once
     }
-
+    
     private static class PersistingTask implements Runnable {
 
         @Override
@@ -34,9 +34,9 @@ public class LoginWorker {
             final StringBuilder sb = new StringBuilder();
             mutex.lock();
             try {
-                final String time = FileOutputUtil.CurrentReadable_Time();
+                final String time = LogUtil.CurrentReadable_Time();
                 for (Pair<Integer, String> logentry : IPLog) {
-                    sb.append("ACCID : ");
+                    sb.append("AccountId : ");
                     sb.append(logentry.getLeft());
                     sb.append(", IP : ");
                     sb.append(logentry.getRight());
@@ -48,7 +48,7 @@ public class LoginWorker {
             } finally {
                 mutex.unlock();
             }
-            FileOutputUtil.log(FileOutputUtil.IP_Log, sb.toString());
+            LogUtil.log(LogUtil.IP_Log, sb.toString());
         }
     }
 

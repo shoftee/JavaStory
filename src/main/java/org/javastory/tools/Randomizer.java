@@ -1,4 +1,4 @@
-package server;
+package org.javastory.tools;
 
 import java.util.Random;
 

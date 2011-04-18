@@ -37,7 +37,7 @@ import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
 import server.Portal;
 import server.StatEffect;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.life.Monster;
 import server.life.Npc;
@@ -48,7 +48,7 @@ import server.life.SpawnPointAreaBoss;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
 import server.life.MonsterInfoProvider;
-import tools.FileOutputUtil;
+import tools.LogUtil;
 import tools.MaplePacketCreator;
 import tools.packet.PetPacket;
 import tools.packet.MobPacket;
@@ -424,14 +424,14 @@ public class GameMap {
             } catch (RemoteException e) {
                 ChannelManager.getInstance(channel).pingWorld();
             }
-            FileOutputUtil.log(FileOutputUtil.Horntail_Log, MapDebug_Log());
+            LogUtil.log(LogUtil.Horntail_Log, MapDebug_Log());
         } else if (mobid == 8820001) {
             try {
                 ChannelManager.getInstance(channel).getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(6, "Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!").getBytes());
             } catch (RemoteException e) {
                 ChannelManager.getInstance(channel).pingWorld();
             }
-            FileOutputUtil.log(FileOutputUtil.Pinkbean_Log, MapDebug_Log());
+            LogUtil.log(LogUtil.Pinkbean_Log, MapDebug_Log());
         } else if (mobid >= 8800003 && mobid <= 8800010) {
             boolean makeZakReal = true;
             final Collection<GameMapObject> objects = getAllMonster();
@@ -485,7 +485,7 @@ public class GameMap {
 
     private String MapDebug_Log() {
         final StringBuilder sb = new StringBuilder("Defeat time : ");
-        sb.append(FileOutputUtil.CurrentReadable_Time());
+        sb.append(LogUtil.CurrentReadable_Time());
 
         sb.append(" | Mapid : ").append(this.mapid);
 

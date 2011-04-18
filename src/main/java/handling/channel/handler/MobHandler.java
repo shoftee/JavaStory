@@ -26,7 +26,7 @@ import java.util.List;
 import client.GameClient;
 import client.GameCharacter;
 import org.javastory.io.PacketFormatException;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.maps.GameMap;
 import server.life.Monster;
 import server.life.MobSkill;

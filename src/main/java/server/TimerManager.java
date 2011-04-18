@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import tools.FileOutputUtil;
+import tools.LogUtil;
 
 public final class TimerManager {
 
@@ -93,7 +93,7 @@ public final class TimerManager {
 	    try {
 		runnable.run();
 	    } catch (Throwable t) {
-		FileOutputUtil.outputFileError(FileOutputUtil.Timer_Log, t);
+		LogUtil.outputFileError(LogUtil.Timer_Log, t);
 	    }
 	}
     }

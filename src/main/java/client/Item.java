@@ -1,7 +1,7 @@
 package client;
 
 import java.io.Serializable;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 
 public class Item implements IItem, Serializable {
 

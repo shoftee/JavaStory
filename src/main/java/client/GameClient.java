@@ -31,7 +31,7 @@ import scripting.NpcScriptManager;
 import server.Trade;
 import server.TimerManager;
 import server.shops.PlayerShop;
-import tools.FileOutputUtil;
+import tools.LogUtil;
 import tools.IPAddressTool;
 import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
@@ -639,7 +639,7 @@ public class GameClient implements Serializable {
                 }
             }
         } catch (final Throwable e) {
-            FileOutputUtil.outputFileError(FileOutputUtil.Acc_Stuck, e);
+            LogUtil.outputFileError(LogUtil.Acc_Stuck, e);
         }
     }
 

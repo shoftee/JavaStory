@@ -17,7 +17,7 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.javastory.io.PacketFormatException;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import org.javastory.cryptography.AesTransform;
 import tools.packet.LoginPacket;
 import org.javastory.io.PacketReader;

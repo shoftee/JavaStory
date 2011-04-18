@@ -35,6 +35,8 @@ public class WzDataProviderFactory {
 	}
 	throw new IllegalArgumentException("Can't create data provider for input " + in);
     }
+    
+    
 
     public static WzDataProvider getDataProvider(Object in) {
 	return getWZ(in, false);

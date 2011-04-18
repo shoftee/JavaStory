@@ -5,198 +5,203 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.javastory.server.maker.ItemRecipe;
+import org.javastory.server.maker.ItemRecipeBuilder;
+import org.javastory.server.maker.RandomRewardFactory;
+import org.javastory.server.maker.RandomRewardList;
 
 import provider.WzData;
 import provider.WzDataProviderFactory;
 import provider.WzDataTool;
-import tools.Pair;
 
-public class ItemMakerFactory {
+public final class ItemMakerFactory {
 
     private final static ItemMakerFactory instance = new ItemMakerFactory();
-    protected Map<Integer, ItemMakerCreateEntry> createCache = new HashMap<Integer, ItemMakerCreateEntry>();
-    protected Map<Integer, GemCreateEntry> gemCache = new HashMap<Integer, GemCreateEntry>();
+    protected Map<Integer, MakerItemInfo> itemCache = new HashMap<Integer, MakerItemInfo>();
+    protected Map<Integer, GemInfo> gemCache = new HashMap<Integer, GemInfo>();
 
     public static ItemMakerFactory getInstance() {
-	// DO ItemMakerFactory.getInstance() on ChannelServer startup.
-	return instance;
+        // DO ItemMakerFactory.getInstance() on ChannelServer startup.
+        return instance;
     }
 
-    protected ItemMakerFactory() {
-	System.out.println(":: Loading ItemMakerFactory ::");
-	// 0 = Item upgrade crystals
-	// 1 / 2/ 4/ 8 = Item creation
+    private ItemMakerFactory() {
+        System.out.println(":: Loading ItemMakerFactory ::");
+        // 0 = Item upgrade crystals
+        // 1 / 2/ 4/ 8 = Item creation
 
-	final WzData info = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz")).getData("ItemMake.img");
+        final WzData info = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
+                "/Etc.wz")).getData("ItemMake.img");
 
-	byte totalupgrades, reqMakerLevel;
-	int reqLevel, cost, quantity, stimulator;
-	GemCreateEntry ret;
-	ItemMakerCreateEntry imt;
+        for (WzData directory : info.getChildren()) {
+            int type = Integer.parseInt(directory.getName());
+            switch (type) {
+                case 0: { // Caching of gem
 
-	for (WzData dataType : info.getChildren()) {
-	    int type = Integer.parseInt(dataType.getName());
-	    switch (type) {
-		case 0: { // Caching of gem
-		    for (WzData itemFolder : dataType.getChildren()) {
-			reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
-			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
-			cost = WzDataTool.getInt("meso", itemFolder, 0);
-			quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
-//			totalupgrades = MapleDataTool.getInt("tuc", itemFolder, 0); // Gem is always 0
-
-			ret = new GemCreateEntry(cost, reqLevel, reqMakerLevel, quantity);
-
-			for (WzData rewardNRecipe : itemFolder.getChildren()) {
-			    for (WzData ind : rewardNRecipe.getChildren()) {
-				if (rewardNRecipe.getName().equals("randomReward")) {
-				    ret.addRandomReward(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("prob", ind, 0));
-// MapleDataTool.getInt("itemNum", ind, 0)
-				} else if (rewardNRecipe.getName().equals("recipe")) {
-				    ret.addReqRecipe(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
-				}
-			    }
-			}
-			gemCache.put(Integer.parseInt(itemFolder.getName()), ret);
-		    }
-		    break;
-		}
-		case 1: // Warrior
-		case 2: // Magician
-		case 4: // Bowman
-		case 8: // Thief
-		case 16: { // Pirate
-		    for (WzData itemFolder : dataType.getChildren()) {
-			reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
-			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
-			cost = WzDataTool.getInt("meso", itemFolder, 0);
-			quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
-			totalupgrades = (byte) WzDataTool.getInt("tuc", itemFolder, 0);
-			stimulator = WzDataTool.getInt("catalyst", itemFolder, 0);
-
-			imt = new ItemMakerCreateEntry(cost, reqLevel, reqMakerLevel, quantity, totalupgrades, stimulator);
-
-			for (WzData Recipe : itemFolder.getChildren()) {
-			    for (WzData ind : Recipe.getChildren()) {
-				if (Recipe.getName().equals("recipe")) {
-				    imt.addReqItem(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
-				}
-			    }
-			}
-			createCache.put(Integer.parseInt(itemFolder.getName()), imt);
-		    }
-		    break;
-		}
-	    }
-	}
+                    break;
+                }
+                case 1: // Warrior
+                case 2: // Magician
+                case 4: // Bowman
+                case 8: // Thief
+                case 16: { // Pirate
+                    cacheItems(directory);
+                    break;
+                }
+            }
+        }
     }
 
-    public GemCreateEntry getGemInfo(int itemid) {
-	return gemCache.get(itemid);
+    private void cacheGems(WzData directory) {
+        byte totalupgrades, reqMakerLevel;
+        int reqLevel, cost, quantity, stimulator;
+        for (WzData gemDirectory : directory.getChildren()) {
+            reqLevel = WzDataTool.getInt("reqLevel", gemDirectory, 0);
+            reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", gemDirectory, 0);
+            cost = WzDataTool.getInt("meso", gemDirectory, 0);
+            quantity = WzDataTool.getInt("itemNum", gemDirectory, 0);
+
+            RandomRewardList rewards = new RandomRewardList();
+            ItemRecipeBuilder recipe = new ItemRecipeBuilder();
+            for (WzData gemInfo : gemDirectory.getChildren()) {
+                for (WzData ind : gemInfo.getChildren()) {
+                    if (gemInfo.getName().equals("randomReward")) {
+                        rewards.addEntry(WzDataTool.getInt("prob", ind, 0), WzDataTool.getInt("item", ind, 0));
+                    } else if (gemInfo.getName().equals("recipe")) {
+                        recipe.addEntry(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
+                    }
+                }
+            }
+            gemCache.put(Integer.parseInt(gemDirectory.getName()),
+                         new GemInfo(rewards.build(), recipe.build(), cost, reqLevel, reqMakerLevel, quantity));
+        }
     }
 
-    public ItemMakerCreateEntry getCreateInfo(int itemid) {
-	return createCache.get(itemid);
+    private void cacheItems(WzData directory) {
+        byte totalupgrades, reqMakerLevel;
+        int reqLevel, cost, quantity, stimulator;
+        for (WzData itemFolder : directory.getChildren()) {
+            reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
+            reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
+            cost = WzDataTool.getInt("meso", itemFolder, 0);
+            quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
+            totalupgrades = (byte) WzDataTool.getInt("tuc", itemFolder, 0);
+            stimulator = WzDataTool.getInt("catalyst", itemFolder, 0);
+
+            ItemRecipeBuilder recipe = new ItemRecipeBuilder();
+
+            for (WzData recipeFolder : itemFolder.getChildren()) {
+                for (WzData ind : recipeFolder.getChildren()) {
+                    if (recipeFolder.getName().equals("recipe")) {
+                        recipe.addEntry(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
+                    }
+                }
+            }
+            itemCache.put(Integer.parseInt(itemFolder.getName()), 
+                            new MakerItemInfo(recipe.build(), cost, reqLevel, reqMakerLevel, quantity, totalupgrades, stimulator));
+        }
     }
 
-    public static class GemCreateEntry {
-
-	private int reqLevel, reqMakerLevel;
-	private int cost, quantity;
-	private List<Pair<Integer, Integer>> randomReward = new ArrayList<Pair<Integer, Integer>>();
-	private List<Pair<Integer, Integer>> reqRecipe = new ArrayList<Pair<Integer, Integer>>();
-
-	public GemCreateEntry(int cost, int reqLevel, int reqMakerLevel, int quantity) {
-	    this.cost = cost;
-	    this.reqLevel = reqLevel;
-	    this.reqMakerLevel = reqMakerLevel;
-	    this.quantity = quantity;
-	}
-
-	public int getRewardAmount() {
-	    return quantity;
-	}
-
-	public List<Pair<Integer, Integer>> getRandomReward() {
-	    return randomReward;
-	}
-
-	public List<Pair<Integer, Integer>> getReqRecipes() {
-	    return reqRecipe;
-	}
-
-	public int getReqLevel() {
-	    return reqLevel;
-	}
-
-	public int getReqSkillLevel() {
-	    return reqMakerLevel;
-	}
-
-	public int getCost() {
-	    return cost;
-	}
-
-	protected void addRandomReward(int itemId, int prob) {
-	    randomReward.add(new Pair<Integer, Integer>(itemId, prob));
-	}
-
-	protected void addReqRecipe(int itemId, int count) {
-	    reqRecipe.add(new Pair<Integer, Integer>(itemId, count));
-	}
+    public GemInfo getGemInfo(int itemid) {
+        return gemCache.get(itemid);
     }
 
-    public static class ItemMakerCreateEntry {
+    public MakerItemInfo getItemInfo(int itemid) {
+        return itemCache.get(itemid);
+    }
 
-	private int reqLevel;
-	private int cost, quantity, stimulator;
-	private byte tuc, reqMakerLevel;
-	private List<Pair<Integer, Integer>> reqItems = new ArrayList<Pair<Integer, Integer>>(); // itemId / amount
-	private List<Integer> reqEquips = new ArrayList<Integer>();
+    public static class GemInfo {
 
-	public ItemMakerCreateEntry(int cost, int reqLevel, byte reqMakerLevel, int quantity, byte tuc, int stimulator) {
-	    this.cost = cost;
-	    this.tuc = tuc;
-	    this.reqLevel = reqLevel;
-	    this.reqMakerLevel = reqMakerLevel;
-	    this.quantity = quantity;
-	    this.stimulator = stimulator;
-	}
+        private int reqLevel, reqMakerLevel;
+        private int cost, quantity;
+        private RandomRewardFactory rewards;
+        private ItemRecipe recipe;
 
-	public byte getTUC() {
-	    return tuc;
-	}
+        public GemInfo(RandomRewardFactory rewards, ItemRecipe recipe,
+                int cost, int reqLevel, int reqMakerLevel, int quantity) {
+            this.rewards = rewards;
+            this.recipe = recipe;
 
-	public int getRewardAmount() {
-	    return quantity;
-	}
+            this.cost = cost;
+            this.reqLevel = reqLevel;
+            this.reqMakerLevel = reqMakerLevel;
+            this.quantity = quantity;
+        }
 
-	public List<Pair<Integer, Integer>> getReqItems() {
-	    return reqItems;
-	}
+        public int getManufacturedQuantity() {
+            return quantity;
+        }
 
-	public List<Integer> getReqEquips() {
-	    return reqEquips;
-	}
+        public ItemRecipe getRecipe() {
+            return recipe;
+        }
 
-	public int getReqLevel() {
-	    return reqLevel;
-	}
+        public int getRequiredLevel() {
+            return reqLevel;
+        }
 
-	public byte getReqSkillLevel() {
-	    return reqMakerLevel;
-	}
+        public int getRequiredSkillLevel() {
+            return reqMakerLevel;
+        }
 
-	public int getCost() {
-	    return cost;
-	}
+        public int getCost() {
+            return cost;
+        }
 
-	public int getStimulator() {
-	    return stimulator;
-	}
+        public int chooseRandomReward() {
+            return rewards.getRandomItem();
+        }
+    }
 
-	protected void addReqItem(int itemId, int amount) {
-	    reqItems.add(new Pair<Integer, Integer>(itemId, amount));
-	}
+    public static class MakerItemInfo {
+
+        private int reqLevel;
+        private int cost, quantity, stimulator;
+        private byte tuc, reqMakerLevel;
+        private ItemRecipe recipe;
+        private List<Integer> reqEquips = new ArrayList<Integer>();
+
+        public MakerItemInfo(ItemRecipe recipe, int cost, int reqLevel, byte reqMakerLevel, int quantity, byte tuc, int stimulator) {
+            this.recipe = recipe;
+
+            this.cost = cost;
+            this.tuc = tuc;
+            this.reqLevel = reqLevel;
+            this.reqMakerLevel = reqMakerLevel;
+            this.quantity = quantity;
+            this.stimulator = stimulator;
+        }
+
+        public byte getTUC() {
+            return tuc;
+        }
+
+        public int getManufacturedQuantity() {
+            return quantity;
+        }
+
+        public ItemRecipe getRecipe() {
+            return this.recipe;
+        }
+
+        public List<Integer> getReqEquips() {
+            return reqEquips;
+        }
+
+        public int getRequiredLevel() {
+            return reqLevel;
+        }
+
+        public byte getRequiredSkillLevel() {
+            return reqMakerLevel;
+        }
+
+        public int getCost() {
+            return cost;
+        }
+
+        public int getStimulator() {
+            return stimulator;
+        }
     }
 }

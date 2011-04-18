@@ -36,7 +36,7 @@ import provider.WzData;
 import provider.WzDataTool;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
 
 public class QuestAction implements Serializable {

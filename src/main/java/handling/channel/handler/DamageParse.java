@@ -20,7 +20,7 @@ import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 import server.StatEffect;
 import server.TimerManager;
-import server.Randomizer;
+import org.javastory.tools.Randomizer;
 import server.life.Element;
 import server.life.Monster;
 import server.life.MonsterStats;
