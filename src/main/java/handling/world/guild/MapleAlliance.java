@@ -35,7 +35,7 @@ import handling.GamePacket;
 
 public class MapleAlliance implements java.io.Serializable {
 
-    private List<MapleGuild> guilds = new ArrayList<MapleGuild>();
+    private List<Guild> guilds = new ArrayList<Guild>();
     private String rankTitles[] = new String[5];
     private int guildId[] = new int[6];
     private String name;
@@ -43,7 +43,7 @@ public class MapleAlliance implements java.io.Serializable {
     private int id;
 
     public MapleAlliance(GameClient c, int id) {
-	guilds = new ArrayList<MapleGuild>();
+	guilds = new ArrayList<Guild>();
 	this.id = id;
 
 	try {
@@ -79,7 +79,7 @@ public class MapleAlliance implements java.io.Serializable {
 			c.getChannelServer().pingWorld();
 		    }
 		} else {
-		    guilds.add(new MapleGuild(guildId[i]));
+		    guilds.add(new Guild(guildId[i]));
 		}
 	    } else {
 		guilds.add(null);
@@ -190,7 +190,7 @@ public class MapleAlliance implements java.io.Serializable {
 	this.name = namee;
     }
 
-    public List<MapleGuild> getGuilds() {
+    public List<Guild> getGuilds() {
 	return guilds;
     }
 

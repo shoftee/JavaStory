@@ -27,8 +27,8 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
-import handling.world.guild.MapleGuild;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.Guild;
+import handling.world.guild.GuildCharacter;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLoginInterface;
@@ -43,11 +43,11 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     private Map<Integer, ServerStatus> channelStatus;
     private final Map<Integer, ChannelWorldInterface> channels = new LinkedHashMap<Integer, ChannelWorldInterface>();
     private final List<LoginWorldInterface> logins = new LinkedList<LoginWorldInterface>();
-    private final Map<Integer, MapleParty> parties = new HashMap<Integer, MapleParty>();
+    private final Map<Integer, Party> parties = new HashMap<Integer, Party>();
     private final AtomicInteger runningPartyId = new AtomicInteger();
-    private final Map<Integer, MapleMessenger> messengers = new HashMap<Integer, MapleMessenger>();
+    private final Map<Integer, Messenger> messengers = new HashMap<Integer, Messenger>();
     private final AtomicInteger runningMessengerId = new AtomicInteger();
-    private final Map<Integer, MapleGuild> guilds = new LinkedHashMap<Integer, MapleGuild>();
+    private final Map<Integer, Guild> guilds = new LinkedHashMap<Integer, Guild>();
     private final PlayerBuffStorage buffStorage = new PlayerBuffStorage();
     private final Lock Guild_Mutex = new ReentrantLock();
 
@@ -177,18 +177,18 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         return highest;
     }
 
-    public MapleParty createParty(final MaplePartyCharacter chrfor) {
+    public Party createParty(final PartyCharacter chrfor) {
         final int partyid = runningPartyId.getAndIncrement();
-        final MapleParty party = new MapleParty(partyid, chrfor);
+        final Party party = new Party(partyid, chrfor);
         parties.put(party.getId(), party);
         return party;
     }
 
-    public MapleParty getParty(final int partyid) {
+    public Party getParty(final int partyid) {
         return parties.get(partyid);
     }
 
-    public MapleParty disbandParty(final int partyid) {
+    public Party disbandParty(final int partyid) {
         return parties.remove(partyid);
     }
 
@@ -234,10 +234,10 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public final int createGuild(final int leaderId, final String name) {
-        return MapleGuild.createGuild(leaderId, name);
+        return Guild.createGuild(leaderId, name);
     }
 
-    public final MapleGuild getGuild(final int id, final MapleGuildCharacter mgc) {
+    public final Guild getGuild(final int id, final GuildCharacter mgc) {
         Guild_Mutex.lock();
         try {
             if (guilds.get(id) != null) {
@@ -246,7 +246,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
             if (mgc == null) {
                 return null;
             }
-            final MapleGuild g = new MapleGuild(mgc);
+            final Guild g = new Guild(mgc);
             if (g.getId() == -1) { //failed to load
                 return null;
             }
@@ -257,76 +257,76 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
     }
 
-    public void setGuildMemberOnline(final MapleGuildCharacter mgc, final boolean bOnline, final int channel) {
+    public void setGuildMemberOnline(final GuildCharacter mgc, final boolean bOnline, final int channel) {
         getGuild(mgc.getGuildId(), mgc).setOnline(mgc.getId(), bOnline, channel);
     }
 
-    public final int addGuildMember(final MapleGuildCharacter mgc) {
-        final MapleGuild g = guilds.get(mgc.getGuildId());
+    public final int addGuildMember(final GuildCharacter mgc) {
+        final Guild g = guilds.get(mgc.getGuildId());
         if (g != null) {
             return g.addGuildMember(mgc);
         }
         return 0;
     }
 
-    public void leaveGuild(final MapleGuildCharacter mgc) {
-        final MapleGuild g = guilds.get(mgc.getGuildId());
+    public void leaveGuild(final GuildCharacter mgc) {
+        final Guild g = guilds.get(mgc.getGuildId());
         if (g != null) {
             g.leaveGuild(mgc);
         }
     }
 
     public void allianceChat(final int gid, final String name, final int cid, final String msg) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.allianceChat(name, cid, msg);
         }
     }
 
     public void guildChat(final int gid, final String name, final int cid, final String msg) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.guildChat(name, cid, msg);
         }
     }
 
     public void changeRank(final int gid, final int cid, final int newRank) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.changeRank(cid, newRank);
         }
     }
 
-    public void expelMember(final MapleGuildCharacter initiator, final String name, final int cid) {
-        final MapleGuild g = guilds.get(initiator.getGuildId());
+    public void expelMember(final GuildCharacter initiator, final String name, final int cid) {
+        final Guild g = guilds.get(initiator.getGuildId());
         if (g != null) {
             g.expelMember(initiator, name, cid);
         }
     }
 
     public void setGuildNotice(final int gid, final String notice) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.setGuildNotice(notice);
         }
     }
 
-    public void memberLevelJobUpdate(final MapleGuildCharacter mgc) {
-        final MapleGuild g = guilds.get(mgc.getGuildId());
+    public void memberLevelJobUpdate(final GuildCharacter mgc) {
+        final Guild g = guilds.get(mgc.getGuildId());
         if (g != null) {
             g.memberLevelJobUpdate(mgc);
         }
     }
 
     public void changeRankTitle(final int gid, final String[] ranks) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.changeRankTitle(ranks);
         }
     }
 
     public void setGuildEmblem(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.setGuildEmblem(bg, bgcolor, logo, logocolor);
         }
@@ -343,7 +343,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public final boolean increaseGuildCapacity(final int gid) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             return g.increaseCapacity();
         }
@@ -351,20 +351,20 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public void gainGP(final int gid, final int amount) {
-        final MapleGuild g = guilds.get(gid);
+        final Guild g = guilds.get(gid);
         if (g != null) {
             g.gainGP(amount);
         }
     }
 
-    public final MapleMessenger createMessenger(final MapleMessengerCharacter chrfor) {
+    public final Messenger createMessenger(final MessengerCharacter chrfor) {
         final int messengerid = runningMessengerId.getAndIncrement();
-        final MapleMessenger messenger = new MapleMessenger(messengerid, chrfor);
+        final Messenger messenger = new Messenger(messengerid, chrfor);
         messengers.put(messenger.getId(), messenger);
         return messenger;
     }
 
-    public final MapleMessenger getMessenger(final int messengerid) {
+    public final Messenger getMessenger(final int messengerid) {
         return messengers.get(messengerid);
     }
 

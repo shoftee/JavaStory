@@ -30,7 +30,7 @@ public class MapleGuildSummary implements java.io.Serializable {
     private byte logoColor;
     private int allianceid;
 
-    public MapleGuildSummary(MapleGuild g) {
+    public MapleGuildSummary(Guild g) {
 	name = g.getName();
 	logoBG = (short) g.getLogoBG();
 	logoBGColor = (byte) g.getLogoBGColor();

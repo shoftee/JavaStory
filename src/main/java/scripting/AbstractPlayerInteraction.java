@@ -13,9 +13,9 @@ import client.GameClient;
 import client.InventoryType;
 import client.Pet;
 import client.QuestStatus;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
-import handling.world.guild.MapleGuild;
+import handling.world.Party;
+import handling.world.PartyCharacter;
+import handling.world.guild.Guild;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
@@ -79,7 +79,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void playPortalSE() {
-        c.getSession().write(MaplePacketCreator.showOwnBuffEffect(0, 7));
+        c.write(MaplePacketCreator.showOwnBuffEffect(0, 7));
     }
 
     private GameMap getWarpMap(final int map) {
@@ -288,7 +288,7 @@ public class AbstractPlayerInteraction {
         } else {
             InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, -quantity, true, false);
         }
-        c.getSession().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
+        c.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
     }
 
     public final void changeMusic(final String songName) {
@@ -308,7 +308,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void playerMessage(final int type, final String message) {
-        c.getSession().write(MaplePacketCreator.serverNotice(type, message));
+        c.write(MaplePacketCreator.serverNotice(type, message));
     }
 
     public final void mapMessage(final int type, final String message) {
@@ -321,7 +321,7 @@ public class AbstractPlayerInteraction {
         }
     }
 
-    public final MapleGuild getGuild() {
+    public final Guild getGuild() {
         try {
             return c.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId(), null);
         } catch (final RemoteException ex) {
@@ -330,7 +330,7 @@ public class AbstractPlayerInteraction {
         return null;
     }
 
-    public final MapleParty getParty() {
+    public final Party getParty() {
         return c.getPlayer().getParty();
     }
 
@@ -339,7 +339,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final boolean isLeader() {
-        return getParty().getLeader().equals(new MaplePartyCharacter(c.getPlayer()));
+        return getParty().getLeader().equals(new PartyCharacter(c.getPlayer()));
     }
 
     public final boolean isAllPartyMembersAllowedJob(final int job) {
@@ -367,7 +367,7 @@ public class AbstractPlayerInteraction {
     public final void warpParty(final int mapId) {
         final int cMap = c.getPlayer().getMapId();
         final GameMap target = getMap(mapId);
-        for (final MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
+        for (final PartyCharacter chr : getPlayer().getParty().getMembers()) {
             final GameCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if (curChar != null && curChar.getMapId() == cMap) {
                 curChar.changeMap(target, target.getPortal(0));
@@ -382,7 +382,7 @@ public class AbstractPlayerInteraction {
             } else {
                 InventoryManipulator.removeById(chr.getClient(), GameConstants.getInventoryType(id), id, -quantity, true, false);
             }
-            chr.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
+            chr.getClient().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
         }
     }
 
@@ -397,14 +397,14 @@ public class AbstractPlayerInteraction {
             final int possesed = chr.getInventory(GameConstants.getInventoryType(id)).countById(id);
             if (possesed > 0) {
                 InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possesed, true, false);
-                chr.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, (short) -possesed, true));
+                chr.getClient().write(MaplePacketCreator.getShowItemGain(id, (short) -possesed, true));
             }
         }
     }
 
     public final void useItem(final int id) {
         ItemInfoProvider.getInstance().getItemEffect(id).applyTo(c.getPlayer());
-        c.getSession().write(UIPacket.getStatusMsg(id));
+        c.write(UIPacket.getStatusMsg(id));
     }
 
     public final void cancelItem(final int id) {
@@ -419,14 +419,14 @@ public class AbstractPlayerInteraction {
         final int possessed = c.getPlayer().getInventory(GameConstants.getInventoryType(id)).countById(id);
         if (possessed > 0) {
             InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possessed, true, false);
-            c.getSession().write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
+            c.write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
         }
     }
 
     public final void gainCloseness(final int closeness, final int index) {
         if (getPlayer().getPet(index) != null) {
             getPlayer().getPet(index).setCloseness(getPlayer().getPet(index).getCloseness() + closeness);
-            getClient().getSession().write(PetPacket.updatePet(getPlayer().getPet(index), true));
+            getClient().write(PetPacket.updatePet(getPlayer().getPet(index), true));
         }
     }
 
@@ -434,7 +434,7 @@ public class AbstractPlayerInteraction {
         for (final Pet pet : getPlayer().getPets()) {
             if (pet != null) {
                 pet.setCloseness(pet.getCloseness() + closeness);
-                getClient().getSession().write(PetPacket.updatePet(pet, true));
+                getClient().write(PetPacket.updatePet(pet, true));
             }
         }
     }
@@ -483,9 +483,9 @@ public class AbstractPlayerInteraction {
     }
 
     public final void dojo_getUp() {
-        c.getSession().write(MaplePacketCreator.Mulung_DojoUp());
-        c.getSession().write(MaplePacketCreator.Mulung_DojoUp2());
-        c.getSession().write(MaplePacketCreator.instantMapWarp((byte) 6));
+        c.write(MaplePacketCreator.Mulung_DojoUp());
+        c.write(MaplePacketCreator.Mulung_DojoUp2());
+        c.write(MaplePacketCreator.instantMapWarp((byte) 6));
     }
 
     public final boolean dojoAgent_NextMap(final boolean dojo, final boolean fromresting) {
@@ -516,27 +516,27 @@ public class AbstractPlayerInteraction {
     }
 
     public final void summonMsg(final String msg) {
-        c.getSession().write(UIPacket.summonMessage(msg));
+        c.write(UIPacket.summonMessage(msg));
     }
 
     public final void summonMsg(final int type) {
-        c.getSession().write(UIPacket.summonMessage(type));
+        c.write(UIPacket.summonMessage(type));
     }
 
     public final void showInstruction(final String msg, final int width, final int height) {
-        c.getSession().write(MaplePacketCreator.sendHint(msg, width, height));
+        c.write(MaplePacketCreator.sendHint(msg, width, height));
     }
 
     public final void playerSummonHint(final boolean summon) {
-        c.getSession().write(UIPacket.summonHelper(summon));
+        c.write(UIPacket.summonHelper(summon));
     }
 
     public final void playerSummonMessage(final int type) {
-        c.getSession().write(UIPacket.summonMessage(type));
+        c.write(UIPacket.summonMessage(type));
     }
 
     public final void playerSummonMessage(final String message) {
-        c.getSession().write(UIPacket.summonMessage(message));
+        c.write(UIPacket.summonMessage(message));
     }
 
     public final String getInfoQuest(final int id) {
@@ -548,31 +548,31 @@ public class AbstractPlayerInteraction {
     }
 
     public final void Aran_Start() {
-        c.getSession().write(UIPacket.Aran_Start());
+        c.write(UIPacket.Aran_Start());
     }
 
     public final void AranTutInstructionalBubble(final String data) {
-        c.getSession().write(UIPacket.AranTutInstructionalBalloon(data));
+        c.write(UIPacket.AranTutInstructionalBalloon(data));
     }
 
     public final void EvanTutInstructionalBubble(final String data) {
-        c.getSession().write(UIPacket.EvanTutInstructionalBalloon(data));
+        c.write(UIPacket.EvanTutInstructionalBalloon(data));
     }
 
     public final void EvanDragonEyes() {
-        c.getSession().write(UIPacket.EvanDragonEyes());
+        c.write(UIPacket.EvanDragonEyes());
     }
 
     public final void ShowWZEffect(final String data) {
-        c.getSession().write(UIPacket.ShowWZEffect(data));
+        c.write(UIPacket.ShowWZEffect(data));
     }
 
     public final void EarnTitleMsg(final String data) {
-        c.getSession().write(UIPacket.EarnTitleMsg(data));
+        c.write(UIPacket.EarnTitleMsg(data));
     }
 
     public final void MovieClipIntroUI(final boolean enabled) {
-        c.getSession().write(UIPacket.IntroDisableUI(enabled));
-        c.getSession().write(UIPacket.IntroLock(enabled));
+        c.write(UIPacket.IntroDisableUI(enabled));
+        c.write(UIPacket.IntroLock(enabled));
     }
 }

@@ -26,9 +26,9 @@ import tools.StringUtil;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketBuilder;
 
-public class MapleGuild implements java.io.Serializable {
+public class Guild implements java.io.Serializable {
     public static long serialVersionUID = 6322150443228168192L;
-    private final List<MapleGuildCharacter> members;
+    private final List<GuildCharacter> members;
     private final String rankTitles[] = new String[5]; // 1 = master, 2 = jr, 5 = lowest member
     private String name, notice;
     private int id, gp, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature;
@@ -38,10 +38,10 @@ public class MapleGuild implements java.io.Serializable {
     private MapleAlliance ally;
     private Lock lock = new ReentrantLock();
 
-    public MapleGuild(final MapleGuildCharacter initiator) {
+    public Guild(final GuildCharacter initiator) {
         super();
         int guildid = initiator.getGuildId();
-        members = new CopyOnWriteArrayList<MapleGuildCharacter>();
+        members = new CopyOnWriteArrayList<GuildCharacter>();
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" + guildid);
@@ -81,7 +81,7 @@ public class MapleGuild implements java.io.Serializable {
                 return;
             }
             do {
-                members.add(new MapleGuildCharacter(rs.getInt("id"), rs.getShort("level"), rs.getString("name"), (byte) -1, rs.getInt("job"), rs.getInt("guildrank"), guildid, false));
+                members.add(new GuildCharacter(rs.getInt("id"), rs.getShort("level"), rs.getString("name"), (byte) -1, rs.getInt("job"), rs.getInt("guildrank"), guildid, false));
             } while (rs.next());
             setOnline(initiator.getId(), true, initiator.getChannel());
             rs.close();
@@ -92,8 +92,8 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public MapleGuild(final int guildid) { // retrieves the guild from database, with guildid
-        members = new CopyOnWriteArrayList<MapleGuildCharacter>();
+    public Guild(final int guildid) { // retrieves the guild from database, with guildid
+        members = new CopyOnWriteArrayList<GuildCharacter>();
         try { // first read the guild information
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" + guildid);
@@ -316,7 +316,7 @@ public class MapleGuild implements java.io.Serializable {
                 l.clear();
             }
         }
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             if (!mgc.isOnline()) {
                 continue;
             }
@@ -331,12 +331,12 @@ public class MapleGuild implements java.io.Serializable {
     }
 
     public final void guildMessage(final GamePacket serverNotice) {
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             for (final ChannelServer cs : ChannelManager.getAllInstances()) {
                 if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
                     final GameCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
                     if (serverNotice != null) {
-                        chr.getClient().getSession().write(serverNotice);
+                        chr.getClient().write(serverNotice);
                     } else {
                         chr.getMap().removePlayer(chr);
                         chr.getMap().addPlayer(chr);
@@ -348,7 +348,7 @@ public class MapleGuild implements java.io.Serializable {
 
     public final void setOnline(final int cid, final boolean online, final int channel) {
         boolean bBroadcast = true;
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             if (mgc.getId() == cid) {
                 if (mgc.isOnline() && online) {
                     bBroadcast = false;
@@ -410,7 +410,7 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final int addGuildMember(final MapleGuildCharacter mgc) {
+    public final int addGuildMember(final GuildCharacter mgc) {
         // first of all, insert it into the members keeping alphabetical order of lowest ranks ;)
         lock.lock();
         try {
@@ -431,7 +431,7 @@ public class MapleGuild implements java.io.Serializable {
         return 1;
     }
 
-    public final void leaveGuild(final MapleGuildCharacter mgc) {
+    public final void leaveGuild(final GuildCharacter mgc) {
         broadcast(MaplePacketCreator.memberLeft(mgc, false));
         lock.lock();
         try {
@@ -442,10 +442,10 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final void expelMember(final MapleGuildCharacter initiator, final String name, final int cid) {
-        final Iterator<MapleGuildCharacter> itr = members.iterator();
+    public final void expelMember(final GuildCharacter initiator, final String name, final int cid) {
+        final Iterator<GuildCharacter> itr = members.iterator();
         while (itr.hasNext()) {
-            final MapleGuildCharacter mgc = itr.next();
+            final GuildCharacter mgc = itr.next();
             if (mgc.getId() == cid && initiator.getGuildRank() < mgc.getGuildRank()) {
                 broadcast(MaplePacketCreator.memberLeft(mgc, true));
                 bDirty = true;
@@ -477,7 +477,7 @@ public class MapleGuild implements java.io.Serializable {
     }
 
     public final void changeRank(final int cid, final int newRank) {
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             if (cid == mgc.getId()) {
                 try {
                     if (mgc.isOnline()) {
@@ -547,8 +547,8 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final void memberLevelJobUpdate(final MapleGuildCharacter mgc) {
-        for (final MapleGuildCharacter member : members) {
+    public final void memberLevelJobUpdate(final GuildCharacter mgc) {
+        for (final GuildCharacter member : members) {
             if (member.getId() == mgc.getId()) {
                 member.setJobId(mgc.getJobId());
                 member.setLevel((short) mgc.getLevel());
@@ -603,8 +603,8 @@ public class MapleGuild implements java.io.Serializable {
         }
     }
 
-    public final MapleGuildCharacter getMGC(final int cid) {
-        for (final MapleGuildCharacter mgc : members) {
+    public final GuildCharacter getMGC(final int cid) {
+        for (final GuildCharacter mgc : members) {
             if (mgc.getId() == cid) {
                 return mgc;
             }
@@ -648,10 +648,10 @@ public class MapleGuild implements java.io.Serializable {
 
     public final void addMemberData(final PacketBuilder builder) {
         builder.writeAsByte(members.size());
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             builder.writeInt(mgc.getId());
         }
-        for (final MapleGuildCharacter mgc : members) {
+        for (final GuildCharacter mgc : members) {
             builder.writePaddedString(mgc.getName(), 13);
             builder.writeInt(mgc.getJobId());
             builder.writeInt(mgc.getLevel());
@@ -674,7 +674,7 @@ public class MapleGuild implements java.io.Serializable {
         if (mc.getGuildId() > 0) {
             return MapleGuildResponse.ALREADY_IN_GUILD;
         }
-        mc.getClient().getSession().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob()));
+        mc.getClient().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob()));
         return null;
     }
 

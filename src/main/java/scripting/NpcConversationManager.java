@@ -36,7 +36,7 @@ import tools.Pair;
 import tools.packet.PlayerShopPacket;
 import org.javastory.server.channel.MapleGuildRanking;
 import database.DatabaseConnection;
-import handling.world.MaplePartyCharacter;
+import handling.world.PartyCharacter;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import server.CarnivalChallenge;
@@ -105,71 +105,71 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void askMapSelection(final String sel) {
-		c.getSession().write(MaplePacketCreator.getMapSelection(npc, sel));
+		c.write(MaplePacketCreator.getMapSelection(npc, sel));
 	}
 
 	public void sendNext(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", (byte) 0));
 	}
 
 	public void sendNextS(String text, byte type) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", type));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 01", type));
 	}
 
 	public void sendPrev(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", (byte) 0));
 	}
 
 	public void sendPrevS(String text, byte type) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", type));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 00", type));
 	}
 
 	public void sendNextPrev(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", (byte) 0));
 	}
 
 	public void sendNextPrevS(String text, byte type) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", type));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "01 01", type));
 	}
 
 	public void sendOk(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", (byte) 0));
 	}
 
 	public void sendOkS(String text, byte type) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", type));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0, text, "00 00", type));
 	}
 
 	public void sendYesNo(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 2, text, "", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 2, text, "", (byte) 0));
 	}
 
 	public void sendYesNoS(String text, byte type) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 2, text, "", type));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 2, text, "", type));
 	}
 
 	public void askAcceptDecline(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0C, text, "", (byte) 0));
 	}
 
 	public void askAcceptDeclineNoESC(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0E, text, "", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 0x0E, text, "", (byte) 0));
 	}
 
 	public void askAvatar(String text, int... args) {
-		c.getSession().write(MaplePacketCreator.getNPCTalkStyle(npc, text, args));
+		c.write(MaplePacketCreator.getNPCTalkStyle(npc, text, args));
 	}
 
 	public void sendSimple(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalk(npc, (byte) 5, text, "", (byte) 0));
+		c.write(MaplePacketCreator.getNPCTalk(npc, (byte) 5, text, "", (byte) 0));
 	}
 
 	public void sendGetNumber(String text, int def, int min, int max) {
-		c.getSession().write(MaplePacketCreator.getNPCTalkNum(npc, text, def, min, max));
+		c.write(MaplePacketCreator.getNPCTalkNum(npc, text, def, min, max));
 	}
 
 	public void sendGetText(String text) {
-		c.getSession().write(MaplePacketCreator.getNPCTalkText(npc, text));
+		c.write(MaplePacketCreator.getNPCTalkText(npc, text));
 	}
 
 	public void setGetText(String text) {
@@ -349,7 +349,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (broadcast) {
 			c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.showEffect(effect));
 		} else {
-			c.getSession().write(MaplePacketCreator.showEffect(effect));
+			c.write(MaplePacketCreator.showEffect(effect));
 		}
 	}
 
@@ -357,7 +357,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (broadcast) {
 			c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.playSound(sound));
 		} else {
-			c.getSession().write(MaplePacketCreator.playSound(sound));
+			c.write(MaplePacketCreator.playSound(sound));
 		}
 	}
 
@@ -365,7 +365,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (broadcast) {
 			c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.environmentChange(env, 2));
 		} else {
-			c.getSession().write(MaplePacketCreator.environmentChange(env, 2));
+			c.write(MaplePacketCreator.environmentChange(env, 2));
 		}
 	}
 
@@ -404,7 +404,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public void warpPartyWithExp(int mapId, int exp) {
 		GameMap target = getMap(mapId);
-		for (MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
+		for (PartyCharacter chr : getPlayer().getParty().getMembers()) {
 			GameCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
 			curChar.changeMap(target, target.getPortal(0));
@@ -415,7 +415,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
 		GameMap target = getMap(mapId);
-		for (MaplePartyCharacter chr : getPlayer().getParty().getMembers()) {
+		for (PartyCharacter chr : getPlayer().getParty().getMembers()) {
 			GameCharacter curChar = c.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
 			curChar.changeMap(target, target.getPortal(0));
@@ -528,7 +528,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void genericGuildMessage(int code) {
-		c.getSession().write(MaplePacketCreator.genericGuildMessage((byte) code));
+		c.write(MaplePacketCreator.genericGuildMessage((byte) code));
 	}
 
 	public void disbandGuild() {
@@ -555,16 +555,16 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			getPlayer().setExp(0);
 			reborns.add(new Pair<Stat, Integer>(Stat.LEVEL, Integer.valueOf(1)));
 			reborns.add(new Pair<Stat, Integer>(Stat.EXP, Integer.valueOf(0)));
-			//getPlayer().getClient().getSession().write(MaplePacketCreator.updatePlayerStats(reborns));
+			//getPlayer().getClient().write(MaplePacketCreator.updatePlayerStats(reborns));
 			//getPlayer().getMap().broadcastMessage(getPlayer(), MaplePacketCreator.showJobChange(getPlayer().getId()), false);
 		} else {
-			getPlayer().getClient().getSession().write(MaplePacketCreator.serverNotice(6, "You have reached the maximum amount of rebirths!"));
+			getPlayer().getClient().write(MaplePacketCreator.serverNotice(6, "You have reached the maximum amount of rebirths!"));
 		}
 	}
 
 	public void increaseGuildCapacity() {
 		if (c.getPlayer().getMeso() < 5000000) {
-			c.getSession().write(MaplePacketCreator.serverNotice(1, "You do not have enough mesos."));
+			c.write(MaplePacketCreator.serverNotice(1, "You do not have enough mesos."));
 			return;
 		}
 		final int gid = c.getPlayer().getGuildId();
@@ -605,7 +605,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void displayGuildRanks() {
-		c.getSession().write(MaplePacketCreator.showGuildRanks(npc, MapleGuildRanking.getInstance().getRank()));
+		c.write(MaplePacketCreator.showGuildRanks(npc, MapleGuildRanking.getInstance().getRank()));
 	}
 
 	public boolean removePlayerFromInstance() {
@@ -736,12 +736,12 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public void openDuey() {
 		c.getPlayer().setConversation(2);
-		c.getSession().write(MaplePacketCreator.sendDuey((byte) 9, null));
+		c.write(MaplePacketCreator.sendDuey((byte) 9, null));
 	}
 
 	public void openMerchantItemStore() {
 		c.getPlayer().setConversation(3);
-		c.getSession().write(PlayerShopPacket.merchItemStore((byte) 0x22));
+		c.write(PlayerShopPacket.merchItemStore((byte) 0x22));
 	}
 
 	public final int getDojoPoints() {
@@ -801,7 +801,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
 		stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
 		stats.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, total));
-		c.getSession().write(MaplePacketCreator.updatePlayerStats(stats, false, c.getPlayer().getJob()));
+		c.write(MaplePacketCreator.updatePlayerStats(stats, false, c.getPlayer().getJob()));
 	}
 
 
@@ -836,12 +836,12 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		statup.add(new Pair(Stat.MP, Integer.valueOf(30000)));
 		c.getPlayer().getStat().setMaxMp(30000);
 		statup.add(new Pair(Stat.MAXMP, Integer.valueOf(30000)));
-		c.getSession().write(MaplePacketCreator.updatePlayerStats(statup, c.getPlayer().getJob()));
+		c.write(MaplePacketCreator.updatePlayerStats(statup, c.getPlayer().getJob()));
 	}
 
 	public void gainFame(int fame) {
 		c.getPlayer().setFame(fame);
 		c.getPlayer().updateSingleStat(Stat.FAME, Integer.valueOf(getPlayer().getFame()));
-		c.getSession().write(MaplePacketCreator.serverNotice(6, "You have gained (+" + fame +") fame."));
+		c.write(MaplePacketCreator.serverNotice(6, "You have gained (+" + fame +") fame."));
 	}
 }

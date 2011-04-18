@@ -65,14 +65,14 @@ public class PetHandler {
                         final List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(1);
                         stats.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(pet.getUniqueId())));
 
-                        c.getSession().write(PetPacket.petStatUpdate(chr));
+                        c.write(PetPacket.petStatUpdate(chr));
                         chr.startFullnessSchedule(PetDataFactory.getHunger(pet.getPetItemId()), pet, chr.getPetIndex(pet));
                     }
                 }
                 break;
             }
         }
-        c.getSession().write(PetPacket.emptyStatUpdate());
+        c.write(PetPacket.emptyStatUpdate());
     }
 
     public static final void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
@@ -81,7 +81,7 @@ public class PetHandler {
         final IItem toUse = chr.getInventory(InventoryType.USE).getItem(slot);
 
         if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.write(MaplePacketCreator.enableActions());
             return;
         }
         InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
@@ -112,10 +112,10 @@ public class PetHandler {
                 pet.setCloseness(newCloseness);
                 if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
                     pet.setLevel(pet.getLevel() + 1);
-                    c.getSession().write(PetPacket.showOwnPetLevelUp(petIndex));
+                    c.write(PetPacket.showOwnPetLevelUp(petIndex));
                     chr.getMap().broadcastMessage(PetPacket.showPetLevelUp(chr, petIndex));
                 }
-                c.getSession().write(PetPacket.updatePet(pet, true));
+                c.write(PetPacket.updatePet(pet, true));
             }
         }
         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), command, petIndex, success, false), true);
@@ -154,11 +154,11 @@ public class PetHandler {
                             if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
                                 pet.setLevel(pet.getLevel() + 1);
 
-                                c.getSession().write(PetPacket.showOwnPetLevelUp(index));
+                                c.write(PetPacket.showOwnPetLevelUp(index));
                                 chr.getMap().broadcastMessage(PetPacket.showPetLevelUp(chr, index));
                             }
                         }
-                        c.getSession().write(PetPacket.updatePet(pet, true));
+                        c.write(PetPacket.updatePet(pet, true));
                         chr.getMap().broadcastMessage(c.getPlayer(), PetPacket.commandResponse(chr.getId(), (byte) 1, index, true, true), true);
                     } else {
                         if (gainCloseness) {
@@ -171,7 +171,7 @@ public class PetHandler {
                                 pet.setLevel(pet.getLevel() - 1);
                             }
                         }
-                        c.getSession().write(PetPacket.updatePet(pet, true));
+                        c.write(PetPacket.updatePet(pet, true));
                         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), (byte) 1, chr.getPetIndex(pet), false, true), true);
                     }
                     InventoryManipulator.removeById(c, InventoryType.USE, itemId, 1, true, false);
@@ -179,7 +179,7 @@ public class PetHandler {
                 }
             }
         }
-        c.getSession().write(MaplePacketCreator.enableActions());
+        c.write(MaplePacketCreator.enableActions());
     }
 
     public static final void handleMovePet(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {

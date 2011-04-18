@@ -28,7 +28,7 @@ import java.util.Properties;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 import handling.channel.remote.ChannelWorldInterface;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.GuildCharacter;
 import handling.world.remote.WorldLoginInterface;
 
 public class WorldLoginInterfaceImpl extends UnicastRemoteObject implements WorldLoginInterface {
@@ -56,7 +56,7 @@ public class WorldLoginInterfaceImpl extends UnicastRemoteObject implements Worl
     }
 
     @Override
-    public void deleteGuildCharacter(MapleGuildCharacter mgc) throws RemoteException {
+    public void deleteGuildCharacter(GuildCharacter mgc) throws RemoteException {
 	WorldRegistryImpl wr = WorldRegistryImpl.getInstance();
 
 	//ensure it's loaded on world server

@@ -132,7 +132,7 @@ public class MonsterBook implements Serializable {
     }
 
     public final void updateCard(final GameClient c, final int cardid) {
-	c.getSession().write(MonsterBookPacket.changeCover(cardid));
+	c.write(MonsterBookPacket.changeCover(cardid));
     }
 
     public final void addCard(final GameClient c, final int cardid) {
@@ -143,10 +143,10 @@ public class MonsterBook implements Serializable {
 	    if (all.getKey() == cardid) {
 
 		if (all.getValue() >= 5) {
-		    c.getSession().write(MonsterBookPacket.addCard(true, cardid, all.getValue()));
+		    c.write(MonsterBookPacket.addCard(true, cardid, all.getValue()));
 		} else {
-		    c.getSession().write(MonsterBookPacket.addCard(false, cardid, all.getValue()));
-		    c.getSession().write(MonsterBookPacket.showGainCard(cardid));
+		    c.write(MonsterBookPacket.addCard(false, cardid, all.getValue()));
+		    c.write(MonsterBookPacket.showGainCard(cardid));
 		    all.setValue(all.getValue() + 1);
 		    calculateLevel();
 		}
@@ -155,8 +155,8 @@ public class MonsterBook implements Serializable {
 	}
 	// New card
 	cards.put(cardid, 1);
-	c.getSession().write(MonsterBookPacket.addCard(false, cardid, 1));
-	c.getSession().write(MonsterBookPacket.showGainCard(cardid));
+	c.write(MonsterBookPacket.addCard(false, cardid, 1));
+	c.write(MonsterBookPacket.showGainCard(cardid));
 	calculateLevel();
     }
 }

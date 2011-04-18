@@ -34,8 +34,8 @@ public class AllianceHandler {
 
 	switch (mode) {
 	    case 0x01: // show info?
-		//c.getSession().write(MaplePacketCreator.showAllianceInfo(c.getPlayer()));
-		//c.getSession().write(MaplePacketCreator.showAllianceMembers(c.getPlayer()));
+		//c.write(MaplePacketCreator.showAllianceInfo(c.getPlayer()));
+		//c.write(MaplePacketCreator.showAllianceMembers(c.getPlayer()));
 		break;
 	    case 0x08: // change titles
 		String[] ranks = new String[5];

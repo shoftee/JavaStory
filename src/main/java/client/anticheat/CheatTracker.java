@@ -178,7 +178,7 @@ public class CheatTracker {
                 //AutobanManager.getInstance().autoban(chrhardref.getClient(), StringUtil.makeEnumHumanReadable(offense.name()));
             } else if (type == 2) {
                 if (!chrhardref.isGM()) {
-                    //chrhardref.getClient().getSession().close();
+                    //chrhardref.getClient().disconnect();
                 } else {
                     chrhardref.dropMessage(5, "[WARNING] D/c triggled : " + offense.toString());
                 }

@@ -264,15 +264,15 @@ public class Storage implements Serializable {
 	for (InventoryType type : InventoryType.values()) {
 	    typeItems.put(type, new ArrayList<IItem>(items));
 	}
-	c.getSession().write(MaplePacketCreator.getStorage(npcId, slots, items, meso));
+	c.write(MaplePacketCreator.getStorage(npcId, slots, items, meso));
     }
 
     public void sendStored(GameClient c, InventoryType type) {
-	c.getSession().write(MaplePacketCreator.storeStorage(slots, type, typeItems.get(type)));
+	c.write(MaplePacketCreator.storeStorage(slots, type, typeItems.get(type)));
     }
 
     public void sendTakenOut(GameClient c, InventoryType type) {
-	c.getSession().write(MaplePacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
+	c.write(MaplePacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
     public int getMeso() {
@@ -288,7 +288,7 @@ public class Storage implements Serializable {
     }
 
     public void sendMeso(GameClient c) {
-	c.getSession().write(MaplePacketCreator.mesoStorage(slots, meso));
+	c.write(MaplePacketCreator.mesoStorage(slots, meso));
     }
 
     public boolean isFull() {

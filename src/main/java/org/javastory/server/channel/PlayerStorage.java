@@ -116,8 +116,8 @@ public class PlayerStorage {
                 chr = itr.next();
 
                 if (!chr.isGM()) {
-                    chr.getClient().disconnect(false);
-                    chr.getClient().getSession().close(false);
+                    chr.getClient().disconnect();
+                    chr.getClient().disconnect();
                     itr.remove();
                 }
             }
@@ -163,7 +163,7 @@ public class PlayerStorage {
         try {
             final Iterator<GameCharacter> itr = nameToChar.values().iterator();
             while (itr.hasNext()) {
-                itr.next().getClient().getSession().write(data);
+                itr.next().getClient().write(data);
             }
         } finally {
             mutex.unlock();
@@ -179,7 +179,7 @@ public class PlayerStorage {
                 chr = itr.next();
 
                 if (chr.getClient().isLoggedIn() && chr.getSmega()) {
-                    chr.getClient().getSession().write(data);
+                    chr.getClient().write(data);
                 }
             }
         } finally {
@@ -196,7 +196,7 @@ public class PlayerStorage {
                 chr = itr.next();
 
                 if (chr.getClient().isLoggedIn() && chr.isGM() && chr.isCallGM()) {
-                    chr.getClient().getSession().write(data);
+                    chr.getClient().write(data);
                 }
             }
         } finally {

@@ -26,42 +26,42 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MapleParty implements Serializable {
+public class Party implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
-    private MaplePartyCharacter leader;
-    private List<MaplePartyCharacter> members = new LinkedList<MaplePartyCharacter>();
+    private PartyCharacter leader;
+    private List<PartyCharacter> members = new LinkedList<PartyCharacter>();
     private int id;
 
-    public MapleParty(int id, MaplePartyCharacter chrfor) {
+    public Party(int id, PartyCharacter chrfor) {
 	this.leader = chrfor;
 	this.members.add(this.leader);
 	this.id = id;
     }
 
-    public boolean containsMembers(MaplePartyCharacter member) {
+    public boolean containsMembers(PartyCharacter member) {
 	return members.contains(member);
     }
 
-    public void addMember(MaplePartyCharacter member) {
+    public void addMember(PartyCharacter member) {
 	members.add(member);
     }
 
-    public void removeMember(MaplePartyCharacter member) {
+    public void removeMember(PartyCharacter member) {
 	members.remove(member);
     }
 
-    public void updateMember(MaplePartyCharacter member) {
+    public void updateMember(PartyCharacter member) {
 	for (int i = 0; i < members.size(); i++) {
-	    MaplePartyCharacter chr = members.get(i);
+	    PartyCharacter chr = members.get(i);
 	    if (chr.equals(member)) {
 		members.set(i, member);
 	    }
 	}
     }
 
-    public MaplePartyCharacter getMemberById(int id) {
-	for (MaplePartyCharacter chr : members) {
+    public PartyCharacter getMemberById(int id) {
+	for (PartyCharacter chr : members) {
 	    if (chr.getId() == id) {
 		return chr;
 	    }
@@ -69,7 +69,7 @@ public class MapleParty implements Serializable {
 	return null;
     }
 
-    public Collection<MaplePartyCharacter> getMembers() {
+    public Collection<PartyCharacter> getMembers() {
 	return Collections.unmodifiableList(members);
     }
 
@@ -81,11 +81,11 @@ public class MapleParty implements Serializable {
 	this.id = id;
     }
 
-    public MaplePartyCharacter getLeader() {
+    public PartyCharacter getLeader() {
 	return leader;
     }
 
-    public void setLeader(MaplePartyCharacter nLeader) {
+    public void setLeader(PartyCharacter nLeader) {
 	leader = nLeader;
     }
 
@@ -108,7 +108,7 @@ public class MapleParty implements Serializable {
 	if (getClass() != obj.getClass()) {
 	    return false;
 	}
-	final MapleParty other = (MapleParty) obj;
+	final Party other = (Party) obj;
 	if (id != other.id) {
 	    return false;
 	}

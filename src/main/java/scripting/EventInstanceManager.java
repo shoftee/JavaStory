@@ -33,8 +33,8 @@ import javax.script.ScriptException;
 
 import client.GameCharacter;
 import client.QuestStatus;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import server.CarnivalParty;
 import server.TimerManager;
 import server.Squad;
@@ -131,7 +131,7 @@ public class EventInstanceManager {
 	mutex.lock();
 	try {
 	    for (final GameCharacter chr : chars) {
-		chr.getClient().getSession().write(MaplePacketCreator.getClock(timesend));
+		chr.getClient().write(MaplePacketCreator.getClock(timesend));
 	    }
 	} finally {
 	    mutex.unlock();
@@ -147,7 +147,7 @@ public class EventInstanceManager {
 	mutex.lock();
 	try {
 	    for (final GameCharacter chr : chars) {
-		chr.getClient().getSession().write(MaplePacketCreator.getClock(timesend));
+		chr.getClient().write(MaplePacketCreator.getClock(timesend));
 	    }
 	} finally {
 	    mutex.unlock();
@@ -163,8 +163,8 @@ public class EventInstanceManager {
 	return eventTime - (System.currentTimeMillis() - timeStarted);
     }
 
-    public void registerParty(MapleParty party, GameMap map) {
-	for (MaplePartyCharacter pc : party.getMembers()) {
+    public void registerParty(Party party, GameMap map) {
+	for (PartyCharacter pc : party.getMembers()) {
 	    GameCharacter c = map.getCharacterById_InMap(pc.getId());
 	    registerPlayer(c);
 	}
@@ -387,7 +387,7 @@ public class EventInstanceManager {
 	mutex.lock();
 	try {
 	    for (final GameCharacter chr : chars) {
-		chr.getClient().getSession().write(MaplePacketCreator.serverNotice(type, msg));
+		chr.getClient().write(MaplePacketCreator.serverNotice(type, msg));
 	    }
 	} finally {
 	    mutex.unlock();
@@ -498,12 +498,12 @@ public class EventInstanceManager {
     public final void registerCarnivalParty(final GameCharacter leader, final GameMap map, final byte team) {
 	leader.clearCarnivalRequests();
 	List<GameCharacter> characters = new LinkedList<GameCharacter>();
-	final MapleParty party = leader.getParty();
+	final Party party = leader.getParty();
 
 	if (party == null) {
 	    return;
 	}
-	for (MaplePartyCharacter pc : party.getMembers()) {
+	for (PartyCharacter pc : party.getMembers()) {
 	    final GameCharacter c = map.getCharacterById_InMap(pc.getId());
 	    characters.add(c);
 	    registerPlayer(c);

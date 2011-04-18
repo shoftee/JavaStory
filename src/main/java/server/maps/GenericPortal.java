@@ -109,10 +109,10 @@ public class GenericPortal implements Portal {
 	    try {
 		PortalScriptManager.getInstance().executePortalScript(this, c);
 		if (c.getPlayer().getMap() == currentmap) { // Character is still on the same map.
-		    c.getSession().write(MaplePacketCreator.enableActions());
+		    c.write(MaplePacketCreator.enableActions());
 		}
 	    } catch (final Exception e) {
-		c.getSession().write(MaplePacketCreator.enableActions());
+		c.write(MaplePacketCreator.enableActions());
 		e.printStackTrace();
 	    }
 	} else if (getTargetMapId() != 999999999) {

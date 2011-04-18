@@ -127,11 +127,11 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 
     @Override
     public void sendDestroyData(GameClient client) {
-	client.getSession().write(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
+	client.write(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
     }
 
     @Override
     public void sendSpawnData(GameClient client) {
-	client.getSession().write(PlayerShopPacket.spawnHiredMerchant(this));
+	client.write(PlayerShopPacket.spawnHiredMerchant(this));
     }
 }

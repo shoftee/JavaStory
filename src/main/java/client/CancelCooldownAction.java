@@ -39,7 +39,7 @@ public class CancelCooldownAction implements Runnable {
 	final GameCharacter realTarget = target.get();
 	if (realTarget != null) {
 	    realTarget.removeCooldown(skillId);
-	    realTarget.getClient().getSession().write(MaplePacketCreator.skillCooldown(skillId, 0));
+	    realTarget.getClient().write(MaplePacketCreator.skillCooldown(skillId, 0));
 	}
     }
 }

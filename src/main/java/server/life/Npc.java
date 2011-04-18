@@ -48,18 +48,18 @@ public class Npc extends AbstractLoadedGameLife {
 
 	if (getId() >= 9901000 && getId() <= 9901551) {
 	    if (!stats.getName().equals("")) {
-		client.getSession().write(MaplePacketCreator.spawnPlayerNPC(stats, getId()));
-		client.getSession().write(MaplePacketCreator.spawnNPCRequestController(this, false));
+		client.write(MaplePacketCreator.spawnPlayerNPC(stats, getId()));
+		client.write(MaplePacketCreator.spawnNPCRequestController(this, false));
 	    }
 	} else {
-	    client.getSession().write(MaplePacketCreator.spawnNPC(this, true));
-	    client.getSession().write(MaplePacketCreator.spawnNPCRequestController(this, true));
+	    client.write(MaplePacketCreator.spawnNPC(this, true));
+	    client.write(MaplePacketCreator.spawnNPCRequestController(this, true));
 	}
     }
 
     @Override
     public final void sendDestroyData(final GameClient client) {
-	client.getSession().write(MaplePacketCreator.removeNPC(getObjectId()));
+	client.write(MaplePacketCreator.removeNPC(getObjectId()));
     }
 
     @Override

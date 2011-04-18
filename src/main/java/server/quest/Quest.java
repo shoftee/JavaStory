@@ -213,7 +213,7 @@ public class Quest implements Serializable {
 	    newStatus.setForfeited(c.getQuest(this).getForfeited());
 	    c.updateQuest(newStatus);
 
-	    c.getClient().getSession().write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
+	    c.getClient().write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
 	    c.getMap().broadcastMessage(c, MaplePacketCreator.showSpecialEffect(c.getId(), 9), false);
 	}
     }

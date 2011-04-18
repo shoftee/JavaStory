@@ -30,7 +30,7 @@ import javax.script.Invocable;
 import javax.script.ScriptException;
 
 import client.GameCharacter;
-import handling.world.MapleParty;
+import handling.world.Party;
 import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;
 import server.Squad;
@@ -177,7 +177,7 @@ public class EventManager {
     }
 
     //PQ method: starts a PQ
-    public void startInstance(MapleParty party, GameMap map) {
+    public void startInstance(Party party, GameMap map) {
 	try {
 	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
 	    eim.registerParty(party, map);

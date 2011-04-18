@@ -23,10 +23,10 @@ import handling.ServerType;
 import handling.GamePacket;
 import org.javastory.server.mina.PacketHandler;
 import handling.channel.remote.ChannelWorldInterface;
-import handling.world.MaplePartyCharacter;
-import handling.world.MapleParty;
-import handling.world.guild.MapleGuild;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.PartyCharacter;
+import handling.world.Party;
+import handling.world.guild.Guild;
+import handling.world.guild.GuildCharacter;
 import handling.world.guild.MapleGuildSummary;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
@@ -156,7 +156,7 @@ public final class ChannelServer extends GameService {
 
     public void addPlayer(final GameCharacter chr) {
         players.registerPlayer(chr);
-        chr.getClient().getSession().write(MaplePacketCreator.serverMessage(serverMessage));
+        chr.getClient().write(MaplePacketCreator.serverMessage(serverMessage));
     }
 
     public PlayerStorage getPlayerStorage() {
@@ -264,9 +264,9 @@ public final class ChannelServer extends GameService {
         this.dropRate = dropRate;
     }
 
-    public final MapleGuild getGuild(final MapleGuildCharacter mgc) {
+    public final Guild getGuild(final GuildCharacter mgc) {
         final int guildId = mgc.getGuildId();
-        MapleGuild guild = null;
+        Guild guild = null;
         try {
             guild = getWorldInterface().getGuild(guildId, mgc);
         } catch (RemoteException re) {
@@ -284,7 +284,7 @@ public final class ChannelServer extends GameService {
             return gsStore.get(guildId);
         }
         try {
-            final MapleGuild guild = 
+            final Guild guild = 
                     this.getWorldInterface().getGuild(guildId, null);
             if (guild != null) {
                 gsStore.put(guildId, new MapleGuildSummary(guild));
@@ -385,9 +385,9 @@ public final class ChannelServer extends GameService {
         return MegaphoneMuteState;
     }
 
-    public final List<GameCharacter> getPartyMembers(final MapleParty party) {
+    public final List<GameCharacter> getPartyMembers(final Party party) {
         List<GameCharacter> partym = new LinkedList<GameCharacter>();
-        for (final MaplePartyCharacter partychar : party.getMembers()) {
+        for (final PartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == getChannelId()) {
                 // Make sure the thing doesn't get duplicate plays due to ccing bug.
                 GameCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());

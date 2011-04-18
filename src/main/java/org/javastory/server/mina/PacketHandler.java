@@ -121,7 +121,7 @@ public class PacketHandler extends IoHandlerAdapter {
         final GameClient client = (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
         if (client != null) {
             try {
-                client.disconnect(true);
+                client.disconnect();
             } finally {
                 session.close(false);
                 session.removeAttribute(GameClient.CLIENT_KEY);
@@ -145,7 +145,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 try {
                     handlePacket(code, reader, client, type);
                 } catch (PacketFormatException ex) {
-                    client.disconnect(true);
+                    client.disconnect();
                 }
                 return;
             }
@@ -201,7 +201,7 @@ public class PacketHandler extends IoHandlerAdapter {
                 CharLoginHandler.handleWithSecondPassword(reader, client);
                 break;
             case RSA_KEY: // Fix this somehow
-                client.getSession().write(LoginPacket.StrangeDATA());
+                client.write(LoginPacket.StrangeDATA());
                 break;
             // END OF LOGIN SERVER
             case CHANGE_CHANNEL:

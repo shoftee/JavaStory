@@ -62,7 +62,7 @@ public class BuddyListHandler {
     private static final void nextPendingRequest(final GameClient c) {
 	CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
 	if (pendingBuddyRequest != null) {
-	    c.getSession().write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+	    c.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
 	}
     }
 
@@ -98,9 +98,9 @@ public class BuddyListHandler {
 		return;
 	    }
 	    if (ble != null && !ble.isVisible()) {
-		c.getSession().write(MaplePacketCreator.buddylistMessage((byte) 13));
+		c.write(MaplePacketCreator.buddylistMessage((byte) 13));
 	    } else if (buddylist.isFull()) {
-		c.getSession().write(MaplePacketCreator.buddylistMessage((byte) 11));
+		c.write(MaplePacketCreator.buddylistMessage((byte) 11));
 	    } else {
 		try {
 		    CharacterIdNameBuddyCapacity charWithId = null;
@@ -152,7 +152,7 @@ public class BuddyListHandler {
 			    ps.close();
 			}
 			if (buddyAddResult == BuddyAddResult.BUDDYLIST_FULL) {
-			    c.getSession().write(MaplePacketCreator.buddylistMessage((byte) 12));
+			    c.write(MaplePacketCreator.buddylistMessage((byte) 12));
 			} else {
 			    int displayChannel = -1;
 			    int otherCid = charWithId.getId();
@@ -169,10 +169,10 @@ public class BuddyListHandler {
 				ps.close();
 			    }
 			    buddylist.put(new BuddyListEntry(charWithId.getName(), otherCid, groupName, displayChannel, true, charWithId.getLevel(), charWithId.getJob()));
-			    c.getSession().write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+			    c.write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
 			}
 		    } else {
-			c.getSession().write(MaplePacketCreator.buddylistMessage((byte) 15));
+			c.write(MaplePacketCreator.buddylistMessage((byte) 15));
 		    }
 		} catch (RemoteException e) {
 		    System.err.println("REMOTE THROW" + e);
@@ -205,7 +205,7 @@ public class BuddyListHandler {
 		    }
 		    if (otherName != null) {
 			buddylist.put(new BuddyListEntry(otherName, otherCid, "ETC", channel, true, otherLevel, otherJob));
-			c.getSession().write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+			c.write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
 			notifyRemoteChannel(c, channel, otherCid, ADDED);
 		    }
 		} catch (RemoteException e) {
@@ -225,7 +225,7 @@ public class BuddyListHandler {
 		}
 	    }
 	    buddylist.remove(otherCid);
-	    c.getSession().write(MaplePacketCreator.updateBuddylist(c.getPlayer().getBuddylist().getBuddies()));
+	    c.write(MaplePacketCreator.updateBuddylist(c.getPlayer().getBuddylist().getBuddies()));
 	    nextPendingRequest(c);
 	}
     }

@@ -58,7 +58,7 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 			    boughtnumber++;
 			    if (boughtnumber == items.size()) {
 				removeAllVisitors(10, 1);
-				owner.getClient().getSession().write(PlayerShopPacket.shopErrorMessage(10, 1));
+				owner.getClient().write(PlayerShopPacket.shopErrorMessage(10, 1));
 				closeShop(false, true);
 			    }
 			}
@@ -69,7 +69,7 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 		    c.getPlayer().dropMessage(1, "You do not have enough mesos.");
 		}
 	    }*/
-	    owner.getClient().getSession().write(PlayerShopPacket.shopItemUpdate(this));
+	    owner.getClient().write(PlayerShopPacket.shopItemUpdate(this));
 	}
     }
 
@@ -96,7 +96,7 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 	for (int i = 0; i < 3; i++) {
 	    GameCharacter chr = getVisitor(i);
 	    if (chr.getName().equals(name)) {
-		chr.getClient().getSession().write(PlayerShopPacket.shopErrorMessage(5, 1));
+		chr.getClient().write(PlayerShopPacket.shopErrorMessage(5, 1));
 		chr.setPlayerShop(null);
 		removeVisitor(chr);
 	    }

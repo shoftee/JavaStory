@@ -6,8 +6,8 @@
 package server;
 
 import client.GameCharacter;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 
 /**
  * TODO : Make this a function for NPC instead.. cleaner
@@ -19,9 +19,9 @@ public class CarnivalChallenge {
 
     public CarnivalChallenge(GameCharacter challenger) {
         this.challenger = challenger;
-        MapleParty party = challenger.getParty();
+        Party party = challenger.getParty();
         challengeinfo += "#b";
-        for (MaplePartyCharacter pc : party.getMembers()) {
+        for (PartyCharacter pc : party.getMembers()) {
 	    GameCharacter c = challenger.getMap().getCharacterById_InMap(pc.getId());
 	    challengeinfo += (c.getName() + " / Level" + c.getLevel() + " / " + getJobNameById(c.getJob()));
 	}

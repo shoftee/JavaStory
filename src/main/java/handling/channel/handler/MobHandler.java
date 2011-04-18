@@ -101,13 +101,13 @@ public class MobHandler {
         final Point startPos = monster.getPosition();
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
-        c.getSession().write(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
+        c.write(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
 
         if (res != null) {
             if (reader.remaining() != 9 && reader.remaining() != 17) { 
                 //9.. 0 -> endPos? -> endPos again? -> 0 -> 0
                 System.out.println("reader.available != 17 (movement parsing error)");
-                c.getSession().close(true);
+                c.disconnect(true);
                 return;
             }
 

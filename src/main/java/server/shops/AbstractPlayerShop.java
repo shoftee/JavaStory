@@ -67,18 +67,18 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     public void broadcastToVisitors(GamePacket packet, boolean owner) {
 	GameCharacter chr = chr1.get();
 	if (chr != null) {
-	    chr.getClient().getSession().write(packet);
+	    chr.getClient().write(packet);
 	}
 	chr = chr2.get();
 	if (chr != null) {
-	    chr.getClient().getSession().write(packet);
+	    chr.getClient().write(packet);
 	}
 	chr = chr3.get();
 	if (chr != null) {
-	    chr.getClient().getSession().write(packet);
+	    chr.getClient().write(packet);
 	}
 	if (getShopType() == 2 && owner) {
-	    ((GenericPlayerStore) this).getMCOwner().getClient().getSession().write(packet);
+	    ((GenericPlayerStore) this).getMCOwner().getClient().write(packet);
 	}
     }
 
@@ -285,7 +285,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	    GameCharacter visitor = getVisitor(i);
 	    if (visitor != null) {
 		if (type != -1) {
-		    visitor.getClient().getSession().write(PlayerShopPacket.shopErrorMessage(error, type));
+		    visitor.getClient().write(PlayerShopPacket.shopErrorMessage(error, type));
 		}
 		visitor.setPlayerShop(null);
 

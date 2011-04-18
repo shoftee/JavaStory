@@ -67,11 +67,11 @@ public class PlayerInteractionHandler {
                     final int itemId = reader.readInt();
                     if (createType == 4) {
                         chr.setPlayerShop(new GenericPlayerStore(chr, itemId, desc));
-                        c.getSession().write(PlayerShopPacket.getPlayerStore(chr, true));
+                        c.write(PlayerShopPacket.getPlayerStore(chr, true));
                     } else {
                         final HiredMerchantStore merch = new HiredMerchantStore(chr, itemId, desc);
                         chr.setPlayerShop(merch);
-                        c.getSession().write(PlayerShopPacket.getHiredMerch(chr, merch, true));
+                        c.write(PlayerShopPacket.getHiredMerch(chr, merch, true));
                     }
                 }
                 break;
@@ -79,7 +79,7 @@ public class PlayerInteractionHandler {
             case INVITE_TRADE: {
                 GameCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
                 if (ochr.getWorld() != chr.getWorld()) {
-                    chr.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
+                    chr.getClient().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
                     return;
                 }
                 Trade.inviteTrade(chr, ochr);
@@ -105,7 +105,7 @@ public class PlayerInteractionHandler {
                                 merchant.broadcastToVisitors(PlayerShopPacket.shopErrorMessage(0x0D, 1));
                                 merchant.removeAllVisitors((byte) 16, (byte) 0);
                                 chr.setPlayerShop(ips);
-                                c.getSession().write(PlayerShopPacket.getHiredMerch(chr, merchant, false));
+                                c.write(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                             } else {
                                 if (!merchant.isOpen()) {
                                     chr.dropMessage(1, "This shop is in maintenance, please come by later.");
@@ -115,7 +115,7 @@ public class PlayerInteractionHandler {
                                     } else {
                                         chr.setPlayerShop(ips);
                                         merchant.addVisitor(chr);
-                                        c.getSession().write(PlayerShopPacket.getHiredMerch(chr, merchant, false));
+                                        c.write(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                                     }
                                 }
                             }
@@ -130,7 +130,7 @@ public class PlayerInteractionHandler {
                             } else {
                                 chr.setPlayerShop(ips);
                                 ips.addVisitor(chr);
-                                c.getSession().write(PlayerShopPacket.getPlayerStore(chr, false));
+                                c.write(PlayerShopPacket.getPlayerStore(chr, false));
                             }
                         }
                     }
@@ -200,7 +200,7 @@ public class PlayerInteractionHandler {
                         reader.readByte();
                     }
                 } else {
-                    c.getSession().close(true);
+                    c.disconnect(true);
                 }
                 break;
             }
@@ -216,12 +216,12 @@ public class PlayerInteractionHandler {
                         final byte flag = item.getFlag();
 
                         if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
-                            c.getSession().write(MaplePacketCreator.enableActions());
+                            c.write(MaplePacketCreator.enableActions());
                             return;
                         }
                         if (ii.isDropRestricted(item.getItemId())) {
                             if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
-                                c.getSession().write(MaplePacketCreator.enableActions());
+                                c.write(MaplePacketCreator.enableActions());
                                 return;
                             }
                         }
@@ -286,12 +286,12 @@ public class PlayerInteractionHandler {
                         final byte flag = ivItem.getFlag();
 
                         if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
-                            c.getSession().write(MaplePacketCreator.enableActions());
+                            c.write(MaplePacketCreator.enableActions());
                             return;
                         }
                         if (ItemInfoProvider.getInstance().isDropRestricted(ivItem.getItemId())) {
                             if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
-                                c.getSession().write(MaplePacketCreator.enableActions());
+                                c.write(MaplePacketCreator.enableActions());
                                 return;
                             }
                         }
@@ -308,7 +308,7 @@ public class PlayerInteractionHandler {
                             sellItem.setQuantity(perBundle);
                             shop.addItem(new PlayerShopItem(sellItem, bundles, price));
                         }
-                        c.getSession().write(PlayerShopPacket.shopItemUpdate(shop));
+                        c.write(PlayerShopPacket.shopItemUpdate(shop));
                     }
                 }
                 break;
@@ -358,7 +358,7 @@ public class PlayerInteractionHandler {
                         }
                     }
                 }
-                c.getSession().write(PlayerShopPacket.shopItemUpdate(shop));
+                c.write(PlayerShopPacket.shopItemUpdate(shop));
                 break;
             }
             case MAINTANCE_OFF: {
@@ -378,11 +378,11 @@ public class PlayerInteractionHandler {
                         }
                     }
                     if (chr.getMeso() + imps.getMeso() < 0) {
-                        c.getSession().write(PlayerShopPacket.shopItemUpdate(imps));
+                        c.write(PlayerShopPacket.shopItemUpdate(imps));
                     } else {
                         chr.gainMeso(imps.getMeso(), false);
                         imps.setMeso(0);
-                        c.getSession().write(PlayerShopPacket.shopItemUpdate(imps));
+                        c.write(PlayerShopPacket.shopItemUpdate(imps));
                     }
                 }
                 break;
@@ -415,7 +415,7 @@ public class PlayerInteractionHandler {
                             }
                         }
                     }
-                    c.getSession().write(PlayerShopPacket.shopErrorMessage(0x10, 0));
+                    c.write(PlayerShopPacket.shopErrorMessage(0x10, 0));
                     merchant.closeShop(save, true);
                     chr.setPlayerShop(null);
                 }

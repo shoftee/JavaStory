@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,11 +23,12 @@ import javax.script.ScriptEngine;
 
 import database.DatabaseConnection;
 import database.DatabaseException;
+import handling.GamePacket;
 import org.javastory.server.login.LoginServer;
-import handling.world.MapleMessengerCharacter;
-import handling.world.MaplePartyCharacter;
+import handling.world.MessengerCharacter;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.GuildCharacter;
 import scripting.NpcScriptManager;
 import server.Trade;
 import server.TimerManager;
@@ -43,7 +45,7 @@ import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.MaplePacketCreator;
 
-public class GameClient implements Serializable {
+public final class GameClient implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
     public static final transient byte LOGIN_NOTLOGGEDIN = 0,
@@ -86,9 +88,9 @@ public class GameClient implements Serializable {
     public final AesTransform getServerCrypto() {
         return serverCrypto;
     }
-
-    public final IoSession getSession() {
-        return session;
+    
+    public final void write(GamePacket packet) {
+        this.session.write(packet);
     }
 
     public final Lock getLock() {
@@ -489,9 +491,7 @@ public class GameClient implements Serializable {
     }
 
     public void updateMacs(String macData) {
-        for (String mac : macData.split(", ")) {
-            macs.add(mac);
-        }
+        macs.addAll(Arrays.asList(macData.split(", ")));
         StringBuilder newMacData = new StringBuilder();
         Iterator<String> iter = macs.iterator();
         while (iter.hasNext()) {
@@ -642,8 +642,13 @@ public class GameClient implements Serializable {
             LogUtil.outputFileError(LogUtil.Acc_Stuck, e);
         }
     }
+    
+    public final void disconnect(boolean immediately) {
+        if (!immediately) disconnect();
+        else this.disconnect(true);
+    }
 
-    public final void disconnect(final boolean RemoveInChannelServer) {
+    public final void disconnect() {
         if (player != null && isLoggedIn()) {
             removalTask();
 
@@ -653,11 +658,11 @@ public class GameClient implements Serializable {
 
             try {
                 if (player.getMessenger() != null) {
-                    ch.getWorldInterface().leaveMessenger(player.getMessenger().getId(), new MapleMessengerCharacter(player));
+                    ch.getWorldInterface().leaveMessenger(player.getMessenger().getId(), new MessengerCharacter(player));
                     player.setMessenger(null);
                 }
                 if (player.getParty() != null) {
-                    final MaplePartyCharacter chrp = new MaplePartyCharacter(player);
+                    final PartyCharacter chrp = new PartyCharacter(player);
                     chrp.setOnline(false);
                     ch.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                 }
@@ -677,7 +682,7 @@ public class GameClient implements Serializable {
                 e.printStackTrace();
                 System.err.println(getLogMessage(this, "ERROR") + e);
             } finally {
-                if (RemoveInChannelServer && ch != null) {
+                if (ch != null) {
                     ch.removePlayer(player);
                 }
                 player = null;
@@ -686,13 +691,14 @@ public class GameClient implements Serializable {
         if (!serverTransition && isLoggedIn()) {
             updateLoginState(GameClient.LOGIN_NOTLOGGEDIN, null);
         }
+        session.close(false);
     }
 
-    public final String getSessionIPAddress() {
+    public final String getSessionIP() {
         return session.getRemoteAddress().toString().split(":")[0];
     }
 
-    public final boolean CheckIPAddress() {
+    public final boolean checkIPAddress() {
         try {
             final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT SessionIP FROM accounts WHERE id = ?");
             ps.setInt(1, this.accId);
@@ -704,7 +710,7 @@ public class GameClient implements Serializable {
                 final String sessionIP = rs.getString("SessionIP");
 
                 if (sessionIP != null) { // Probably a login proced skipper?
-                    canlogin = getSessionIPAddress().equals(sessionIP.split(":")[0]);
+                    canlogin = getSessionIP().equals(sessionIP.split(":")[0]);
                 }
             }
             rs.close();
@@ -718,13 +724,13 @@ public class GameClient implements Serializable {
     }
 
     public final void DebugMessage(final StringBuilder sb) {
-        sb.append(getSession().getRemoteAddress());
+        sb.append(session.getRemoteAddress());
         sb.append("Connected: ");
-        sb.append(getSession().isConnected());
+        sb.append(session.isConnected());
         sb.append(" Closing: ");
-        sb.append(getSession().isClosing());
+        sb.append(session.isClosing());
         sb.append(" ClientKeySet: ");
-        sb.append(getSession().getAttribute(GameClient.CLIENT_KEY) != null);
+        sb.append(session.getAttribute(GameClient.CLIENT_KEY) != null);
         sb.append(" loggedin: ");
         sb.append(isLoggedIn());
         sb.append(" has char: ");
@@ -753,7 +759,7 @@ public class GameClient implements Serializable {
                 return false;
             }
             if (rs.getInt("guildid") > 0) { // is in a guild when deleted
-                final MapleGuildCharacter mgc = new MapleGuildCharacter(cid, (short) 0, rs.getString("name"), (byte) -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false);
+                final GuildCharacter mgc = new GuildCharacter(cid, (short) 0, rs.getString("name"), (byte) -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false);
                 try {
                     LoginServer.getInstance().getWorldInterface().deleteGuildCharacter(mgc);
                 } catch (RemoteException e) {
@@ -844,8 +850,8 @@ public class GameClient implements Serializable {
             public void run() {
                 try {
                     if (lastPong - then < 0) {
-                        if (getSession().isConnected()) {
-                            getSession().close(false);
+                        if (session.isConnected()) {
+                            session.close(false);
                         }
                     }
                 } catch (final NullPointerException e) {
@@ -855,19 +861,19 @@ public class GameClient implements Serializable {
         }, 150000000); // note: idletime gets added to this too
     }
 
-    public static final String getLogMessage(final GameClient cfor, final String message) {
+    public static String getLogMessage(final GameClient cfor, final String message) {
         return getLogMessage(cfor, message, new Object[0]);
     }
 
-    public static final String getLogMessage(final GameCharacter cfor, final String message) {
+    public static String getLogMessage(final GameCharacter cfor, final String message) {
         return getLogMessage(cfor == null ? null : cfor.getClient(), message);
     }
 
-    public static final String getLogMessage(final GameCharacter cfor, final String message, final Object... parms) {
+    public static String getLogMessage(final GameCharacter cfor, final String message, final Object... parms) {
         return getLogMessage(cfor == null ? null : cfor.getClient(), message, parms);
     }
 
-    public static final String getLogMessage(final GameClient cfor, final String message, final Object... parms) {
+    public static String getLogMessage(final GameClient cfor, final String message, final Object... parms) {
         final StringBuilder builder = new StringBuilder();
         if (cfor != null) {
             if (cfor.getPlayer() != null) {
@@ -892,7 +898,7 @@ public class GameClient implements Serializable {
         return builder.toString();
     }
 
-    public static final int findAccIdForCharacterName(final String charName) {
+    public static int findAccIdForCharacterName(final String charName) {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT accountid FROM characters WHERE name = ?");

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import client.GameCharacter;
 
-public class MapleMessengerCharacter implements Serializable {
+public class MessengerCharacter implements Serializable {
 	private static final long serialVersionUID = 6215463252132450750L;
 	private String name;
 	private int id;
@@ -12,7 +12,7 @@ public class MapleMessengerCharacter implements Serializable {
 	private boolean online;
 	private int position;
 
-	public MapleMessengerCharacter(GameCharacter maplechar) {
+	public MessengerCharacter(GameCharacter maplechar) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
@@ -20,7 +20,7 @@ public class MapleMessengerCharacter implements Serializable {
 		this.position = 0;
 	}
 
-	public MapleMessengerCharacter(GameCharacter maplechar, int position) {
+	public MessengerCharacter(GameCharacter maplechar, int position) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
@@ -28,7 +28,7 @@ public class MapleMessengerCharacter implements Serializable {
 		this.position = position;
 	}
 
-	public MapleMessengerCharacter() {
+	public MessengerCharacter() {
 		this.name = "";
 		//default values for everything o.o
 	}
@@ -80,7 +80,7 @@ public class MapleMessengerCharacter implements Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final MapleMessengerCharacter other = (MapleMessengerCharacter) obj;
+		final MessengerCharacter other = (MessengerCharacter) obj;
 		if (name == null) {
 			if (other.name != null) {
 				return false;

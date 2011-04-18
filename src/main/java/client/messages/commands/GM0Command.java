@@ -92,7 +92,7 @@ public class GM0Command implements Command {
 		} else if (splitted[0].equals("@dispose")) {
 			NpcScriptManager.getInstance().dispose(c);
 		} else if (splitted[0].equals("@ea")) {
-			c.getSession().write(MaplePacketCreator.enableActions());
+			c.write(MaplePacketCreator.enableActions());
 		} else if (splitted[0].equals("@changesecondpass")) {
 			if (splitted[2].equals(splitted[3])) {
 				if (splitted[2].length() < 4 || splitted[2].length() > 16) {

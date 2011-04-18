@@ -82,14 +82,14 @@ public final class PlayersHandler {
                 if (!chr.isGM()) {
                     chr.hasGivenFame(target);
                 }
-                c.getSession().write(MaplePacketCreator.giveFameResponse(mode, target.getName(), target.getFame()));
-                target.getClient().getSession().write(MaplePacketCreator.receiveFame(mode, chr.getName()));
+                c.write(MaplePacketCreator.giveFameResponse(mode, target.getName(), target.getFame()));
+                target.getClient().write(MaplePacketCreator.receiveFame(mode, chr.getName()));
                 break;
             case NOT_TODAY:
-                c.getSession().write(MaplePacketCreator.giveFameErrorResponse(3));
+                c.write(MaplePacketCreator.giveFameErrorResponse(3));
                 break;
             case NOT_THIS_MONTH:
-                c.getSession().write(MaplePacketCreator.giveFameErrorResponse(4));
+                c.write(MaplePacketCreator.giveFameErrorResponse(4));
                 break;
         }
     }
@@ -120,7 +120,7 @@ public final class PlayersHandler {
         final IItem toUse = c.getPlayer().getInventory(InventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
-            c.getSession().write(MaplePacketCreator.enableActions());
+            c.write(MaplePacketCreator.enableActions());
             return;
         }
         switch (itemId) {

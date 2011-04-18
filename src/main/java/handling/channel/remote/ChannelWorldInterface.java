@@ -28,9 +28,9 @@ import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import handling.GamePacket;
 import handling.world.CharacterTransfer;
-import handling.world.MapleMessenger;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Messenger;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.guild.MapleGuildSummary;
 import handling.world.remote.WorldChannelCommonOperations;
@@ -54,9 +54,9 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public boolean hasMerchant(int accountId) throws RemoteException;
 
-    public void updateParty(MapleParty party, PartyOperation operation, MaplePartyCharacter target) throws RemoteException;
+    public void updateParty(Party party, PartyOperation operation, PartyCharacter target) throws RemoteException;
 
-    public void partyChat(MapleParty party, String chattext, String namefrom) throws RemoteException;
+    public void partyChat(Party party, String chattext, String namefrom) throws RemoteException;
 
     public boolean isAvailable() throws RemoteException;
 
@@ -78,13 +78,13 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public void changeEmblem(int gid, List<Integer> affectedPlayers, MapleGuildSummary mgs) throws RemoteException;
 
-    public void addMessengerPlayer(MapleMessenger messenger, String namefrom, int fromchannel, int position) throws RemoteException;
+    public void addMessengerPlayer(Messenger messenger, String namefrom, int fromchannel, int position) throws RemoteException;
 
-    public void removeMessengerPlayer(MapleMessenger messenger, int position) throws RemoteException;
+    public void removeMessengerPlayer(Messenger messenger, int position) throws RemoteException;
 
-    public void messengerChat(MapleMessenger messenger, String chattext, String namefrom) throws RemoteException;
+    public void messengerChat(Messenger messenger, String chattext, String namefrom) throws RemoteException;
 
     public void declineChat(String target, String namefrom) throws RemoteException;
 
-    public void updateMessenger(MapleMessenger messenger, String namefrom, int position, int fromchannel) throws RemoteException;
+    public void updateMessenger(Messenger messenger, String namefrom, int position, int fromchannel) throws RemoteException;
 }

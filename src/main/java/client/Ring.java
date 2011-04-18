@@ -108,10 +108,10 @@ public class Ring implements Comparable<Ring> {
             InventoryManipulator.addRing(partner1, itemid, ringID[0]);
             InventoryManipulator.addRing(partner2, itemid, ringID[1]);
 
-	    partner1.getClient().getSession().write(MaplePacketCreator.getCharInfo(partner1));
+	    partner1.getClient().write(MaplePacketCreator.getCharInfo(partner1));
 	    partner1.getMap().removePlayer(partner1);
 	    partner1.getMap().addPlayer(partner1);
-	    partner2.getClient().getSession().write(MaplePacketCreator.getCharInfo(partner2));
+	    partner2.getClient().write(MaplePacketCreator.getCharInfo(partner2));
 	    partner2.getMap().removePlayer(partner2);
 	    partner2.getMap().addPlayer(partner2);
 

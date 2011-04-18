@@ -38,7 +38,7 @@ public class UserInterfaceHandler {
 
 	    if (selection >= 0 && selection <= ServerConstants.Poll_Answers.length) {
 		if (MapleCharacterUtil.SetPoll(c.getAccID(), selection)) {
-//		    c.getSession().write(MaplePacketCreator.InGame_Poll_Reply());
+//		    c.write(MaplePacketCreator.InGame_Poll_Reply());
 		}
 	    }
 	}
@@ -93,6 +93,6 @@ public class UserInterfaceHandler {
                 System.out.println("Unhandled ship object, MapID : " + mapid);
                 break;
 	}
-	c.getSession().write(MaplePacketCreator.boatPacket(effect));
+	c.write(MaplePacketCreator.boatPacket(effect));
     }
 }

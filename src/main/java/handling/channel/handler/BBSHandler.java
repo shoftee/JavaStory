@@ -100,7 +100,7 @@ public class BbsHandler {
 	    ps.setInt(1, c.getPlayer().getGuildId());
 	    ResultSet rs = ps.executeQuery();
 
-	    c.getSession().write(MaplePacketCreator.BBSThreadList(rs, start));
+	    c.write(MaplePacketCreator.BBSThreadList(rs, start));
 
 	    rs.close();
 	    ps.close();
@@ -318,7 +318,7 @@ public class BbsHandler {
 		repliesRS = ps2.executeQuery();
 		// the lack of repliesRS.next() is intentional
 	    }
-	    c.getSession().write(MaplePacketCreator.showThread(bIsThreadIdLocal ? threadid : threadRS.getInt("localthreadid"), threadRS, repliesRS));
+	    c.write(MaplePacketCreator.showThread(bIsThreadIdLocal ? threadid : threadRS.getInt("localthreadid"), threadRS, repliesRS));
 
 	} catch (SQLException se) {
 	    System.err.println("SQLException: " + se.getLocalizedMessage() + se);

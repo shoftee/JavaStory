@@ -19,8 +19,8 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
-import handling.world.guild.MapleGuild;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.Guild;
+import handling.world.guild.GuildCharacter;
 import handling.world.remote.CheaterData;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLocation;
@@ -285,8 +285,8 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     //TODO only notify channels where partymembers are?
-    public void updateParty(int partyid, PartyOperation operation, MaplePartyCharacter target) throws RemoteException {
-        final MapleParty party = WorldRegistryImpl.getInstance().getParty(partyid);
+    public void updateParty(int partyid, PartyOperation operation, PartyCharacter target) throws RemoteException {
+        final Party party = WorldRegistryImpl.getInstance().getParty(partyid);
         if (party == null) {
             throw new IllegalArgumentException("no party with the specified partyid exists");
         }
@@ -322,11 +322,11 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         }
     }
 
-    public MapleParty createParty(MaplePartyCharacter chrfor) throws RemoteException {
+    public Party createParty(PartyCharacter chrfor) throws RemoteException {
         return WorldRegistryImpl.getInstance().createParty(chrfor);
     }
 
-    public MapleParty getParty(int partyid) throws RemoteException {
+    public Party getParty(int partyid) throws RemoteException {
         return WorldRegistryImpl.getInstance().getParty(partyid);
     }
 
@@ -336,7 +336,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     @Override
     public void partyChat(int partyid, String chattext, String namefrom) throws RemoteException {
-        final MapleParty party = WorldRegistryImpl.getInstance().getParty(partyid);
+        final Party party = WorldRegistryImpl.getInstance().getParty(partyid);
         if (party == null) {
             throw new IllegalArgumentException("no party with the specified partyid exists");
         }
@@ -422,17 +422,17 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     @Override
-    public MapleGuild getGuild(int id, MapleGuildCharacter mgc) throws RemoteException {
+    public Guild getGuild(int id, GuildCharacter mgc) throws RemoteException {
         return WorldRegistryImpl.getInstance().getGuild(id, mgc);
     }
 
     @Override
-    public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, int channel) throws RemoteException {
+    public void setGuildMemberOnline(GuildCharacter mgc, boolean bOnline, int channel) throws RemoteException {
         WorldRegistryImpl.getInstance().setGuildMemberOnline(mgc, bOnline, channel);
     }
 
     @Override
-    public int addGuildMember(MapleGuildCharacter mgc) throws RemoteException {
+    public int addGuildMember(GuildCharacter mgc) throws RemoteException {
         return WorldRegistryImpl.getInstance().addGuildMember(mgc);
     }
 
@@ -442,7 +442,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     @Override
-    public void leaveGuild(MapleGuildCharacter mgc) throws RemoteException {
+    public void leaveGuild(GuildCharacter mgc) throws RemoteException {
         WorldRegistryImpl.getInstance().leaveGuild(mgc);
     }
 
@@ -452,7 +452,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     @Override
-    public void expelMember(MapleGuildCharacter initiator, String name, int cid) throws RemoteException {
+    public void expelMember(GuildCharacter initiator, String name, int cid) throws RemoteException {
         WorldRegistryImpl.getInstance().expelMember(initiator, name, cid);
     }
 
@@ -462,7 +462,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     @Override
-    public void memberLevelJobUpdate(MapleGuildCharacter mgc) throws RemoteException {
+    public void memberLevelJobUpdate(GuildCharacter mgc) throws RemoteException {
         WorldRegistryImpl.getInstance().memberLevelJobUpdate(mgc);
     }
 
@@ -496,11 +496,11 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         WorldRegistryImpl.getInstance().gainGP(gid, amount);
     }
 
-    public MapleMessenger createMessenger(MapleMessengerCharacter chrfor) throws RemoteException {
+    public Messenger createMessenger(MessengerCharacter chrfor) throws RemoteException {
         return WorldRegistryImpl.getInstance().createMessenger(chrfor);
     }
 
-    public MapleMessenger getMessenger(int messengerid) throws RemoteException {
+    public Messenger getMessenger(int messengerid) throws RemoteException {
         return WorldRegistryImpl.getInstance().getMessenger(messengerid);
     }
 
@@ -515,8 +515,8 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         }
     }
 
-    public void leaveMessenger(int messengerid, MapleMessengerCharacter target) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+    public void leaveMessenger(int messengerid, MessengerCharacter target) throws RemoteException {
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
@@ -532,8 +532,8 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         }
     }
 
-    public void joinMessenger(int messengerid, MapleMessengerCharacter target, String from, int fromchannel) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+    public void joinMessenger(int messengerid, MessengerCharacter target, String from, int fromchannel) throws RemoteException {
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
@@ -549,7 +549,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public void messengerChat(int messengerid, String chattext, String namefrom) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
@@ -575,7 +575,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public void updateMessenger(int messengerid, String namefrom, int fromchannel) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         final int position = messenger.getPositionByName(namefrom);
         for (int i : WorldRegistryImpl.getInstance().getChannelServer()) {
             final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
@@ -587,16 +587,16 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         }
     }
 
-    public void silentLeaveMessenger(int messengerid, MapleMessengerCharacter target) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+    public void silentLeaveMessenger(int messengerid, MessengerCharacter target) throws RemoteException {
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
         messenger.silentRemoveMember(target);
     }
 
-    public void silentJoinMessenger(int messengerid, MapleMessengerCharacter target, int position) throws RemoteException {
-        final MapleMessenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+    public void silentJoinMessenger(int messengerid, MessengerCharacter target, int position) throws RemoteException {
+        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }

@@ -42,16 +42,16 @@ public class CharLoginHandler {
         if (loginok == 0 && (ipBan || macBan)) {
             loginok = 3;
             if (macBan) {
-                GameCharacter.ban(c.getSession().getRemoteAddress().toString().split(":")[0], "Enforcing account ban, account " + login, false);
+                GameCharacter.ban(c.getSessionIP(), "Enforcing account ban, account " + login, false);
             }
         }
         if (loginok != 0) {
             if (!loginFailCount(c)) {
-                c.getSession().write(LoginPacket.getLoginFailed(loginok));
+                c.write(LoginPacket.getLoginFailed(loginok));
             }
         } else if (tempbannedTill.getTimeInMillis() != 0) {
             if (!loginFailCount(c)) {
-                c.getSession().write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), c.getBanReason()));
+                c.write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), c.getBanReason()));
             }
         } else {
             c.loginAttempt = 0;
@@ -61,8 +61,8 @@ public class CharLoginHandler {
 
     public static void handleWorldListRequest(final GameClient c) {
         final LoginServer ls = LoginServer.getInstance();
-        c.getSession().write(LoginPacket.getWorldList(2, "Cassiopeia", ls.getChannels()));
-        c.getSession().write(LoginPacket.getEndOfWorldList());
+        c.write(LoginPacket.getWorldList(2, "Cassiopeia", ls.getChannels()));
+        c.write(LoginPacket.getEndOfWorldList());
     }
 
     public static void handleWorldStatusRequest(final GameClient c) {
@@ -72,11 +72,11 @@ public class CharLoginHandler {
         }
         final int userLimit = LoginServer.USER_LIMIT;
         if (numPlayer >= userLimit) {
-            c.getSession().write(LoginPacket.getWorldStatus(2));
+            c.write(LoginPacket.getWorldStatus(2));
         } else if (numPlayer * 2 >= userLimit) {
-            c.getSession().write(LoginPacket.getWorldStatus(1));
+            c.write(LoginPacket.getWorldStatus(1));
         } else {
-            c.getSession().write(LoginPacket.getWorldStatus(0));
+            c.write(LoginPacket.getWorldStatus(0));
         }
     }
 
@@ -90,14 +90,14 @@ public class CharLoginHandler {
         if (chars != null) {
             // TODO: max characters should be set in account, 
             // not in LoginServer config, wtf.
-            c.getSession().write(LoginPacket.getCharacterList(c.getSecondPassword() != null, chars, 3));
+            c.write(LoginPacket.getCharacterList(c.getSecondPassword() != null, chars, 3));
         } else {
-            c.getSession().close(false);
+            c.disconnect();
         }
     }
 
     public static void handleCharacterNameCheck(final String name, final GameClient c) {
-        c.getSession().write(LoginPacket.charNameResponse(name,
+        c.write(LoginPacket.charNameResponse(name,
                                                           !GameCharacterUtil.canCreateChar(name) || LoginInformationProvider.getInstance().isForbiddenName(name)));
     }
 
@@ -139,10 +139,10 @@ public class CharLoginHandler {
 
         if (GameCharacterUtil.canCreateChar(name) && !li.isForbiddenName(name)) {
             GameCharacter.saveNewCharacterToDb(newchar, JobType, JobType == 1 && db > 0);
-            c.getSession().write(LoginPacket.addNewCharEntry(newchar, true));
+            c.write(LoginPacket.addNewCharEntry(newchar, true));
             c.createdChar(newchar.getId());
         } else {
-            c.getSession().write(LoginPacket.addNewCharEntry(newchar, false));
+            c.write(LoginPacket.addNewCharEntry(newchar, false));
         }
     }
 
@@ -154,13 +154,13 @@ public class CharLoginHandler {
         final String AS13Digit = reader.readLengthPrefixedString();
         final int Character_ID = reader.readInt();
         if (!c.login_Auth(Character_ID)) {
-            c.getSession().close(true);
+            c.disconnect(true);
             return;
         }
         byte state = 0;
         if (c.getSecondPassword() != null) {
             if (Secondpw_Client == null) {
-                c.getSession().close(true);
+                c.disconnect(true);
                 return;
             } else {
                 if (!c.CheckSecondPassword(Secondpw_Client)) {
@@ -173,7 +173,7 @@ public class CharLoginHandler {
                 state = 1;
             }
         }
-        c.getSession().write(LoginPacket.deleteCharResponse(Character_ID, state));
+        c.write(LoginPacket.deleteCharResponse(Character_ID, state));
     }
 
     public static void handleWithoutSecondPassword(final PacketReader reader, final GameClient c) throws PacketFormatException {
@@ -182,7 +182,7 @@ public class CharLoginHandler {
         final String currentpw = c.getSecondPassword();
         if (reader.remaining() != 0) {
             if (currentpw != null) { // Hack
-                c.getSession().close(true);
+                c.disconnect(true);
                 return;
             }
             final String setpassword = reader.readLengthPrefixedString();
@@ -190,39 +190,39 @@ public class CharLoginHandler {
                 c.setSecondPassword(setpassword);
                 c.updateSecondPassword();
                 if (!c.login_Auth(charId)) {
-                    c.getSession().close(true);
+                    c.disconnect(true);
                     return;
                 }
             } else {
-                c.getSession().write(LoginPacket.secondPwError((byte) 0x14));
+                c.write(LoginPacket.secondPwError((byte) 0x14));
                 return;
             }
         } else if (loginFailCount(c) || currentpw != null || !c.login_Auth(charId)) {
-            c.getSession().close(false);
+            c.disconnect();
             return;
         }
         if (c.getIdleTask() != null) {
             c.getIdleTask().cancel(true);
         }
-        c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIPAddress());
-        c.getSession().write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
+        c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
+        c.write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
     }
 
     public static void handleWithSecondPassword(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final String password = reader.readLengthPrefixedString();
         final int charId = reader.readInt();
         if (loginFailCount(c) || c.getSecondPassword() == null || !c.login_Auth(charId)) {
-            c.getSession().close(false);
+            c.disconnect();
             return;
         }
         if (c.CheckSecondPassword(password)) {
             if (c.getIdleTask() != null) {
                 c.getIdleTask().cancel(true);
             }
-            c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIPAddress());
-            c.getSession().write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
+            c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
+            c.write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
         } else {
-            c.getSession().write(LoginPacket.secondPwError((byte) 0x14));
+            c.write(LoginPacket.secondPwError((byte) 0x14));
         }
     }
 }

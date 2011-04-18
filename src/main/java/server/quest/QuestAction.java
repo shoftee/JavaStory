@@ -154,11 +154,11 @@ public class QuestAction implements Serializable {
 			    // it's better to catch this here so we'll atleast try to remove the other items
 			    System.err.println("[h4x] Completing a quest without meeting the requirements" + ie);
 			}
-			c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
+			c.getClient().write(MaplePacketCreator.getShowItemGain(id, count, true));
 		    } else { // add items
 //			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
 			InventoryManipulator.addById(c.getClient(), id, count/*, "", -1, 0*/);
-			c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
+			c.getClient().write(MaplePacketCreator.getShowItemGain(id, count, true));
 		    }
 		}
 		break;
@@ -206,7 +206,7 @@ public class QuestAction implements Serializable {
 		final int fameGain = WzDataTool.getInt(data, 0);
 		c.addFame(fameGain);
 		c.updateSingleStat(Stat.FAME, c.getFame());
-		c.getClient().getSession().write(MaplePacketCreator.getShowFameGain(fameGain));
+		c.getClient().write(MaplePacketCreator.getShowFameGain(fameGain));
 		break;
 	    case buffItemID:
 		status = c.getQuest(quest);
@@ -363,11 +363,11 @@ public class QuestAction implements Serializable {
 		    final short count = (short) WzDataTool.getInt(iEntry.getChildByPath("count"), 1);
 		    if (count < 0) { // remove items
 			InventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id, (count * -1), true, false);
-			c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
+			c.getClient().write(MaplePacketCreator.getShowItemGain(id, count, true));
 		    } else { // add items
 //			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
 			InventoryManipulator.addById(c.getClient(), id, count, ""/*, -1, period * 60 * 1000*/);
-			c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
+			c.getClient().write(MaplePacketCreator.getShowItemGain(id, count, true));
 		    }
 		}
 		break;
@@ -410,7 +410,7 @@ public class QuestAction implements Serializable {
 		final int fameGain = WzDataTool.getInt(data, 0);
 		c.addFame(fameGain);
 		c.updateSingleStat(Stat.FAME, c.getFame());
-		c.getClient().getSession().write(MaplePacketCreator.getShowFameGain(fameGain));
+		c.getClient().write(MaplePacketCreator.getShowFameGain(fameGain));
 		break;
 	    }
 	    case buffItemID: {

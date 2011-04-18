@@ -24,11 +24,11 @@ import java.util.List;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.CharacterTransfer;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.GuildCharacter;
 
 public interface CashShopInterface extends Remote {
 
@@ -40,13 +40,13 @@ public interface CashShopInterface extends Remote {
 
     public void ChannelChange_Data(CharacterTransfer Data, int characterid, int toChannel) throws RemoteException;
 
-    public MapleParty getParty(int partyid) throws RemoteException;
+    public Party getParty(int partyid) throws RemoteException;
 
-    public void updateParty(int partyid, PartyOperation operation, MaplePartyCharacter target) throws RemoteException;
+    public void updateParty(int partyid, PartyOperation operation, PartyCharacter target) throws RemoteException;
 
     public void loggedOn(String name, int characterId, int channel, int[] buddies) throws RemoteException;
 
     public void loggedOff(String name, int characterId, int channel, int[] buddies) throws RemoteException;
 
-    public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, int channel) throws RemoteException;
+    public void setGuildMemberOnline(GuildCharacter mgc, boolean bOnline, int channel) throws RemoteException;
 }

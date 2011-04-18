@@ -4,8 +4,8 @@ import java.rmi.RemoteException;
 
 import client.GameCharacter;
 import client.GameClient;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.remote.WorldChannelInterface;
 import org.javastory.io.PacketFormatException;
@@ -21,20 +21,20 @@ public class PartyHandler {
         if (c.getPlayer().getParty() == null) {
             try {
                 WorldChannelInterface wci = c.getChannelServer().getWorldInterface();
-                MapleParty party = wci.getParty(partyid);
+                Party party = wci.getParty(partyid);
                 if (party != null) {
                     if (action == 0x1B) { //accept
                         if (party.getMembers().size() < 6) {
-                            wci.updateParty(partyid, PartyOperation.JOIN, new MaplePartyCharacter(c.getPlayer()));
+                            wci.updateParty(partyid, PartyOperation.JOIN, new PartyCharacter(c.getPlayer()));
                             c.getPlayer().receivePartyMemberHP();
                             c.getPlayer().updatePartyMemberHP();
                         } else {
-                            c.getSession().write(MaplePacketCreator.partyStatusMessage(17));
+                            c.write(MaplePacketCreator.partyStatusMessage(17));
                         }
                     } else if (action != 0x16) {
                         final GameCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterById(party.getLeader().getId());
                         if (cfrom != null) {
-                            cfrom.getClient().getSession().write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
+                            cfrom.getClient().write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
                         }
                     }
                 } else {
@@ -51,8 +51,8 @@ public class PartyHandler {
     public static void handlePartyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final int operation = reader.readByte();
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
-        MapleParty party = c.getPlayer().getParty();
-        MaplePartyCharacter partyplayer = new MaplePartyCharacter(c.getPlayer());
+        Party party = c.getPlayer().getParty();
+        PartyCharacter partyplayer = new PartyCharacter(c.getPlayer());
         switch (operation) {
             case 1: // create
                 if (c.getPlayer().getParty() == null) {
@@ -62,7 +62,7 @@ public class PartyHandler {
                     } catch (RemoteException e) {
                         c.getChannelServer().pingWorld();
                     }
-                    c.getSession().write(MaplePacketCreator.partyCreated());
+                    c.write(MaplePacketCreator.partyCreated());
                 } else {
                     c.getPlayer().dropMessage(5, "You can't create a party as you are already in one");
                 }
@@ -98,7 +98,7 @@ public class PartyHandler {
                                 c.getPlayer().receivePartyMemberHP();
                                 c.getPlayer().updatePartyMemberHP();
                             } else {
-                                c.getSession().write(MaplePacketCreator.partyStatusMessage(17));
+                                c.write(MaplePacketCreator.partyStatusMessage(17));
                             }
                         } else {
                             c.getPlayer().dropMessage(5, "The party you are trying to join does not exist");
@@ -116,21 +116,21 @@ public class PartyHandler {
                 if (invited != null && invited.getWorld() == c.getPlayer().getWorld()) {
                     if (invited.getParty() == null) {
                         if (party.getMembers().size() < 6) {
-                            c.getSession().write(MaplePacketCreator.partyStatusMessage(22, invited.getName()));
-                            invited.getClient().getSession().write(MaplePacketCreator.partyInvite(c.getPlayer()));
+                            c.write(MaplePacketCreator.partyStatusMessage(22, invited.getName()));
+                            invited.getClient().write(MaplePacketCreator.partyInvite(c.getPlayer()));
                         } else {
-                            c.getSession().write(MaplePacketCreator.partyStatusMessage(16));
+                            c.write(MaplePacketCreator.partyStatusMessage(16));
                         }
                     } else {
-                        c.getSession().write(MaplePacketCreator.partyStatusMessage(17));
+                        c.write(MaplePacketCreator.partyStatusMessage(17));
                     }
                 } else {
-                    c.getSession().write(MaplePacketCreator.partyStatusMessage(19));
+                    c.write(MaplePacketCreator.partyStatusMessage(19));
                 }
                 break;
             case 5: // expel
                 if (partyplayer.equals(party.getLeader())) {
-                    final MaplePartyCharacter expelled = party.getMemberById(reader.readInt());
+                    final PartyCharacter expelled = party.getMemberById(reader.readInt());
                     if (expelled != null) {
                         try {
                             wci.updateParty(party.getId(), PartyOperation.EXPEL, expelled);
@@ -149,7 +149,7 @@ public class PartyHandler {
                 }
                 break;
             case 6: // change leader
-                final MaplePartyCharacter newleader = party.getMemberById(reader.readInt());
+                final PartyCharacter newleader = party.getMemberById(reader.readInt());
                 try {
                     wci.updateParty(party.getId(), PartyOperation.CHANGE_LEADER, newleader);
                 } catch (RemoteException e) {

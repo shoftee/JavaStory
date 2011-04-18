@@ -29,16 +29,16 @@ import database.DatabaseConnection;
 import database.DatabaseException;
 import handling.GamePacket;
 import handling.world.CharacterTransfer;
-import handling.world.MapleMessenger;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Messenger;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCoolDownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
 import handling.world.guild.MapleAlliance;
-import handling.world.guild.MapleGuild;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.Guild;
+import handling.world.guild.GuildCharacter;
 import handling.world.remote.WorldChannelInterface;
 import java.util.TimeZone;
 import org.javastory.server.channel.ChannelManager;
@@ -131,10 +131,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     private Storage storage;
     private transient Trade trade;
     private Mount mount;
-    private MapleMessenger messenger;
+    private Messenger messenger;
     private PlayerShop playerShop;
-    private MapleParty party;
-    private MapleGuildCharacter mgc;
+    private Party party;
+    private GuildCharacter mgc;
     private transient EventInstanceManager eventInstance;
     private Inventory[] inventory;
     private SkillMacro[] skillMacros = new SkillMacro[5];
@@ -279,7 +279,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         ret.ondmg = ct.ondmg;
         ret.callgm = ct.callgm;
         if (ret.guildid > 0) {
-            ret.mgc = new MapleGuildCharacter(ret);
+            ret.mgc = new GuildCharacter(ret);
         }
         ret.buddylist = new BuddyList(ct.buddysize);
 
@@ -302,7 +302,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         int partyid = ct.partyid;
         if (partyid >= 0) {
             try {
-                MapleParty party = client.getChannelServer().getWorldInterface().getParty(partyid);
+                Party party = client.getChannelServer().getWorldInterface().getParty(partyid);
                 if (party != null && party.getMemberById(ret.id) != null) {
                     ret.party = party;
                 }
@@ -316,7 +316,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         if (messengerid > 0 && position < 4 && position > -1) {
             try {
                 WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
-                MapleMessenger messenger = wci.getMessenger(messengerid);
+                Messenger messenger = wci.getMessenger(messengerid);
                 if (messenger != null) {
                     ret.messenger = messenger;
                     ret.messengerposition = position;
@@ -452,7 +452,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             ret.allianceRank = rs.getInt("allianceRank");
             ret.reborns = rs.getInt("reborns");
             if (ret.guildid > 0) {
-                ret.mgc = new MapleGuildCharacter(ret);
+                ret.mgc = new GuildCharacter(ret);
             }
             ret.buddylist = new BuddyList(rs.getInt("buddyCapacity"));
 
@@ -472,7 +472,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 int partyid = rs.getInt("party");
                 if (partyid >= 0) {
                     try {
-                        MapleParty party = client.getChannelServer().getWorldInterface().getParty(partyid);
+                        Party party = client.getChannelServer().getWorldInterface().getParty(partyid);
                         if (party != null && party.getMemberById(ret.id) != null) {
                             ret.party = party;
                         }
@@ -486,7 +486,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 if (messengerid > 0 && position < 4 && position > -1) {
                     try {
                         WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
-                        MapleMessenger messenger = wci.getMessenger(messengerid);
+                        Messenger messenger = wci.getMessenger(messengerid);
                         if (messenger != null) {
                             ret.messenger = messenger;
                             ret.messengerposition = position;
@@ -1371,7 +1371,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public final void updateInfoQuest(final int questid, final String data) {
         questinfo.put(questid, data);
-        client.getSession().write(MaplePacketCreator.updateInfoQuest(questid, data));
+        client.write(MaplePacketCreator.updateInfoQuest(questid, data));
     }
 
     public final String getInfoQuest(final int questid) {
@@ -1421,12 +1421,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         if (!quest.isCustomQuest()) {
 
             if (quest.getStatus() == 1) {
-                client.getSession().write(MaplePacketCreator.startQuest(this, (short) quest.getQuest().getId(), quest.getCustomData()));
-                client.getSession().write(MaplePacketCreator.updateQuestInfo(this, (short) quest.getQuest().getId(), quest.getNpc(), (byte) 8));
+                client.write(MaplePacketCreator.startQuest(this, (short) quest.getQuest().getId(), quest.getCustomData()));
+                client.write(MaplePacketCreator.updateQuestInfo(this, (short) quest.getQuest().getId(), quest.getNpc(), (byte) 8));
             } else if (quest.getStatus() == 2) {
-                client.getSession().write(MaplePacketCreator.completeQuest((short) quest.getQuest().getId()));
+                client.write(MaplePacketCreator.completeQuest((short) quest.getQuest().getId()));
             } else if (quest.getStatus() == 0) {
-                client.getSession().write(MaplePacketCreator.forfeitQuest(this, (short) quest.getQuest().getId()));
+                client.write(MaplePacketCreator.forfeitQuest(this, (short) quest.getQuest().getId()));
             }
         }
     }
@@ -1547,7 +1547,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         } else {
             InventoryManipulator.removeById(OdinSEA.c, GameConstants.getInventoryType(id), id, -quantity, true, false);
         }
-        OdinSEA.c.getSession().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
+        OdinSEA.c.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
     }
 
     public int getWorld() {
@@ -1584,7 +1584,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                     cancelBuffStats(BuffStat.DRAGONBLOOD);
                 } else {
                     addHP(-bloodEffect.getX());
-                    client.getSession().write(MaplePacketCreator.showOwnBuffEffect(bloodEffect.getSourceId(), 5));
+                    client.write(MaplePacketCreator.showOwnBuffEffect(bloodEffect.getSourceId(), 5));
                     map.broadcastMessage(GameCharacter.this, MaplePacketCreator.showBuffeffect(getId(), bloodEffect.getSourceId(), 5), false);
                 }
             }
@@ -1602,7 +1602,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                     unequipPet(pet, true, true);
                 } else {
                     pet.setFullness(newFullness);
-                    client.getSession().write(PetPacket.updatePet(pet, true));
+                    client.write(PetPacket.updatePet(pet, true));
                 }
             }
         }, 60000, 60000);
@@ -1640,7 +1640,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void startMapTimeLimitTask(int time, final GameMap to) {
-        client.getSession().write(MaplePacketCreator.getClock(time));
+        client.write(MaplePacketCreator.getClock(time));
 
         time *= 1000;
         mapTimeLimitTask = TimerManager.getInstance().register(new Runnable() {
@@ -1672,17 +1672,17 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                     case 0: // Meso
                         final int money = Randomizer.rand(10, 50000);
                         gainMeso(money, true);
-                        client.getSession().write(UIPacket.fishingUpdate((byte) 1, money));
+                        client.write(UIPacket.fishingUpdate((byte) 1, money));
                         break;
                     case 1: // EXP
                         final int experi = Randomizer.nextInt(GameConstants.getExpNeededForLevel(level) /
                                 200);
                         gainExp(experi, true, false, true);
-                        client.getSession().write(UIPacket.fishingUpdate((byte) 2, experi));
+                        client.write(UIPacket.fishingUpdate((byte) 2, experi));
                         break;
                     default:
                         InventoryManipulator.addById(client, randval, (short) 1);
-                        client.getSession().write(UIPacket.fishingUpdate((byte) 0, randval));
+                        client.write(UIPacket.fishingUpdate((byte) 0, randval));
                         break;
                 }
                 map.broadcastMessage(UIPacket.fishingCaught(id));
@@ -1858,11 +1858,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         if (client.getChannelServer().getPlayerStorage().getCharacterById(getId()) !=
                 null) { // are we still connected ?
             if (buffstats.contains(BuffStat.HOMING_BEACON)) {
-                client.getSession().write(MaplePacketCreator.cancelHoming());
+                client.write(MaplePacketCreator.cancelHoming());
             } else {
                 stats.recalcLocalStats();
                 enforceMaxHpMp();
-                client.getSession().write(MaplePacketCreator.cancelBuff(buffstats, buffstats.contains(BuffStat.MONSTER_RIDING)));
+                client.write(MaplePacketCreator.cancelBuff(buffstats, buffstats.contains(BuffStat.MONSTER_RIDING)));
                 map.broadcastMessage(this, MaplePacketCreator.cancelForeignBuff(getId(), buffstats), false);
             }
         }
@@ -1996,7 +1996,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                     if (energyLevel < 10000) {
                         energyLevel += (100 * targets);
                         setBuffedValue(BuffStat.ENERGY_CHARGE, energyLevel);
-                        client.getSession().write(MaplePacketCreator.giveEnergyChargeTest(energyLevel));
+                        client.write(MaplePacketCreator.giveEnergyChargeTest(energyLevel));
 
                         if (energyLevel >= 10000) {
                             energyLevel = 10001;
@@ -2048,7 +2048,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             duration += (int) ((getBuffedStarttime(BuffStat.COMBO) -
                     System.currentTimeMillis()));
 
-            client.getSession().write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
+            client.write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
             map.broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), stat, ceffect), false);
         }
     }
@@ -2073,7 +2073,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         duration += (int) ((getBuffedStarttime(BuffStat.COMBO) -
                 System.currentTimeMillis()));
 
-        client.getSession().write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
+        client.write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
         map.broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), stat, ceffect), false);
     }
 
@@ -2093,7 +2093,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             statups.add(new Pair<Stat, Integer>(Stat.HP, Integer.valueOf(stats.getHp())));
         }
         if (statups.size() > 0) {
-            client.getSession().write(MaplePacketCreator.updatePlayerStats(statups, getJob()));
+            client.write(MaplePacketCreator.updatePlayerStats(statups, getJob()));
         }
     }
 
@@ -2346,7 +2346,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         if (eventInstance != null) {
             eventInstance.changedMap(this, to.getId());
         }
-        client.getSession().write(warpPacket);
+        client.write(warpPacket);
         map.removePlayer(this);
         if (client.getChannelServer().getPlayerStorage().getCharacterById(getId()) !=
                 null) {
@@ -2390,7 +2390,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
         stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
         stats.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, total));
-        client.getSession().write(MaplePacketCreator.updatePlayerStats(stats, false, chr.getJob()));
+        client.write(MaplePacketCreator.updatePlayerStats(stats, false, chr.getJob()));
     }
 
     public void startHurtHp() {
@@ -2432,7 +2432,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 resetStats(4, 20, 4, 4);
             }
         }
-        client.getSession().write(MaplePacketCreator.updateSp(this, false, isEv));
+        client.write(MaplePacketCreator.updateSp(this, false, isEv));
         updateSingleStat(Stat.JOB, newJob);
 
         int maxhp = stats.getMaxHp(), maxmp = stats.getMaxMp();
@@ -2498,7 +2498,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         statup.add(new Pair<Stat, Integer>(Stat.MAXHP, Integer.valueOf(maxhp)));
         statup.add(new Pair<Stat, Integer>(Stat.MAXMP, Integer.valueOf(maxmp)));
         stats.recalcLocalStats();
-        client.getSession().write(MaplePacketCreator.updatePlayerStats(statup, getJob()));
+        client.write(MaplePacketCreator.updatePlayerStats(statup, getJob()));
         map.broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 8), false);
         silentPartyUpdate();
         guildUpdate();
@@ -2557,8 +2557,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public void gainSP(int sp) {
         this.remainingSp[GameConstants.getSkillBook(job)] += sp; //default
-        client.getSession().write(MaplePacketCreator.updateSp(this, false));
-        client.getSession().write(UIPacket.getSPMsg((byte) sp));
+        client.write(MaplePacketCreator.updateSp(this, false));
+        client.write(UIPacket.getSPMsg((byte) sp));
     }
 
     public void changeSkillLevel(final ISkill skill, byte newLevel, byte newMasterlevel) {
@@ -2586,7 +2586,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         } else if (GameConstants.isElementAmp_Skill(skill.getId())) {
             stats.recalcLocalStats();
         }
-        client.getSession().write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));
+        client.write(MaplePacketCreator.updateSkill(skill.getId(), newLevel, newMasterlevel));
     }
 
     public void playerDead() {
@@ -2619,7 +2619,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 if (charms > 0xFF) {
                     charms = 0xFF;
                 }
-                client.getSession().write(MTSCSPacket.useCharm((byte) charms, (byte) 0));
+                client.write(MTSCSPacket.useCharm((byte) charms, (byte) 0));
             } else {
                 float diepercentage = 0.0f;
                 int expforlevel = GameConstants.getExpNeededForLevel(level);
@@ -2649,12 +2649,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     public void updatePartyMemberHP() {
         if (party != null) {
             final int channel = client.getChannelId();
-            for (MaplePartyCharacter partychar : party.getMembers()) {
+            for (PartyCharacter partychar : party.getMembers()) {
                 if (partychar.getMapid() == getMapId() && partychar.getChannel() ==
                         channel) {
                     final GameCharacter other = ChannelManager.getInstance(channel).getPlayerStorage().getCharacterByName(partychar.getName());
                     if (other != null) {
-                        other.getClient().getSession().write(MaplePacketCreator.updatePartyMemberHP(getId(), stats.getHp(), stats.getCurrentMaxHp()));
+                        other.getClient().write(MaplePacketCreator.updatePartyMemberHP(getId(), stats.getHp(), stats.getCurrentMaxHp()));
                     }
                 }
             }
@@ -2663,12 +2663,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public void receivePartyMemberHP() {
         int channel = client.getChannelId();
-        for (MaplePartyCharacter partychar : party.getMembers()) {
+        for (PartyCharacter partychar : party.getMembers()) {
             if (partychar.getMapid() == getMapId() && partychar.getChannel() ==
                     channel) {
                 GameCharacter other = ChannelManager.getInstance(channel).getPlayerStorage().getCharacterByName(partychar.getName());
                 if (other != null) {
-                    client.getSession().write(MaplePacketCreator.updatePartyMemberHP(other.getId(), other.getStat().getHp(), other.getStat().getCurrentMaxHp()));
+                    client.write(MaplePacketCreator.updatePartyMemberHP(other.getId(), other.getStat().getHp(), other.getStat().getCurrentMaxHp()));
                 }
             }
         }
@@ -2708,7 +2708,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             statups.add(new Pair<Stat, Integer>(Stat.MP, Integer.valueOf(stats.getMp())));
         }
         if (statups.size() > 0) {
-            client.getSession().write(MaplePacketCreator.updatePlayerStats(statups, getJob()));
+            client.write(MaplePacketCreator.updatePlayerStats(statups, getJob()));
         }
     }
 
@@ -2726,11 +2726,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
      */
     public void updateSingleStat(Stat stat, int newval, boolean itemReaction) {
         if (stat == Stat.AVAILABLESP) {
-            client.getSession().write(MaplePacketCreator.updateSp(this, itemReaction, false));
+            client.write(MaplePacketCreator.updateSp(this, itemReaction, false));
             return;
         }
         Pair<Stat, Integer> statpair = new Pair<Stat, Integer>(stat, Integer.valueOf(newval));
-        client.getSession().write(MaplePacketCreator.updatePlayerStats(Collections.singletonList(statpair), itemReaction, getJob()));
+        client.write(MaplePacketCreator.updatePlayerStats(Collections.singletonList(statpair), itemReaction, getJob()));
     }
 
     public void gainExp(final int total, final boolean show, final boolean inChat, final boolean white) {
@@ -2764,7 +2764,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             }
             updateSingleStat(Stat.EXP, getExp());
             if (show) { // still show the expgain even if it's not there
-                client.getSession().write(MaplePacketCreator.GainEXP_Others(total, inChat, white));
+                client.write(MaplePacketCreator.GainEXP_Others(total, inChat, white));
             }
         }
     }
@@ -2839,7 +2839,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             }
             updateSingleStat(Stat.EXP, getExp());
             if (show) { // still show the expgain even if it's not there
-                client.getSession().write(MaplePacketCreator.GainEXP_Monster(base_EXP, white, Event_EXP, Wedding_EXP, Party_Ring_EXP, Party_EXP, Premium_EXP, Item_EXP, Rainbow_EXP, CLASS_EXP));
+                client.write(MaplePacketCreator.GainEXP_Monster(base_EXP, white, Event_EXP, Wedding_EXP, Party_Ring_EXP, Party_EXP, Premium_EXP, Item_EXP, Rainbow_EXP, CLASS_EXP));
             }
         }
     }
@@ -2847,7 +2847,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     public void silentPartyUpdate() {
         if (party != null) {
             try {
-                client.getChannelServer().getWorldInterface().updateParty(party.getId(), PartyOperation.SILENT_UPDATE, new MaplePartyCharacter(this));
+                client.getChannelServer().getWorldInterface().updateParty(party.getId(), PartyOperation.SILENT_UPDATE, new PartyCharacter(this));
             } catch (RemoteException e) {
                 System.err.println("REMOTE THROW, silentPartyUpdate" + e);
                 client.getChannelServer().pingWorld();
@@ -2891,10 +2891,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                         if (currenttime > expiration) {
                             item.setExpiration(-1);
                             item.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
-                            client.getSession().write(MaplePacketCreator.updateSpecialItemUse(item, item.getType()));
+                            client.write(MaplePacketCreator.updateSpecialItemUse(item, item.getType()));
                         }
                     } else if (currenttime > expiration) {
-                        client.getSession().write(MTSCSPacket.itemExpired(item.getItemId()));
+                        client.write(MTSCSPacket.itemExpired(item.getItemId()));
                         toberemove.add(item);
                     }
                 }
@@ -2943,20 +2943,20 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public void gainMeso(int gain, boolean show, boolean enableActions, boolean inChat) {
         if (meso + gain < 0) {
-            client.getSession().write(MaplePacketCreator.enableActions());
+            client.write(MaplePacketCreator.enableActions());
             return;
         }
         meso += gain;
         updateSingleStat(Stat.MESO, meso, enableActions);
         if (show) {
-            client.getSession().write(MaplePacketCreator.showMesoGain(gain, inChat));
+            client.write(MaplePacketCreator.showMesoGain(gain, inChat));
         }
     }
 
     public void controlMonster(Monster monster, boolean aggro) {
         monster.setController(this);
         controlled.add(monster);
-        client.getSession().write(MobPacket.controlMonster(monster, false, aggro));
+        client.write(MobPacket.controlMonster(monster, false, aggro));
     }
 
     public void stopControllingMonster(Monster monster) {
@@ -2986,9 +2986,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                     continue;
                 }
                 if (q.mobKilled(id)) {
-                    client.getSession().write(MaplePacketCreator.updateQuestMobKills(q));
+                    client.write(MaplePacketCreator.updateQuestMobKills(q));
                     if (q.getQuest().canComplete(this, null)) {
-                        client.getSession().write(MaplePacketCreator.getShowQuestCompletion(q.getQuest().getId()));
+                        client.write(MaplePacketCreator.getShowQuestCompletion(q.getQuest().getId()));
                     }
                 }
             }
@@ -3143,7 +3143,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         statup.add(new Pair<Stat, Integer>(Stat.LEVEL, (int) level));
         if (job != 0 && job != 1000 && job != 2000 && job != 2001) { // Not Beginner, Nobless and Legend
             remainingSp[GameConstants.getSkillBook(job)] += 3;
-            client.getSession().write(MaplePacketCreator.updateSp(this, false));
+            client.write(MaplePacketCreator.updateSp(this, false));
         } else {
             if (level <= 10) {
                 stats.setStr(stats.getStr() + remainingAp);
@@ -3156,7 +3156,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         stats.setMaxMp(maxmp);
         stats.setHp(maxhp);
         stats.setMp(maxmp);
-        client.getSession().write(MaplePacketCreator.updatePlayerStats(statup, getJob()));
+        client.write(MaplePacketCreator.updatePlayerStats(statup, getJob()));
         map.broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 0), false);
         stats.recalcLocalStats();
         silentPartyUpdate();
@@ -3175,7 +3175,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     public void sendMacros() {
         for (int i = 0; i < 5; i++) {
             if (skillMacros[i] != null) {
-                client.getSession().write(MaplePacketCreator.getMacros(skillMacros));
+                client.write(MaplePacketCreator.getMacros(skillMacros));
                 break;
             }
         }
@@ -3197,11 +3197,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
-            ps.setString(1, client.getSession().getRemoteAddress().toString().split(":")[0]);
+            ps.setString(1, client.getSessionIP());
             ps.execute();
             ps.close();
 
-            client.getSession().close(true);
+            client.disconnect(true);
 
             ps = con.prepareStatement("UPDATE accounts SET tempban = ?, banreason = ?, greason = ? WHERE id = ?");
             Timestamp TS = new Timestamp(duration.getTimeInMillis());
@@ -3233,8 +3233,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             if (IPMac) {
                 client.banMacs();
                 ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
-                String[] ipSplit = client.getSession().getRemoteAddress().toString().split(":");
-                ps.setString(1, ipSplit[0]);
+                ps.setString(1, client.getSessionIP());
                 ps.execute();
                 ps.close();
             }
@@ -3323,21 +3322,21 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     @Override
     public void sendDestroyData(GameClient client) {
-        client.getSession().write(MaplePacketCreator.removePlayerFromMap(this.getObjectId()));
+        client.write(MaplePacketCreator.removePlayerFromMap(this.getObjectId()));
     }
 
     @Override
     public void sendSpawnData(GameClient client) {
         if (!isHidden()) {
-            client.getSession().write(MaplePacketCreator.spawnPlayerMapobject(this));
+            client.write(MaplePacketCreator.spawnPlayerMapobject(this));
 
             for (final Pet pet : pets) {
                 if (pet.getSummoned()) {
-                    client.getSession().write(PetPacket.showPet(this, pet, false, false));
+                    client.write(PetPacket.showPet(this, pet, false, false));
                 }
             }
             if (dragon != null) {
-                client.getSession().write(MaplePacketCreator.spawnDragon(dragon));
+                client.write(MaplePacketCreator.spawnDragon(dragon));
             }
         }
     }
@@ -3449,8 +3448,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         map.broadcastMessage(this, PetPacket.showPet(this, pet, true, hunger), true);
         List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>();
         stats.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(0)));
-        client.getSession().write(PetPacket.petStatUpdate(this));
-        client.getSession().write(MaplePacketCreator.enableActions());
+        client.write(PetPacket.petStatUpdate(this));
+        client.write(MaplePacketCreator.enableActions());
         removePet(pet, shiftLeft);
     }
 
@@ -3498,7 +3497,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         return this.keylayout;
     }
 
-    public MapleParty getParty() {
+    public Party getParty() {
         return party;
     }
 
@@ -3510,7 +3509,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         this.world = world;
     }
 
-    public void setParty(MapleParty party) {
+    public void setParty(Party party) {
         this.party = party;
     }
 
@@ -3614,7 +3613,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         guildid = _id;
         if (guildid > 0) {
             if (mgc == null) {
-                mgc = new MapleGuildCharacter(this);
+                mgc = new GuildCharacter(this);
             } else {
                 mgc.setGuildId(guildid);
             }
@@ -3630,7 +3629,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         }
     }
 
-    public MapleGuildCharacter getMGC() {
+    public GuildCharacter getMGC() {
         return mgc;
     }
 
@@ -3642,7 +3641,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         return allianceRank;
     }
 
-    public MapleGuild getGuild() {
+    public Guild getGuild() {
         try {
             return client.getChannelServer().getWorldInterface().getGuild(getGuildId(), null);
         } catch (RemoteException e) {
@@ -3708,7 +3707,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             }
             if (show) {
                 dropMessage(5, "You have gained " + quantity + " cash.");
-                client.getSession().write(MaplePacketCreator.showSpecialEffect(19));
+                client.write(MaplePacketCreator.showSpecialEffect(19));
             }
         } else {
             dropMessage(5, "You have reached the maximum ammount of @cash");
@@ -3763,14 +3762,14 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public void setBuddyCapacity(int capacity) {
         buddylist.setCapacity(capacity);
-        client.getSession().write(MaplePacketCreator.updateBuddyCapacity(capacity));
+        client.write(MaplePacketCreator.updateBuddyCapacity(capacity));
     }
 
-    public MapleMessenger getMessenger() {
+    public Messenger getMessenger() {
         return messenger;
     }
 
-    public void setMessenger(MapleMessenger messenger) {
+    public void setMessenger(Messenger messenger) {
         this.messenger = messenger;
     }
 
@@ -3878,7 +3877,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             }, skill.getDuration());
 
             diseases.put(disease, new DiseaseValueHolder(System.currentTimeMillis(), skill.getDuration()));
-            client.getSession().write(MaplePacketCreator.giveDebuff(debuff, skill));
+            client.write(MaplePacketCreator.giveDebuff(debuff, skill));
             map.broadcastMessage(this, MaplePacketCreator.giveForeignDebuff(id, debuff, skill), false);
         }
     }
@@ -3904,7 +3903,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     public void dispelDebuff(Disease debuff) {
         if (hasDisease(debuff)) {
             long mask = debuff.getValue();
-            client.getSession().write(MaplePacketCreator.cancelDebuff(mask));
+            client.write(MaplePacketCreator.cancelDebuff(mask));
             map.broadcastMessage(this, MaplePacketCreator.cancelForeignDebuff(id, mask), false);
 
             diseases.remove(debuff);
@@ -3951,7 +3950,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             rs.last();
             int count = rs.getRow();
             rs.first();
-            client.getSession().write(MTSCSPacket.showNotes(rs, count));
+            client.write(MTSCSPacket.showNotes(rs, count));
             ps.close();
         } catch (SQLException e) {
             System.err.println("Unable to show note" + e);
@@ -3980,11 +3979,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         } else {
             mulung_energy = 0;
         }
-        client.getSession().write(MaplePacketCreator.MulungEnergy(mulung_energy));
+        client.write(MaplePacketCreator.MulungEnergy(mulung_energy));
     }
 
     public void writeMulungEnergy() {
-        client.getSession().write(MaplePacketCreator.MulungEnergy(mulung_energy));
+        client.write(MaplePacketCreator.MulungEnergy(mulung_energy));
     }
 
     public final short getCombo() {
@@ -4028,7 +4027,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 Berserk = true;
             }
 
-            client.getSession().write(MaplePacketCreator.showOwnBerserk(skilllevel, Berserk));
+            client.write(MaplePacketCreator.showOwnBerserk(skilllevel, Berserk));
             map.broadcastMessage(this, MaplePacketCreator.showBerserk(getId(), skilllevel, Berserk), false);
 
             BerserkSchedule = TimerManager.getInstance().schedule(new Runnable() {
@@ -4058,7 +4057,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 @Override
                 public void run() {
                     addHP(healEffect.getHp());
-                    client.getSession().write(MaplePacketCreator.showOwnBuffEffect(1321007, 2));
+                    client.write(MaplePacketCreator.showOwnBuffEffect(1321007, 2));
                     map.broadcastMessage(GameCharacter.this, MaplePacketCreator.summonSkill(getId(), 1321007, 5), true);
                     map.broadcastMessage(GameCharacter.this, MaplePacketCreator.showBuffeffect(getId(), 1321007, 2), false);
                 }
@@ -4074,7 +4073,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 @Override
                 public void run() {
                     buffEffect.applyTo(GameCharacter.this);
-                    client.getSession().write(MaplePacketCreator.showOwnBuffEffect(1321007, 2));
+                    client.write(MaplePacketCreator.showOwnBuffEffect(1321007, 2));
                     map.broadcastMessage(GameCharacter.this, MaplePacketCreator.summonSkill(getId(), 1321007, (int) (Math.random() *
                             3) + 6), true);
                     map.broadcastMessage(GameCharacter.this, MaplePacketCreator.showBuffeffect(getId(), 1321007, 2), false);
@@ -4172,7 +4171,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void dropMessage(int type, String message) {
-        client.getSession().write(MaplePacketCreator.serverNotice(type, message));
+        client.write(MaplePacketCreator.serverNotice(type, message));
     }
 
     public PlayerShop getPlayerShop() {
@@ -4234,15 +4233,15 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void startMonsterCarnival(final int enemyavailable, final int enemytotal) {
-        client.getSession().write(MonsterCarnivalPacket.startMonsterCarnival(this, enemyavailable, enemytotal));
+        client.write(MonsterCarnivalPacket.startMonsterCarnival(this, enemyavailable, enemytotal));
     }
 
     public void CPUpdate(final boolean party, final int available, final int total, final int team) {
-        client.getSession().write(MonsterCarnivalPacket.CPUpdate(party, available, total, team));
+        client.write(MonsterCarnivalPacket.CPUpdate(party, available, total, team));
     }
 
     public void playerDiedCPQ(final String name, final int lostCP, final int team) {
-        client.getSession().write(MonsterCarnivalPacket.playerDiedMessage(name, lostCP, team));
+        client.write(MonsterCarnivalPacket.playerDiedMessage(name, lostCP, team));
     }
 
     public int getSubcategory() {

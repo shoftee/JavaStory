@@ -63,7 +63,7 @@ public class DueyHandler {
                 final int conv = c.getPlayer().getConversation();
 
                 if (conv == 2) { // Duey
-                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 10, loadItems(c.getPlayer())));
+                    c.write(MaplePacketCreator.sendDuey((byte) 10, loadItems(c.getPlayer())));
                 }
                 break;
             }
@@ -101,12 +101,12 @@ public class DueyHandler {
                                 final InventoryType inv = InventoryType.getByType(inventId);
                                 final IItem item = c.getPlayer().getInventory(inv).getItem((byte) itemPos);
                                 if (item == null) {
-                                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
+                                    c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                                     return;
                                 }
                                 final byte flag = item.getFlag();
                                 if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
-                                    c.getSession().write(MaplePacketCreator.enableActions());
+                                    c.write(MaplePacketCreator.enableActions());
                                     return;
                                 }
                                 if (c.getPlayer().getItemQuantity(item.getItemId(), false) >= amount) {
@@ -120,36 +120,36 @@ public class DueyHandler {
                                             }
                                             c.getPlayer().gainMeso(-finalcost, false);
 
-                                            c.getSession().write(MaplePacketCreator.sendDuey((byte) 19, null)); // Successfull
+                                            c.write(MaplePacketCreator.sendDuey((byte) 19, null)); // Successfull
                                         } else {
-                                            c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessful
+                                            c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessful
                                         }
                                     } else {
-                                        c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
+                                        c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                                     }
                                 } else {
-                                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
+                                    c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                                 }
                             } else {
                                 if (addMesoToDB(mesos, c.getPlayer().getName(), accid, recipientOn)) {
                                     c.getPlayer().gainMeso(-finalcost, false);
 
-                                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 19, null)); // Successfull
+                                    c.write(MaplePacketCreator.sendDuey((byte) 19, null)); // Successfull
                                 } else {
-                                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
+                                    c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                                 }
                             }
 //                            if (recipientOn && rClient != null) {
-                            //                              rClient.getSession().write(MaplePacketCreator.sendDueyMSG(Actions.PACKAGE_MSG.getCode()));
+                            //                              rClient.write(MaplePacketCreator.sendDueyMSG(Actions.PACKAGE_MSG.getCode()));
                             //                        }
                         } else {
-                            c.getSession().write(MaplePacketCreator.sendDuey((byte) 15, null)); // Same acc error
+                            c.write(MaplePacketCreator.sendDuey((byte) 15, null)); // Same acc error
                         }
                     } else {
-                        c.getSession().write(MaplePacketCreator.sendDuey((byte) 14, null)); // Name does not exist
+                        c.write(MaplePacketCreator.sendDuey((byte) 14, null)); // Name does not exist
                     }
                 } else {
-                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 12, null)); // Not enough mesos
+                    c.write(MaplePacketCreator.sendDuey((byte) 12, null)); // Not enough mesos
                 }
                 break;
             }
@@ -163,10 +163,10 @@ public class DueyHandler {
                     return;
                 }
                 if (dp.getItem() != null && !InventoryManipulator.checkSpace(c, dp.getItem().getItemId(), dp.getItem().getQuantity(), dp.getItem().getOwner())) {
-                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 16, null)); // Not enough Space
+                    c.write(MaplePacketCreator.sendDuey((byte) 16, null)); // Not enough Space
                     return;
                 } else if (dp.getMesos() < 0 || (dp.getMesos() + c.getPlayer().getMeso()) < 0) {
-                    c.getSession().write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
+                    c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                     return;
                 }
                 removeItemFromDB(packageid, c.getPlayer().getId()); // Remove first
@@ -176,7 +176,7 @@ public class DueyHandler {
                 if (dp.getMesos() != 0) {
                     c.getPlayer().gainMeso(dp.getMesos(), false);
                 }
-                c.getSession().write(MaplePacketCreator.removeItemFromDuey(false, packageid));
+                c.write(MaplePacketCreator.removeItemFromDuey(false, packageid));
                 break;
             }
             case 6: { // Remove package
@@ -185,7 +185,7 @@ public class DueyHandler {
                 }
                 final int packageid = reader.readInt();
                 removeItemFromDB(packageid, c.getPlayer().getId());
-                c.getSession().write(MaplePacketCreator.removeItemFromDuey(true, packageid));
+                c.write(MaplePacketCreator.removeItemFromDuey(true, packageid));
                 break;
             }
             case 8: { // Close Duey

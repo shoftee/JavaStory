@@ -48,6 +48,6 @@ public class GameMapEffect {
     }
 
     public void sendStartData(GameClient c) {
-	c.getSession().write(MaplePacketCreator.startMapEffect(msg, itemId, active));
+	c.write(MaplePacketCreator.startMapEffect(msg, itemId, active));
     }
 }

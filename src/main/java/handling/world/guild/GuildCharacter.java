@@ -2,7 +2,7 @@ package handling.world.guild;
 
 import client.GameCharacter;
 
-public class MapleGuildCharacter implements java.io.Serializable { // alias for a character
+public class GuildCharacter implements java.io.Serializable { // alias for a character
 	public static final long serialVersionUID = 2058609046116597760L;
 	private byte channel;
 	private short level;
@@ -12,7 +12,7 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
 
 	// either read from active character...
 	// if it's online
-	public MapleGuildCharacter(final GameCharacter c) {
+	public GuildCharacter(final GameCharacter c) {
 		name = c.getName();
 		level = (short) c.getLevel();
 		id = c.getId();
@@ -24,7 +24,7 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
 	}
 
 	// or we could just read from the database
-	public MapleGuildCharacter(final int id, final short lv, final String name, final byte channel, final int job, final int rank, final int gid, final boolean on) {
+	public GuildCharacter(final int id, final short lv, final String name, final byte channel, final int job, final int rank, final int gid, final boolean on) {
 		this.level = lv;
 		this.id = id;
 		this.name = name;

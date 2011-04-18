@@ -105,12 +105,12 @@ public class Reactor extends AbstractGameMapObject {
 
     @Override
     public void sendDestroyData(GameClient client) {
-	client.getSession().write(MaplePacketCreator.destroyReactor(this));
+	client.write(MaplePacketCreator.destroyReactor(this));
     }
 
     @Override
     public void sendSpawnData(GameClient client) {
-	client.getSession().write(MaplePacketCreator.spawnReactor(this));
+	client.write(MaplePacketCreator.spawnReactor(this));
     }
 
     public void forceStartReactor(GameClient c) {

@@ -27,7 +27,7 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 import handling.channel.remote.ChannelWorldInterface;
-import handling.world.guild.MapleGuildCharacter;
+import handling.world.guild.GuildCharacter;
 import handling.world.remote.CashShopInterface;
 
 public class WorldCashShopInterfaceImpl extends UnicastRemoteObject implements CashShopInterface {
@@ -85,8 +85,8 @@ public class WorldCashShopInterfaceImpl extends UnicastRemoteObject implements C
     }
 
     //TODO only notify channels where partymembers are?
-    public void updateParty(int partyid, PartyOperation operation, MaplePartyCharacter target) throws RemoteException {
-	final MapleParty party = WorldRegistryImpl.getInstance().getParty(partyid);
+    public void updateParty(int partyid, PartyOperation operation, PartyCharacter target) throws RemoteException {
+	final Party party = WorldRegistryImpl.getInstance().getParty(partyid);
 	if (party == null) {
 	    throw new IllegalArgumentException("no party with the specified partyid exists");
 	}
@@ -121,7 +121,7 @@ public class WorldCashShopInterfaceImpl extends UnicastRemoteObject implements C
 	}
     }
 
-    public MapleParty getParty(int partyid) throws RemoteException {
+    public Party getParty(int partyid) throws RemoteException {
 	return WorldRegistryImpl.getInstance().getParty(partyid);
     }
 
@@ -147,7 +147,7 @@ public class WorldCashShopInterfaceImpl extends UnicastRemoteObject implements C
 	}
     }
 
-    public void setGuildMemberOnline(MapleGuildCharacter mgc, boolean bOnline, int channel) throws RemoteException {
+    public void setGuildMemberOnline(GuildCharacter mgc, boolean bOnline, int channel) throws RemoteException {
 	WorldRegistryImpl.getInstance().setGuildMemberOnline(mgc, bOnline, channel);
     }
 }

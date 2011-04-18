@@ -96,12 +96,12 @@ public class GameMapItem extends AbstractGameMapObject {
 	@Override
 	public void sendSpawnData(final GameClient client) {
 		if (questid <= 0 || client.getPlayer().getQuestStatus(questid) == 1) {
-			client.getSession().write(MaplePacketCreator.dropItemFromMapObject(this, null, getPosition(), (byte) 2));
+			client.write(MaplePacketCreator.dropItemFromMapObject(this, null, getPosition(), (byte) 2));
 		}
 	}
 
 	@Override
 	public void sendDestroyData(final GameClient client) {
-		client.getSession().write(MaplePacketCreator.removeItemFromMap(getObjectId(), 1, 0));
+		client.write(MaplePacketCreator.removeItemFromMap(getObjectId(), 1, 0));
 	}
 }

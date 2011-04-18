@@ -13,14 +13,14 @@ public class TestCommands implements Command {
 	@Override
 	public void execute(final GameClient c, final String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-test1")) {
-			c.getSession().write(TestPacket.EXPTest1());
+			c.write(TestPacket.EXPTest1());
 		} else if (splitted[0].equals("-test2")) {
-			c.getSession().write(TestPacket.EXPTest2());
+			c.write(TestPacket.EXPTest2());
 		} else if (splitted[0].equals("-clock")) {
 			c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getClock(getOptionalIntArg(splitted, 1, 60)));
 		} else if (splitted[0].equals("-packet")) {
 			if (splitted.length > 1) {
-				c.getSession().write(MaplePacketCreator.getPacketFromHexString(StringUtil.joinStringFrom(splitted, 1)));
+				c.write(MaplePacketCreator.getPacketFromHexString(StringUtil.joinStringFrom(splitted, 1)));
 			} else {
 				c.getPlayer().dropMessage(6, "Please enter packet data!");
 			}

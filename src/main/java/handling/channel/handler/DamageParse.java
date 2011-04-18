@@ -55,7 +55,7 @@ public class DamageParse {
 
         if (attack.skill != 0) {
             if (effect == null) {
-                player.getClient().getSession().write(MaplePacketCreator.enableActions());
+                player.getClient().write(MaplePacketCreator.enableActions());
                 return;
             }
             if (GameConstants.isMulungSkill(attack.skill)) {
@@ -426,7 +426,7 @@ public class DamageParse {
         player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
 
         if (effect == null) {
-            player.getClient().getSession().write(MaplePacketCreator.enableActions());
+            player.getClient().write(MaplePacketCreator.enableActions());
             return;
         }
 //	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
@@ -444,8 +444,8 @@ public class DamageParse {
         } else if (attack.skill == 1000 || attack.skill == 10001000 || attack.skill == 20001000 || attack.skill == 20011000) {
             maxDamagePerHit = 40;
         } else {
-            // Minimum Damage = BA * (INT * 0.5 + (MATK*0.058)² + MATK * 3.3) /100
-            // Maximum Damage = BA * (INT * 0.5 + (MATK*0.058)² + (Mastery * 0.9 * MATK) * 3.3) /100
+            // Minimum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + MATK * 3.3) /100
+            // Maximum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + (Mastery * 0.9 * MATK) * 3.3) /100
             final double v75 = (effect.getMatk() * 0.058);
 //	    minDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + effect.getMatk() * 3.3) / 100;
             maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + (effect.getMastery() * 0.9 * effect.getMatk()) * 3.3) / 100;

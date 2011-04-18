@@ -98,7 +98,7 @@ public class CarnivalParty {
         final String effect = winner ? "quest/carnival/win" : "quest/carnival/lose";
 
         for (final GameCharacter chr : members) {
-            chr.getClient().getSession().write(MaplePacketCreator.showEffect(effect));
+            chr.getClient().write(MaplePacketCreator.showEffect(effect));
         }
 
     }

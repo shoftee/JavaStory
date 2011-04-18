@@ -75,7 +75,7 @@ public class ItemMakerHandler {
             InventoryManipulator.addById(c, toGive[0], (byte) toGive[1]);
             InventoryManipulator.removeFromSlot(c, InventoryType.EQUIP, slot, (byte) 1, false);
         }
-        c.getSession().write(MaplePacketCreator.ItemMaker_Success());
+        c.write(MaplePacketCreator.ItemMaker_Success());
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
         return false;
     }
@@ -87,7 +87,7 @@ public class ItemMakerHandler {
             InventoryManipulator.addById(c, getCreateCrystal(etc), (short) 1);
             InventoryManipulator.removeById(c, InventoryType.ETC, etc, 100, false, false);
 
-            c.getSession().write(MaplePacketCreator.ItemMaker_Success());
+            c.write(MaplePacketCreator.ItemMaker_Success());
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
         }
     }
@@ -114,7 +114,7 @@ public class ItemMakerHandler {
             c.getPlayer().gainMeso(-gem.getCost(), false);
             InventoryManipulator.addById(c, gemItemId, (byte) (taken ==
                     gemItemId ? 9 : 1)); // Gem is always 1
-            c.getSession().write(MaplePacketCreator.ItemMaker_Success());
+            c.write(MaplePacketCreator.ItemMaker_Success());
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
         } else {
             final boolean stimulator = reader.readByte() > 0;
@@ -155,7 +155,7 @@ public class ItemMakerHandler {
                 }
             }
             InventoryManipulator.addbyItem(c, toGive);
-            c.getSession().write(MaplePacketCreator.ItemMaker_Success());
+            c.write(MaplePacketCreator.ItemMaker_Success());
             c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
         }
         return false;

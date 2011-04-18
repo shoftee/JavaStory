@@ -35,7 +35,7 @@ public class GuildHandler {
     public static final void handleDenyGuildInvitation(final String from, final GameClient c) {
 	final GameCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
 	if (cfrom != null) {
-	    cfrom.getClient().getSession().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
+	    cfrom.getClient().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
 	}
     }
 
@@ -118,14 +118,14 @@ public class GuildHandler {
 		    return;
 		}
 		if (guildId == 0) {
-		    c.getSession().write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
+		    c.write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
 		    return;
 		}
 		c.getPlayer().gainMeso(-5000000, true, false, true);
 		c.getPlayer().setGuildId(guildId);
 		c.getPlayer().setGuildRank(1);
 		c.getPlayer().saveGuildStatus();
-		c.getSession().write(MaplePacketCreator.showGuildInfo(c.getPlayer()));
+		c.write(MaplePacketCreator.showGuildInfo(c.getPlayer()));
 		c.getPlayer().dropMessage(1, "You have successfully created a Guild.");
 		respawnPlayer(c.getPlayer());
 		break;
@@ -134,10 +134,10 @@ public class GuildHandler {
 		    return;
 		}
 		String name = reader.readLengthPrefixedString();
-		final MapleGuildResponse mgr = MapleGuild.sendInvite(c, name);
+		final MapleGuildResponse mgr = Guild.sendInvite(c, name);
 
 		if (mgr != null) {
-		    c.getSession().write(mgr.getPacket());
+		    c.write(mgr.getPacket());
 		} else {
 		    Invited inv = new Invited(name, c.getPlayer().getGuildId());
 		    if (!invited.contains(inv)) {
@@ -180,7 +180,7 @@ public class GuildHandler {
 			    c.getPlayer().setGuildId(0);
 			    return;
 			}
-			c.getSession().write(MaplePacketCreator.showGuildInfo(c.getPlayer()));
+			c.write(MaplePacketCreator.showGuildInfo(c.getPlayer()));
 			c.getPlayer().saveGuildStatus();
 			respawnPlayer(c.getPlayer());
 			break;
@@ -201,7 +201,7 @@ public class GuildHandler {
 		    c.getPlayer().dropMessage(5, "Unable to connect to the World Server. Please try again later.");
 		    return;
 		}
-		c.getSession().write(MaplePacketCreator.showGuildInfo(null));
+		c.write(MaplePacketCreator.showGuildInfo(null));
 		c.getPlayer().setGuildId(0);
 		c.getPlayer().saveGuildStatus();
 		respawnPlayer(c.getPlayer());

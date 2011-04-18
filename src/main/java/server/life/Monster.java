@@ -20,8 +20,8 @@ import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import handling.ServerConstants;
-import handling.world.MapleParty;
-import handling.world.MaplePartyCharacter;
+import handling.world.Party;
+import handling.world.PartyCharacter;
 import org.javastory.server.channel.ChannelServer;
 import scripting.EventInstanceManager;
 import server.TimerManager;
@@ -190,7 +190,7 @@ public class Monster extends AbstractLoadedGameLife {
                         for (final AttackingMapleCharacter cattacker : mattacker.getAttackers()) {
                             if (cattacker.getAttacker().getMap() == from.getMap()) { // current attacker is on the map of the monster
                                 if (cattacker.getLastAttackTime() >= System.currentTimeMillis() - 4000) {
-                                    cattacker.getAttacker().getClient().getSession().write(MobPacket.showMonsterHP(getObjectId(), (int) Math.ceil((hp * 100.0) / getMobMaxHp())));
+                                    cattacker.getAttacker().getClient().write(MobPacket.showMonsterHP(getObjectId(), (int) Math.ceil((hp * 100.0) / getMobMaxHp())));
                                 }
                             }
                         }
@@ -232,7 +232,7 @@ public class Monster extends AbstractLoadedGameLife {
                             for (final AttackingMapleCharacter cattacker : mattacker.getAttackers()) {
                                 if (cattacker.getAttacker().getMap() == from.getMap()) { // current attacker is on the map of the monster
                                     if (cattacker.getLastAttackTime() >= System.currentTimeMillis() - 4000) {
-                                        cattacker.getAttacker().getClient().getSession().write(MobPacket.showMonsterHP(getObjectId(), (int) Math.ceil((hp * 100.0) / getMobMaxHp())));
+                                        cattacker.getAttacker().getClient().write(MobPacket.showMonsterHP(getObjectId(), (int) Math.ceil((hp * 100.0) / getMobMaxHp())));
                                     }
                                 }
                             }
@@ -318,7 +318,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
         final GameCharacter controll = controller.get();
         if (controll != null) { // this can/should only happen when a hidden gm attacks the monster
-            controll.getClient().getSession().write(MobPacket.stopControllingMonster(getObjectId()));
+            controll.getClient().write(MobPacket.stopControllingMonster(getObjectId()));
             controll.stopControllingMonster(this);
         }
         spawnRevives(killer.getMap());
@@ -429,7 +429,7 @@ public class Monster extends AbstractLoadedGameLife {
             return;
         } else if (controllers != null) {
             controllers.stopControllingMonster(this);
-            controllers.getClient().getSession().write(MobPacket.stopControllingMonster(getObjectId()));
+            controllers.getClient().write(MobPacket.stopControllingMonster(getObjectId()));
         }
         newController.controlMonster(this, immediateAggro);
         setController(newController);
@@ -464,17 +464,17 @@ public class Monster extends AbstractLoadedGameLife {
         if (!isAlive()) {
             return;
         }
-        client.getSession().write(MobPacket.spawnMonster(this, -1, fake ? 0xfc : 0, 0));
+        client.write(MobPacket.spawnMonster(this, -1, fake ? 0xfc : 0, 0));
         if (stati.size() > 0) {
             for (final MonsterStatusEffect mse : this.stati.values()) {
-                client.getSession().write(MobPacket.applyMonsterStatus(getObjectId(), mse));
+                client.write(MobPacket.applyMonsterStatus(getObjectId(), mse));
             }
         }
     }
 
     @Override
     public final void sendDestroyData(final GameClient client) {
-        client.getSession().write(MobPacket.killMonster(getObjectId(), 0));
+        client.write(MobPacket.killMonster(getObjectId(), 0));
     }
 
     @Override
@@ -604,7 +604,7 @@ public class Monster extends AbstractLoadedGameLife {
                 if (isAlive()) {
                     map.broadcastMessage(MobPacket.cancelMonsterStatus(getObjectId(), statis), getPosition());
                     if (getController() != null && !getController().isMapObjectVisible(Monster.this)) {
-                        getController().getClient().getSession().write(MobPacket.cancelMonsterStatus(getObjectId(), statis));
+                        getController().getClient().write(MobPacket.cancelMonsterStatus(getObjectId(), statis));
                     }
                     for (final MonsterStatus stat : statis.keySet()) {
                         stati.remove(stat);
@@ -676,7 +676,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
         map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), status), getPosition());
         if (getController() != null && !getController().isMapObjectVisible(this)) {
-            getController().getClient().getSession().write(MobPacket.applyMonsterStatus(getObjectId(), status));
+            getController().getClient().write(MobPacket.applyMonsterStatus(getObjectId(), status));
         }
         ScheduledFuture<?> schedule = timerManager.schedule(cancelTask, duration + status.getSkill().getAnimationTime());
         status.setCancelTask(schedule);
@@ -691,7 +691,7 @@ public class Monster extends AbstractLoadedGameLife {
                 if (isAlive()) {
                     map.broadcastMessage(MobPacket.cancelMonsterStatus(getObjectId(), stats), getPosition());
                     if (getController() != null && !getController().isMapObjectVisible(Monster.this)) {
-                        getController().getClient().getSession().write(MobPacket.cancelMonsterStatus(getObjectId(), stats));
+                        getController().getClient().write(MobPacket.cancelMonsterStatus(getObjectId(), stats));
                     }
                     for (final MonsterStatus stat : stats.keySet()) {
                         stati.remove(stat);
@@ -706,12 +706,12 @@ public class Monster extends AbstractLoadedGameLife {
         if (reflection.size() > 0) {
             map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), effect, reflection), getPosition());
             if (getController() != null && !getController().isMapObjectVisible(this)) {
-                getController().getClient().getSession().write(MobPacket.applyMonsterStatus(getObjectId(), effect, reflection));
+                getController().getClient().write(MobPacket.applyMonsterStatus(getObjectId(), effect, reflection));
             }
         } else {
             map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), effect), getPosition());
             if (getController() != null && !getController().isMapObjectVisible(this)) {
-                getController().getClient().getSession().write(MobPacket.applyMonsterStatus(getObjectId(), effect));
+                getController().getClient().write(MobPacket.applyMonsterStatus(getObjectId(), effect));
             }
         }
         timerManager.schedule(cancelTask, duration);
@@ -947,11 +947,11 @@ public class Monster extends AbstractLoadedGameLife {
 
     private static final class OnePartyAttacker {
 
-        public MapleParty lastKnownParty;
+        public Party lastKnownParty;
         public int damage;
         public long lastAttackTime;
 
-        public OnePartyAttacker(final MapleParty lastKnownParty, final int damage) {
+        public OnePartyAttacker(final Party lastKnownParty, final int damage) {
             super();
             this.lastKnownParty = lastKnownParty;
             this.damage = damage;
@@ -1029,7 +1029,7 @@ public class Monster extends AbstractLoadedGameLife {
         public final void killedMob(final GameMap map, final int baseExp, final boolean mostDamage) {
             GameCharacter pchr, highest = null;
             int iDamage, iexp, highestDamage = 0;
-            MapleParty party;
+            Party party;
             double averagePartyLevel, expWeight, levelMod, innerBaseExp, expFraction;
             List<GameCharacter> expApplicable;
             final Map<GameCharacter, ExpMap> expMap = new HashMap<GameCharacter, ExpMap>(6);
@@ -1041,7 +1041,7 @@ public class Monster extends AbstractLoadedGameLife {
 
                 CLASS_EXP = 0;
                 expApplicable = new ArrayList<GameCharacter>();
-                for (final MaplePartyCharacter partychar : party.getMembers()) {
+                for (final PartyCharacter partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
                         pchr = cserv.getPlayerStorage().getCharacterByName(partychar.getName());
                         if (pchr != null) {

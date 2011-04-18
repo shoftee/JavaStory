@@ -63,12 +63,12 @@ public class Summon extends AbstractAnimatedGameMapObject {
 
     @Override
     public final void sendSpawnData(final GameClient client) {
-	client.getSession().write(MaplePacketCreator.spawnSummon(this, skillLevel, false));
+	client.write(MaplePacketCreator.spawnSummon(this, skillLevel, false));
     }
 
     @Override
     public final void sendDestroyData(final GameClient client) {
-	client.getSession().write(MaplePacketCreator.removeSummon(this, false));
+	client.write(MaplePacketCreator.removeSummon(this, false));
     }
 
     public final int getOwnerId() {

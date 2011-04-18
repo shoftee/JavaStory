@@ -109,7 +109,7 @@ public class Event_DojoAgent {
 				c.modifyCSPoints(1, cashGain, true);
 			}
 			c.setDojo(c.getDojo() + 10);
-			c.getClient().getSession().write(MaplePacketCreator.Mulung_Pts(10, c.getDojo()));
+			c.getClient().write(MaplePacketCreator.Mulung_Pts(10, c.getDojo()));
 		}
 		if (currentmap >= 925023800 && currentmap <= 925023814) {
 			final GameMap map = ch.getMapFactory(c.getWorld()).getMap(925020003);

@@ -30,12 +30,12 @@ public class NpcHandler {
             builder.writeAsShort(ServerPacketOpcode.NPC_ACTION.getValue());
             builder.writeInt(reader.readInt());
             builder.writeAsShort(reader.readShort());
-            c.getSession().write(builder.getPacket());
+            c.write(builder.getPacket());
         } else if (length > 6) { // NPC Move
             final byte[] bytes = reader.readBytes(length - 9);
             builder.writeAsShort(ServerPacketOpcode.NPC_ACTION.getValue());
             builder.writeBytes(bytes);
-            c.getSession().write(builder.getPacket());
+            c.write(builder.getPacket());
         }
     }
 
@@ -141,7 +141,7 @@ public class NpcHandler {
                 final int npc = reader.readInt();
                 reader.skip(4);
                 NpcScriptManager.getInstance().endQuest(c, npc, quest, false);
-                c.getSession().write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
+                c.write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
                 chr.getMap().broadcastMessage(chr, MaplePacketCreator.showSpecialEffect(chr.getId(), 9), false);
                 break;
             }
@@ -181,7 +181,7 @@ public class NpcHandler {
                     return;
                 }
                 if (storage.isFull()) {
-                    c.getSession().write(MaplePacketCreator.getStorageFull());
+                    c.write(MaplePacketCreator.getStorageFull());
                     return;
                 }
 
@@ -192,7 +192,7 @@ public class NpcHandler {
                     IItem item = chr.getInventory(type).getItem(slot).copy();
 
                     if (GameConstants.isPet(item.getItemId())) {
-                        c.getSession().write(MaplePacketCreator.enableActions());
+                        c.write(MaplePacketCreator.enableActions());
                         return;
                     }
                     if (item.getItemId() == itemId && (item.getQuantity() >= quantity || GameConstants.isThrowingStar(itemId) || GameConstants.isBullet(itemId))) {

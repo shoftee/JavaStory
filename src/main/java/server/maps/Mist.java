@@ -134,12 +134,12 @@ public class Mist extends AbstractGameMapObject {
 
     @Override
     public void sendSpawnData(final GameClient c) {
-	c.getSession().write(MaplePacketCreator.spawnMist(this));
+	c.write(MaplePacketCreator.spawnMist(this));
     }
 
     @Override
     public void sendDestroyData(final GameClient c) {
-	c.getSession().write(MaplePacketCreator.removeMist(getObjectId()));
+	c.write(MaplePacketCreator.removeMist(getObjectId()));
     }
 
     public boolean makeChanceResult() {

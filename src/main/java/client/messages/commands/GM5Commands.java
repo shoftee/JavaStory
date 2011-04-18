@@ -115,7 +115,7 @@ public class GM5Commands implements Command {
             final StringBuilder sb = new StringBuilder(c.getPlayer().getName());
             sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
             if (chr != null) {
-                sb.append(" (IP: ").append(chr.getClient().getSession().getRemoteAddress().toString().split(":")[0]).append(")");
+                sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 if (chr.ban(sb.toString(), false, false)) {
                     c.getPlayer().dropMessage(6, "Successfully banned.");
                 } else {
@@ -123,7 +123,7 @@ public class GM5Commands implements Command {
                 }
             } else {
                 if (GameCharacter.ban(splitted[1], sb.toString(), false)) {
-                    sb.append(" (IP: ").append(chr.getClient().getSession().getRemoteAddress().toString().split(":")[0]).append(")");
+                    sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 } else {
                     c.getPlayer().dropMessage(6, "Failed to ban " + splitted[1]);
                 }
@@ -164,9 +164,9 @@ public class GM5Commands implements Command {
                 victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
             }
             if (level < 2) {
-                victim.getClient().getSession().close();
+                victim.getClient().disconnect();
                 if (level >= 1) {
-                    victim.getClient().disconnect(true);
+                    victim.getClient().disconnect();
                 }
             } else {
                 c.getPlayer().dropMessage(6, "Please use dc -f instead.");
@@ -203,7 +203,7 @@ public class GM5Commands implements Command {
                 c.getPlayer().dropMessage(6, elem.toString());
             }
         } else if (splitted[0].equals("-fakerelog")) {
-            c.getSession().write(MaplePacketCreator.getCharInfo(chr));
+            c.write(MaplePacketCreator.getCharInfo(chr));
             chr.getMap().removePlayer(chr);
             chr.getMap().addPlayer(chr);
         } else if (splitted[0].equals("-toggleoffense")) {

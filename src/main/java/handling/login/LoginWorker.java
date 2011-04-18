@@ -54,15 +54,15 @@ public class LoginWorker {
 
     public static void registerClient(final GameClient c) {
         if (c.finishLogin() == 0) {
-            c.getSession().write(LoginPacket.getAuthSuccessRequest(c));
+            c.write(LoginPacket.getAuthSuccessRequest(c));
             c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
 
                 public void run() {
-                    c.getSession().close(false);
+                    c.disconnect();
                 }
             }, 10 * 60 * 10000));
         } else {
-            c.getSession().write(LoginPacket.getLoginFailed(7));
+            c.write(LoginPacket.getLoginFailed(7));
             return;
         }
         final LoginServer LS = LoginServer.getInstance();
@@ -74,7 +74,7 @@ public class LoginWorker {
                 if (channelLoad == null) { 
                     // In an unfortunate event that client logged in before load
                     lastUpdate = 0;
-                    c.getSession().write(LoginPacket.getLoginFailed(7));
+                    c.write(LoginPacket.getLoginFailed(7));
                     return;
                 }
                 for (Entry<Integer, Integer> entry : channelLoad.entrySet()) {
@@ -85,11 +85,11 @@ public class LoginWorker {
                 LoginServer.getInstance().pingWorld();
             }
         }
-        c.getSession().write(LoginPacket.getWorldList(2, "Cassiopeia", LS.getChannels()));
-        c.getSession().write(LoginPacket.getEndOfWorldList());
+        c.write(LoginPacket.getWorldList(2, "Cassiopeia", LS.getChannels()));
+        c.write(LoginPacket.getEndOfWorldList());
         mutex.lock();
         try {
-            IPLog.add(new Pair<Integer, String>(c.getAccID(), c.getSession().getRemoteAddress().toString()));
+            IPLog.add(new Pair<Integer, String>(c.getAccID(), c.getSessionIP()));
         } finally {
             mutex.unlock();
         }

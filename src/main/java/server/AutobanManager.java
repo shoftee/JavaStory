@@ -73,7 +73,7 @@ public class AutobanManager implements Runnable {
 	    final StringBuilder sb = new StringBuilder("a/b ");
 	    sb.append(c.getPlayer().getName());
 	    sb.append(" (IP ");
-	    sb.append(c.getSession().getRemoteAddress().toString());
+	    sb.append(c.getSessionIP());
 	    sb.append("): ");
 	    for (final String s : reasons.get(acc)) {
 		sb.append(s);
@@ -88,7 +88,7 @@ public class AutobanManager implements Runnable {
 //		cal.add(Calendar.DATE, 60);
 //		c.getPlayer().tempban(sb.toString(), cal, 1, false);
 	    c.getPlayer().ban(sb.toString(), false, true);
-	    c.disconnect(true);
+	    c.disconnect();
 	} else {
 	    if (expiration > 0) {
 		expirations.add(new ExpirationEntry(System.currentTimeMillis() + expiration, acc, points));

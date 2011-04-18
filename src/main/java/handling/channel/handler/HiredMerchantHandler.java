@@ -43,7 +43,7 @@ public class HiredMerchantHandler {
                     }
                     if (!merch) {
 //		    c.getPlayer().dropMessage(1, "The Hired Merchant is temporary disabled until it's fixed.");
-                        c.getSession().write(PlayerShopPacket.sendTitleBox());
+                        c.write(PlayerShopPacket.sendTitleBox());
                     } else {
                         c.getPlayer().dropMessage(1, "Please close the existing store and try again.");
                     }
@@ -53,7 +53,7 @@ public class HiredMerchantHandler {
                     break;
             }
         } else {
-            c.getSession().close(true);
+            c.disconnect(true);
         }
     }
 
@@ -90,7 +90,7 @@ public class HiredMerchantHandler {
                         c.getPlayer().dropMessage(1, "You do not have any item(s) with Fredrick.");
                         c.getPlayer().setConversation(0);
                     } else {
-                        c.getSession().write(PlayerShopPacket.merchItemStore_ItemData(pack));
+                        c.write(PlayerShopPacket.merchItemStore_ItemData(pack));
                     }
                 }
                 break;
@@ -99,7 +99,7 @@ public class HiredMerchantHandler {
                 if (c.getPlayer().getConversation() != 3) {
                     return;
                 }
-                c.getSession().write(PlayerShopPacket.merchItemStore((byte) 0x24));
+                c.write(PlayerShopPacket.merchItemStore((byte) 0x24));
                 break;
             }
             case 26: { // Take out item
@@ -109,7 +109,7 @@ public class HiredMerchantHandler {
                 final MerchItemPackage pack = loadItemFrom_Database(c.getPlayer().getId());
 
                 if (!check(c.getPlayer(), pack)) {
-                    c.getSession().write(PlayerShopPacket.merchItem_Message((byte) 0x21));
+                    c.write(PlayerShopPacket.merchItem_Message((byte) 0x21));
                     return;
                 }
                 if (deletePackage(c.getPlayer().getId())) {
@@ -117,7 +117,7 @@ public class HiredMerchantHandler {
                     for (IItem item : pack.getItems()) {
                         InventoryManipulator.addFromDrop(c, item, false);
                     }
-                    c.getSession().write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
+                    c.write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
                 } else {
                     c.getPlayer().dropMessage(1, "An unknown error occured.");
                 }

@@ -48,12 +48,12 @@ public class Dragon extends AbstractAnimatedGameMapObject {
 
     @Override
     public void sendSpawnData(GameClient client) {
-        client.getSession().write(MaplePacketCreator.spawnDragon(this));
+        client.write(MaplePacketCreator.spawnDragon(this));
     }
 
     @Override
     public void sendDestroyData(GameClient client) {
-        client.getSession().write(MaplePacketCreator.removeDragon(this.owner));
+        client.write(MaplePacketCreator.removeDragon(this.owner));
     }
 
     public int getOwner() {

@@ -32,7 +32,7 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import handling.GamePacket;
 import handling.world.PartyOperation;
-import handling.world.MaplePartyCharacter;
+import handling.world.PartyCharacter;
 import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
 import server.Portal;
@@ -410,7 +410,7 @@ public class GameMap {
                     switch (monster.getId()) {
                         case 8810018:
                         case 8820001:
-                            c.getClient().getSession().write(MaplePacketCreator.showOwnBuffEffect(buffid, 11)); // HT nine spirit
+                            c.getClient().write(MaplePacketCreator.showOwnBuffEffect(buffid, 11)); // HT nine spirit
                             broadcastMessage(c, MaplePacketCreator.showBuffeffect(c.getId(), buffid, 11), false); // HT nine spirit
                             break;
                     }
@@ -747,7 +747,7 @@ public class GameMap {
 
             @Override
             public final void sendPackets(GameClient c) {
-                c.getSession().write(MobPacket.spawnMonster(monster, -2, 0, oid)); // TODO effect
+                c.write(MobPacket.spawnMonster(monster, -2, 0, oid)); // TODO effect
             }
         }, null);
         updateMonsterController(monster);
@@ -762,7 +762,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
             public final void sendPackets(GameClient c) {
-                c.getSession().write(MobPacket.spawnMonster(monster, spawnType, 0, 0));
+                c.write(MobPacket.spawnMonster(monster, spawnType, 0, 0));
             }
         }, null);
         updateMonsterController(monster);
@@ -779,7 +779,7 @@ public class GameMap {
 
                 @Override
                 public final void sendPackets(GameClient c) {
-                    c.getSession().write(MobPacket.spawnMonster(monster, -2, effect, 0));
+                    c.write(MobPacket.spawnMonster(monster, -2, effect, 0));
                 }
             }, null);
             updateMonsterController(monster);
@@ -797,8 +797,8 @@ public class GameMap {
 
             @Override
             public final void sendPackets(GameClient c) {
-                c.getSession().write(MobPacket.spawnMonster(monster, -2, 0xfc, 0));
-//		c.getSession().write(MobPacket.spawnFakeMonster(monster, 0));
+                c.write(MobPacket.spawnMonster(monster, -2, 0xfc, 0));
+//		c.write(MobPacket.spawnFakeMonster(monster, 0));
             }
         }, null);
         updateMonsterController(monster);
@@ -813,7 +813,7 @@ public class GameMap {
 
             @Override
             public final void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.spawnReactor(reactor));
+                c.write(MaplePacketCreator.spawnReactor(reactor));
             }
         }, null);
     }
@@ -828,12 +828,12 @@ public class GameMap {
         spawnAndAddRangedMapObject(door, new DelayedPacketCreation() {
 
             public final void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
-                if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new MaplePartyCharacter(c.getPlayer())))) {
-                    c.getSession().write(MaplePacketCreator.partyPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
+                c.write(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
+                if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new PartyCharacter(c.getPlayer())))) {
+                    c.write(MaplePacketCreator.partyPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
                 }
-                c.getSession().write(MaplePacketCreator.spawnPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
-                c.getSession().write(MaplePacketCreator.enableActions());
+                c.write(MaplePacketCreator.spawnPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
+                c.write(MaplePacketCreator.enableActions());
             }
         }, new SpawnCondition() {
 
@@ -848,7 +848,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.spawnDragon(summon));
+                c.write(MaplePacketCreator.spawnDragon(summon));
             }
         }, null);
     }
@@ -858,7 +858,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.spawnSummon(summon, summon.getSkillLevel(), true));
+                c.write(MaplePacketCreator.spawnSummon(summon, summon.getSkillLevel(), true));
             }
         }, null);
     }
@@ -868,7 +868,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.spawnMist(mist));
+                c.write(MaplePacketCreator.spawnMist(mist));
             }
         }, null);
 
@@ -916,7 +916,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
+                c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
             }
         }, null);
         if (!everlast) {
@@ -930,7 +930,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
+                c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
             }
         }, null);
         MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
@@ -943,7 +943,7 @@ public class GameMap {
             @Override
             public void sendPackets(GameClient c) {
                 if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
-                    c.getSession().write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
+                    c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
                 }
             }
         }, null);
@@ -958,7 +958,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(GameClient c) {
-                c.getSession().write(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
+                c.write(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
             }
         }, null);
         broadcastMessage(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 0));
@@ -1057,7 +1057,7 @@ public class GameMap {
         }
         sendObjectPlacement(chr);
 
-        chr.getClient().getSession().write(MaplePacketCreator.spawnPlayerMapobject(chr));
+        chr.getClient().write(MaplePacketCreator.spawnPlayerMapobject(chr));
 
         if (!onFirstUserEnter.equals("")) {
             if (getCharactersSize() == 1) {
@@ -1075,7 +1075,7 @@ public class GameMap {
         switch (mapid) {
             case 809000101:
             case 809000201:
-                chr.getClient().getSession().write(MaplePacketCreator.showEquipEffect());
+                chr.getClient().write(MaplePacketCreator.showEquipEffect());
                 break;
         }
         if (getHPDec() > 0) {
@@ -1083,7 +1083,7 @@ public class GameMap {
         }
         if (chr.getParty() != null) {
             chr.silentPartyUpdate();
-            chr.getClient().getSession().write(MaplePacketCreator.updateParty(chr.getClient().getChannelId(), chr.getParty(), PartyOperation.SILENT_UPDATE, null));
+            chr.getClient().write(MaplePacketCreator.updateParty(chr.getClient().getChannelId(), chr.getParty(), PartyOperation.SILENT_UPDATE, null));
             chr.updatePartyMemberHP();
             chr.receivePartyMemberHP();
         }
@@ -1106,11 +1106,11 @@ public class GameMap {
             }
         }
         if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
-            chr.getClient().getSession().write(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));
+            chr.getClient().write(MaplePacketCreator.getClock((int) (chr.getEventInstance().getTimeLeft() / 1000)));
         }
         if (hasClock()) {
             final Calendar cal = Calendar.getInstance();
-            chr.getClient().getSession().write((MaplePacketCreator.getClockTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))));
+            chr.getClient().write((MaplePacketCreator.getClockTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND))));
         }
         if (chr.getCarnivalParty() != null && chr.getEventInstance() != null) {
             chr.getEventInstance().onMapLoad(chr);
@@ -1190,10 +1190,10 @@ public class GameMap {
                 if (chr != source) {
                     if (rangeSq < Double.POSITIVE_INFINITY) {
                         if (rangedFrom.distanceSq(chr.getPosition()) <= rangeSq) {
-                            chr.getClient().getSession().write(packet);
+                            chr.getClient().write(packet);
                         }
                     } else {
-                        chr.getClient().getSession().write(packet);
+                        chr.getClient().write(packet);
                     }
                 }
             }

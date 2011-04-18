@@ -42,7 +42,7 @@ public class Trade {
 	if (exchangeItems != null) { // just to be on the safe side...
 	    exchangeItems.clear();
 	}
-	chr.getClient().getSession().write(MaplePacketCreator.TradeMessage(tradingslot, (byte) 0x07));
+	chr.getClient().write(MaplePacketCreator.TradeMessage(tradingslot, (byte) 0x07));
     }
 
     public final void cancel() {
@@ -56,7 +56,7 @@ public class Trade {
 	if (items != null) { // just to be on the safe side...
 	    items.clear();
 	}
-	chr.getClient().getSession().write(MaplePacketCreator.getTradeCancel(tradingslot));
+	chr.getClient().write(MaplePacketCreator.getTradeCancel(tradingslot));
     }
 
     public final boolean isLocked() {
@@ -70,9 +70,9 @@ public class Trade {
 	if (chr.getMeso() >= meso) {
 	    chr.gainMeso(-meso, false, true, false);
 	    this.meso += meso;
-	    chr.getClient().getSession().write(MaplePacketCreator.getTradeMesoSet((byte) 0, this.meso));
+	    chr.getClient().write(MaplePacketCreator.getTradeMesoSet((byte) 0, this.meso));
 	    if (partner != null) {
-		partner.getChr().getClient().getSession().write(MaplePacketCreator.getTradeMesoSet((byte) 1, this.meso));
+		partner.getChr().getClient().write(MaplePacketCreator.getTradeMesoSet((byte) 1, this.meso));
 	    }
 	}
     }
@@ -82,16 +82,16 @@ public class Trade {
 	    return;
 	}
 	items.add(item);
-	chr.getClient().getSession().write(MaplePacketCreator.getTradeItemAdd((byte) 0, item));
+	chr.getClient().write(MaplePacketCreator.getTradeItemAdd((byte) 0, item));
 	if (partner != null) {
-	    partner.getChr().getClient().getSession().write(MaplePacketCreator.getTradeItemAdd((byte) 1, item));
+	    partner.getChr().getClient().write(MaplePacketCreator.getTradeItemAdd((byte) 1, item));
 	}
     }
 
     public final void chat(final String message) {
-	chr.getClient().getSession().write(MaplePacketCreator.getPlayerShopChat(chr, message, true));
+	chr.getClient().write(MaplePacketCreator.getPlayerShopChat(chr, message, true));
 	if (partner != null) {
-	    partner.getChr().getClient().getSession().write(MaplePacketCreator.getPlayerShopChat(chr, message, false));
+	    partner.getChr().getClient().write(MaplePacketCreator.getPlayerShopChat(chr, message, false));
 	}
     }
 
@@ -150,7 +150,7 @@ public class Trade {
 	    return;
 	}
 	local.locked = true; // Locking the trade
-	partner.getChr().getClient().getSession().write(MaplePacketCreator.getTradeConfirmation());
+	partner.getChr().getClient().write(MaplePacketCreator.getTradeConfirmation());
 
 	partner.exchangeItems = local.items; // Copy this to partner's trade since it's alreadt accepted
 	partner.exchangeMeso = local.meso; // Copy this to partner's trade since it's alreadt accepted
@@ -161,8 +161,8 @@ public class Trade {
 		partner.cancel();
 		local.cancel();
 
-		c.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
-		partner.getChr().getClient().getSession().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
+		c.getClient().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
+		partner.getChr().getClient().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
 	    } else {
 		local.CompleteTrade();
 		partner.CompleteTrade();
@@ -186,9 +186,9 @@ public class Trade {
     public static final void startTrade(final GameCharacter c) {
 	if (c.getTrade() == null) {
 	    c.setTrade(new Trade((byte) 0, c));
-	    c.getClient().getSession().write(MaplePacketCreator.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
+	    c.getClient().write(MaplePacketCreator.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
 	} else {
-	    c.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "You are already in a trade"));
+	    c.getClient().write(MaplePacketCreator.serverNotice(5, "You are already in a trade"));
 	}
     }
 
@@ -197,9 +197,9 @@ public class Trade {
 	    c2.setTrade(new Trade((byte) 1, c2));
 	    c2.getTrade().setPartner(c1.getTrade());
 	    c1.getTrade().setPartner(c2.getTrade());
-	    c2.getClient().getSession().write(MaplePacketCreator.getTradeInvite(c1));
+	    c2.getClient().write(MaplePacketCreator.getTradeInvite(c1));
 	} else {
-	    c1.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "The other player is already trading with someone else."));
+	    c1.getClient().write(MaplePacketCreator.serverNotice(5, "The other player is already trading with someone else."));
 	    cancelTrade(c1.getTrade());
 	}
     }
@@ -207,10 +207,10 @@ public class Trade {
     public static final void visitTrade(final GameCharacter c1, final GameCharacter c2) {
 	if (c1.getTrade() != null && c1.getTrade().getPartner() == c2.getTrade() && c2.getTrade() != null && c2.getTrade().getPartner() == c1.getTrade()) {
 	    // We don't need to check for map here as the user is found via MapleMap.getCharacterById_InMap()
-	    c2.getClient().getSession().write(MaplePacketCreator.getTradePartnerAdd(c1));
-	    c1.getClient().getSession().write(MaplePacketCreator.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
+	    c2.getClient().write(MaplePacketCreator.getTradePartnerAdd(c1));
+	    c1.getClient().write(MaplePacketCreator.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
 	} else {
-	    c1.getClient().getSession().write(MaplePacketCreator.serverNotice(5, "The other player has already closed the trade"));
+	    c1.getClient().write(MaplePacketCreator.serverNotice(5, "The other player has already closed the trade"));
 	}
     }
 
@@ -221,7 +221,7 @@ public class Trade {
 		GameCharacter other = trade.getPartner().getChr();
 		other.getTrade().cancel();
 		other.setTrade(null);
-		other.getClient().getSession().write(MaplePacketCreator.serverNotice(5, c.getName() + " has declined your trade request"));
+		other.getClient().write(MaplePacketCreator.serverNotice(5, c.getName() + " has declined your trade request"));
 	    }
 	    trade.cancel();
 	    c.setTrade(null);
