@@ -21,7 +21,7 @@ public class MonsterInfoCommands implements Command {
 			if (splitted.length <= 2) {
 				range = irange * irange;
 			} else {
-				map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(Integer.parseInt(splitted[2]));
+				map = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(Integer.parseInt(splitted[2]));
 			}
 		}
 		if (splitted[0].equals("-killall")) {
@@ -43,7 +43,7 @@ public class MonsterInfoCommands implements Command {
 			Monster mob;
 			for (GameMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(GameMapObjectType.MONSTER))) {
 				mob = (Monster) monstermo;
-				c.getPlayer().dropMessage(6, "Monster " + mob.toString());
+				c.getPlayer().sendNotice(6, "Monster " + mob.toString());
 			}
 		}
 	}

@@ -40,7 +40,7 @@ public class AutobanManager implements Runnable {
 
     public final void autoban(final GameClient c, final String reason) {
 	if (c.getPlayer().isGM()) {
-	    c.getPlayer().dropMessage(5, "[WARNING] A/b triggled : " + reason);
+	    c.getPlayer().sendNotice(5, "[WARNING] A/b triggled : " + reason);
 	    return;
 	}
 	addPoints(c, AUTOBAN_POINTS, 0, reason);
@@ -67,7 +67,7 @@ public class AutobanManager implements Runnable {
 
 	if (this.points.get(acc) >= AUTOBAN_POINTS) { // See if it's sufficient to auto ban
 	    if (c.getPlayer().isGM()) {
-		c.getPlayer().dropMessage(5, "[WARNING] A/b triggled : " + reason);
+		c.getPlayer().sendNotice(5, "[WARNING] A/b triggled : " + reason);
 		return;
 	    }
 	    final StringBuilder sb = new StringBuilder("a/b ");

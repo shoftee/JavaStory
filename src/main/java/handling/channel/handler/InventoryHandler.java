@@ -25,7 +25,7 @@ import client.PlayerStats;
 import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import org.javastory.io.PacketFormatException;
 import org.javastory.tools.Randomizer;
 import server.RandomRewards;
@@ -157,7 +157,7 @@ public class InventoryHandler {
                     }
                 }
             } else {
-                chr.dropMessage(6, "Insufficient inventory slot.");
+                chr.sendNotice(6, "Insufficient inventory slot.");
             }
         }
         c.write(MaplePacketCreator.enableActions());
@@ -402,7 +402,7 @@ public class InventoryHandler {
                         InventoryManipulator.removeById(c, useInventory, itemid, 1, false, false);
                     } else {
                         map.broadcastMessage(MaplePacketCreator.catchMonster(mob.getId(), itemid, (byte) 0));
-                        chr.dropMessage(5, "The monster has too much physical strength, so you cannot catch it.");
+                        chr.sendNotice(5, "The monster has too much physical strength, so you cannot catch it.");
                     }
                     break;
                 }
@@ -430,7 +430,7 @@ public class InventoryHandler {
                         InventoryManipulator.removeById(c, useInventory, itemid, 1, false, false);
                     } else {
                         map.broadcastMessage(MaplePacketCreator.catchMonster(mob.getId(), itemid, (byte) 0));
-                        chr.dropMessage(5, "The monster has too much physical strength, so you cannot catch it.");
+                        chr.sendNotice(5, "The monster has too much physical strength, so you cannot catch it.");
                     }
                     break;
                 }
@@ -482,8 +482,8 @@ public class InventoryHandler {
         if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() ==
                 itemId) {
             switch (toUse.getItemId()) {
-                case 2430007: // Blank Compass
-                {
+                case 2430007: {
+                    // Blank Compass
                     final Inventory setupInventory = chr.getSetupInventory();
                     InventoryManipulator.removeFromSlot(c, useInventory, slot, (byte) 1, false);
 
@@ -502,14 +502,14 @@ public class InventoryHandler {
                     NpcScriptManager.getInstance().start(c, 2084001);
                     break;
                 }
-                case 2430008: // Gold Compass
-                {
+                case 2430008: {
+                    // Gold Compass
                     chr.saveLocation(SavedLocationType.RICHIE);
                     GameMap map;
                     boolean warped = false;
 
                     for (int i = 390001000; i <= 390001004; i++) {
-                        map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(i);
+                        map = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(i);
 
                         if (map.getCharactersSize() == 0) {
                             chr.changeMap(map, map.getPortal(0));
@@ -517,10 +517,10 @@ public class InventoryHandler {
                             break;
                         }
                     }
-                    if (warped) { // Removal of gold compass
+                    if (warped) {
                         InventoryManipulator.removeById(c, useInventory, 2430008, 1, false, false);
-                    } else { // Or mabe some other message.
-                        c.getPlayer().dropMessage(5, "All maps are currently in use, please try again later.");
+                    } else {
+                        c.getPlayer().sendNotice(5, "All maps are currently in use, please try again later.");
                     }
                     break;
                 }
@@ -610,7 +610,7 @@ public class InventoryHandler {
                 0) {
             final IItem item = InventoryManipulator.addbyId_Gachapon(c, reward, (short) amount);
             if (item == null) {
-                chr.dropMessage(5, "Please check your item inventory and see if you have a Master Key, or if the inventory is full.");
+                chr.sendNotice(5, "Please check your item inventory and see if you have a Master Key, or if the inventory is full.");
                 c.write(MaplePacketCreator.enableActions());
                 return;
             }
@@ -625,7 +625,7 @@ public class InventoryHandler {
                 }
             }
         } else {
-            chr.dropMessage(5, "Please check your item inventory and see if you have a Master Key, or if the inventory is full.");
+            chr.sendNotice(5, "Please check your item inventory and see if you have a Master Key, or if the inventory is full.");
             c.write(MaplePacketCreator.enableActions());
         }
     }
@@ -650,7 +650,7 @@ public class InventoryHandler {
 
                 if (player.getQuest(quest).getStatus() == 1 &&
                         quest.canComplete(player, npcid)) {
-                    final GameMap map = c.getChannelServer().getMapFactory(player.getWorld()).getMap(LifeFactory.getNPCLocation(npcid));
+                    final GameMap map = c.getChannelServer().getMapFactory(player.getWorldId()).getMap(LifeFactory.getNPCLocation(npcid));
                     if (map.containsNPC(npcid) != -1) {
                         player.changeMap(map, map.getPortal(0));
                     }
@@ -663,7 +663,7 @@ public class InventoryHandler {
             case 5040000: // The Teleport Rock
             case 5040001: { // Teleport Coke
                 if (reader.readByte() == 0) { // Rocktype
-                    final GameMap target = c.getChannelServer().getMapFactory(player.getWorld()).getMap(reader.readInt());
+                    final GameMap target = c.getChannelServer().getMapFactory(player.getWorldId()).getMap(reader.readInt());
                     if (!FieldLimitType.VipRock.check(player.getMap().getFieldLimit())) { //Makes sure this map doesn't have a forced return map
                         player.changeMap(target, target.getPortal(0));
                         used = true;
@@ -671,7 +671,7 @@ public class InventoryHandler {
                 } else {
                     final GameCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                     if (victim != null && !victim.isGM()) {
-                        if (!FieldLimitType.VipRock.check(c.getChannelServer().getMapFactory(player.getWorld()).getMap(victim.getMapId()).getFieldLimit())) {
+                        if (!FieldLimitType.VipRock.check(c.getChannelServer().getMapFactory(player.getWorldId()).getMap(victim.getMapId()).getFieldLimit())) {
                             if (itemId == 5041000 || (victim.getMapId() /
                                     100000000) == (player.getMapId() /
                                     100000000)) { // Viprock or same continent
@@ -1155,7 +1155,7 @@ public class InventoryHandler {
                     player.getMap().broadcastMessage(MaplePacketCreator.serverNotice(2, sb.toString()));
                     used = true;
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1183,7 +1183,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, triple megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1209,7 +1209,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, heart megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1235,7 +1235,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, skull megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1258,7 +1258,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, super megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1291,7 +1291,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, item megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1503,7 +1503,7 @@ public class InventoryHandler {
                         System.out.println("RemoteException occured, TV megaphone");
                     }
                 } else {
-                    player.dropMessage(5, "The usage of Megapone is currently disabled.");
+                    player.sendNotice(5, "The usage of Megapone is currently disabled.");
                 }
                 break;
             }
@@ -1615,7 +1615,7 @@ public class InventoryHandler {
         final double Distance = Client_Reportedpos.distanceSq(mapitem.getPosition());
         if (Distance > 2500) {
             chr.getCheatTracker().registerOffense(CheatingOffense.PET_ITEMVAC_CLIENT, String.valueOf(Distance));
-        } else if (pet.getPos().distanceSq(mapitem.getPosition()) > 90000.0) {
+        } else if (pet.getPosition().distanceSq(mapitem.getPosition()) > 90000.0) {
             chr.getCheatTracker().registerOffense(CheatingOffense.PET_ITEMVAC_SERVER);
         }
 
@@ -1661,7 +1661,7 @@ public class InventoryHandler {
             if (consumeval > 0) {
                 if (consumeval == 2) {
                     if (c.getPlayer().getParty() != null) {
-                        for (final PartyCharacter pc : c.getPlayer().getParty().getMembers()) {
+                        for (final PartyMember pc : c.getPlayer().getParty().getMembers()) {
                             final GameCharacter chr = c.getPlayer().getMap().getCharacterById_InMap(pc.getId());
                             if (chr != null) {
                                 ii.getItemEffect(id).applyTo(chr);

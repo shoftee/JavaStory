@@ -134,7 +134,7 @@ public final class PlayersHandler {
                 for (final GameCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
                     if (search_chr.getName().toLowerCase().equals(target)) {
                         ItemInfoProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
-                        search_chr.dropMessage(6, chr.getName() +
+                        search_chr.sendNotice(6, chr.getName() +
                                 " has played a prank on you!");
                         InventoryManipulator.removeFromSlot(c, chr.getUseInventory(), slot, (short) 1, false);
                     }

@@ -34,7 +34,7 @@ import javax.script.ScriptException;
 import client.GameCharacter;
 import client.QuestStatus;
 import handling.world.Party;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import server.CarnivalParty;
 import server.TimerManager;
 import server.Squad;
@@ -164,7 +164,7 @@ public class EventInstanceManager {
     }
 
     public void registerParty(Party party, GameMap map) {
-	for (PartyCharacter pc : party.getMembers()) {
+	for (PartyMember pc : party.getMembers()) {
 	    GameCharacter c = map.getCharacterById_InMap(pc.getId());
 	    registerPlayer(c);
 	}
@@ -503,7 +503,7 @@ public class EventInstanceManager {
 	if (party == null) {
 	    return;
 	}
-	for (PartyCharacter pc : party.getMembers()) {
+	for (PartyMember pc : party.getMembers()) {
 	    final GameCharacter c = map.getCharacterById_InMap(pc.getId());
 	    characters.add(c);
 	    registerPlayer(c);

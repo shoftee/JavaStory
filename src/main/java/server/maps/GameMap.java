@@ -32,7 +32,7 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import handling.GamePacket;
 import handling.world.PartyOperation;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
 import server.Portal;
@@ -829,7 +829,7 @@ public class GameMap {
 
             public final void sendPackets(GameClient c) {
                 c.write(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
-                if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new PartyCharacter(c.getPlayer())))) {
+                if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new PartyMember(c.getPlayer())))) {
                     c.write(MaplePacketCreator.partyPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
                 }
                 c.write(MaplePacketCreator.spawnPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
@@ -1209,7 +1209,7 @@ public class GameMap {
         for (final GameMapObject o : getAllMonster()) {
             updateMonsterController((Monster) o);
         }
-        for (final GameMapObject o : getMapObjectsInRange(c.getPosition(), GameConstants.maxViewRangeSq(), GameConstants.rangedMapobjectTypes)) {
+        for (final GameMapObject o : getMapObjectsInRange(c.getPosition(), GameConstants.maxViewRangeSq(), GameConstants.rangedMapObjectTypes)) {
             if (o.getType() == GameMapObjectType.REACTOR) {
                 if (!((Reactor) o).isAlive()) {
                     continue;

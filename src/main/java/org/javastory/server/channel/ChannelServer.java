@@ -23,11 +23,11 @@ import handling.ServerType;
 import handling.GamePacket;
 import org.javastory.server.mina.PacketHandler;
 import handling.channel.remote.ChannelWorldInterface;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import handling.world.Party;
 import handling.world.guild.Guild;
-import handling.world.guild.GuildCharacter;
-import handling.world.guild.MapleGuildSummary;
+import handling.world.guild.GuildMember;
+import handling.world.guild.GuildSummary;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldRegistry;
@@ -51,7 +51,7 @@ public final class ChannelServer extends GameService {
     private boolean MegaphoneMuteState = false;
     private PlayerStorage players;
     private final GameMapFactory mapFactories[] = new GameMapFactory[2];
-    private final Map<Integer, MapleGuildSummary> gsStore = new HashMap<Integer, MapleGuildSummary>();
+    private final Map<Integer, GuildSummary> gsStore = new HashMap<Integer, GuildSummary>();
     private final Map<String, Squad> mapleSquads = new HashMap<String, Squad>();
     private final Map<Integer, HiredMerchantStore> merchants = new HashMap<Integer, HiredMerchantStore>();
     private String serverMessage, name;
@@ -264,7 +264,7 @@ public final class ChannelServer extends GameService {
         this.dropRate = dropRate;
     }
 
-    public final Guild getGuild(final GuildCharacter mgc) {
+    public final Guild getGuild(final GuildMember mgc) {
         final int guildId = mgc.getGuildId();
         Guild guild = null;
         try {
@@ -274,12 +274,12 @@ public final class ChannelServer extends GameService {
             return null;
         }
         if (gsStore.get(guildId) == null) {
-            gsStore.put(guildId, new MapleGuildSummary(guild));
+            gsStore.put(guildId, new GuildSummary(guild));
         }
         return guild;
     }
 
-    public final MapleGuildSummary getGuildSummary(final int guildId) {
+    public final GuildSummary getGuildSummary(final int guildId) {
         if (gsStore.containsKey(guildId)) {
             return gsStore.get(guildId);
         }
@@ -287,7 +287,7 @@ public final class ChannelServer extends GameService {
             final Guild guild = 
                     this.getWorldInterface().getGuild(guildId, null);
             if (guild != null) {
-                gsStore.put(guildId, new MapleGuildSummary(guild));
+                gsStore.put(guildId, new GuildSummary(guild));
             }
             return gsStore.get(guildId);
         } catch (RemoteException re) {
@@ -296,7 +296,7 @@ public final class ChannelServer extends GameService {
         }
     }
 
-    public final void updateGuildSummary(final int guildId, final MapleGuildSummary summary) {
+    public final void updateGuildSummary(final int guildId, final GuildSummary summary) {
         gsStore.put(guildId, summary);
     }
 
@@ -387,7 +387,7 @@ public final class ChannelServer extends GameService {
 
     public final List<GameCharacter> getPartyMembers(final Party party) {
         List<GameCharacter> partym = new LinkedList<GameCharacter>();
-        for (final PartyCharacter partychar : party.getMembers()) {
+        for (final PartyMember partychar : party.getMembers()) {
             if (partychar.getChannel() == getChannelId()) {
                 // Make sure the thing doesn't get duplicate plays due to ccing bug.
                 GameCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());

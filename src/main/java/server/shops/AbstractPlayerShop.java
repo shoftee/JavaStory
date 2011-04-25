@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
 import client.IItem;
 import client.Equip;
 import client.GameCharacter;
-import client.ItemType;
+import org.javastory.client.ItemType;
 import database.DatabaseConnection;
 import handling.GamePacket;
 import java.sql.Statement;

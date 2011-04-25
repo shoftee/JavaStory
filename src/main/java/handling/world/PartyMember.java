@@ -7,7 +7,7 @@ import java.io.Serializable;
 import client.GameCharacter;
 import server.maps.Door;
 
-public class PartyCharacter implements Serializable {
+public class PartyMember implements Serializable {
 
     private static final long serialVersionUID = 6215463252132450750L;
     private String name;
@@ -21,7 +21,7 @@ public class PartyCharacter implements Serializable {
     private Point doorPosition = new Point(0, 0);
     private boolean online;
 
-    public PartyCharacter(GameCharacter maplechar) {
+    public PartyMember(GameCharacter maplechar) {
         this.name = maplechar.getName();
         this.level = maplechar.getLevel();
         this.channel = maplechar.getClient().getChannelId();
@@ -38,7 +38,7 @@ public class PartyCharacter implements Serializable {
         }
     }
 
-    public PartyCharacter() {
+    public PartyMember() {
         this.name = "";
         //default values for everything
     }
@@ -106,7 +106,7 @@ public class PartyCharacter implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PartyCharacter other = (PartyCharacter) obj;
+        final PartyMember other = (PartyMember) obj;
         if (name == null) {
             if (other.name != null) {
                 return false;

@@ -20,25 +20,48 @@
 */
 package handling.world.guild;
 
-import tools.MaplePacketCreator;
-import handling.GamePacket;
+import java.io.Serializable;
 
-public enum MapleGuildResponse {
+public class GuildSummary implements Serializable {
 
-    NOT_IN_CHANNEL(0x2a),
-    ALREADY_IN_GUILD(0x28),
-    NOT_IN_GUILD(0x2d);
-    private int value;
+    public static final long serialVersionUID = 3565477792085301248L;
+    private String name;
+    private short logoBG;
+    private byte logoBGColor;
+    private short logo;
+    private byte logoColor;
+    private int guildUnionId;
 
-    private MapleGuildResponse(int val) {
-	value = val;
+    public GuildSummary(Guild g) {
+	name = g.getName();
+	logoBG = (short) g.getLogoBG();
+	logoBGColor = (byte) g.getLogoBGColor();
+	logo = (short) g.getLogo();
+	logoColor = (byte) g.getLogoColor();
+	guildUnionId = g.getAllianceId();
     }
 
-    public int getValue() {
-	return value;
+    public String getName() {
+	return name;
     }
 
-    public GamePacket getPacket() {
-	return MaplePacketCreator.genericGuildMessage((byte) value);
+    public short getLogoBG() {
+	return logoBG;
+    }
+
+    public byte getLogoBGColor() {
+	return logoBGColor;
+    }
+
+    public short getLogo() {
+	return logo;
+    }
+
+    public byte getLogoColor() {
+	return logoColor;
+    }
+
+    public int getAllianceId() {
+	return guildUnionId;
     }
 }

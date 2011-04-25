@@ -2,8 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package org.javastory.client;
 
+import client.Inventory;
+import client.InventoryType;
 import com.google.common.collect.Maps;
 import java.util.Iterator;
 import java.util.Map;

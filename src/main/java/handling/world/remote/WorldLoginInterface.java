@@ -25,7 +25,7 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Properties;
 
-import handling.world.guild.GuildCharacter;
+import handling.world.guild.GuildMember;
 
 public interface WorldLoginInterface extends Remote {
 
@@ -35,5 +35,5 @@ public interface WorldLoginInterface extends Remote {
 
     public boolean isAvailable() throws RemoteException;
 
-    public void deleteGuildCharacter(GuildCharacter mgc) throws RemoteException;
+    public void deleteGuildCharacter(GuildMember mgc) throws RemoteException;
 }

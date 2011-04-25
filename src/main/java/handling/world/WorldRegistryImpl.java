@@ -28,11 +28,12 @@ import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
 import handling.world.guild.Guild;
-import handling.world.guild.GuildCharacter;
+import handling.world.guild.GuildMember;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLoginInterface;
 import handling.world.remote.WorldRegistry;
+import org.javastory.client.MemberRank;
 import org.javastory.server.ChannelInfo;
 
 public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
@@ -68,7 +69,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
         csStatus = ServerStatus.OFFLINE;
         loginStatus = ServerStatus.OFFLINE;
-        
+
         runningMessengerId.set(1);
     }
 
@@ -83,18 +84,20 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
         return instance;
     }
-    
+
     public ServerStatus getCashShopStatus() {
         return csStatus;
     }
-    
+
     public ServerStatus getLoginStatus() {
         return loginStatus;
     }
-    
+
     public ServerStatus getChannelStatus(int channelId) {
         ServerStatus status = channelStatus.get(channelId);
-        if (status == null) return ServerStatus.OFFLINE;
+        if (status == null) {
+            return ServerStatus.OFFLINE;
+        }
         return status;
     }
 
@@ -177,7 +180,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         return highest;
     }
 
-    public Party createParty(final PartyCharacter chrfor) {
+    public Party createParty(final PartyMember chrfor) {
         final int partyid = runningPartyId.getAndIncrement();
         final Party party = new Party(partyid, chrfor);
         parties.put(party.getId(), party);
@@ -237,7 +240,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         return Guild.createGuild(leaderId, name);
     }
 
-    public final Guild getGuild(final int id, final GuildCharacter mgc) {
+    public final Guild getGuild(final int id, final GuildMember mgc) {
         Guild_Mutex.lock();
         try {
             if (guilds.get(id) != null) {
@@ -257,19 +260,16 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
     }
 
-    public void setGuildMemberOnline(final GuildCharacter mgc, final boolean bOnline, final int channel) {
+    public void setGuildMemberOnline(final GuildMember mgc, final boolean bOnline, final int channel) {
         getGuild(mgc.getGuildId(), mgc).setOnline(mgc.getId(), bOnline, channel);
     }
 
-    public final int addGuildMember(final GuildCharacter mgc) {
+    public final boolean addGuildMember(final GuildMember mgc) {
         final Guild g = guilds.get(mgc.getGuildId());
-        if (g != null) {
-            return g.addGuildMember(mgc);
-        }
-        return 0;
+        return g != null && g.addGuildMember(mgc);
     }
 
-    public void leaveGuild(final GuildCharacter mgc) {
+    public void leaveGuild(final GuildMember mgc) {
         final Guild g = guilds.get(mgc.getGuildId());
         if (g != null) {
             g.leaveGuild(mgc);
@@ -290,14 +290,14 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
     }
 
-    public void changeRank(final int gid, final int cid, final int newRank) {
+    public void changeRank(final int gid, final int cid, final MemberRank newRank) {
         final Guild g = guilds.get(gid);
         if (g != null) {
             g.changeRank(cid, newRank);
         }
     }
 
-    public void expelMember(final GuildCharacter initiator, final String name, final int cid) {
+    public void expelMember(final GuildMember initiator, final String name, final int cid) {
         final Guild g = guilds.get(initiator.getGuildId());
         if (g != null) {
             g.expelMember(initiator, name, cid);
@@ -311,7 +311,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
     }
 
-    public void memberLevelJobUpdate(final GuildCharacter mgc) {
+    public void memberLevelJobUpdate(final GuildMember mgc) {
         final Guild g = guilds.get(mgc.getGuildId());
         if (g != null) {
             g.memberLevelJobUpdate(mgc);
@@ -357,7 +357,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
         }
     }
 
-    public final Messenger createMessenger(final MessengerCharacter chrfor) {
+    public final Messenger createMessenger(final MessengerMember chrfor) {
         final int messengerid = runningMessengerId.getAndIncrement();
         final Messenger messenger = new Messenger(messengerid, chrfor);
         messengers.put(messenger.getId(), messenger);

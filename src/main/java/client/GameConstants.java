@@ -6,7 +6,7 @@ import server.maps.GameMapObjectType;
 
 public class GameConstants {
 
-    public static final List<GameMapObjectType> rangedMapobjectTypes = Arrays.asList(
+    public static final List<GameMapObjectType> rangedMapObjectTypes = Arrays.asList(
             GameMapObjectType.ITEM,
             GameMapObjectType.MONSTER,
             GameMapObjectType.DOOR,

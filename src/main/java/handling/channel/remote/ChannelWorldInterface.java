@@ -30,10 +30,11 @@ import handling.GamePacket;
 import handling.world.CharacterTransfer;
 import handling.world.Messenger;
 import handling.world.Party;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import handling.world.PartyOperation;
-import handling.world.guild.MapleGuildSummary;
+import handling.world.guild.GuildSummary;
 import handling.world.remote.WorldChannelCommonOperations;
+import org.javastory.client.MemberRank;
 import org.javastory.server.ChannelInfo;
 
 public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperations {
@@ -54,7 +55,7 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public boolean hasMerchant(int accountId) throws RemoteException;
 
-    public void updateParty(Party party, PartyOperation operation, PartyCharacter target) throws RemoteException;
+    public void updateParty(Party party, PartyOperation operation, PartyMember target) throws RemoteException;
 
     public void partyChat(Party party, String chattext, String namefrom) throws RemoteException;
 
@@ -70,13 +71,13 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public void sendPacket(List<Integer> targetIds, GamePacket packet, int exception) throws RemoteException;
 
-    public void setGuildAndRank(int cid, int guildid, int rank) throws RemoteException;
+    public void setGuildAndRank(int cid, int guildid, MemberRank rank) throws RemoteException;
 
-    public void setOfflineGuildStatus(int guildid, byte guildrank, int cid) throws RemoteException;
+    public void setOfflineGuildStatus(int guildid, MemberRank rank, int cid) throws RemoteException;
 
-    public void setGuildAndRank(List<Integer> cids, int guildid, int rank, int exception) throws RemoteException;
+    public void setGuildAndRank(List<Integer> cids, int guildid, MemberRank rank, int exception) throws RemoteException;
 
-    public void changeEmblem(int gid, List<Integer> affectedPlayers, MapleGuildSummary mgs) throws RemoteException;
+    public void changeEmblem(int gid, List<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException;
 
     public void addMessengerPlayer(Messenger messenger, String namefrom, int fromchannel, int position) throws RemoteException;
 
