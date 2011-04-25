@@ -7,7 +7,7 @@ package server;
 
 import client.GameCharacter;
 import handling.world.Party;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 
 /**
  * TODO : Make this a function for NPC instead.. cleaner
@@ -21,7 +21,7 @@ public class CarnivalChallenge {
         this.challenger = challenger;
         Party party = challenger.getParty();
         challengeinfo += "#b";
-        for (PartyMember pc : party.getMembers()) {
+        for (PartyCharacter pc : party.getMembers()) {
 	    GameCharacter c = challenger.getMap().getCharacterById_InMap(pc.getId());
 	    challengeinfo += (c.getName() + " / Level" + c.getLevel() + " / " + getJobNameById(c.getJob()));
 	}

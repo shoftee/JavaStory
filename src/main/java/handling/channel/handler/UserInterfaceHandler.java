@@ -54,35 +54,35 @@ public class UserInterfaceHandler {
         switch (mapid) {
             case 101000300: // Ellinia Station >> Orbis
             case 200000111: // Orbis Station >> Ellinia
-                em = c.getChannelServer().getEventSM(c.getWorldId()).getEventManager("Boats");
+                em = c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager("Boats");
                 if (em.getProperty("docked").equals("true")) {
                     effect = 1;
                 }
                 break;
             case 200000121: // Orbis Station >> Ludi
             case 220000110: // Ludi Station >> Orbis
-                em = c.getChannelServer().getEventSM(c.getWorldId()).getEventManager("Trains");
+                em = c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager("Trains");
                 if (em.getProperty("docked").equals("true")) {
                     effect = 1;
                 }
                 break;
             case 200000151: // Orbis Station >> Ariant
             case 260000100: // Ariant Station >> Orbis
-                em = c.getChannelServer().getEventSM(c.getWorldId()).getEventManager("Geenie");
+                em = c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager("Geenie");
                 if (em.getProperty("docked").equals("true")) {
                     effect = 1;
                 }
                 break;
             case 240000110: // Leafre Station >> Orbis
             case 200000131: // Orbis Station >> Leafre
-                em = c.getChannelServer().getEventSM(c.getWorldId()).getEventManager("Flight");
+                em = c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager("Flight");
                 if (em.getProperty("docked").equals("true")) {
                     effect = 1;
                 }
                 break;
             case 200090010: // During the ride to Orbis
             case 200090000: // During the ride to Ellinia
-                em = c.getChannelServer().getEventSM(c.getWorldId()).getEventManager("Boats");
+                em = c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager("Boats");
                 if (em.getProperty("haveBalrog").equals("true")) {
                     effect = 1;
                 } else {

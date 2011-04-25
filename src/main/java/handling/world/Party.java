@@ -29,39 +29,39 @@ import java.util.List;
 public class Party implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
-    private PartyMember leader;
-    private List<PartyMember> members = new LinkedList<PartyMember>();
+    private PartyCharacter leader;
+    private List<PartyCharacter> members = new LinkedList<PartyCharacter>();
     private int id;
 
-    public Party(int id, PartyMember chrfor) {
+    public Party(int id, PartyCharacter chrfor) {
 	this.leader = chrfor;
 	this.members.add(this.leader);
 	this.id = id;
     }
 
-    public boolean containsMembers(PartyMember member) {
+    public boolean containsMembers(PartyCharacter member) {
 	return members.contains(member);
     }
 
-    public void addMember(PartyMember member) {
+    public void addMember(PartyCharacter member) {
 	members.add(member);
     }
 
-    public void removeMember(PartyMember member) {
+    public void removeMember(PartyCharacter member) {
 	members.remove(member);
     }
 
-    public void updateMember(PartyMember member) {
+    public void updateMember(PartyCharacter member) {
 	for (int i = 0; i < members.size(); i++) {
-	    PartyMember chr = members.get(i);
+	    PartyCharacter chr = members.get(i);
 	    if (chr.equals(member)) {
 		members.set(i, member);
 	    }
 	}
     }
 
-    public PartyMember getMemberById(int id) {
-	for (PartyMember chr : members) {
+    public PartyCharacter getMemberById(int id) {
+	for (PartyCharacter chr : members) {
 	    if (chr.getId() == id) {
 		return chr;
 	    }
@@ -69,7 +69,7 @@ public class Party implements Serializable {
 	return null;
     }
 
-    public Collection<PartyMember> getMembers() {
+    public Collection<PartyCharacter> getMembers() {
 	return Collections.unmodifiableList(members);
     }
 
@@ -81,11 +81,11 @@ public class Party implements Serializable {
 	this.id = id;
     }
 
-    public PartyMember getLeader() {
+    public PartyCharacter getLeader() {
 	return leader;
     }
 
-    public void setLeader(PartyMember nLeader) {
+    public void setLeader(PartyCharacter nLeader) {
 	leader = nLeader;
     }
 

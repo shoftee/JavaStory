@@ -10,16 +10,15 @@ import handling.channel.remote.ChannelWorldInterface;
 import handling.world.CharacterTransfer;
 import handling.world.CharacterIdChannelPair;
 import handling.world.Messenger;
-import handling.world.MessengerMember;
+import handling.world.MessengerCharacter;
 import handling.world.Party;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
 import handling.world.guild.Guild;
-import handling.world.guild.GuildMember;
-import org.javastory.client.MemberRank;
+import handling.world.guild.GuildCharacter;
 
 public interface WorldChannelInterface extends Remote, WorldChannelCommonOperations {
 
@@ -41,11 +40,11 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
 
     public Map<Integer, Integer> getConnected() throws RemoteException;
 
-    Party createParty(PartyMember chrfor) throws RemoteException;
+    Party createParty(PartyCharacter chrfor) throws RemoteException;
 
     Party getParty(int partyid) throws RemoteException;
 
-    public void updateParty(int partyid, PartyOperation operation, PartyMember target) throws RemoteException;
+    public void updateParty(int partyid, PartyOperation operation, PartyCharacter target) throws RemoteException;
 
     public void partyChat(int partyid, String chattext, String namefrom) throws RemoteException;
 
@@ -59,25 +58,25 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
 
     public void ChannelChange_Data(CharacterTransfer data, int characterid, int toChannel) throws RemoteException;
 
-    public Guild getGuild(int id, GuildMember mgc) throws RemoteException;
+    public Guild getGuild(int id, GuildCharacter mgc) throws RemoteException;
 
-    public void setGuildMemberOnline(GuildMember mgc, boolean bOnline, int channel) throws RemoteException;
+    public void setGuildMemberOnline(GuildCharacter mgc, boolean bOnline, int channel) throws RemoteException;
 
-    public boolean addGuildMember(GuildMember mgc) throws RemoteException;
+    public int addGuildMember(GuildCharacter mgc) throws RemoteException;
 
-    public void leaveGuild(GuildMember mgc) throws RemoteException;
+    public void leaveGuild(GuildCharacter mgc) throws RemoteException;
 
     public void guildChat(int gid, String name, int cid, String msg) throws RemoteException;
 
     public void allianceChat(int gid, String name, int cid, String msg) throws RemoteException;
 
-    public void changeRank(int gid, int cid, MemberRank newRank) throws RemoteException;
+    public void changeRank(int gid, int cid, int newRank) throws RemoteException;
 
-    public void expelMember(GuildMember initiator, String name, int cid) throws RemoteException;
+    public void expelMember(GuildCharacter initiator, String name, int cid) throws RemoteException;
 
     public void setGuildNotice(int gid, String notice) throws RemoteException;
 
-    public void memberLevelJobUpdate(GuildMember mgc) throws RemoteException;
+    public void memberLevelJobUpdate(GuildCharacter mgc) throws RemoteException;
 
     public void changeRankTitle(int gid, String[] ranks) throws RemoteException;
 
@@ -91,17 +90,17 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
 
     public void gainGP(int gid, int amount) throws RemoteException;
 
-    Messenger createMessenger(MessengerMember chrfor) throws RemoteException;
+    Messenger createMessenger(MessengerCharacter chrfor) throws RemoteException;
 
     Messenger getMessenger(int messengerid) throws RemoteException;
 
-    public void leaveMessenger(int messengerid, MessengerMember target) throws RemoteException;
+    public void leaveMessenger(int messengerid, MessengerCharacter target) throws RemoteException;
 
-    public void joinMessenger(int messengerid, MessengerMember target, String from, int fromchannel) throws RemoteException;
+    public void joinMessenger(int messengerid, MessengerCharacter target, String from, int fromchannel) throws RemoteException;
 
-    public void silentJoinMessenger(int messengerid, MessengerMember target, int position) throws RemoteException;
+    public void silentJoinMessenger(int messengerid, MessengerCharacter target, int position) throws RemoteException;
 
-    public void silentLeaveMessenger(int messengerid, MessengerMember target) throws RemoteException;
+    public void silentLeaveMessenger(int messengerid, MessengerCharacter target) throws RemoteException;
 
     public void messengerChat(int messengerid, String chattext, String namefrom) throws RemoteException;
 

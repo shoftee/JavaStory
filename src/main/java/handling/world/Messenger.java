@@ -29,31 +29,31 @@ import java.util.List;
 public class Messenger implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
-    private List<MessengerMember> members = new LinkedList<MessengerMember>();
+    private List<MessengerCharacter> members = new LinkedList<MessengerCharacter>();
     private int id;
     private boolean pos0 = false;
     private boolean pos1 = false;
     @SuppressWarnings("unused")
     private boolean pos2 = false;
 
-    public Messenger(int id, MessengerMember chrfor) {
+    public Messenger(int id, MessengerCharacter chrfor) {
 	this.members.add(chrfor);
 	int position = getLowestPosition();
 	chrfor.setPosition(position);
 	this.id = id;
     }
 
-    public boolean containsMembers(MessengerMember member) {
+    public boolean containsMembers(MessengerCharacter member) {
 	return members.contains(member);
     }
 
-    public void addMember(MessengerMember member) {
+    public void addMember(MessengerCharacter member) {
 	members.add(member);
 	int position = getLowestPosition();
 	member.setPosition(position);
     }
 
-    public void removeMember(MessengerMember member) {
+    public void removeMember(MessengerCharacter member) {
 	int position = member.getPosition();
 	if (position == 0) {
 	    pos0 = false;
@@ -65,25 +65,25 @@ public class Messenger implements Serializable {
 	members.remove(member);
     }
 
-    public void silentRemoveMember(MessengerMember member) {
+    public void silentRemoveMember(MessengerCharacter member) {
 	members.remove(member);
     }
 
-    public void silentAddMember(MessengerMember member, int position) {
+    public void silentAddMember(MessengerCharacter member, int position) {
 	members.add(member);
 	member.setPosition(position);
     }
 
-    public void updateMember(MessengerMember member) {
+    public void updateMember(MessengerCharacter member) {
 	for (int i = 0; i < members.size(); i++) {
-	    MessengerMember chr = members.get(i);
+	    MessengerCharacter chr = members.get(i);
 	    if (chr.equals(member)) {
 		members.set(i, member);
 	    }
 	}
     }
 
-    public Collection<MessengerMember> getMembers() {
+    public Collection<MessengerCharacter> getMembers() {
 	return Collections.unmodifiableList(members);
     }
 
@@ -105,7 +105,7 @@ public class Messenger implements Serializable {
     }
 
     public int getPositionByName(String name) {
-	for (MessengerMember messengerchar : members) {
+	for (MessengerCharacter messengerchar : members) {
 	    if (messengerchar.getName().equals(name)) {
 		return messengerchar.getPosition();
 	    }

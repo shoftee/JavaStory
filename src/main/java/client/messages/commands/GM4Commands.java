@@ -28,11 +28,11 @@ public class GM4Commands implements Command {
             final int itemId = Integer.parseInt(splitted[1]);
             final short quantity = (short) getOptionalIntArg(splitted, 2, 1);
             if (itemId == 2100106 | itemId == 2100107) {
-                c.getPlayer().sendNotice(5, "Item is blocked.");
+                c.getPlayer().dropMessage(5, "Item is blocked.");
                 return;
             }
             if (GameConstants.isPet(itemId)) {
-                c.getPlayer().sendNotice(5, "Please purshase a pet from the cash shop instead.");
+                c.getPlayer().dropMessage(5, "Please purshase a pet from the cash shop instead.");
             } else {
                 IItem item;
                 if (GameConstants.getInventoryType(itemId) ==
@@ -50,11 +50,11 @@ public class GM4Commands implements Command {
             final int itemId = Integer.parseInt(splitted[1]);
             final short quantity = (short) (short) getOptionalIntArg(splitted, 2, 1);
             if (itemId == 2100106 | itemId == 2100107) {
-                c.getPlayer().sendNotice(5, "Item is blocked.");
+                c.getPlayer().dropMessage(5, "Item is blocked.");
                 return;
             }
             if (GameConstants.isPet(itemId)) {
-                c.getPlayer().sendNotice(5, "Please purshase a pet from the cash shop instead.");
+                c.getPlayer().dropMessage(5, "Please purshase a pet from the cash shop instead.");
             } else {
                 IItem toDrop;
                 if (GameConstants.getInventoryType(itemId) ==
@@ -73,12 +73,12 @@ public class GM4Commands implements Command {
                     chr.saveToDb(false);
                 }
             }
-            c.getPlayer().sendNotice(6, "Done.");
+            c.getPlayer().dropMessage(6, "Done.");
         } else if (splitted[0].equals("-maxmesos")) {
             c.getPlayer().gainMeso(Integer.MAX_VALUE - c.getPlayer().getMeso(), true);
         } else if (splitted[0].equals("-vac")) {
             if (!c.getPlayer().isHidden()) {
-                c.getPlayer().sendNotice(6, "You can only vac monsters while in hide.");
+                c.getPlayer().dropMessage(6, "You can only vac monsters while in hide.");
             } else {
                 for (final GameMapObject mmo : c.getPlayer().getMap().getAllMonster()) {
                     final Monster monster = (Monster) mmo;

@@ -31,7 +31,7 @@ public class ConnectedCommand implements Command {
 					conStr.append(connected.get(i));
 				}
 			}
-			c.getPlayer().sendNotice(6, conStr.toString());
+			c.getPlayer().dropMessage(6, conStr.toString());
 		} catch (RemoteException e) {
 			c.getChannelServer().pingWorld();
 		}

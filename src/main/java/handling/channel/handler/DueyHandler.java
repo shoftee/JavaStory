@@ -15,7 +15,7 @@ import client.GameCharacter;
 import client.GameCharacterUtil;
 import client.GameClient;
 import client.Inventory;
-import org.javastory.client.ItemType;
+import client.ItemType;
 import database.DatabaseConnection;
 import java.sql.Statement;
 import org.javastory.io.PacketFormatException;

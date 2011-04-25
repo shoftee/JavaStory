@@ -28,7 +28,7 @@ public class NPCSpawningCommands implements Command {
 				c.getPlayer().getMap().addMapObject(npc);
 				c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
 			} else {
-				c.getPlayer().sendNotice(6, "You have entered an invalid Npc-Id");
+				c.getPlayer().dropMessage(6, "You have entered an invalid Npc-Id");
 			}
 		} else if (splitted[0].equals("-removenpcs")) {
 			List<GameMapObject> npcs = c.getPlayer().getMap().getAllNPC();
@@ -41,7 +41,7 @@ public class NPCSpawningCommands implements Command {
 			}
 		} else if (splitted[0].equals("-mynpcpos")) {
 			Point pos = c.getPlayer().getPosition();
-			c.getPlayer().sendNotice(6, "CY: " + pos.y + " | RX0: " + (pos.x + 50) + " | RX1: " + (pos.x - 50) + " | FH: " + c.getPlayer().getMap().getFootholds().findBelow(pos).getId());
+			c.getPlayer().dropMessage(6, "CY: " + pos.y + " | RX0: " + (pos.x + 50) + " | RX1: " + (pos.x - 50) + " | FH: " + c.getPlayer().getMap().getFootholds().findBelow(pos).getId());
 		}
 	}
 

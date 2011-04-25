@@ -24,6 +24,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import client.Mount;
@@ -34,7 +35,6 @@ import client.SkillEntry;
 import client.BuddyListEntry;
 import client.CharacterNameAndId;
 import com.google.common.collect.Maps;
-import org.javastory.client.MemberRank;
 import server.quest.Quest;
 
 public class CharacterTransfer implements Externalizable {
@@ -44,8 +44,7 @@ public class CharacterTransfer implements Externalizable {
 	    initialSpawnPoint, worldId, rank, rankMove, jobRank, jobRankMove, guildId,
 	    buddyListCapacity, partyId, messengerId, messengerPosition, monsterBookCover, dojo, ACash, vpoints, MaplePoints,
 	    mount_level, mount_itemid, mount_Fatigue, mount_exp, reborns, subcategory;
-    public byte channel, dojoRecord, gender, gmLevel;
-    public MemberRank guildRank, unionRank;
+    public byte channel, dojoRecord, gender, gmLevel, guildRank, unionRank;
 	public boolean ondmg, callgm;
     public long lastFameTime, TranferTime;
     public String name, accountname, blessOfFairy;
@@ -92,14 +91,14 @@ public class CharacterTransfer implements Externalizable {
 	this.face = chr.getFace();
 	this.mapId = chr.getMapId();
 	this.initialSpawnPoint = chr.getInitialSpawnpoint();
-	this.worldId = chr.getWorldId();
+	this.worldId = chr.getWorld();
 	this.rank = chr.getRank();
 	this.rankMove = chr.getRankMove();
 	this.jobRank = (byte) chr.getJobRank();
 	this.jobRankMove = chr.getJobRankMove();
 	this.guildId = chr.getGuildId();
-	this.guildRank = chr.getGuildRank();
-	this.unionRank = chr.getGuildUnionRank();
+	this.guildRank = (byte) chr.getGuildRank();
+	this.unionRank = (byte) chr.getGuildUnionRank();
 	this.gmLevel = (byte) chr.getGMLevel();
 	this.subcategory = chr.getSubcategory();
 	this.ondmg = chr.isOnDMG();
@@ -192,8 +191,8 @@ public class CharacterTransfer implements Externalizable {
 	this.jobRank = in.readInt();
 	this.jobRankMove = in.readInt();
 	this.guildId = in.readInt();
-	this.guildRank = MemberRank.fromNumber(in.readByte());
-	this.unionRank = MemberRank.fromNumber(in.readByte());
+	this.guildRank = in.readByte();
+	this.unionRank = in.readByte();
 	this.gmLevel = in.readByte();
         
 
@@ -288,8 +287,8 @@ public class CharacterTransfer implements Externalizable {
 	out.writeInt(this.jobRank);
 	out.writeInt(this.jobRankMove);
 	out.writeInt(this.guildId);
-	out.write(this.guildRank.asNumber());
-	out.write(this.unionRank.asNumber());
+	out.write(this.guildRank);
+	out.write(this.unionRank);
 	out.write(this.gmLevel);
         
 	out.writeObject(this.blessOfFairy);

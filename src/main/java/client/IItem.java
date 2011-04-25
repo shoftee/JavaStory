@@ -1,7 +1,5 @@
 package client;
 
-import org.javastory.client.ItemType;
-
 public interface IItem extends Comparable<IItem> {
 
     ItemType getType();
@@ -42,4 +40,8 @@ public interface IItem extends Comparable<IItem> {
 
     // Cash Item Information
     int getCashId();
+
+    int getSN();
+
+    void setSN(int sn);
 }

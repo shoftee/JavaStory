@@ -66,14 +66,14 @@ public class GM5Commands implements Command {
                 if (type.equals(InventoryType.EQUIP)) {
                     InventoryManipulator.addFromDrop(c, ii.hardcoreItem((Equip) item, multiply), true);
                 } else {
-                    player.sendNotice(6, "Make sure it's an equippable item.");
+                    player.dropMessage(6, "Make sure it's an equippable item.");
                 }
             } else {
-                player.sendNotice(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
+                player.dropMessage(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
             }
         } else if (splitted[0].equals("-mutecall")) {
             player.setCallGM(!player.isCallGM());
-            player.sendNotice(6, "GM Messages set to " +
+            player.dropMessage(6, "GM Messages set to " +
                     player.isCallGM());
         } else if (splitted[0].equals("-clearinv")) {
             Map<Pair<Short, Short>, Inventory> items = Maps.newLinkedHashMap();
@@ -98,7 +98,7 @@ public class GM5Commands implements Command {
                 } else if (splitted[1].equals("c")) {
                     inventory = player.getCashInventory();
                 } else {
-                    player.sendNotice(6, "[all/eqp/eq/u/s/e/c]");
+                    player.dropMessage(6, "[all/eqp/eq/u/s/e/c]");
                     return;
                 }
                 for (IItem item : inventory) {
@@ -117,15 +117,15 @@ public class GM5Commands implements Command {
             if (chr != null) {
                 sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 if (chr.ban(sb.toString(), false, false)) {
-                    player.sendNotice(6, "Successfully banned.");
+                    player.dropMessage(6, "Successfully banned.");
                 } else {
-                    player.sendNotice(6, "Failed to ban.");
+                    player.dropMessage(6, "Failed to ban.");
                 }
             } else {
                 if (Bans.banBySessionIP(splitted[1], sb.toString())) {
                     sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 } else {
-                    player.sendNotice(6, "Failed to ban " + splitted[1]);
+                    player.dropMessage(6, "Failed to ban " + splitted[1]);
                 }
             }
         } else if (splitted[0].equals("-tempban")) {
@@ -136,25 +136,25 @@ public class GM5Commands implements Command {
             cal.add(Calendar.DATE, numDay);
             final DateFormat df = DateFormat.getInstance();
             if (victim == null) {
-                player.sendNotice(6, "Unable to find character");
+                player.dropMessage(6, "Unable to find character");
                 return;
             }
             victim.temporaryBan("Temp banned by : " + player.getName() +
                     "", cal, reason, true);
-            player.sendNotice(6, "The character " + splitted[1] +
+            player.dropMessage(6, "The character " + splitted[1] +
                     " has been successfully tempbanned till " +
                     df.format(cal.getTime()));
         } else if (splitted[0].equals("-unban")) {
             if (splitted.length < 1) {
-                player.sendNotice(6, "!unban <Character name>");
+                player.dropMessage(6, "!unban <Character name>");
             } else {
                 final byte result = c.unban(splitted[1]);
                 if (result == -1) {
-                    player.sendNotice(6, "No character found with that name.");
+                    player.dropMessage(6, "No character found with that name.");
                 } else if (result == -2) {
-                    player.sendNotice(6, "Error occured while unbanning, please try again later.");
+                    player.dropMessage(6, "Error occured while unbanning, please try again later.");
                 } else {
-                    player.sendNotice(6, "Character successfully unbanned.");
+                    player.dropMessage(6, "Character successfully unbanned.");
                 }
             }
         } else if (splitted[0].equals("-dc")) {
@@ -172,16 +172,16 @@ public class GM5Commands implements Command {
                     victim.getClient().disconnect();
                 }
             } else {
-                player.sendNotice(6, "Please use dc -f instead.");
+                player.dropMessage(6, "Please use dc -f instead.");
             }
         } else if (splitted[0].equals("-resetquest")) {
             Quest.getInstance(Integer.parseInt(splitted[1])).forfeit(player);
         } else if (splitted[0].equals("-nearestPortal")) {
             final Portal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
-            player.sendNotice(6, portal.getName() + " id: " +
+            player.dropMessage(6, portal.getName() + " id: " +
                     portal.getId() + " script: " + portal.getScriptName());
         } else if (splitted[0].equals("-spawndebug")) {
-            player.sendNotice(6, player.getMap().spawnDebug());
+            player.dropMessage(6, player.getMap().spawnDebug());
         } else if (splitted[0].equals("-threads")) {
             Thread[] threads = new Thread[Thread.activeCount()];
             Thread.enumerate(threads);
@@ -192,7 +192,7 @@ public class GM5Commands implements Command {
             for (int i = 0; i < threads.length; i++) {
                 String tstring = threads[i].toString();
                 if (tstring.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
-                    player.sendNotice(6, i + ": " + tstring);
+                    player.dropMessage(6, i + ": " + tstring);
                 }
             }
         } else if (splitted[0].equals("-showtrace")) {
@@ -202,9 +202,9 @@ public class GM5Commands implements Command {
             Thread[] threads = new Thread[Thread.activeCount()];
             Thread.enumerate(threads);
             Thread t = threads[Integer.parseInt(splitted[1])];
-            player.sendNotice(6, t.toString() + ":");
+            player.dropMessage(6, t.toString() + ":");
             for (StackTraceElement elem : t.getStackTrace()) {
-                player.sendNotice(6, elem.toString());
+                player.dropMessage(6, elem.toString());
             }
         } else if (splitted[0].equals("-fakerelog")) {
             c.write(MaplePacketCreator.getCharInfo(chr));
@@ -215,7 +215,7 @@ public class GM5Commands implements Command {
                 CheatingOffense co = CheatingOffense.valueOf(splitted[1]);
                 co.setEnabled(!co.isEnabled());
             } catch (IllegalArgumentException iae) {
-                player.sendNotice(6, "Offense " + splitted[1] +
+                player.dropMessage(6, "Offense " + splitted[1] +
                         " not found");
             }
         } else if (splitted[0].equals("-tdrops")) {
@@ -226,7 +226,7 @@ public class GM5Commands implements Command {
             } catch (RemoteException e) {
                 c.getChannelServer().pingWorld();
             }
-            player.sendNotice(6, "Megaphone state : " +
+            player.dropMessage(6, "Megaphone state : " +
                     (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
         } else if (splitted[0].equalsIgnoreCase("!sreactor")) {
             ReactorStats reactorSt = ReactorFactory.getReactor(Integer.parseInt(splitted[1]));
@@ -241,7 +241,7 @@ public class GM5Commands implements Command {
             List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
             for (GameMapObject reactorL : reactors) {
                 Reactor reactor2l = (Reactor) reactorL;
-                player.sendNotice(6, "Reactor: oID: " +
+                player.dropMessage(6, "Reactor: oID: " +
                         reactor2l.getObjectId() + " reactorID: " +
                         reactor2l.getReactorId() + " Position: " +
                         reactor2l.getPosition().toString() + " State: " +
@@ -272,19 +272,19 @@ public class GM5Commands implements Command {
             if (splitted.length > 1) {
                 final byte rate = Byte.parseByte(splitted[1]);
                 c.getChannelServer().setExpRate(rate);
-                player.sendNotice(6, "Exprate has been changed to " +
+                player.dropMessage(6, "Exprate has been changed to " +
                         rate + "x");
             } else {
-                player.sendNotice(6, "Syntax: !exprate <number>");
+                player.dropMessage(6, "Syntax: !exprate <number>");
             }
         } else if (splitted[0].equals("-droprate")) {
             if (splitted.length > 1) {
                 final byte rate = Byte.parseByte(splitted[1]);
                 c.getChannelServer().setDropRate(rate);
-                player.sendNotice(6, "Drop Rate has been changed to " +
+                player.dropMessage(6, "Drop Rate has been changed to " +
                         rate + "x");
             } else {
-                player.sendNotice(6, "Syntax: !droprate <number>");
+                player.dropMessage(6, "Syntax: !droprate <number>");
             }
         } else if (splitted[0].equals("-dcall")) {
             c.getChannelServer().getPlayerStorage().disconnectAll();

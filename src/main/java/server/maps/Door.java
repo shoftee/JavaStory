@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import client.GameCharacter;
 import client.GameClient;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 import server.Portal;
 import tools.MaplePacketCreator;
 
@@ -84,7 +84,7 @@ public class Door extends AbstractGameMapObject {
         for (final GameMapObject obj : town.getAllDoor()) {
             final Door door = (Door) obj;
             if (door.getOwner().getParty() != null
-                    && owner.getParty().containsMembers(new PartyMember(door.getOwner()))) {
+                    && owner.getParty().containsMembers(new PartyCharacter(door.getOwner()))) {
                 freePortals.remove(door.getTownPortal());
             }
         }
@@ -95,7 +95,7 @@ public class Door extends AbstractGameMapObject {
     public final void sendSpawnData(final GameClient client) {
         if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() && owner.getParty() == null) {
             client.write(MaplePacketCreator.spawnDoor(owner.getId(), town.getId() == client.getPlayer().getMapId() ? townPortal.getPosition() : targetPosition, true));
-            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyMember(client.getPlayer())))) {
+            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyCharacter(client.getPlayer())))) {
                 client.write(MaplePacketCreator.partyPortal(town.getId(), target.getId(), targetPosition));
             }
             client.write(MaplePacketCreator.spawnPortal(town.getId(), target.getId(), targetPosition));
@@ -104,8 +104,8 @@ public class Door extends AbstractGameMapObject {
 
     @Override
     public final void sendDestroyData(final GameClient client) {
-        if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() || owner.getParty() != null && owner.getParty().containsMembers(new PartyMember(client.getPlayer()))) {
-            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyMember(client.getPlayer())))) {
+        if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() || owner.getParty() != null && owner.getParty().containsMembers(new PartyCharacter(client.getPlayer()))) {
+            if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyCharacter(client.getPlayer())))) {
                 client.write(MaplePacketCreator.partyPortal(999999999, 999999999, new Point(-1, -1)));
             }
             client.write(MaplePacketCreator.removeDoor(owner.getId(), false));
@@ -114,7 +114,7 @@ public class Door extends AbstractGameMapObject {
     }
 
     public final void warp(final GameCharacter chr, final boolean toTown) {
-        if (chr == owner || owner.getParty() != null && owner.getParty().containsMembers(new PartyMember(chr))) {
+        if (chr == owner || owner.getParty() != null && owner.getParty().containsMembers(new PartyCharacter(chr))) {
             if (!toTown) {
                 chr.changeMap(target, targetPosition);
             } else {

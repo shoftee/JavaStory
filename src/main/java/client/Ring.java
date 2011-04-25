@@ -13,15 +13,15 @@ import tools.MaplePacketCreator;
 public class Ring implements Comparable<Ring> {
 
     private int ringId;
-    private int partnerRingId;
+    private int ringId2;
     private int partnerId;
     private int itemId;
     private String partnerName;
     private boolean equipped;
 
-    private Ring(int ringId, int partnerRingId, int partnerId, int itemid, String partnername) {
-        this.ringId = ringId;
-        this.partnerRingId = partnerRingId;
+    private Ring(int id, int id2, int partnerId, int itemid, String partnername) {
+        this.ringId = id;
+        this.ringId2 = id2;
         this.partnerId = partnerId;
         this.itemId = itemid;
         this.partnerName = partnername;
@@ -29,8 +29,8 @@ public class Ring implements Comparable<Ring> {
 
     public static Ring loadFromDb(int ringId) {
         try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM rings WHERE id = ?");
+            Connection con = DatabaseConnection.getConnection(); // Get a connection to the database
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM rings WHERE id = ?"); // Get ring details..
             ps.setInt(1, ringId);
             ResultSet rs = ps.executeQuery();
             rs.next();
@@ -95,8 +95,8 @@ public class Ring implements Comparable<Ring> {
 	    partner2.getMap().removePlayer(partner2);
 	    partner2.getMap().addPlayer(partner2);
 
-            partner1.sendNotice(5, "Please log off and log back in if the rings do not work.");
-            partner2.sendNotice(5, "Please log off and log back in if the rings do not work.");
+            partner1.dropMessage(5, "Please log off and log back in if the rings do not work.");
+            partner2.dropMessage(5, "Please log off and log back in if the rings do not work.");
             return 1;
         } catch (SQLException ex) {
             return 0;
@@ -108,10 +108,10 @@ public class Ring implements Comparable<Ring> {
     }
 
     public int getPartnerRingId() {
-        return partnerRingId;
+        return ringId2;
     }
 
-    public int getPartnerCharacterId() {
+    public int getPartnerChrId() {
         return partnerId;
     }
 

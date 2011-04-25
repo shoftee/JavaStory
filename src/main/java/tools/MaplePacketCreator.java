@@ -28,7 +28,7 @@ import client.QuestStatus;
 import client.Stat;
 import client.IEquip.ScrollResult;
 import client.Disease;
-import org.javastory.client.ItemType;
+import client.ItemType;
 import client.Ring;
 import client.SkillMacro;
 import com.google.common.collect.Lists;
@@ -37,13 +37,12 @@ import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import handling.ServerConstants;
 import handling.world.Party;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.guild.Guild;
-import handling.world.guild.GuildSummary;
-import handling.world.guild.GuildMember;
+import handling.world.guild.MapleGuildSummary;
+import handling.world.guild.GuildCharacter;
 import handling.world.guild.GuildUnion;
-import org.javastory.client.MemberRank;
 import org.javastory.server.channel.GuildRankingInfo;
 import server.ItemInfoProvider;
 import server.ShopItem;
@@ -746,7 +745,7 @@ public final class MaplePacketCreator {
             builder.writeInt(0);
             builder.writeInt(0);
         } else {
-            final GuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+            final MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
 
             if (gs != null) {
                 builder.writeLengthPrefixedString(gs.getName());
@@ -1475,14 +1474,14 @@ public final class MaplePacketCreator {
             builder.writeLengthPrefixedString("");
             //builder.writeLengthPrefixedString("Resets: " + chr.getReborns());
         } else {
-            final GuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+            final MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
             builder.writeLengthPrefixedString(gs.getName());
-            final GuildUnion union = chr.getGuild().getUnion(chr.getClient());
-            if (union == null) {
+            final GuildUnion alliance = chr.getGuild().getAlliance(chr.getClient());
+            if (alliance == null) {
                 builder.writeLengthPrefixedString("");
                 //builder.writeLengthPrefixedString("Resets: " + chr.getReborns());
             } else {
-                builder.writeLengthPrefixedString(union.getName());
+                builder.writeLengthPrefixedString(alliance.getName());
             }
         }
         builder.writeAsByte(0);
@@ -2478,23 +2477,23 @@ public final class MaplePacketCreator {
     }
 
     private static void addPartyStatus(int forchannel, Party party, PacketBuilder lew, boolean leaving) {
-        List<PartyMember> partymembers = new ArrayList<PartyMember>(party.getMembers());
+        List<PartyCharacter> partymembers = new ArrayList<PartyCharacter>(party.getMembers());
         while (partymembers.size() < 6) {
-            partymembers.add(new PartyMember());
+            partymembers.add(new PartyCharacter());
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             lew.writeInt(partychar.getId());
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             lew.writePaddedString(partychar.getName(), 13);
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             lew.writeInt(partychar.getJobId());
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             lew.writeInt(partychar.getLevel());
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             if (partychar.isOnline()) {
                 lew.writeInt(partychar.getChannel() - 1);
             } else {
@@ -2502,14 +2501,14 @@ public final class MaplePacketCreator {
             }
         }
         lew.writeInt(party.getLeader().getId());
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             if (partychar.getChannel() == forchannel) {
                 lew.writeInt(partychar.getMapid());
             } else {
                 lew.writeInt(0);
             }
         }
-        for (PartyMember partychar : partymembers) {
+        for (PartyCharacter partychar : partymembers) {
             if (partychar.getChannel() == forchannel && !leaving) {
                 lew.writeInt(partychar.getDoorTown());
                 lew.writeInt(partychar.getDoorTarget());
@@ -2524,7 +2523,7 @@ public final class MaplePacketCreator {
         }
     }
 
-    public static GamePacket updateParty(int forChannel, Party party, PartyOperation op, PartyMember target) {
+    public static GamePacket updateParty(int forChannel, Party party, PartyOperation op, PartyCharacter target) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
@@ -2685,7 +2684,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateBuddyList(Collection<BuddyListEntry> buddylist) {
+    public static GamePacket updateBuddylist(Collection<BuddyListEntry> buddylist) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
@@ -2874,22 +2873,21 @@ public final class MaplePacketCreator {
             builder.writeAsByte(0);
             return builder.getPacket();
         }
-        GuildMember initiator = c.getGuildMembership();
+        GuildCharacter initiator = c.getMGC();
         Guild g = c.getClient().getChannelServer().getGuild(initiator);
         if (g == null) { //failed to read from DB - don't show a guild
             builder.writeAsByte(0);
             return builder.getPacket();
         } else {
             //MapleGuild holds the absolute correct value of guild rank after it is initiated
-            GuildMember mgc = g.getMember(c.getId());
-            c.setGuildRank(mgc.getRank());
+            GuildCharacter mgc = g.getMGC(c.getId());
+            c.setGuildRank(mgc.getGuildRank());
         }
         builder.writeAsByte(1); //bInGuild
         builder.writeInt(c.getGuildId()); //not entirely sure about this one
         builder.writeLengthPrefixedString(g.getName());
         for (int i = 1; i <= 5; i++) {
-            final MemberRank rank = MemberRank.fromNumber(i);
-            builder.writeLengthPrefixedString(g.getRankTitle(rank));
+            builder.writeLengthPrefixedString(g.getRankTitle(i));
         }
         g.addMemberData(builder);
 
@@ -2949,7 +2947,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket newGuildMember(GuildMember mgc) {
+    public static GamePacket newGuildMember(GuildCharacter mgc) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
@@ -2959,7 +2957,7 @@ public final class MaplePacketCreator {
         builder.writePaddedString(mgc.getName(), 13);
         builder.writeInt(mgc.getJobId());
         builder.writeInt(mgc.getLevel());
-        builder.writeInt(mgc.getRank().asNumber() + 1); //should be always 5 but whatevs
+        builder.writeInt(mgc.getGuildRank()); //should be always 5 but whatevs
         builder.writeInt(mgc.isOnline() ? 1 : 0); //should always be 1 too
         builder.writeInt(1); //? could be guild signature, but doesn't seem to matter
         builder.writeInt(3);
@@ -2968,7 +2966,7 @@ public final class MaplePacketCreator {
     }
 
     //someone leaving, mode == 0x2c for leaving, 0x2f for expelled
-    public static GamePacket memberLeft(GuildMember mgc, boolean bExpelled) {
+    public static GamePacket memberLeft(GuildCharacter mgc, boolean bExpelled) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
@@ -2981,14 +2979,14 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket changeRank(GuildMember mgc) {
+    public static GamePacket changeRank(GuildCharacter mgc) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x40);
         builder.writeInt(mgc.getGuildId());
         builder.writeInt(mgc.getId());
-        builder.writeAsByte(mgc.getRank().asNumber() + 1);
+        builder.writeAsByte(mgc.getGuildRank());
 
         return builder.getPacket();
     }
@@ -3004,7 +3002,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket guildMemberLevelJobUpdate(GuildMember mgc) {
+    public static GamePacket guildMemberLevelJobUpdate(GuildCharacter mgc) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
@@ -3066,30 +3064,30 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showGuildUnionInfo(GameCharacter chr) {
+    public static GamePacket showAllianceInfo(GameCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0C);
-        GuildUnion union = chr.getGuild().getUnion(chr.getClient());
-        if (union == null) { //show empty alliance (used for leaving, expelled)
+        GuildUnion alliance = chr.getGuild().getAlliance(chr.getClient());
+        if (alliance == null) { //show empty alliance (used for leaving, expelled)
             builder.writeAsByte(0);
             return builder.getPacket();
         }
         builder.writeAsByte(1); //Only happens if you are in an alliance
-        builder.writeInt(union.getId());
-        builder.writeLengthPrefixedString(union.getName()); // alliance name
-        for (String title : union.getTitles()) {
-            builder.writeLengthPrefixedString(title);
+        builder.writeInt(alliance.getId());
+        builder.writeLengthPrefixedString(alliance.getName()); // alliance name
+        for (int i = 0; i < 5; i++) {
+            builder.writeLengthPrefixedString(alliance.getTitles()[i]);
         }
-        builder.writeAsByte(union.getAmountOfGuilds());//ammount of guilds joined
+        builder.writeAsByte(alliance.getAmountOfGuilds());//ammount of guilds joined
         for (int z = 0; z < 5; z++) {
-            if (union.getGuilds().get(z) != null) {
-                builder.writeInt(union.getGuilds().get(z).getId());
+            if (alliance.getGuilds().get(z) != null) {
+                builder.writeInt(alliance.getGuilds().get(z).getId());
             }
         }
         builder.writeInt(3);//3..
-        builder.writeLengthPrefixedString(union.getNotice());
+        builder.writeLengthPrefixedString(alliance.getNotice());
 
         return builder.getPacket();
     }
@@ -3107,7 +3105,7 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0D);
-        GuildUnion az = chr.getGuild().getUnion(chr.getClient());
+        GuildUnion az = chr.getGuild().getAlliance(chr.getClient());
         int e = 0;
         for (int u = 0; u < 5; u++) {
             if (az.getGuilds().get(u) != null) {
@@ -3115,15 +3113,14 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeInt(e);//ammount of guilds joined
-        chr.setGuildRank(chr.getGuild().getMember(chr.getId()).getRank());
+        chr.setGuildRank(chr.getGuild().getMGC(chr.getId()).getGuildRank());
         for (int i = 0; i < 5; i++) {
             Guild g = az.getGuilds().get(i);
             if (g != null) {
                 builder.writeInt(g.getId());
                 builder.writeLengthPrefixedString(g.getName());
-                for (int ordinal = 1; ordinal <= 5; ordinal++) {
-                    final MemberRank rank = MemberRank.fromNumber(ordinal); 
-                    builder.writeLengthPrefixedString(g.getRankTitle(rank));
+                for (int a = 1; a <= 5; a++) {
+                    builder.writeLengthPrefixedString(g.getRankTitle(a));
                 }
                 g.addMemberData(builder);
                 builder.writeInt(g.getCapacity());

@@ -223,7 +223,7 @@ public class NpcHandler {
             return;
         }
         if (chr.getMeso() < 100) {
-            chr.sendNotice(1, "You don't have enough mesos to store the item");
+            chr.dropMessage(1, "You don't have enough mesos to store the item");
         } else {
             Inventory inventory = chr.getInventoryForItem(itemId);
             IItem item = inventory.getItem(slot).copy();
@@ -262,7 +262,7 @@ public class NpcHandler {
                 InventoryManipulator.addFromDrop(c, item, false);
             } else {
                 storage.store(item);
-                chr.sendNotice(1, "Your inventory is full");
+                chr.dropMessage(1, "Your inventory is full");
             }
             storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
         }

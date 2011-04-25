@@ -21,13 +21,13 @@ public class SearchCommands implements Command {
 	@Override
 	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted.length == 1) {
-			c.getPlayer().sendNotice(6, splitted[0] + ": <NPC> <MOB> <ITEM> <MAP> <SKILL>");
+			c.getPlayer().dropMessage(6, splitted[0] + ": <NPC> <MOB> <ITEM> <MAP> <SKILL>");
 		} else {
 			String type = splitted[1];
 			String search = StringUtil.joinStringFrom(splitted, 2);
 			WzData data = null;
 			WzDataProvider dataProvider = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/" + "String.wz"));
-			c.getPlayer().sendNotice(6, "<<Type: " + type + " | Search: " + search + ">>");
+			c.getPlayer().dropMessage(6, "<<Type: " + type + " | Search: " + search + ">>");
 			if (type.equalsIgnoreCase("NPC")) {
 				List<String> retNpcs = new ArrayList<String>();
 				data = dataProvider.getData("Npc.img");
@@ -42,10 +42,10 @@ public class SearchCommands implements Command {
 				}
 				if (retNpcs != null && retNpcs.size() > 0) {
 					for (String singleRetNpc : retNpcs) {
-						c.getPlayer().sendNotice(6, singleRetNpc);
+						c.getPlayer().dropMessage(6, singleRetNpc);
 					}
 				} else {
-					c.getPlayer().sendNotice(6, "No NPC's Found");
+					c.getPlayer().dropMessage(6, "No NPC's Found");
 				}
 			} else if (type.equalsIgnoreCase("MAP")) {
 				List<String> retMaps = new ArrayList<String>();
@@ -63,10 +63,10 @@ public class SearchCommands implements Command {
 				}
 				if (retMaps != null && retMaps.size() > 0) {
 					for (String singleRetMap : retMaps) {
-						c.getPlayer().sendNotice(6, singleRetMap);
+						c.getPlayer().dropMessage(6, singleRetMap);
 					}
 				} else {
-					c.getPlayer().sendNotice(6, "No Maps Found");
+					c.getPlayer().dropMessage(6, "No Maps Found");
 				}
 			} else if (type.equalsIgnoreCase("MOB")) {
 				List<String> retMobs = new ArrayList<String>();
@@ -82,13 +82,13 @@ public class SearchCommands implements Command {
 				}
 				if (retMobs != null && retMobs.size() > 0) {
 					for (String singleRetMob : retMobs) {
-						c.getPlayer().sendNotice(6, singleRetMob);
+						c.getPlayer().dropMessage(6, singleRetMob);
 					}
 				} else {
-					c.getPlayer().sendNotice(6, "No Mob's Found");
+					c.getPlayer().dropMessage(6, "No Mob's Found");
 				}
 			} else if (type.equalsIgnoreCase("REACTOR")) {
-				c.getPlayer().sendNotice(6, "Not available at this moment");
+				c.getPlayer().dropMessage(6, "Not available at this moment");
 			} else if (type.equalsIgnoreCase("ITEM")) {
 				List<String> retItems = new ArrayList<String>();
 				for (Pair<Integer, String> itemPair : ItemInfoProvider.getInstance().getAllItems()) {
@@ -98,10 +98,10 @@ public class SearchCommands implements Command {
 				}
 				if (retItems != null && retItems.size() > 0) {
 					for (String singleRetItem : retItems) {
-						c.getPlayer().sendNotice(6, singleRetItem);
+						c.getPlayer().dropMessage(6, singleRetItem);
 					}
 				} else {
-					c.getPlayer().sendNotice(6, "No Item's Found");
+					c.getPlayer().dropMessage(6, "No Item's Found");
 				}
 			} else if (type.equalsIgnoreCase("SKILL")) {
 				List<String> retSkills = new ArrayList<String>();
@@ -117,13 +117,13 @@ public class SearchCommands implements Command {
 				}
 				if (retSkills != null && retSkills.size() > 0) {
 					for (String singleRetSkill : retSkills) {
-						c.getPlayer().sendNotice(6, singleRetSkill);
+						c.getPlayer().dropMessage(6, singleRetSkill);
 					}
 				} else {
-					c.getPlayer().sendNotice(6, "No Skills Found");
+					c.getPlayer().dropMessage(6, "No Skills Found");
 				}
 			} else {
-				c.getPlayer().sendNotice(6, "Sorry, that search call is unavailable");
+				c.getPlayer().dropMessage(6, "Sorry, that search call is unavailable");
 			}
 		}
 	}

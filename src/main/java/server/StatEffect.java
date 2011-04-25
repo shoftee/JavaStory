@@ -741,7 +741,7 @@ public class StatEffect implements Serializable {
                 if (moveTo == 999999999) {
                     target = applyto.getMap().getReturnMap();
                 } else {
-                    target = ChannelManager.getInstance(applyto.getClient().getChannelId()).getMapFactory(applyto.getWorldId()).getMap(moveTo);
+                    target = ChannelManager.getInstance(applyto.getClient().getChannelId()).getMapFactory(applyto.getWorld()).getMap(moveTo);
                     if (target.getId() / 10000000 != 60 && applyto.getMapId() /
                             10000000 != 61) {
                         if (target.getId() / 10000000 != 21 &&

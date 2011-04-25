@@ -20,7 +20,6 @@
 */
 package handling.channel.handler;
 
-import client.GameCharacter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,14 +33,14 @@ import tools.MaplePacketCreator;
 
 public class BbsHandler {
 
-    private static String correctLength(final String in, final int maxSize) {
+    private static final String correctLength(final String in, final int maxSize) {
 	if (in.length() > maxSize) {
 	    return in.substring(0, maxSize);
 	}
 	return in;
     }
 
-    public static void handleBbsOperatopn(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleBbsOperatopn(final PacketReader reader, final GameClient c) throws PacketFormatException {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing bbs or hax
 	}
@@ -64,14 +63,14 @@ public class BbsHandler {
 		    return; // hax, using an invalid icon
 		}
 		if (!bEdit) {
-		    newBbsThread(c, title, text, icon, bNotice);
+		    newBBSThread(c, title, text, icon, bNotice);
 		} else {
-		    editBbsThread(c, title, text, icon, localthreadid);
+		    editBBSThread(c, title, text, icon, localthreadid);
 		}
 		break;
 	    case 1: // delete a thread
 		localthreadid = reader.readInt();
-		deleteBbsThread(c, localthreadid);
+		deleteBBSThread(c, localthreadid);
 		break;
 	    case 2: // list threads
 		int start = reader.readInt();
@@ -84,12 +83,12 @@ public class BbsHandler {
 	    case 4: // reply
 		localthreadid = reader.readInt();
 		text = correctLength(reader.readLengthPrefixedString(), 25);
-		newBbsReply(c, localthreadid, text);
+		newBBSReply(c, localthreadid, text);
 		break;
 	    case 5: // delete reply
 		localthreadid = reader.readInt(); // we don't use this
 		int replyid = reader.readInt();
-		deleteBbsReply(c, replyid);
+		deleteBBSReply(c, replyid);
 		break;
 	}
     }
@@ -110,15 +109,14 @@ public class BbsHandler {
 	}
     }
 
-    private static void newBbsReply(final GameClient c, final int localthreadid, final String text) {
-        final GameCharacter player = c.getPlayer();
-	if (player.getGuildId() <= 0) {
+    private static final void newBBSReply(final GameClient c, final int localthreadid, final String text) {
+	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
 	Connection con = DatabaseConnection.getConnection();
 	try {
 	    PreparedStatement ps = con.prepareStatement("SELECT threadid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
-	    ps.setInt(1, player.getGuildId());
+	    ps.setInt(1, c.getPlayer().getGuildId());
 	    ps.setInt(2, localthreadid);
 	    ResultSet threadRS = ps.executeQuery();
 
@@ -133,7 +131,7 @@ public class BbsHandler {
 
 	    ps = con.prepareStatement("INSERT INTO bbs_replies (`threadid`, `postercid`, `timestamp`, `content`) VALUES " + "(?, ?, ?, ?)");
 	    ps.setInt(1, threadid);
-	    ps.setInt(2, player.getId());
+	    ps.setInt(2, c.getPlayer().getId());
 	    ps.setLong(3, System.currentTimeMillis());
 	    ps.setString(4, text);
 	    ps.execute();
@@ -150,7 +148,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void editBbsThread(final GameClient c, final String title, final String text, final int icon, final int localthreadid) {
+    private static final void editBBSThread(final GameClient c, final String title, final String text, final int icon, final int localthreadid) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
@@ -164,7 +162,7 @@ public class BbsHandler {
 	    ps.setInt(5, c.getPlayer().getGuildId());
 	    ps.setInt(6, localthreadid);
 	    ps.setInt(7, c.getPlayer().getId());
-	    ps.setBoolean(8, c.getPlayer().getGuildRank().isMaster());
+	    ps.setBoolean(8, c.getPlayer().getGuildRank() <= 2);
 	    ps.execute();
 	    ps.close();
 
@@ -174,9 +172,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void newBbsThread(final GameClient c, final String title, final String text, final int icon, final boolean bNotice) {
-        final GameCharacter player = c.getPlayer();
-	if (player.getGuildId() <= 0) {
+    private static final void newBBSThread(final GameClient c, final String title, final String text, final int icon, final boolean bNotice) {
+	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
 	int nextId = 0;
@@ -186,7 +183,7 @@ public class BbsHandler {
 
 	    if (!bNotice) { // notice's local id is always 0, so we don't need to fetch it
 		ps = con.prepareStatement("SELECT MAX(localthreadid) AS lastLocalId FROM bbs_threads WHERE guildid = ?");
-		ps.setInt(1, player.getGuildId());
+		ps.setInt(1, c.getPlayer().getGuildId());
 		ResultSet rs = ps.executeQuery();
 
 		rs.next();
@@ -196,12 +193,12 @@ public class BbsHandler {
 	    }
 
 	    ps = con.prepareStatement("INSERT INTO bbs_threads (`postercid`, `name`, `timestamp`, `icon`, `startpost`, " + "`guildid`, `localthreadid`) VALUES(?, ?, ?, ?, ?, ?, ?)");
-	    ps.setInt(1, player.getId());
+	    ps.setInt(1, c.getPlayer().getId());
 	    ps.setString(2, title);
 	    ps.setLong(3, System.currentTimeMillis());
 	    ps.setInt(4, icon);
 	    ps.setString(5, text);
-	    ps.setInt(6, player.getGuildId());
+	    ps.setInt(6, c.getPlayer().getGuildId());
 	    ps.setInt(7, nextId);
 	    ps.execute();
 
@@ -212,15 +209,14 @@ public class BbsHandler {
 	}
     }
 
-    private static void deleteBbsThread(final GameClient c, final int localthreadid) {
-        final GameCharacter player = c.getPlayer();
-	if (player.getGuildId() <= 0) {
+    private static final void deleteBBSThread(final GameClient c, final int localthreadid) {
+	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
 	Connection con = DatabaseConnection.getConnection();
 	try {
 	    PreparedStatement ps = con.prepareStatement("SELECT threadid, postercid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
-	    ps.setInt(1, player.getGuildId());
+	    ps.setInt(1, c.getPlayer().getGuildId());
 	    ps.setInt(2, localthreadid);
 	    ResultSet threadRS = ps.executeQuery();
 
@@ -229,7 +225,7 @@ public class BbsHandler {
 		ps.close();
 		return; // thread no longer exists, deleted?
 	    }
-	    if (player.getId() != threadRS.getInt("postercid") && !player.getGuildRank().isMaster()) {
+	    if (c.getPlayer().getId() != threadRS.getInt("postercid") && c.getPlayer().getGuildRank() > 2) {
 		threadRS.close();
 		ps.close();
 		return; // [hax] deleting a thread that he didn't make
@@ -252,9 +248,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void deleteBbsReply(final GameClient c, final int replyid) {
-        final GameCharacter player = c.getPlayer();
-	if (player.getGuildId() <= 0) {
+    private static final void deleteBBSReply(final GameClient c, final int replyid) {
+	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}
 
@@ -270,7 +265,7 @@ public class BbsHandler {
 		ps.close();
 		return; // thread no longer exists, deleted?
 	    }
-	    if (player.getId() != rs.getInt("postercid") && !player.getGuildRank().isMaster()) {
+	    if (c.getPlayer().getId() != rs.getInt("postercid") && c.getPlayer().getGuildRank() > 2) {
 		rs.close();
 		ps.close();
 		return; // [hax] deleting a reply that he didn't make
@@ -295,7 +290,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void displayThread(final GameClient c, final int threadid, final boolean bIsThreadIdLocal) {
+    private static final void displayThread(final GameClient c, final int threadid, final boolean bIsThreadIdLocal) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}

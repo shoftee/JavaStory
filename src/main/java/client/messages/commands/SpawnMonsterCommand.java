@@ -43,7 +43,7 @@ public class SpawnMonsterCommand implements Command {
 		final double newExpRatio = ((double) newhp / newexp);
 		if (c.getPlayer().getGMLevel() <= 5) { // bad animal
 			if (mid == 8810018 || mid == 5100001 || mid == 5130106 || mid == 8190001 || mid == 9001009 || mid == 9300256 || mid == 9300257 || mid == 9300280 || mid == 9300281 || mid == 9300282 || mid == 9300283 || mid == 9300284) {
-				c.getPlayer().sendNotice(6, "This monster is blocked.");
+				c.getPlayer().dropMessage(6, "This monster is blocked.");
 				return;
 			}
 		}

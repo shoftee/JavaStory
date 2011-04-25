@@ -25,10 +25,10 @@ import database.DatabaseConnection;
 import database.DatabaseException;
 import handling.GamePacket;
 import org.javastory.server.login.LoginServer;
-import handling.world.MessengerMember;
-import handling.world.PartyMember;
+import handling.world.MessengerCharacter;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
-import handling.world.guild.GuildMember;
+import handling.world.guild.GuildCharacter;
 import scripting.NpcScriptManager;
 import server.Trade;
 import server.TimerManager;
@@ -41,7 +41,6 @@ import tools.packet.LoginPacket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.mina.core.session.IoSession;
-import org.javastory.client.MemberRank;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.MaplePacketCreator;
@@ -60,19 +59,20 @@ public final class GameClient implements Serializable {
     private transient AesTransform serverCrypto, clientCrypto;
     private transient IoSession session;
     private GameCharacter player;
-    private int channelId = 1, accountId = 1, worldId;
+    private int channelId = 1, accId = 1, world;
     private boolean loggedIn = false, serverTransition = false;
     private transient Calendar birthday = null, tempban = null;
     private String accountName;
     private transient long lastPong;
     private boolean gm;
-    private byte banReason = 1, gender = -1;
+    private byte greason = 1, gender = -1;
     public transient short loginAttempt = 0;
     private transient List<Integer> allowedChar = new LinkedList<Integer>();
     private transient Set<String> macs = new HashSet<String>();
     private transient Map<String, ScriptEngine> engines = new HashMap<String, ScriptEngine>();
     private transient ScheduledFuture<?> idleTask = null;
     private transient String secondPassword, salt2; // To be used only on login
+    private final transient Lock mutex = new ReentrantLock(true);
 
     public GameClient(AesTransform clientCrypto, AesTransform serverCrypto,
             IoSession session) {
@@ -93,12 +93,12 @@ public final class GameClient implements Serializable {
         this.session.write(packet);
     }
 
+    public final Lock getLock() {
+        return mutex;
+    }
+
     public GameCharacter getPlayer() {
         return player;
-    }
-    
-    public int getWorldId() {
-        return worldId;
     }
 
     public void setPlayer(GameCharacter player) {
@@ -137,7 +137,7 @@ public final class GameClient implements Serializable {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT id, name FROM characters WHERE accountid = ? AND world = ?");
-            ps.setInt(1, accountId);
+            ps.setInt(1, accId);
             ps.setInt(2, serverId);
 
             ResultSet rs = ps.executeQuery();
@@ -177,7 +177,7 @@ public final class GameClient implements Serializable {
     }
 
     public byte getBanReason() {
-        return banReason;
+        return greason;
     }
 
     public boolean hasBannedIP() {
@@ -238,7 +238,7 @@ public final class GameClient implements Serializable {
         if (macs.isEmpty()) {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT macs FROM accounts WHERE id = ?");
-            ps.setInt(1, accountId);
+            ps.setInt(1, accId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 String[] macData = rs.getString("macs").split(", ");
@@ -325,11 +325,11 @@ public final class GameClient implements Serializable {
                 final String passhash = rs.getString("password");
                 final String salt = rs.getString("salt");
 
-                accountId = rs.getInt("id");
+                accId = rs.getInt("id");
                 secondPassword = rs.getString("2ndpassword");
                 salt2 = rs.getString("salt2");
                 gm = rs.getInt("gm") > 0;
-                banReason = rs.getByte("greason");
+                greason = rs.getByte("greason");
                 tempban = getTempBanCalendar(rs);
                 gender = rs.getByte("gender");
 
@@ -372,7 +372,7 @@ public final class GameClient implements Serializable {
                                 final String newSalt = LoginCrypto.makeSalt();
                                 pss.setString(1, LoginCrypto.makeSaltedSha512Hash(pwd, newSalt));
                                 pss.setString(2, newSalt);
-                                pss.setInt(3, accountId);
+                                pss.setInt(3, accId);
                                 pss.executeUpdate();
                             } finally {
                                 pss.close();
@@ -413,7 +413,7 @@ public final class GameClient implements Serializable {
                 final String newSalt = LoginCrypto.makeSalt();
                 ps.setString(1, LoginCrypto.rand_s(LoginCrypto.makeSaltedSha512Hash(in, newSalt)));
                 ps.setString(2, newSalt);
-                ps.setInt(3, accountId);
+                ps.setInt(3, accId);
                 ps.executeUpdate();
                 ps.close();
             } catch (SQLException e) {
@@ -457,7 +457,7 @@ public final class GameClient implements Serializable {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
-            ps.setInt(1, accountId);
+            ps.setInt(1, accId);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -504,7 +504,7 @@ public final class GameClient implements Serializable {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET macs = ? WHERE id = ?");
             ps.setString(1, newMacData.toString());
-            ps.setInt(2, accountId);
+            ps.setInt(2, accId);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -513,11 +513,11 @@ public final class GameClient implements Serializable {
     }
 
     public void setAccID(int id) {
-        this.accountId = id;
+        this.accId = id;
     }
 
     public int getAccountId() {
-        return this.accountId;
+        return this.accId;
     }
 
     public final void updateLoginState(final int newstate, final String SessionID) { // TODO hide?
@@ -551,7 +551,7 @@ public final class GameClient implements Serializable {
             final String newSalt = LoginCrypto.makeSalt();
             ps.setString(1, LoginCrypto.rand_s(LoginCrypto.makeSaltedSha512Hash(secondPassword, newSalt)));
             ps.setString(2, newSalt);
-            ps.setInt(3, accountId);
+            ps.setInt(3, accId);
             ps.executeUpdate();
             ps.close();
 
@@ -658,11 +658,11 @@ public final class GameClient implements Serializable {
 
             try {
                 if (player.getMessenger() != null) {
-                    ch.getWorldInterface().leaveMessenger(player.getMessenger().getId(), new MessengerMember(player));
+                    ch.getWorldInterface().leaveMessenger(player.getMessenger().getId(), new MessengerCharacter(player));
                     player.setMessenger(null);
                 }
                 if (player.getParty() != null) {
-                    final PartyMember chrp = new PartyMember(player);
+                    final PartyCharacter chrp = new PartyCharacter(player);
                     chrp.setOnline(false);
                     ch.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, chrp);
                 }
@@ -672,7 +672,7 @@ public final class GameClient implements Serializable {
                     ch.getWorldInterface().loggedOn(player.getName(), player.getId(), channelId, player.getBuddylist().getBuddyIds());
                 }
                 if (player.getGuildId() > 0) {
-                    ch.getWorldInterface().setGuildMemberOnline(player.getGuildMembership(), false, -1);
+                    ch.getWorldInterface().setGuildMemberOnline(player.getMGC(), false, -1);
                 }
 
             } catch (final RemoteException e) {
@@ -701,7 +701,7 @@ public final class GameClient implements Serializable {
     public final boolean checkIPAddress() {
         try {
             final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT SessionIP FROM accounts WHERE id = ?");
-            ps.setInt(1, this.accountId);
+            ps.setInt(1, this.accId);
             final ResultSet rs = ps.executeQuery();
 
             boolean canlogin = false;
@@ -750,7 +750,7 @@ public final class GameClient implements Serializable {
             final Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT id, guildid, guildrank, name FROM characters WHERE id = ? AND accountid = ?");
             ps.setInt(1, cid);
-            ps.setInt(2, accountId);
+            ps.setInt(2, accId);
             ResultSet rs = ps.executeQuery();
 
             if (!rs.next()) {
@@ -759,12 +759,7 @@ public final class GameClient implements Serializable {
                 return false;
             }
             if (rs.getInt("guildid") > 0) { // is in a guild when deleted
-                String characterName = rs.getString("name");
-                byte characterChannelId = -1;
-                int characterJobId = 0;
-                MemberRank characterRank = MemberRank.fromNumber(rs.getInt("guildrank"));
-                int characterGuildId = rs.getInt("guildid");
-                final GuildMember mgc = new GuildMember(cid, (short) 0, characterName, characterChannelId, characterJobId, characterRank, characterGuildId, false);
+                final GuildCharacter mgc = new GuildCharacter(cid, (short) 0, rs.getString("name"), (byte) -1, 0, rs.getInt("guildrank"), rs.getInt("guildid"), false);
                 try {
                     LoginServer.getInstance().getWorldInterface().deleteGuildCharacter(mgc);
                 } catch (RemoteException e) {
@@ -830,11 +825,11 @@ public final class GameClient implements Serializable {
     }
 
     public final int getWorld() {
-        return worldId;
+        return world;
     }
 
     public final void setWorld(final int world) {
-        this.worldId = world;
+        this.world = world;
     }
 
     public final long getLastPong() {

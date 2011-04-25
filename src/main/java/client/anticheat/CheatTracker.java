@@ -180,7 +180,7 @@ public class CheatTracker {
                 if (!chrhardref.isGM()) {
                     //chrhardref.getClient().disconnect();
                 } else {
-                    chrhardref.sendNotice(5, "[WARNING] D/c triggled : " + offense.toString());
+                    chrhardref.dropMessage(5, "[WARNING] D/c triggled : " + offense.toString());
                 }
             }
             return;

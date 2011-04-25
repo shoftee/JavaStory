@@ -59,7 +59,7 @@ public class PlayerInteractionHandler {
                     Trade.startTrade(chr);
                 } else if (createType == 4 || createType == 5) { // shop
                     if (!chr.getMap().getMapObjectsInRange(chr.getPosition(), 19500, Arrays.asList(GameMapObjectType.SHOP, GameMapObjectType.HIRED_MERCHANT)).isEmpty()) {
-                        chr.sendNotice(1, "You may not establish a store here.");
+                        chr.dropMessage(1, "You may not establish a store here.");
                         return;
                     }
                     final String desc = reader.readLengthPrefixedString();
@@ -78,7 +78,7 @@ public class PlayerInteractionHandler {
             }
             case INVITE_TRADE: {
                 GameCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
-                if (ochr.getWorldId() != chr.getWorldId()) {
+                if (ochr.getWorld() != chr.getWorld()) {
                     chr.getClient().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
                     return;
                 }
@@ -109,10 +109,10 @@ public class PlayerInteractionHandler {
                                 c.write(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                             } else {
                                 if (!merchant.isOpen()) {
-                                    chr.sendNotice(1, "This shop is in maintenance, please come by later.");
+                                    chr.dropMessage(1, "This shop is in maintenance, please come by later.");
                                 } else {
                                     if (ips.getFreeSlot() == -1) {
-                                        chr.sendNotice(1, "This shop has reached it's maximum capacity, please come by later.");
+                                        chr.dropMessage(1, "This shop has reached it's maximum capacity, please come by later.");
                                     } else {
                                         chr.setPlayerShop(ips);
                                         merchant.addVisitor(chr);
@@ -122,12 +122,12 @@ public class PlayerInteractionHandler {
                             }
                         } else if (ips.getShopType() == 2) {
                             if (((GenericPlayerStore) ips).isBanned(chr.getName())) {
-                                chr.sendNotice(1, "You have been banned from this store.");
+                                chr.dropMessage(1, "You have been banned from this store.");
                                 return;
                             }
                         } else {
                             if (ips.getFreeSlot() == -1) {
-                                chr.sendNotice(1, "This shop has reached it's maximum capacity, please come by later.");
+                                chr.dropMessage(1, "This shop has reached it's maximum capacity, please come by later.");
                             } else {
                                 chr.setPlayerShop(ips);
                                 ips.addVisitor(chr);

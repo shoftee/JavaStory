@@ -70,7 +70,7 @@ public class Squad {
 	    if (!members.contains(member)) {
 		if (members.size() <= 30) {
 		    members.add(member);
-		    getLeader().sendNotice(5, member.getName() + " has joined the fight!");
+		    getLeader().dropMessage(5, member.getName() + " has joined the fight!");
 		    return 1;
 		}
 		return 2;
@@ -79,7 +79,7 @@ public class Squad {
 	} else {
 	    if (members.contains(member)) {
 		members.remove(member);
-		getLeader().sendNotice(5, member.getName() + " have withdrawed from the fight.");
+		getLeader().dropMessage(5, member.getName() + " have withdrawed from the fight.");
 		return 1;
 	    }
 	    return -1;
@@ -92,7 +92,7 @@ public class Squad {
 	    members.add(toadd);
 	    bannedMembers.remove(toadd);
 
-	    toadd.sendNotice(5, leader.getName() + " has decided to add you back to the squad.");
+	    toadd.dropMessage(5, leader.getName() + " has decided to add you back to the squad.");
 	}
     }
 
@@ -105,7 +105,7 @@ public class Squad {
 	    members.remove(toban);
 	    bannedMembers.add(toban);
 
-	    toban.sendNotice(5, leader.getName() + " has removed you from the squad.");
+	    toban.dropMessage(5, leader.getName() + " has removed you from the squad.");
 	}
     }
 

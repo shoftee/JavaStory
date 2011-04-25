@@ -35,7 +35,7 @@ public final class HiredMerchantHandler {
 
             switch (state) {
                 case 1:
-                    c.getPlayer().sendNotice(1, "Please claim your items from Fredrick first.");
+                    c.getPlayer().dropMessage(1, "Please claim your items from Fredrick first.");
                     break;
                 case 0:
                     boolean merch = true;
@@ -48,11 +48,11 @@ public final class HiredMerchantHandler {
 //		    c.getPlayer().dropMessage(1, "The Hired Merchant is temporary disabled until it's fixed.");
                         c.write(PlayerShopPacket.sendTitleBox());
                     } else {
-                        c.getPlayer().sendNotice(1, "Please close the existing store and try again.");
+                        c.getPlayer().dropMessage(1, "Please close the existing store and try again.");
                     }
                     break;
                 default:
-                    c.getPlayer().sendNotice(1, "An unknown error occured.");
+                    c.getPlayer().dropMessage(1, "An unknown error occured.");
                     break;
             }
         } else {
@@ -90,7 +90,7 @@ public final class HiredMerchantHandler {
                     final MerchItemPackage pack = loadItemFrom_Database(c.getPlayer().getId());
 
                     if (pack == null) {
-                        c.getPlayer().sendNotice(1, "You do not have any item(s) with Fredrick.");
+                        c.getPlayer().dropMessage(1, "You do not have any item(s) with Fredrick.");
                         c.getPlayer().setConversationState(0);
                     } else {
                         c.write(PlayerShopPacket.merchItemStore_ItemData(pack));
@@ -122,7 +122,7 @@ public final class HiredMerchantHandler {
                     }
                     c.write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
                 } else {
-                    c.getPlayer().sendNotice(1, "An unknown error occured.");
+                    c.getPlayer().dropMessage(1, "An unknown error occured.");
                 }
                 break;
             }

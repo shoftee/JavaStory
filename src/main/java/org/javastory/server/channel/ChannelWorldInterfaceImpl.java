@@ -22,13 +22,12 @@ import handling.GamePacket;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.CharacterTransfer;
 import handling.world.Messenger;
-import handling.world.MessengerMember;
+import handling.world.MessengerCharacter;
 import handling.world.Party;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
-import handling.world.guild.GuildSummary;
+import handling.world.guild.MapleGuildSummary;
 import handling.world.remote.CheaterData;
-import org.javastory.client.MemberRank;
 import server.TimerManager;
 import tools.CollectionUtil;
 import tools.MaplePacketCreator;
@@ -151,8 +150,8 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void updateParty(Party party, PartyOperation operation, PartyMember target) throws RemoteException {
-        for (PartyMember partychar : party.getMembers()) {
+    public void updateParty(Party party, PartyOperation operation, PartyCharacter target) throws RemoteException {
+        for (PartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId()) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
@@ -180,7 +179,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void partyChat(Party party, String chattext, String namefrom) throws RemoteException {
-        for (PartyMember partychar : party.getMembers()) {
+        for (PartyCharacter partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId() && !(partychar.getName().equals(namefrom))) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
@@ -311,7 +310,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void setGuildAndRank(List<Integer> cids, int guildid, MemberRank rank, int exception) throws RemoteException {
+    public void setGuildAndRank(List<Integer> cids, int guildid, int rank, int exception) throws RemoteException {
         for (int cid : cids) {
             if (cid != exception) {
                 setGuildAndRank(cid, guildid, rank);
@@ -320,7 +319,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void setGuildAndRank(int cid, int guildid, MemberRank rank) throws RemoteException {
+    public void setGuildAndRank(int cid, int guildid, int rank) throws RemoteException {
         final GameCharacter mc = server.getPlayerStorage().getCharacterById(cid);
         if (mc == null) {
             // System.out.println("ERROR: cannot find player in given channel");
@@ -328,7 +327,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
         }
 
         boolean bDifferentGuild;
-        if (guildid == -1 && rank == null) { //just need a respawn
+        if (guildid == -1 && rank == -1) { //just need a respawn
             bDifferentGuild = true;
         } else {
             bDifferentGuild = guildid != mc.getGuildId();
@@ -343,12 +342,12 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void setOfflineGuildStatus(int guildId, MemberRank rank, int cid) throws RemoteException {
+    public void setOfflineGuildStatus(int guildid, byte guildrank, int cid) throws RemoteException {
         try {
             java.sql.Connection con = DatabaseConnection.getConnection();
             java.sql.PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?");
-            ps.setInt(1, guildId);
-            ps.setInt(2, rank.asNumber());
+            ps.setInt(1, guildid);
+            ps.setInt(2, guildrank);
             ps.setInt(3, cid);
             ps.execute();
             ps.close();
@@ -358,10 +357,10 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
     }
 
     @Override
-    public void changeEmblem(int gid, List<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException {
+    public void changeEmblem(int gid, List<Integer> affectedPlayers, MapleGuildSummary mgs) throws RemoteException {
         ChannelManager.getInstance(this.getChannelId()).updateGuildSummary(gid, mgs);
         this.sendPacket(affectedPlayers, MaplePacketCreator.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
-        this.setGuildAndRank(affectedPlayers, -1, null, -1);	//respawn player
+        this.setGuildAndRank(affectedPlayers, -1, -1, -1);	//respawn player
     }
 
     @Override
@@ -380,7 +379,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void addMessengerPlayer(Messenger messenger, String namefrom, int fromchannel, int position) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
+        for (MessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
@@ -399,7 +398,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void removeMessengerPlayer(Messenger messenger, int position) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
+        for (MessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId()) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
@@ -411,7 +410,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void messengerChat(Messenger messenger, String chattext, String namefrom) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
+        for (MessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
@@ -434,7 +433,7 @@ public class ChannelWorldInterfaceImpl extends UnicastRemoteObject implements Ch
 
     @Override
     public void updateMessenger(Messenger messenger, String namefrom, int position, int fromchannel) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
+        for (MessengerCharacter messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId() && !(messengerchar.getName().equals(namefrom))) {
                 final GameCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {

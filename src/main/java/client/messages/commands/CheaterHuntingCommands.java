@@ -19,20 +19,20 @@ public class CheaterHuntingCommands implements Command {
 			for (GameCharacter chr : c.getPlayer().getMap().getCharacters()) {
 				if (builder.length() > 150) { // wild guess :o
 					builder.setLength(builder.length() - 2);
-					c.getPlayer().sendNotice(6, builder.toString());
+					c.getPlayer().dropMessage(6, builder.toString());
 					builder = new StringBuilder();
 				}
 				builder.append(GameCharacterUtil.makeMapleReadable(chr.getName()));
 				builder.append(", ");
 			}
 			builder.setLength(builder.length() - 2);
-			c.getPlayer().sendNotice(6, builder.toString());
+			c.getPlayer().dropMessage(6, builder.toString());
 		} else if (splitted[0].equals("-cheaters")) {
 			try {
 				List<CheaterData> cheaters = c.getChannelServer().getWorldInterface().getCheaters();
 				for (int x = cheaters.size() - 1; x >= 0; x--) {
 					CheaterData cheater = cheaters.get(x);
-					c.getPlayer().sendNotice(6, cheater.getInfo());
+					c.getPlayer().dropMessage(6, cheater.getInfo());
 				}
 			} catch (RemoteException e) {
 				c.getChannelServer().pingWorld();

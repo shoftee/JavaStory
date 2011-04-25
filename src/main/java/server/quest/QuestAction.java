@@ -269,7 +269,7 @@ public class QuestAction implements Serializable {
 		    final short count = (short) WzDataTool.getInt(iEntry.getChildByPath("count"), 1);
 		    if (count < 0) { // remove items
 			if (!c.haveItem(id, count, false, true)) {
-			    c.sendNotice(1, "You are short of some item to complete quest.");
+			    c.dropMessage(1, "You are short of some item to complete quest.");
 			    return false;
 			}
 		    } else { // add items
@@ -293,19 +293,19 @@ public class QuestAction implements Serializable {
 		    }
 		}
 		if (c.getEquipInventory().getNumFreeSlot() <= eq) {
-		    c.sendNotice(1, "Plaase make space for your Equip inventory.");
+		    c.dropMessage(1, "Plaase make space for your Equip inventory.");
 		    return false;
 		} else if (c.getUseInventory().getNumFreeSlot() <= use) {
-		    c.sendNotice(1, "Plaase make space for your Use inventory.");
+		    c.dropMessage(1, "Plaase make space for your Use inventory.");
 		    return false;
 		} else if (c.getSetupInventory().getNumFreeSlot() <= setup) {
-		    c.sendNotice(1, "Plaase make space for your Setup inventory.");
+		    c.dropMessage(1, "Plaase make space for your Setup inventory.");
 		    return false;
 		} else if (c.getEtcInventory().getNumFreeSlot() <= etc) {
-		    c.sendNotice(1, "Plaase make space for your Etc inventory.");
+		    c.dropMessage(1, "Plaase make space for your Etc inventory.");
 		    return false;
 		} else if (c.getCashInventory().getNumFreeSlot() <= cash) {
-		    c.sendNotice(1, "Plaase make space for your Cash inventory.");
+		    c.dropMessage(1, "Plaase make space for your Cash inventory.");
 		    return false;
 		}
 		return true;
@@ -313,10 +313,10 @@ public class QuestAction implements Serializable {
 	    case money: {
 		final int meso = WzDataTool.getInt(data, 0);
 		if (c.getMeso() + meso < 0) { // Giving, overflow
-		    c.sendNotice(1, "Meso exceed the max amount, 2147483647.");
+		    c.dropMessage(1, "Meso exceed the max amount, 2147483647.");
 		    return false;
 		} else if (c.getMeso() < meso) {
-		    c.sendNotice(1, "Insufficient meso.");
+		    c.dropMessage(1, "Insufficient meso.");
 		    return false;
 		}
 		return true;

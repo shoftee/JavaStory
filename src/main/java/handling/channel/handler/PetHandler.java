@@ -57,8 +57,8 @@ public class PetHandler {
 //			    c.getPlayer().shiftPetsRight();
                         }
                         final Point pos = chr.getPosition();
-                        pet.setPosition(pos);
-                        pet.setFoothold(chr.getMap().getFootholds().findBelow(pet.getPosition()).getId());
+                        pet.setPos(pos);
+                        pet.setFh(chr.getMap().getFootholds().findBelow(pet.getPos()).getId());
                         pet.setStance(0);
                         pet.setSummoned(true);
 

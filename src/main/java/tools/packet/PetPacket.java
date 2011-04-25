@@ -67,10 +67,10 @@ public class PetPacket {
 			builder.writeLengthPrefixedString(pet.getName());
 			builder.writeInt(pet.getUniqueId());
 			builder.writeInt(0);
-			builder.writeAsShort(pet.getPosition().x);
-			builder.writeAsShort(pet.getPosition().y - 20);
+			builder.writeAsShort(pet.getPos().x);
+			builder.writeAsShort(pet.getPos().y - 20);
 			builder.writeAsByte(pet.getStance());
-			builder.writeInt(pet.getFoothold());
+			builder.writeInt(pet.getFh());
 		}
 		return builder.getPacket();
 	}

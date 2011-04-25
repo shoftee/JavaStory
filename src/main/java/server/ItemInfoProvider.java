@@ -16,7 +16,7 @@ import client.GameConstants;
 import client.GameCharacter;
 import client.GameClient;
 import client.InventoryType;
-import org.javastory.client.ItemType;
+import client.ItemType;
 import provider.WzData;
 import provider.WzDataDirectoryEntry;
 import provider.WzDataFileEntry;

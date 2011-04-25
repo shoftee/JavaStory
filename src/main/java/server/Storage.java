@@ -19,7 +19,7 @@ import client.IItem;
 import client.Item;
 import client.GameClient;
 import client.InventoryType;
-import org.javastory.client.ItemType;
+import client.ItemType;
 import com.google.common.collect.Maps;
 import database.DatabaseConnection;
 import database.DatabaseException;

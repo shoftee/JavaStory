@@ -6,7 +6,7 @@ import client.GameClient;
 import client.GameCharacter;
 import client.messages.CommandProcessor;
 import handling.world.Messenger;
-import handling.world.MessengerMember;
+import handling.world.MessengerCharacter;
 import handling.world.remote.WorldChannelInterface;
 import org.javastory.io.PacketFormatException;
 import org.javastory.server.channel.ChannelManager;
@@ -66,7 +66,7 @@ public class ChatHandler {
                     int messengerid = reader.readInt();
                     if (messengerid == 0) { // create
                         try {
-                            final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                            final MessengerCharacter messengerplayer = new MessengerCharacter(c.getPlayer());
                             messenger = wci.createMessenger(messengerplayer);
                             c.getPlayer().setMessenger(messenger);
                             c.getPlayer().setMessengerPosition(0);
@@ -77,7 +77,7 @@ public class ChatHandler {
                         try {
                             messenger = wci.getMessenger(messengerid);
                             final int position = messenger.getLowestPosition();
-                            final MessengerMember messengerplayer = new MessengerMember(c.getPlayer(), position);
+                            final MessengerCharacter messengerplayer = new MessengerCharacter(c.getPlayer(), position);
                             if (messenger != null) {
                                 if (messenger.getMembers().size() < 3) {
                                     c.getPlayer().setMessenger(messenger);
@@ -93,7 +93,7 @@ public class ChatHandler {
                 break;
             case 0x02: // exit
                 if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                    final MessengerCharacter messengerplayer = new MessengerCharacter(c.getPlayer());
                     try {
                         wci.leaveMessenger(messenger.getId(), messengerplayer);
                     } catch (RemoteException e) {
@@ -154,7 +154,7 @@ public class ChatHandler {
                 break;
             case 0x06: // message
                 if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                    final MessengerCharacter messengerplayer = new MessengerCharacter(c.getPlayer());
                     input = reader.readLengthPrefixedString();
                     try {
                         wci.messengerChat(messenger.getId(), input, messengerplayer.getName());

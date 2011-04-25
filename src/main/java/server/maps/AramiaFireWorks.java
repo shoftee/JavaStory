@@ -49,7 +49,7 @@ public class AramiaFireWorks {
 
             @Override
             public final void run() {
-                startEvent(c.getClient().getChannelServer().getMapFactory(c.getWorldId()).getMap(100000200));
+                startEvent(c.getClient().getChannelServer().getMapFactory(c.getWorld()).getMap(100000200));
             }
         }, 10000);
     }

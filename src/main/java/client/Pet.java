@@ -18,7 +18,7 @@ import server.movement.LifeMovement;
 import server.movement.LifeMovementFragment;
 
 public class Pet implements Serializable {
-    // TODO: This should extend AbstractAnimatedGameMapObject
+
     private static final long serialVersionUID = 9179541993413738569L;
     private String name;
     private int Fh = 0, stance = 0, fullness = 100, level = 1, closeness = 0, uniqueid, petitemid;
@@ -37,7 +37,7 @@ public class Pet implements Serializable {
 	this.inventorypos = inventorypos;
     }
 
-    public static Pet loadFromDb(final int itemid, final int petid, final short inventorypos) {
+    public static final Pet loadFromDb(final int itemid, final int petid, final short inventorypos) {
 	try {
 	    final Pet ret = new Pet(itemid, petid, inventorypos);
 
@@ -78,7 +78,7 @@ public class Pet implements Serializable {
 	}
     }
 
-    public static Pet createPet(final int itemid) {
+    public static final Pet createPet(final int itemid) {
 	int ret;
 	try { // Commit to db first
 	    final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
@@ -163,19 +163,19 @@ public class Pet implements Serializable {
 	this.fullness = fullness;
     }
 
-    public final int getFoothold() {
+    public final int getFh() {
 	return Fh;
     }
 
-    public final void setFoothold(final int Fh) {
+    public final void setFh(final int Fh) {
 	this.Fh = Fh;
     }
 
-    public final Point getPosition() {
+    public final Point getPos() {
 	return pos;
     }
 
-    public final void setPosition(final Point pos) {
+    public final void setPos(final Point pos) {
 	this.pos = pos;
     }
 
@@ -205,7 +205,7 @@ public class Pet implements Serializable {
 	for (final LifeMovementFragment move : movement) {
 	    if (move instanceof LifeMovement) {
 		if (move instanceof AbsoluteLifeMovement) {
-		    setPosition(((LifeMovement) move).getPosition());
+		    setPos(((LifeMovement) move).getPosition());
 		}
 		setStance(((LifeMovement) move).getNewstate());
 	    }

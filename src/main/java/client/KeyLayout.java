@@ -59,7 +59,7 @@ public class KeyLayout implements Serializable {
     }
 
     public final void saveKeys(final int charid) throws SQLException {
-	if (!changed || keymap.isEmpty()) {
+	if (!changed || keymap.size() == 0) {
 	    return;
 	}
 	Connection con = DatabaseConnection.getConnection();

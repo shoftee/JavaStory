@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import client.GameCharacter;
 import client.GameClient;
 import handling.world.Party;
-import handling.world.PartyMember;
+import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.remote.WorldChannelInterface;
 import org.javastory.io.PacketFormatException;
@@ -25,7 +25,7 @@ public class PartyHandler {
                 if (party != null) {
                     if (action == 0x1B) { //accept
                         if (party.getMembers().size() < 6) {
-                            wci.updateParty(partyid, PartyOperation.JOIN, new PartyMember(c.getPlayer()));
+                            wci.updateParty(partyid, PartyOperation.JOIN, new PartyCharacter(c.getPlayer()));
                             c.getPlayer().receivePartyMemberHP();
                             c.getPlayer().updatePartyMemberHP();
                         } else {
@@ -38,13 +38,13 @@ public class PartyHandler {
                         }
                     }
                 } else {
-                    c.getPlayer().sendNotice(5, "The party you are trying to join does not exist");
+                    c.getPlayer().dropMessage(5, "The party you are trying to join does not exist");
                 }
             } catch (RemoteException e) {
                 c.getChannelServer().pingWorld();
             }
         } else {
-            c.getPlayer().sendNotice(5, "You can't join the party as you are already in one");
+            c.getPlayer().dropMessage(5, "You can't join the party as you are already in one");
         }
     }
 
@@ -52,7 +52,7 @@ public class PartyHandler {
         final int operation = reader.readByte();
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         Party party = c.getPlayer().getParty();
-        PartyMember partyplayer = new PartyMember(c.getPlayer());
+        PartyCharacter partyplayer = new PartyCharacter(c.getPlayer());
         switch (operation) {
             case 1: // create
                 if (c.getPlayer().getParty() == null) {
@@ -64,7 +64,7 @@ public class PartyHandler {
                     }
                     c.write(MaplePacketCreator.partyCreated());
                 } else {
-                    c.getPlayer().sendNotice(5, "You can't create a party as you are already in one");
+                    c.getPlayer().dropMessage(5, "You can't create a party as you are already in one");
                 }
                 break;
             case 2: // leave
@@ -101,19 +101,19 @@ public class PartyHandler {
                                 c.write(MaplePacketCreator.partyStatusMessage(17));
                             }
                         } else {
-                            c.getPlayer().sendNotice(5, "The party you are trying to join does not exist");
+                            c.getPlayer().dropMessage(5, "The party you are trying to join does not exist");
                         }
                     } catch (RemoteException e) {
                         c.getChannelServer().pingWorld();
                     }
                 } else {
-                    c.getPlayer().sendNotice(5, "You can't join the party as you are already in one");
+                    c.getPlayer().dropMessage(5, "You can't join the party as you are already in one");
                 }
                 break;
             case 4: // invite
                 // TODO store pending invitations and check against them
                 final GameCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
-                if (invited != null && invited.getWorldId() == c.getWorldId()) {
+                if (invited != null && invited.getWorld() == c.getPlayer().getWorld()) {
                     if (invited.getParty() == null) {
                         if (party.getMembers().size() < 6) {
                             c.write(MaplePacketCreator.partyStatusMessage(22, invited.getName()));
@@ -130,7 +130,7 @@ public class PartyHandler {
                 break;
             case 5: // expel
                 if (partyplayer.equals(party.getLeader())) {
-                    final PartyMember expelled = party.getMemberById(reader.readInt());
+                    final PartyCharacter expelled = party.getMemberById(reader.readInt());
                     if (expelled != null) {
                         try {
                             wci.updateParty(party.getId(), PartyOperation.EXPEL, expelled);
@@ -149,7 +149,7 @@ public class PartyHandler {
                 }
                 break;
             case 6: // change leader
-                final PartyMember newleader = party.getMemberById(reader.readInt());
+                final PartyCharacter newleader = party.getMemberById(reader.readInt());
                 try {
                     wci.updateParty(party.getId(), PartyOperation.CHANGE_LEADER, newleader);
                 } catch (RemoteException e) {
