@@ -123,7 +123,7 @@ public class CharLoginHandler {
         newchar.setGender(gender);
         newchar.setName(name);
         newchar.setSkinColor(skinColor);
-        Inventory equip = newchar.getInventory(InventoryType.EQUIPPED);
+        Inventory equip = newchar.getInventoryType(InventoryType.EQUIPPED);
         final LoginInformationProvider li = LoginInformationProvider.getInstance();
         IItem item = li.getEquipById(top);
         item.setPosition((byte) -5);

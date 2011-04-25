@@ -22,13 +22,16 @@ import server.MerchItemPackage;
 import tools.packet.PlayerShopPacket;
 import org.javastory.io.PacketReader;
 
-public class HiredMerchantHandler {
+public final class HiredMerchantHandler {
 
-    public static final void handleUseHiredMerchant(final PacketReader reader, final GameClient c) {
+    private HiredMerchantHandler() {
+    }
+
+    public static void handleUseHiredMerchant(final PacketReader reader, final GameClient c) {
 //	reader.readInt(); // TimeStamp
 
         if (c.getPlayer().getMap().allowPersonalShop()) {
-            final byte state = checkExistance(c.getAccID());
+            final byte state = checkExistance(c.getAccountId());
 
             switch (state) {
                 case 1:
@@ -37,7 +40,7 @@ public class HiredMerchantHandler {
                 case 0:
                     boolean merch = true;
                     try {
-                        merch = c.getChannelServer().getWorldInterface().hasMerchant(c.getAccID());
+                        merch = c.getChannelServer().getWorldInterface().hasMerchant(c.getAccountId());
                     } catch (RemoteException re) {
                         c.getChannelServer().pingWorld();
                     }
@@ -57,7 +60,7 @@ public class HiredMerchantHandler {
         }
     }
 
-    private static final byte checkExistance(final int accid) {
+    private static byte checkExistance(final int accid) {
         Connection con = DatabaseConnection.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where accountid = ?");
@@ -74,21 +77,21 @@ public class HiredMerchantHandler {
         }
     }
 
-    public static final void handleMerchantItemStore(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleMerchantItemStore(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte operation = reader.readByte();
 
         switch (operation) {
             case 20: {
-                final String AS13Digit = reader.readLengthPrefixedString();
+                final String passport = reader.readLengthPrefixedString();
 
-                final int conv = c.getPlayer().getConversation();
+                final int conv = c.getPlayer().getConversationState();
 
                 if (conv == 3) { // Hired Merch
                     final MerchItemPackage pack = loadItemFrom_Database(c.getPlayer().getId());
 
                     if (pack == null) {
                         c.getPlayer().dropMessage(1, "You do not have any item(s) with Fredrick.");
-                        c.getPlayer().setConversation(0);
+                        c.getPlayer().setConversationState(0);
                     } else {
                         c.write(PlayerShopPacket.merchItemStore_ItemData(pack));
                     }
@@ -96,14 +99,14 @@ public class HiredMerchantHandler {
                 break;
             }
             case 25: { // Request take out iteme
-                if (c.getPlayer().getConversation() != 3) {
+                if (c.getPlayer().getConversationState() != 3) {
                     return;
                 }
                 c.write(PlayerShopPacket.merchItemStore((byte) 0x24));
                 break;
             }
             case 26: { // Take out item
-                if (c.getPlayer().getConversation() != 3) {
+                if (c.getPlayer().getConversationState() != 3) {
                     return;
                 }
                 final MerchItemPackage pack = loadItemFrom_Database(c.getPlayer().getId());
@@ -124,13 +127,13 @@ public class HiredMerchantHandler {
                 break;
             }
             case 27: { // Exit
-                c.getPlayer().setConversation(0);
+                c.getPlayer().setConversationState(0);
                 break;
             }
         }
     }
 
-    private static final boolean check(final GameCharacter chr, final MerchItemPackage pack) {
+    private static boolean check(final GameCharacter chr, final MerchItemPackage pack) {
         if (chr.getMeso() + pack.getMesos() < 0) {
             return false;
         }
@@ -149,17 +152,17 @@ public class HiredMerchantHandler {
                 cash++;
             }
         }
-        if (chr.getInventory(InventoryType.EQUIP).getNumFreeSlot() <= eq
-                || chr.getInventory(InventoryType.USE).getNumFreeSlot() <= use
-                || chr.getInventory(InventoryType.SETUP).getNumFreeSlot() <= setup
-                || chr.getInventory(InventoryType.ETC).getNumFreeSlot() <= etc
-                || chr.getInventory(InventoryType.CASH).getNumFreeSlot() <= cash) {
+        if (chr.getInventoryType(InventoryType.EQUIP).getNumFreeSlot() <= eq ||
+                chr.getInventoryType(InventoryType.USE).getNumFreeSlot() <= use ||
+                chr.getInventoryType(InventoryType.SETUP).getNumFreeSlot() <= setup ||
+                chr.getInventoryType(InventoryType.ETC).getNumFreeSlot() <= etc ||
+                chr.getInventoryType(InventoryType.CASH).getNumFreeSlot() <= cash) {
             return false;
         }
         return true;
     }
 
-    private static final boolean deletePackage(final int charid) {
+    private static boolean deletePackage(final int charid) {
         final Connection con = DatabaseConnection.getConnection();
 
         try {
@@ -173,7 +176,7 @@ public class HiredMerchantHandler {
         }
     }
 
-    private static final MerchItemPackage loadItemFrom_Database(final int charid) {
+    private static MerchItemPackage loadItemFrom_Database(final int charid) {
         final Connection con = DatabaseConnection.getConnection();
 
         try {

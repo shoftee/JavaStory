@@ -36,7 +36,7 @@ import server.maps.GameMapObjectType;
 import server.maps.Mist;
 import server.maps.Summon;
 import server.maps.SummonMovementType;
-import handling.world.PlayerCoolDownValueHolder;
+import handling.world.PlayerCooldownValueHolder;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.ArrayMap;
@@ -658,7 +658,7 @@ public class StatEffect implements Serializable {
         } else if (GameConstants.isMonsterCard(sourceid)) {
             applyto.getMonsterBook().addCard(applyto.getClient(), sourceid);
         } else if (isSpiritClaw()) {
-            Inventory use = applyto.getInventory(InventoryType.USE);
+            Inventory use = applyto.getInventoryType(InventoryType.USE);
             IItem item;
             for (int i = 0; i < use.getSlotLimit(); i++) { // impose order...
                 item = use.getItem((byte) i);
@@ -716,7 +716,7 @@ public class StatEffect implements Serializable {
             applyfrom.getMap().spawnMist(mist, getDuration(), isMistPoison(), false);
 
         } else if (isTimeLeap()) { // Time Leap
-            for (PlayerCoolDownValueHolder i : applyto.getAllCooldowns()) {
+            for (PlayerCooldownValueHolder i : applyto.getAllCooldowns()) {
                 if (i.skillId != 5121010) {
                     applyto.removeCooldown(i.skillId);
                     applyto.getClient().write(MaplePacketCreator.skillCooldown(i.skillId, 0));
@@ -764,7 +764,7 @@ public class StatEffect implements Serializable {
                         affected.getMap().broadcastMessage(affected, MaplePacketCreator.showBuffeffect(affected.getId(), sourceid, 2), false);
                     }
                     if (isTimeLeap()) {
-                        for (PlayerCoolDownValueHolder i : affected.getAllCooldowns()) {
+                        for (PlayerCooldownValueHolder i : affected.getAllCooldowns()) {
                             if (i.skillId != 5121010) {
                                 affected.removeCooldown(i.skillId);
                                 affected.getClient().write(MaplePacketCreator.skillCooldown(i.skillId, 0));
@@ -992,8 +992,8 @@ public class StatEffect implements Serializable {
             case 10001004:
             case 20001004:
             case 20011004:
-                if (player.getInventory(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
-                    return player.getInventory(InventoryType.EQUIPPED).getItem((byte) -22).getItemId();
+                if (player.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
+                    return player.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22).getItemId();
                 }
                 return 0;
             case 5221006: // Battleship
@@ -1085,7 +1085,7 @@ public class StatEffect implements Serializable {
                 final int ElemSkillId = getElementalAmp(applyfrom.getJob());
                 if (ElemSkillId != -1) {
                     final ISkill amp = SkillFactory.getSkill(ElemSkillId);
-                    final int ampLevel = applyfrom.getSkillLevel(amp);
+                    final int ampLevel = applyfrom.getCurrentSkillLevel(amp);
                     if (ampLevel > 0) {
                         StatEffect ampStat = amp.getEffect(ampLevel);
                         mod = ampStat.getX() / 100.0;
@@ -1117,17 +1117,17 @@ public class StatEffect implements Serializable {
             case 411:
             case 412:
                 al = SkillFactory.getSkill(4110000);
-                if (chr.getSkillLevel(al) == 0) {
+                if (chr.getCurrentSkillLevel(al) == 0) {
                     return null;
                 }
-                return al.getEffect(chr.getSkillLevel(al));
+                return al.getEffect(chr.getCurrentSkillLevel(al));
             case 1411:
             case 1412:
                 al = SkillFactory.getSkill(14110003);
-                if (chr.getSkillLevel(al) == 0) {
+                if (chr.getCurrentSkillLevel(al) == 0) {
                     return null;
                 }
-                return al.getEffect(chr.getSkillLevel(al));
+                return al.getEffect(chr.getCurrentSkillLevel(al));
         }
         return null;
     }

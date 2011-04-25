@@ -104,7 +104,7 @@ public final class LoginPacket {
 
         builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
         builder.writeAsByte(0);
-        builder.writeInt(client.getAccID());
+        builder.writeInt(client.getAccountId());
         builder.writeByte(client.getGender());
         builder.writeAsByte(client.isGm() ? 1 : 0); // Admin byte
         builder.writeAsByte(0);

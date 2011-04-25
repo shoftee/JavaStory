@@ -1,23 +1,3 @@
-/*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-                       Matthias Butz <matze@odinms.de>
-                       Jan Christian Meyer <vimes@odinms.de>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License version 3
-    as published by the Free Software Foundation. You may not use, modify
-    or distribute this program under any other version of the
-    GNU Affero General Public License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 package server.shops;
 
 import java.sql.PreparedStatement;
@@ -34,6 +14,7 @@ import client.Equip;
 import client.GameCharacter;
 import database.DatabaseConnection;
 import handling.GamePacket;
+import java.sql.Statement;
 import server.maps.AbstractGameMapObject;
 import tools.Pair;
 import tools.packet.PlayerShopPacket;
@@ -120,7 +101,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     public boolean saveItems() {
 	Connection con = DatabaseConnection.getConnection();
 	try {
-	    PreparedStatement ps = con.prepareStatement("INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+	    PreparedStatement ps = con.prepareStatement("INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 	    ps.setInt(1, ownerId);
 	    ps.setInt(2, owneraccount);
 	    ps.setInt(3, meso.get());

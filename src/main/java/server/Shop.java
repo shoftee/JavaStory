@@ -112,7 +112,7 @@ public class Shop {
 	if (quantity == 0xFFFF || quantity == 0) {
 	    quantity = 1;
 	}
-	IItem item = c.getPlayer().getInventory(type).getItem(slot);
+	IItem item = c.getPlayer().getInventoryType(type).getItem(slot);
 
 	if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 	    quantity = item.getQuantity();
@@ -143,7 +143,7 @@ public class Shop {
     }
 
     public void recharge(final GameClient c, final byte slot) {
-	final IItem item = c.getPlayer().getInventory(InventoryType.USE).getItem(slot);
+	final IItem item = c.getPlayer().getInventoryType(InventoryType.USE).getItem(slot);
 
 	if (item == null || (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId()))) {
 	    return;
@@ -153,7 +153,7 @@ public class Shop {
 	final int skill = GameConstants.getMasterySkill(c.getPlayer().getJob());
 
 	if (skill != 0) {
-	    slotMax += c.getPlayer().getSkillLevel(SkillFactory.getSkill(skill)) * 10;
+	    slotMax += c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(skill)) * 10;
 	}
 	if (item.getQuantity() < slotMax) {
 	    final int price = (int) Math.round(ii.getPrice(item.getItemId()) * (slotMax - item.getQuantity()));

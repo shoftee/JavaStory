@@ -64,7 +64,7 @@ public class ItemMakerHandler {
         final int itemId = reader.readInt();
         reader.skip(4);
         final byte slot = (byte) reader.readInt();
-        final IItem toUse = c.getPlayer().getInventory(InventoryType.EQUIP).getItem(slot);
+        final IItem toUse = c.getPlayer().getInventoryType(InventoryType.EQUIP).getItem(slot);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() <
                 1) {
             return true;
@@ -104,7 +104,7 @@ public class ItemMakerHandler {
                 return true;
             }
             final int gemItemId = gem.chooseRandomReward();
-            if (c.getPlayer().getInventory(GameConstants.getInventoryType(gemItemId)).isFull()) {
+            if (c.getPlayer().getInventoryType(GameConstants.getInventoryType(gemItemId)).isFull()) {
                 return true;
             }
             final int taken = checkRequiredNRemove(c, gem.getRecipe());
@@ -129,7 +129,7 @@ public class ItemMakerHandler {
             if (c.getPlayer().getMeso() < create.getCost()) {
                 return true;
             }
-            if (c.getPlayer().getInventory(GameConstants.getInventoryType(toCreate)).isFull()) {
+            if (c.getPlayer().getInventoryType(GameConstants.getInventoryType(toCreate)).isFull()) {
                 return true;
             }
             if (checkRequiredNRemove(c, create.getRecipe()) == 0) {
@@ -318,13 +318,13 @@ public class ItemMakerHandler {
 
     private static boolean hasSkill(final GameClient c, final int reqlvl) {
         if (GameConstants.isKOC(c.getPlayer().getJob())) { // KoC Maker skill.
-            return c.getPlayer().getSkillLevel(SkillFactory.getSkill(10001007)) >=
+            return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(10001007)) >=
                     reqlvl;
         } else if (GameConstants.isAran(c.getPlayer().getJob())) { // KoC Maker skill.
-            return c.getPlayer().getSkillLevel(SkillFactory.getSkill(20001007)) >=
+            return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(20001007)) >=
                     reqlvl;
         } else {
-            return c.getPlayer().getSkillLevel(SkillFactory.getSkill(1007)) >=
+            return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(1007)) >=
                     reqlvl;
         }
     }

@@ -207,7 +207,7 @@ public class PlayerInteractionHandler {
             case SET_ITEMS: {
                 final ItemInfoProvider ii = ItemInfoProvider.getInstance();
                 final InventoryType ivType = InventoryType.getByType(reader.readByte());
-                final IItem item = chr.getInventory(ivType).getItem((byte) reader.readShort());
+                final IItem item = chr.getInventoryType(ivType).getItem((byte) reader.readShort());
                 final short quantity = reader.readShort();
                 final byte targetSlot = reader.readByte();
 
@@ -275,7 +275,7 @@ public class PlayerInteractionHandler {
                 if (shop == null || !shop.isOwner(chr)) {
                     return;
                 }
-                final IItem ivItem = chr.getInventory(type).getItem(slot);
+                final IItem ivItem = chr.getInventoryType(type).getItem(slot);
 
                 if (ivItem != null) {
                     final short bundles_perbundle = (short) (bundles * perBundle);

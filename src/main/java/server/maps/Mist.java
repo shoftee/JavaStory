@@ -58,7 +58,7 @@ public class Mist extends AbstractGameMapObject {
 	this.mistPosition = mistPosition;
 	this.owner = owner;
 	this.source = source;
-	this.skilllevel = owner.getSkillLevel(SkillFactory.getSkill(source.getSourceId()));
+	this.skilllevel = owner.getCurrentSkillLevel(SkillFactory.getSkill(source.getSourceId()));
 
 	switch (source.getSourceId()) {
 	    case 4221006: // Smoke Screen

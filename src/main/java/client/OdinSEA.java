@@ -27,14 +27,8 @@ public class OdinSEA {
     public static int[] BlockedNPC = {
         9250025 // FM Maple TV
     };
-    public static GameClient c;
 
-    public OdinSEA(final GameClient c) {
-        OdinSEA.c = c;
-    }
-
-    public final GameClient getClient() {
-        return c;
+    public OdinSEA() {
     }
 
     public static void start() {
@@ -44,10 +38,11 @@ public class OdinSEA {
             public final void run() {
                 int crandom = Randomizer.nextInt(totalMessages);
                 for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-                    cserv.broadcastPacket(MaplePacketCreator.sendMapleTip("[MapleTip] " + messages[crandom]));
+                    cserv.broadcastPacket(MaplePacketCreator.sendMapleTip("[MapleTip] " +
+                            messages[crandom]));
                 }
             }
-        }, 300000); 
+        }, 300000);
         timerManager.register(new Runnable() {
 
             public final void run() {
@@ -57,6 +52,6 @@ public class OdinSEA {
                     }
                 }
             }
-        }, 300000); 
+        }, 300000);
     }
 }

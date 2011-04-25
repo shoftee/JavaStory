@@ -136,7 +136,7 @@ public class DamageParse {
                         break;
                 } // x = normal atk, y = skill
             }
-            final StatEffect shadowPartnerEffect = SP.getEffect(player.getSkillLevel(SP));
+            final StatEffect shadowPartnerEffect = SP.getEffect(player.getCurrentSkillLevel(SP));
             if (attack.skill != 0) {
                 ShdowPartnerAttackPercentage = (byte) shadowPartnerEffect.getY();
             } else {
@@ -248,7 +248,7 @@ public class DamageParse {
                     switch (attack.skill) {
                         case 4101005: //drain
                         case 5111004: { // Energy Drain
-                            stats.setHp(stats.getHp() + (Math.min(monster.getMobMaxHp(), Math.min(((int) ((double) totDamage * (double) theSkill.getEffect(player.getSkillLevel(theSkill)).getX() / 100.0)), stats.getMaxHp() / 2))), true);
+                            stats.setHp(stats.getHp() + (Math.min(monster.getMobMaxHp(), Math.min(((int) ((double) totDamage * (double) theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getX() / 100.0)), stats.getMaxHp() / 2))), true);
                             break;
                         }
                         case 1311005: { // Sacrifice
@@ -282,8 +282,8 @@ public class DamageParse {
                             final ISkill skill = SkillFactory.getSkill(4120005);
                             final ISkill skill2 = SkillFactory.getSkill(4220005);
                             final ISkill skill3 = SkillFactory.getSkill(4340001);
-                            if (player.getSkillLevel(skill) > 0) {
-                                final StatEffect venomEffect = skill.getEffect(player.getSkillLevel(skill));
+                            if (player.getCurrentSkillLevel(skill) > 0) {
+                                final StatEffect venomEffect = skill.getEffect(player.getCurrentSkillLevel(skill));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -295,8 +295,8 @@ public class DamageParse {
                                         }
                                     }
                                 }
-                            } else if (player.getSkillLevel(skill2) > 0) {
-                                final StatEffect venomEffect = skill2.getEffect(player.getSkillLevel(skill2));
+                            } else if (player.getCurrentSkillLevel(skill2) > 0) {
+                                final StatEffect venomEffect = skill2.getEffect(player.getCurrentSkillLevel(skill2));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -308,8 +308,8 @@ public class DamageParse {
                                         }
                                     }
                                 }
-                            } else if (player.getSkillLevel(skill3) > 0) {
-                                final StatEffect venomEffect = skill3.getEffect(player.getSkillLevel(skill3));
+                            } else if (player.getCurrentSkillLevel(skill3) > 0) {
+                                final StatEffect venomEffect = skill3.getEffect(player.getCurrentSkillLevel(skill3));
                                 MonsterStatusEffect monsterStatusEffect;
 
                                 for (int i = 0; i < attackCount; i++) {
@@ -341,12 +341,12 @@ public class DamageParse {
                         case 21120010: { // (hidden) Overswing - Triple Attack
                             if (player.getBuffedValue(BuffStat.WK_CHARGE) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21111005);
-                                final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
                                 monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false), false, eff.getY() * 1000, false);
                             }
                             if (player.getBuffedValue(BuffStat.BODY_PRESSURE) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21101003);
-                                final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                 if (eff.makeChanceResult()) {
                                     monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() * 1000, false);
@@ -355,7 +355,7 @@ public class DamageParse {
                             if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21100005);
                                 final PlayerStats stat = player.getStat();
-                                stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100), true);
+                                stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getCurrentSkillLevel(skill)).getX()) / 100), true);
                             }
                             break;
                         }
@@ -363,7 +363,7 @@ public class DamageParse {
                             if (totDamageToOneMonster > 0) {
                                 if (player.getBuffedValue(BuffStat.BLIND) != null) {
                                     final ISkill skill = SkillFactory.getSkill(3221006);
-                                    final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                    final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.ACC, eff.getX()), skill, null, false);
@@ -372,7 +372,7 @@ public class DamageParse {
 
                                 } else if (player.getBuffedValue(BuffStat.HAMSTRING) != null) {
                                     final ISkill skill = SkillFactory.getSkill(3121007);
-                                    final StatEffect eff = skill.getEffect(player.getSkillLevel(skill));
+                                    final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false);
@@ -383,7 +383,7 @@ public class DamageParse {
                                         final ISkill skill = SkillFactory.getSkill(charge);
                                         if (player.isBuffFrom(BuffStat.WK_CHARGE, skill)) {
                                             final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.FREEZE, 1), skill, null, false);
-                                            monster.applyStatus(player, monsterStatusEffect, false, skill.getEffect(player.getSkillLevel(skill)).getY() * 2000, false);
+                                            monster.applyStatus(player, monsterStatusEffect, false, skill.getEffect(player.getCurrentSkillLevel(skill)).getY() * 2000, false);
                                             break;
                                         }
                                     }
@@ -470,7 +470,7 @@ public class DamageParse {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
         final ISkill eaterSkill = SkillFactory.getSkill(GameConstants.getMPEaterForJob(player.getJob()));
-        final int eaterLevel = player.getSkillLevel(eaterSkill);
+        final int eaterLevel = player.getCurrentSkillLevel(eaterSkill);
 
         final GameMap map = player.getMap();
 
@@ -547,10 +547,10 @@ public class DamageParse {
                     // effects
                     switch (attack.skill) {
                         case 2221003:
-                            monster.setTempEffectiveness(Element.FIRE, theSkill.getEffect(player.getSkillLevel(theSkill)).getDuration());
+                            monster.setTempEffectiveness(Element.FIRE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
                             break;
                         case 2121003:
-                            monster.setTempEffectiveness(Element.ICE, theSkill.getEffect(player.getSkillLevel(theSkill)).getDuration());
+                            monster.setTempEffectiveness(Element.ICE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
                             break;
                     }
                     if (effect != null && effect.getMonsterStati().size() > 0) {
@@ -655,7 +655,7 @@ public class DamageParse {
     private static void handlePickPocket(final GameCharacter player, final Monster mob, AttackPair oned) {
         final int maxmeso = player.getBuffedValue(BuffStat.PICKPOCKET).intValue();
         final ISkill skill = SkillFactory.getSkill(4211003);
-        final StatEffect s = skill.getEffect(player.getSkillLevel(skill));
+        final StatEffect s = skill.getEffect(player.getCurrentSkillLevel(skill));
 
         for (final Integer eachd : oned.attack) {
             if (s.makeChanceResult()) {
@@ -738,7 +738,7 @@ public class DamageParse {
                     throw new RuntimeException("Unknown enum constant");
             }
             final ISkill skill = SkillFactory.getSkill(chargeSkillId);
-            maximumDamageToMonster *= skill.getEffect(player.getSkillLevel(skill)).getDamage() / 100.0;
+            maximumDamageToMonster *= skill.getEffect(player.getCurrentSkillLevel(skill)).getDamage() / 100.0;
         }
         double elementalMaxDamagePerMonster;
         if (element != Element.NEUTRAL) {

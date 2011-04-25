@@ -516,7 +516,7 @@ public final class GameClient implements Serializable {
         this.accId = id;
     }
 
-    public int getAccID() {
+    public int getAccountId() {
         return this.accId;
     }
 
@@ -526,7 +526,7 @@ public final class GameClient implements Serializable {
             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET loggedin = ?, SessionIP = ?, lastlogin = CURRENT_TIMESTAMP() WHERE id = ?");
             ps.setInt(1, newstate);
             ps.setString(2, SessionID);
-            ps.setInt(3, getAccID());
+            ps.setInt(3, getAccountId());
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
@@ -565,7 +565,7 @@ public final class GameClient implements Serializable {
         try {
             PreparedStatement ps;
             ps = con.prepareStatement("SELECT loggedin, lastlogin, UNIX_TIMESTAMP(birthday) as birthday FROM accounts WHERE id = ?");
-            ps.setInt(1, getAccID());
+            ps.setInt(1, getAccountId());
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
                 ps.close();
@@ -613,7 +613,7 @@ public final class GameClient implements Serializable {
     public final void removalTask() {
         try {
             if (!player.getAllBuffs().isEmpty()) {
-                player.cancelAllBuffs_();
+                player.clearAllBuffEffects();
             }
             if (!player.getAllDiseases().isEmpty()) {
                 player.cancelAllDebuffs();

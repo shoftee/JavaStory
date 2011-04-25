@@ -122,7 +122,7 @@ public final class PlayersHandler {
         final int itemId = reader.readInt();
         final String target = reader.readLengthPrefixedString().toLowerCase();
 
-        final IItem toUse = c.getPlayer().getInventory(InventoryType.USE).getItem(slot);
+        final IItem toUse = c.getPlayer().getInventoryType(InventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() !=
                 itemId) {

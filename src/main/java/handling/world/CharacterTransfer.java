@@ -34,6 +34,7 @@ import client.ISkill;
 import client.SkillEntry;
 import client.BuddyListEntry;
 import client.CharacterNameAndId;
+import com.google.common.collect.Maps;
 import server.quest.Quest;
 
 public class CharacterTransfer implements Externalizable {
@@ -41,17 +42,17 @@ public class CharacterTransfer implements Externalizable {
     public int characterid, accountid, fame, str, dex, int_, luk, maxhp, maxmp, hp, mp, exp, hpApUsed, mpApUsed,
 	    remainingAp, meso, skinColor, job, hair, face, mapId,
 	    initialSpawnPoint, worldId, rank, rankMove, jobRank, jobRankMove, guildId,
-	    buddysize, partyid, messengerid, messengerposition, mBookCover, dojo, ACash, vpoints, MaplePoints,
+	    buddyListCapacity, partyId, messengerId, messengerPosition, monsterBookCover, dojo, ACash, vpoints, MaplePoints,
 	    mount_level, mount_itemid, mount_Fatigue, mount_exp, reborns, subcategory;
     public byte channel, dojoRecord, gender, gmLevel, guildRank, unionRank;
 	public boolean ondmg, callgm;
     public long lastFameTime, TranferTime;
-    public String name, accountname, BlessOfFairy;
+    public String name, accountname, blessOfFairy;
     public short level;
-    public Object monsterbook, inventorys, skillmacro, keyLayout, savedlocation, storage, rocks, wishlist, InfoQuest, remainingSp;
-    public final Map<CharacterNameAndId, Boolean> buddies = new LinkedHashMap<CharacterNameAndId, Boolean>();
-    public final Map<Integer, Object> Quest = new LinkedHashMap<Integer, Object>(); // Questid instead of MapleQuest, as it's huge. Cant be transporting MapleQuest.java
-    public final Map<Integer, Object> Skills = new LinkedHashMap<Integer, Object>(); // Skillid instead of Skill.java, as it's huge. Cant be transporting Skill.java and MapleStatEffect.java
+    public Object monsterbook, inventorys, skillmacro, keyLayout, savedlocation, storage, rocks, wishlist, questInfo, remainingSp;
+    public final Map<CharacterNameAndId, Boolean> buddies = Maps.newLinkedHashMap();
+    public final Map<Integer, Object> quest = Maps.newLinkedHashMap(); // Questid instead of MapleQuest, as it's huge. Cant be transporting MapleQuest.java
+    public final Map<Integer, Object> skills = Maps.newLinkedHashMap(); // Skillid instead of Skill.java, as it's huge. Cant be transporting Skill.java and MapleStatEffect.java
   
 
     public CharacterTransfer() {
@@ -97,7 +98,7 @@ public class CharacterTransfer implements Externalizable {
 	this.jobRankMove = chr.getJobRankMove();
 	this.guildId = chr.getGuildId();
 	this.guildRank = (byte) chr.getGuildRank();
-	this.unionRank = (byte) chr.getAllianceRank();
+	this.unionRank = (byte) chr.getGuildUnionRank();
 	this.gmLevel = (byte) chr.getGMLevel();
 	this.subcategory = chr.getSubcategory();
 	this.ondmg = chr.isOnDMG();
@@ -106,36 +107,36 @@ public class CharacterTransfer implements Externalizable {
 	for (final BuddyListEntry qs : chr.getBuddylist().getBuddies()) {
 	    this.buddies.put(new CharacterNameAndId(qs.getCharacterId(), qs.getName(), qs.getLevel(), qs.getJob()), qs.isVisible());
 	}
-	this.buddysize = chr.getBuddyCapacity();
+	this.buddyListCapacity = chr.getBuddyCapacity();
 
-	this.partyid = chr.getPartyId();
+	this.partyId = chr.getPartyId();
 
 	if (chr.getMessenger() != null) {
-	    this.messengerid = chr.getMessenger().getId();
-	    this.messengerposition = chr.getMessengerPosition();
+	    this.messengerId = chr.getMessenger().getId();
+	    this.messengerPosition = chr.getMessengerPosition();
 	} else {
-	    messengerid = 0;
-	    messengerposition = 4;
+	    this.messengerId = 0;
+	    this.messengerPosition = 4;
 	}
 
-	this.mBookCover = chr.getMonsterBookCover();
+	this.monsterBookCover = chr.getMonsterBookCover();
 	this.dojo = chr.getDojo();
 	this.dojoRecord = (byte) chr.getDojoRecord();
         this.reborns = chr.getReborns();
-	this.InfoQuest = chr.getInfoQuest_Map();
+	this.questInfo = chr.getInfoQuest_Map();
 
 	for (final Map.Entry<Quest, QuestStatus> qs : chr.getQuest_Map().entrySet()) {
-	    this.Quest.put(qs.getKey().getId(), qs.getValue());
+	    this.quest.put(qs.getKey().getId(), qs.getValue());
 	}
 
 	this.monsterbook = chr.getMonsterBook();
-	this.inventorys = chr.getInventorys();
+	this.inventorys = chr.getInventories();
 
 	for (final Map.Entry<ISkill, SkillEntry> qs : chr.getSkills().entrySet()) {
-	    this.Skills.put(qs.getKey().getId(), qs.getValue());
+	    this.skills.put(qs.getKey().getId(), qs.getValue());
 	}
 
-	this.BlessOfFairy = chr.getBlessOfFairyOrigin();
+	this.blessOfFairy = chr.getBlessOfFairyOrigin();
 	this.skillmacro = chr.getMacros();
 	this.keyLayout = chr.getKeyLayout();
 	this.savedlocation = chr.getSavedLocations();
@@ -195,7 +196,7 @@ public class CharacterTransfer implements Externalizable {
 	this.gmLevel = in.readByte();
         
 
-	this.BlessOfFairy = (String) in.readObject();
+	this.blessOfFairy = (String) in.readObject();
 
 	this.skillmacro = in.readObject();
 	this.keyLayout = in.readObject();
@@ -208,16 +209,16 @@ public class CharacterTransfer implements Externalizable {
 	this.mount_Fatigue = in.readInt();
 	this.mount_level = in.readInt();
 	this.mount_exp = in.readInt();
-	this.partyid = in.readInt();
-	this.messengerid = in.readInt();
-	this.messengerposition = in.readInt();
-	this.mBookCover = in.readInt();
+	this.partyId = in.readInt();
+	this.messengerId = in.readInt();
+	this.messengerPosition = in.readInt();
+	this.monsterBookCover = in.readInt();
 	this.dojo = in.readInt();
 	this.dojoRecord = in.readByte();
         this.reborns = in.readInt();
 	this.monsterbook = in.readObject();
 	this.inventorys = in.readObject();
-	this.InfoQuest = in.readObject();
+	this.questInfo = in.readObject();
 
 	final int skillsize = in.readShort();
 	int skillid;
@@ -225,10 +226,10 @@ public class CharacterTransfer implements Externalizable {
 	for (int i = 0; i < skillsize; i++) {
 	    skillid = in.readInt();
 	    skill = in.readObject();
-	    this.Skills.put(skillid, skill);
+	    this.skills.put(skillid, skill);
 	}
 
-	this.buddysize = in.readShort();
+	this.buddyListCapacity = in.readShort();
 	final short addedbuddysize = in.readShort();
 	for (int i = 0; i < addedbuddysize; i++) {
 	    buddies.put(new CharacterNameAndId(in.readInt(), in.readUTF(), in.readInt(), in.readInt()), in.readBoolean());
@@ -240,7 +241,7 @@ public class CharacterTransfer implements Externalizable {
 	for (int i = 0; i < questsize; i++) {
 	    quest = in.readInt();
 	    queststatus = in.readObject();
-	    this.Quest.put(quest, queststatus);
+	    this.quest.put(quest, queststatus);
 	}
 	this.ondmg = in.readByte() == 1;
 	this.callgm = in.readByte() == 1;
@@ -290,7 +291,7 @@ public class CharacterTransfer implements Externalizable {
 	out.write(this.unionRank);
 	out.write(this.gmLevel);
         
-	out.writeObject(this.BlessOfFairy);
+	out.writeObject(this.blessOfFairy);
 
 	out.writeObject(this.skillmacro);
 	out.writeObject(this.keyLayout);
@@ -303,25 +304,25 @@ public class CharacterTransfer implements Externalizable {
 	out.writeInt(this.mount_Fatigue);
 	out.writeInt(this.mount_level);
 	out.writeInt(this.mount_exp);
-	out.writeInt(this.partyid);
-	out.writeInt(this.messengerid);
-	out.writeInt(this.messengerposition);
-	out.writeInt(this.mBookCover);
+	out.writeInt(this.partyId);
+	out.writeInt(this.messengerId);
+	out.writeInt(this.messengerPosition);
+	out.writeInt(this.monsterBookCover);
 	out.writeInt(this.dojo);
 	out.write(this.dojoRecord);
         out.writeInt(this.reborns);
 	out.writeObject(this.monsterbook);
 	out.writeObject(this.inventorys);
-	out.writeObject(this.InfoQuest);
+	out.writeObject(this.questInfo);
 
-	out.writeShort(this.Skills.size());
-	for (final Map.Entry<Integer, Object> qs : this.Skills.entrySet()) {
+	out.writeShort(this.skills.size());
+	for (final Map.Entry<Integer, Object> qs : this.skills.entrySet()) {
 	    out.writeInt(qs.getKey()); // Questid instead of Skill, as it's huge :(
 	    out.writeObject(qs.getValue());
 	    // Bless of fairy is transported here too.
 	}
 
-	out.writeShort(this.buddysize);
+	out.writeShort(this.buddyListCapacity);
 	out.writeShort(this.buddies.size());
 	for (final Map.Entry<CharacterNameAndId, Boolean> qs : this.buddies.entrySet()) {
 
@@ -336,8 +337,8 @@ public class CharacterTransfer implements Externalizable {
 	    out.writeBoolean(qs.getValue());
 	}
 	
-	out.writeShort(this.Quest.size());
-	for (final Map.Entry<Integer, Object> qs : this.Quest.entrySet()) {
+	out.writeShort(this.quest.size());
+	for (final Map.Entry<Integer, Object> qs : this.quest.entrySet()) {
 	    out.writeInt(qs.getKey()); // Questid instead of MapleQuest, as it's huge :(
 	    out.writeObject(qs.getValue());
 	}

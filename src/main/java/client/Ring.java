@@ -1,24 +1,3 @@
-/*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-                       Matthias Butz <matze@odinms.de>
-                       Jan Christian Meyer <vimes@odinms.de>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License version 3
-    as published by the Free Software Foundation. You may not use, modify
-    or distribute this program under any other version of the
-    GNU Affero General Public License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package client;
 
 import java.sql.Connection;
@@ -27,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import database.DatabaseConnection;
+import java.sql.Statement;
 import server.InventoryManipulator;
 import tools.MaplePacketCreator;
 
@@ -76,7 +56,7 @@ public class Ring implements Comparable<Ring> {
 
             int[] ringID = new int[2];
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, itemid);
             ps.setInt(2, partner2.getId());
             ps.setString(3, partner2.getName());
@@ -87,7 +67,7 @@ public class Ring implements Comparable<Ring> {
             rs.close();
             ps.close();
 
-            ps = con.prepareStatement("INSERT INTO rings (itemid, partnerRingId, partnerChrId, partnername) VALUES (?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO rings (itemid, partnerRingId, partnerChrId, partnername) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, itemid);
             ps.setInt(2, ringID[0]);
             ps.setInt(3, partner1.getId());

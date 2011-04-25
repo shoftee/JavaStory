@@ -28,7 +28,7 @@ import tools.Pair;
 public class PlayerBuffStorage implements Serializable {
 
     private final List<Pair<Integer, List<PlayerBuffValueHolder>>> buffs = new ArrayList<Pair<Integer, List<PlayerBuffValueHolder>>>();
-    private final List<Pair<Integer, List<PlayerCoolDownValueHolder>>> coolDowns = new ArrayList<Pair<Integer, List<PlayerCoolDownValueHolder>>>();
+    private final List<Pair<Integer, List<PlayerCooldownValueHolder>>> coolDowns = new ArrayList<Pair<Integer, List<PlayerCooldownValueHolder>>>();
     private final List<Pair<Integer, List<PlayerDiseaseValueHolder>>> diseases = new ArrayList<Pair<Integer, List<PlayerDiseaseValueHolder>>>();
 
     public final void addBuffsToStorage(final int chrid, final List<PlayerBuffValueHolder> toStore) {
@@ -40,13 +40,13 @@ public class PlayerBuffStorage implements Serializable {
 	buffs.add(new Pair<Integer, List<PlayerBuffValueHolder>>(Integer.valueOf(chrid), toStore));
     }
 
-    public final void addCooldownsToStorage(final int chrid, final List<PlayerCoolDownValueHolder> toStore) {
-	for (final Pair<Integer, List<PlayerCoolDownValueHolder>> stored : coolDowns) {
+    public final void addCooldownsToStorage(final int chrid, final List<PlayerCooldownValueHolder> toStore) {
+	for (final Pair<Integer, List<PlayerCooldownValueHolder>> stored : coolDowns) {
 	    if (stored.getLeft() == Integer.valueOf(chrid)) {
 		coolDowns.remove(stored);
 	    }
 	}
-	coolDowns.add(new Pair<Integer, List<PlayerCoolDownValueHolder>>(Integer.valueOf(chrid), toStore));
+	coolDowns.add(new Pair<Integer, List<PlayerCooldownValueHolder>>(Integer.valueOf(chrid), toStore));
     }
 
     public final void addDiseaseToStorage(final int chrid, final List<PlayerDiseaseValueHolder> toStore) {
@@ -71,11 +71,11 @@ public class PlayerBuffStorage implements Serializable {
 	return ret;
     }
 
-    public final List<PlayerCoolDownValueHolder> getCooldownsFromStorage(final int chrid) {
-	List<PlayerCoolDownValueHolder> ret = null;
+    public final List<PlayerCooldownValueHolder> getCooldownsFromStorage(final int chrid) {
+	List<PlayerCooldownValueHolder> ret = null;
 
 	for (int i = 0; i < coolDowns.size(); i++) {
-	    final Pair<Integer, List<PlayerCoolDownValueHolder>> stored = coolDowns.get(i);
+	    final Pair<Integer, List<PlayerCooldownValueHolder>> stored = coolDowns.get(i);
 	    if (stored.getLeft().equals(chrid)) {
 		ret = stored.getRight();
 		coolDowns.remove(stored);

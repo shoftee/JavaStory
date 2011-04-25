@@ -611,11 +611,11 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
         return WorldRegistryImpl.getInstance().getPlayerBuffStorage().getBuffsFromStorage(chrid);
     }
 
-    public void addCooldownsToStorage(int chrid, List<PlayerCoolDownValueHolder> toStore) throws RemoteException {
+    public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException {
         WorldRegistryImpl.getInstance().getPlayerBuffStorage().addCooldownsToStorage(chrid, toStore);
     }
 
-    public List<PlayerCoolDownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException {
+    public List<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException {
         return WorldRegistryImpl.getInstance().getPlayerBuffStorage().getCooldownsFromStorage(chrid);
     }
 

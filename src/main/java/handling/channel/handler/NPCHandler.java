@@ -22,7 +22,7 @@ import org.javastory.io.PacketReader;
 
 public class NpcHandler {
 
-    public static final void handleNpcAnimation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleNpcAnimation(final PacketReader reader, final GameClient c) throws PacketFormatException {
         PacketBuilder builder = new PacketBuilder();
         final int length = (int) reader.remaining();
 
@@ -39,7 +39,7 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleNpcShop(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleNpcShop(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte bmode = reader.readByte();
 
         switch (bmode) {
@@ -75,25 +75,25 @@ public class NpcHandler {
                 break;
             }
             default:
-                chr.setConversation(0);
+                chr.setConversationState(0);
                 break;
         }
     }
 
-    public static final void handleNpcTalk(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleNpcTalk(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final Npc npc = (Npc) chr.getMap().getNPCByOid(reader.readInt());
-        if (npc == null || chr.getConversation() != 0) {
+        if (npc == null || chr.getConversationState() != 0) {
             return;
         }
         if (npc.hasShop()) {
-            chr.setConversation(1);
+            chr.setConversationState(1);
             npc.sendShop(c);
         } else {
             NpcScriptManager.getInstance().start(c, npc.getId());
         }
     }
 
-    public static final void handleQuestAction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleQuestAction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
         final int quest = reader.readUnsignedShort();
         switch (action) {
@@ -148,98 +148,28 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleStorage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleStorage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte mode = reader.readByte();
         final Storage storage = chr.getStorage();
 
         switch (mode) {
-            case 4: { // Take Out
-                final byte type = reader.readByte();
-                final byte slot = storage.getSlot(InventoryType.getByType(type), reader.readByte());
-                final IItem item = storage.takeOut(slot);
-
-                if (item != null) {
-                    if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
-                        InventoryManipulator.addFromDrop(c, item, false);
-                    } else {
-                        storage.store(item);
-                        chr.dropMessage(1, "Your inventory is full");
-                    }
-                    storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
-                } else {
-                    //AutobanManager.getInstance().autoban(c, "Trying to take out item from storage which does not exist.");
-                    return;
-                }
+            case 4: {
+                // Take Out
+                handleStorageTakeOutItem(reader, storage, c, chr);
                 break;
             }
-            case 5: { // Store
-                final byte slot = (byte) reader.readShort();
-                final int itemId = reader.readInt();
-                short quantity = reader.readShort();
-                if (quantity < 1) {
-                    //AutobanManager.getInstance().autoban(c, "Trying to store " + quantity + " of " + itemId);
-                    return;
-                }
-                if (storage.isFull()) {
-                    c.write(MaplePacketCreator.getStorageFull());
-                    return;
-                }
-
-                if (chr.getMeso() < 100) {
-                    chr.dropMessage(1, "You don't have enough mesos to store the item");
-                } else {
-                    InventoryType type = GameConstants.getInventoryType(itemId);
-                    IItem item = chr.getInventory(type).getItem(slot).copy();
-
-                    if (GameConstants.isPet(item.getItemId())) {
-                        c.write(MaplePacketCreator.enableActions());
-                        return;
-                    }
-                    if (item.getItemId() == itemId && (item.getQuantity() >= quantity || GameConstants.isThrowingStar(itemId) || GameConstants.isBullet(itemId))) {
-                        if (GameConstants.isThrowingStar(itemId) || GameConstants.isBullet(itemId)) {
-                            quantity = item.getQuantity();
-                        }
-                        chr.gainMeso(-100, false, true, false);
-                        InventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
-                        item.setQuantity(quantity);
-                        storage.store(item);
-                    } else {
-                        AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to store non-matching itemid (" + itemId + "/" + item.getItemId() + ") or quantity not in posession (" + quantity + "/" + item.getQuantity() + ")");
-                        return;
-                    }
-                }
-                storage.sendStored(c, GameConstants.getInventoryType(itemId));
+            case 5: {
+                // Store
+                handleStoragePutInItem(reader, storage, c, chr);
                 break;
             }
             case 7: {
-                int meso = reader.readInt();
-                final int storageMesos = storage.getMeso();
-                final int playerMesos = chr.getMeso();
-
-                if ((meso > 0 && storageMesos >= meso) || (meso < 0 && playerMesos >= -meso)) {
-                    if (meso < 0 && (storageMesos - meso) < 0) { // storing with overflow
-                        meso = -(Integer.MAX_VALUE - storageMesos);
-                        if ((-meso) > playerMesos) { // should never happen just a failsafe
-                            return;
-                        }
-                    } else if (meso > 0 && (playerMesos + meso) < 0) { // taking out with overflow
-                        meso = (Integer.MAX_VALUE - playerMesos);
-                        if ((meso) > storageMesos) { // should never happen just a failsafe
-                            return;
-                        }
-                    }
-                    storage.setMeso(storageMesos - meso);
-                    chr.gainMeso(meso, false, true, false);
-                } else {
-                    AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to store or take out unavailable amount of mesos (" + meso + "/" + storage.getMeso() + "/" + c.getPlayer().getMeso() + ")");
-                    return;
-                }
-                storage.sendMeso(c);
+                handleStorageMesoTransaction(reader, storage, chr, c);
                 break;
             }
             case 8: {
                 storage.close();
-                chr.setConversation(0);
+                chr.setConversationState(0);
                 break;
             }
             default:
@@ -248,13 +178,100 @@ public class NpcHandler {
         }
     }
 
-    public static final void handleNpcTalkMore(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    private static void handleStorageMesoTransaction(final PacketReader reader, final Storage storage, final GameCharacter chr, final GameClient c) throws PacketFormatException {
+        int meso = reader.readInt();
+        final int storageMesos = storage.getMeso();
+        final int playerMesos = chr.getMeso();
+        if ((meso > 0 && storageMesos >= meso) || (meso < 0 &&
+                playerMesos >= -meso)) {
+            if (meso < 0 && (storageMesos - meso) < 0) {
+                // storing with overflow
+                meso = -(Integer.MAX_VALUE - storageMesos);
+                if ((-meso) > playerMesos) {
+                    return;
+                }
+            } else if (meso > 0 && (playerMesos + meso) < 0) {
+                // taking out with overflow
+                meso = (Integer.MAX_VALUE - playerMesos);
+                if ((meso) > storageMesos) {
+                    return;
+                }
+            }
+            storage.setMeso(storageMesos - meso);
+            chr.gainMeso(meso, false, true, false);
+        } else {
+            AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to store or take out unavailable amount of mesos (" +
+                    meso + "/" + storage.getMeso() + "/" +
+                    c.getPlayer().getMeso() + ")");
+            return;
+        }
+        storage.sendMeso(c);
+    }
+
+    private static void handleStoragePutInItem(final PacketReader reader, final Storage storage, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+        final byte slot = (byte) reader.readShort();
+        final int itemId = reader.readInt();
+        short quantity = reader.readShort();
+        if (quantity < 1) {
+            return;
+        }
+        if (storage.isFull()) {
+            c.write(MaplePacketCreator.getStorageFull());
+            return;
+        }
+        if (chr.getMeso() < 100) {
+            chr.dropMessage(1, "You don't have enough mesos to store the item");
+        } else {
+            InventoryType type = GameConstants.getInventoryType(itemId);
+            IItem item = chr.getInventoryType(type).getItem(slot).copy();
+            if (GameConstants.isPet(item.getItemId())) {
+                c.write(MaplePacketCreator.enableActions());
+                return;
+            }
+            if (item.getItemId() == itemId && (item.getQuantity() >= quantity ||
+                    GameConstants.isThrowingStar(itemId) ||
+                    GameConstants.isBullet(itemId))) {
+                if (GameConstants.isThrowingStar(itemId) ||
+                        GameConstants.isBullet(itemId)) {
+                    quantity = item.getQuantity();
+                }
+                chr.gainMeso(-100, false, true, false);
+                InventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
+                item.setQuantity(quantity);
+                storage.store(item);
+            } else {
+                AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to store non-matching itemid (" +
+                        itemId + "/" + item.getItemId() +
+                        ") or quantity not in posession (" + quantity + "/" +
+                        item.getQuantity() + ")");
+                return;
+            }
+        }
+        storage.sendStored(c, GameConstants.getInventoryType(itemId));
+    }
+
+    private static void handleStorageTakeOutItem(final PacketReader reader, final Storage storage, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+        final byte type = reader.readByte();
+        final byte slot = storage.getSlot(InventoryType.getByType(type), reader.readByte());
+        final IItem item = storage.takeOut(slot);
+        if (item != null) {
+            if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
+                InventoryManipulator.addFromDrop(c, item, false);
+            } else {
+                storage.store(item);
+                chr.dropMessage(1, "Your inventory is full");
+            }
+            storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
+        }
+    }
+
+    public static void handleNpcTalkMore(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte lastMsg = reader.readByte(); // 00 (last msg type I think)
         final byte action = reader.readByte(); // 00 = end chat, 01 == follow
 
-        final NpcConversationManager cm = NpcScriptManager.getInstance().getCM(c);
+        final NpcConversationManager cm = NpcScriptManager.getInstance().getConversationManager(c);
 
-        if (cm == null || c.getPlayer().getConversation() == 0) {
+        if (cm == null || c.getPlayer().getConversationState() == 0) {
             return;
         }
         if (lastMsg == 3) {
@@ -290,78 +307,4 @@ public class NpcHandler {
             }
         }
     }
-    /*    @Override
-    public void handlePacket(PacketReader reader, GameClient c) {
-    final NPC npc = c.getPlayer().getNpc();
-    if (npc == null) {
-    return;
-    }
-    
-    final byte type = reader.readByte();
-    if (type != npc.getSentDialogue()) {
-    return;
-    }
-    final byte what = reader.readByte();
-    
-    switch (type) {
-    case 0x00: // NPCDialogs::normal
-    switch (what) {
-    case 0:
-    //			npc->proceedBack();
-    break;
-    case 1:
-    //			npc->proceedNext();
-    break;
-    default:
-    //			npc->end();
-    break;
-    }
-    break;
-    case 0x01: // NPCDialogs::yesNo
-    case 0x0c: // NPCDialogs::acceptDecline
-    switch (what) {
-    case 0:
-    //			npc->proceedSelection(0);
-    break;
-    case 1:
-    //			npc->proceedSelection(1);
-    break;
-    default:
-    //			npc->end();
-    break;
-    }
-    break;
-    case 0x02: // NPCDialogs::getText
-    if (what != 0) {
-    //		    npc->proceedText(packet.getString());
-    } else {
-    //		    npc->end();
-    }
-    break;
-    case 0x03: // NPCDialogs::getNumber
-    if (what == 1) {
-    //		    npc->proceedNumber(packet.get<int32_t>());
-    } else {
-    //		    npc->end();
-    }
-    break;
-    case 0x04: // NPCDialogs::simple
-    if (what == 0) {
-    //		    npc->end();
-    } else {
-    //		    npc->proceedSelection(packet.get<uint8_t>());
-    }
-    break;
-    case 0x07: // NPCDialogs::style
-    if (what == 1) {
-    //		    npc->proceedSelection(packet.get<uint8_t>());
-    } else {
-    //		    npc->end();
-    }
-    break;
-    default:
-    //		npc->end();
-    break;
-    }
-    }*/
 }

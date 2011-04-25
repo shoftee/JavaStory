@@ -89,7 +89,7 @@ public class LoginWorker {
         c.write(LoginPacket.getEndOfWorldList());
         mutex.lock();
         try {
-            IPLog.add(new Pair<Integer, String>(c.getAccID(), c.getSessionIP()));
+            IPLog.add(new Pair<Integer, String>(c.getAccountId(), c.getSessionIP()));
         } finally {
             mutex.unlock();
         }

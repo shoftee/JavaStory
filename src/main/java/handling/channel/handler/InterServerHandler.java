@@ -95,7 +95,7 @@ public class InterServerHandler {
             if (buffs != null) {
                 player.silentGiveBuffs(buffs);
             }
-            c.getPlayer().giveCoolDowns(wci.getCooldownsFromStorage(player.getId()));
+            c.getPlayer().giveCooldowns(wci.getCooldownsFromStorage(player.getId()));
             c.getPlayer().giveSilentDebuff(wci.getDiseaseFromStorage(player.getId()));
             
             // Start of buddylist

@@ -47,7 +47,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	super();
 	this.ownerid = owner.getId();
 	this.skill = skill;
-	this.skillLevel = owner.getSkillLevel(SkillFactory.getSkill(skill));
+	this.skillLevel = owner.getCurrentSkillLevel(SkillFactory.getSkill(skill));
 	if (skillLevel == 0) {
 	    return;
 	}

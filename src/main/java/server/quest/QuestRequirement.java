@@ -146,11 +146,11 @@ public class QuestRequirement implements Serializable {
 		    final int skill = (Integer) a.getLeft();
 
 		    if (acquire) {
-			if (c.getMasterLevel(SkillFactory.getSkill(skill)) == 0) {
+			if (c.getMasterSkillLevel(SkillFactory.getSkill(skill)) == 0) {
 			    return false;
 			}
 		    } else {
-			if (c.getMasterLevel(SkillFactory.getSkill(skill)) > 0) {
+			if (c.getMasterSkillLevel(SkillFactory.getSkill(skill)) > 0) {
 			    return false;
 			}
 		    }
@@ -180,7 +180,7 @@ public class QuestRequirement implements Serializable {
 		    itemId = (Integer) a.getLeft();
 		    quantity = 0;
 		    iType = GameConstants.getInventoryType(itemId);
-		    for (IItem item : c.getInventory(iType).listById(itemId)) {
+		    for (IItem item : c.getInventoryType(iType).listById(itemId)) {
 			quantity += item.getQuantity();
 		    }
 		    final int count = (Integer) a.getRight();

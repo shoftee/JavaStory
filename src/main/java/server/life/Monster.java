@@ -618,7 +618,7 @@ public class Monster extends AbstractLoadedGameLife {
             }
         };
         if (poison && getHp() > 1) {
-            final int poisonDamage = Math.min(Short.MAX_VALUE, (int) (getMobMaxHp() / (70.0 - from.getSkillLevel(status.getSkill())) + 0.999));
+            final int poisonDamage = Math.min(Short.MAX_VALUE, (int) (getMobMaxHp() / (70.0 - from.getCurrentSkillLevel(status.getSkill())) + 0.999));
             status.setEffect(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
             status.setPoisonSchedule(timerManager.register(new PoisonTask(poisonDamage, from, status, cancelTask, false), 1000, 1000));
         } else if (venom) {
@@ -627,14 +627,14 @@ public class Monster extends AbstractLoadedGameLife {
 
             switch (from.getJob()) {
                 case 412:
-                    poisonLevel = from.getSkillLevel(SkillFactory.getSkill(4120005));
+                    poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(4120005));
                     if (poisonLevel <= 0) {
                         return;
                     }
                     matk = SkillFactory.getSkill(4120005).getEffect(poisonLevel).getMatk();
                     break;
                 case 422:
-                    poisonLevel = from.getSkillLevel(SkillFactory.getSkill(4220005));
+                    poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(4220005));
                     if (poisonLevel <= 0) {
                         return;
                     }
@@ -642,7 +642,7 @@ public class Monster extends AbstractLoadedGameLife {
                     break;
                 case 1411:
                 case 1412:
-                    poisonLevel = from.getSkillLevel(SkillFactory.getSkill(14110004));
+                    poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(14110004));
                     if (poisonLevel <= 0) {
                         return;
                     }

@@ -813,7 +813,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(0);
 
         if (chr.getBuffedValue(BuffStat.MONSTER_RIDING) != null) {
-            final IItem mount = chr.getInventory(InventoryType.EQUIPPED).getItem((byte) -22);
+            final IItem mount = chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22);
             if (mount != null) {
                 builder.writeInt(mount.getItemId());
                 builder.writeInt(1004);
@@ -1086,7 +1086,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeAsByte(fromDrop ? 1 : 0);
         builder.writeAsShort(1); // add mode
-        builder.writeByte(type.getType()); // iv type
+        builder.writeByte(type.asByte()); // iv type
         builder.writeAsByte(item.getPosition()); // slot id
         PacketHelper.addItemInfo(builder, item, true, false);
 
@@ -1101,7 +1101,7 @@ public final class MaplePacketCreator {
         //	builder.writeAsByte((slot2 > 0 ? 1 : 0) + 1);
         builder.writeAsByte(1);
         builder.writeAsByte(1);
-        builder.writeByte(type.getType()); // iv type
+        builder.writeByte(type.asByte()); // iv type
         builder.writeAsShort(item.getPosition()); // slot id
         builder.writeAsShort(item.getQuantity());
         /*	if (slot2 > 0) {
@@ -1122,7 +1122,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 02"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(src);
         builder.writeAsShort(dst);
         if (equipIndicator != -1) {
@@ -1136,10 +1136,10 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 03"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(src);
         builder.writeAsByte(1); // merge mode?
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(dst);
         builder.writeAsShort(total);
 
@@ -1151,11 +1151,11 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 01"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(src);
         builder.writeAsShort(srcQ);
         builder.writeBytes(HexTool.getByteArrayFromHexString("01"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(dst);
         builder.writeAsShort(dstQ);
 
@@ -1168,7 +1168,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeAsByte(fromDrop ? 1 : 0);
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 03"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(slot);
 
         return builder.getPacket();
@@ -1207,7 +1207,7 @@ public final class MaplePacketCreator {
         builder.writeAsByte(1); // fromdrop always true
         builder.writeAsByte(destroyed ? 2 : 3);
         builder.writeAsByte(scroll.getQuantity() > 0 ? 1 : 3);
-        builder.writeByte(GameConstants.getInventoryType(scroll.getItemId()).getType());
+        builder.writeByte(GameConstants.getInventoryType(scroll.getItemId()).asByte());
         builder.writeAsShort(scroll.getPosition());
 
         if (scroll.getQuantity() > 0) {
@@ -1215,11 +1215,11 @@ public final class MaplePacketCreator {
         }
         builder.writeAsByte(3);
         if (!destroyed) {
-            builder.writeByte(InventoryType.EQUIP.getType());
+            builder.writeByte(InventoryType.EQUIP.asByte());
             builder.writeAsShort(item.getPosition());
             builder.writeAsByte(0);
         }
-        builder.writeByte(InventoryType.EQUIP.getType());
+        builder.writeByte(InventoryType.EQUIP.asByte());
         builder.writeAsShort(item.getPosition());
         if (!destroyed) {
             PacketHelper.addItemInfo(builder, item, true, true);
@@ -1312,7 +1312,7 @@ public final class MaplePacketCreator {
         builder.writeInt(chr.getId());
         builder.writeAsByte(1);
         PacketHelper.addCharLook(builder, chr, false);
-        Inventory iv = chr.getInventory(InventoryType.EQUIPPED);
+        Inventory iv = chr.getInventoryType(InventoryType.EQUIPPED);
         Collection<IItem> equippedC = iv.list();
         List<Item> equipped = new ArrayList<Item>(equippedC.size());
         for (IItem item : equippedC) {
@@ -1350,7 +1350,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 03"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(src);
         if (src < 0) {
             builder.writeAsByte(1);
@@ -1363,7 +1363,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 01"));
-        builder.writeByte(type.getType());
+        builder.writeByte(type.asByte());
         builder.writeAsShort(item.getPosition());
         builder.writeAsShort(item.getQuantity());
 
@@ -1485,7 +1485,7 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeAsByte(0);
-        final IItem inv = chr.getInventory(InventoryType.EQUIPPED).getItem((byte) -114);
+        final IItem inv = chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -114);
         final int peteqid = inv != null ? inv.getItemId() : 0;
         for (final Pet pet : chr.getPets()) {
             if (pet.getSummoned()) {
@@ -1500,7 +1500,7 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeAsByte(0); // End of pet
-        if (chr.getInventory(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
+        if (chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
             final Mount mount = chr.getMount();
             builder.writeAsByte(1);
             builder.writeInt(mount.getLevel());

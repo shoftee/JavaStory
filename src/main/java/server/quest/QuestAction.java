@@ -191,8 +191,8 @@ public class QuestAction implements Serializable {
 		    for (WzData applicableJob : sEntry.getChildByPath("job")) {
 			if (skillObject.isBeginnerSkill() || c.getJob() == WzDataTool.getInt(applicableJob)) {
 			    c.changeSkillLevel(skillObject,
-				    (byte) Math.max(skillLevel, c.getSkillLevel(skillObject)),
-				    (byte) Math.max(masterLevel, c.getMasterLevel(skillObject)));
+				    (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)),
+				    (byte) Math.max(masterLevel, c.getMasterSkillLevel(skillObject)));
 			    break;
 			}
 		    }
@@ -290,19 +290,19 @@ public class QuestAction implements Serializable {
 			}
 		    }
 		}
-		if (c.getInventory(InventoryType.EQUIP).getNumFreeSlot() <= eq) {
+		if (c.getInventoryType(InventoryType.EQUIP).getNumFreeSlot() <= eq) {
 		    c.dropMessage(1, "Plaase make space for your Equip inventory.");
 		    return false;
-		} else if (c.getInventory(InventoryType.USE).getNumFreeSlot() <= use) {
+		} else if (c.getInventoryType(InventoryType.USE).getNumFreeSlot() <= use) {
 		    c.dropMessage(1, "Plaase make space for your Use inventory.");
 		    return false;
-		} else if (c.getInventory(InventoryType.SETUP).getNumFreeSlot() <= setup) {
+		} else if (c.getInventoryType(InventoryType.SETUP).getNumFreeSlot() <= setup) {
 		    c.dropMessage(1, "Plaase make space for your Setup inventory.");
 		    return false;
-		} else if (c.getInventory(InventoryType.ETC).getNumFreeSlot() <= etc) {
+		} else if (c.getInventoryType(InventoryType.ETC).getNumFreeSlot() <= etc) {
 		    c.dropMessage(1, "Plaase make space for your Etc inventory.");
 		    return false;
-		} else if (c.getInventory(InventoryType.CASH).getNumFreeSlot() <= cash) {
+		} else if (c.getInventoryType(InventoryType.CASH).getNumFreeSlot() <= cash) {
 		    c.dropMessage(1, "Plaase make space for your Cash inventory.");
 		    return false;
 		}
@@ -398,8 +398,8 @@ public class QuestAction implements Serializable {
 		    for (WzData applicableJob : sEntry.getChildByPath("job")) {
 			if (skillObject.isBeginnerSkill() || c.getJob() == WzDataTool.getInt(applicableJob)) {
 			    c.changeSkillLevel(skillObject,
-				    (byte) Math.max(skillLevel, c.getSkillLevel(skillObject)),
-				    (byte) Math.max(masterLevel, c.getMasterLevel(skillObject)));
+				    (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)),
+				    (byte) Math.max(masterLevel, c.getMasterSkillLevel(skillObject)));
 			    break;
 			}
 		    }

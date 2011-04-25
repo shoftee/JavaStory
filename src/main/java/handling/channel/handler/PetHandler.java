@@ -29,7 +29,7 @@ public class PetHandler {
     public static final void handleSpawnPet(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = reader.readByte();
-        final IItem item = chr.getInventory(InventoryType.CASH).getItem(slot);
+        final IItem item = chr.getInventoryType(InventoryType.CASH).getItem(slot);
 
         switch (item.getItemId()) {
             case 5000047:
@@ -47,7 +47,7 @@ public class PetHandler {
                     if (pet.getSummoned()) { // Already summoned, let's keep it
                         chr.unequipPet(pet, true, false);
                     } else {
-                        if (chr.getSkillLevel(SkillFactory.getSkill(8)) == 0 && chr.getPet(0) != null) {
+                        if (chr.getCurrentSkillLevel(SkillFactory.getSkill(8)) == 0 && chr.getPet(0) != null) {
                             chr.unequipPet(chr.getPet(0), false, false);
                         }
                         if (reader.readByte() == 1) { // Follow the Lead
@@ -78,7 +78,7 @@ public class PetHandler {
     public static final void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(13);
         final byte slot = reader.readByte();
-        final IItem toUse = chr.getInventory(InventoryType.USE).getItem(slot);
+        final IItem toUse = chr.getInventoryType(InventoryType.USE).getItem(slot);
 
         if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
             c.write(MaplePacketCreator.enableActions());

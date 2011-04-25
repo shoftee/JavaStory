@@ -133,10 +133,10 @@ public class Trade {
 		    return false;
 	    }
 	}
-	if (chr.getInventory(InventoryType.EQUIP).getNumFreeSlot() <= eq
-		|| chr.getInventory(InventoryType.USE).getNumFreeSlot() <= use
-		|| chr.getInventory(InventoryType.SETUP).getNumFreeSlot() <= setup
-		|| chr.getInventory(InventoryType.ETC).getNumFreeSlot() <= etc) {
+	if (chr.getInventoryType(InventoryType.EQUIP).getNumFreeSlot() <= eq
+		|| chr.getInventoryType(InventoryType.USE).getNumFreeSlot() <= use
+		|| chr.getInventoryType(InventoryType.SETUP).getNumFreeSlot() <= setup
+		|| chr.getInventoryType(InventoryType.ETC).getNumFreeSlot() <= etc) {
 	    return false;
 	}
 	return true;

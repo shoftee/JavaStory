@@ -1,23 +1,3 @@
-/*
-This file is part of the OdinMS Maple Story Server
-Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-Matthias Butz <matze@odinms.de>
-Jan Christian Meyer <vimes@odinms.de>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License version 3
-as published by the Free Software Foundation. You may not use, modify
-or distribute this program under any other version of the
-GNU Affero General Public License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package handling.channel.handler;
 
 import java.sql.Connection;
@@ -36,6 +16,7 @@ import client.GameCharacterUtil;
 import client.GameClient;
 import client.InventoryType;
 import database.DatabaseConnection;
+import java.sql.Statement;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 import server.DueyActions;
@@ -52,15 +33,15 @@ public class DueyHandler {
      * 15 = Same account
      * 14 = Name does not exist
      */
-    public static final void handleDueyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleDueyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final byte operation = reader.readByte();
 
         switch (operation) {
             case 1: { // Start Duey, 13 digit AS
-                final String AS13Digit = reader.readLengthPrefixedString();
+                final String passport = reader.readLengthPrefixedString();
 //		int unk = reader.readInt(); // Theres an int here, value = 1
                 //  9 = error
-                final int conv = c.getPlayer().getConversation();
+                final int conv = c.getPlayer().getConversationState();
 
                 if (conv == 2) { // Duey
                     c.write(MaplePacketCreator.sendDuey((byte) 10, loadItems(c.getPlayer())));
@@ -68,7 +49,7 @@ public class DueyHandler {
                 break;
             }
             case 3: { // Send Item
-                if (c.getPlayer().getConversation() != 2) {
+                if (c.getPlayer().getConversationState() != 2) {
                     return;
                 }
                 final byte inventId = reader.readByte();
@@ -83,7 +64,7 @@ public class DueyHandler {
                 if (mesos >= 0 && mesos <= 100000000 && c.getPlayer().getMeso() >= finalcost) {
                     final int accid = GameCharacterUtil.getIdByName(recipient);
                     if (accid != -1) {
-                        if (accid != c.getAccID()) {
+                        if (accid != c.getAccountId()) {
                             boolean recipientOn = false;
                             /*			    GameClient rClient = null;
                             try {
@@ -99,7 +80,7 @@ public class DueyHandler {
 
                             if (inventId > 0) {
                                 final InventoryType inv = InventoryType.getByType(inventId);
-                                final IItem item = c.getPlayer().getInventory(inv).getItem((byte) itemPos);
+                                final IItem item = c.getPlayer().getInventoryType(inv).getItem((byte) itemPos);
                                 if (item == null) {
                                     c.write(MaplePacketCreator.sendDuey((byte) 17, null)); // Unsuccessfull
                                     return;
@@ -154,7 +135,7 @@ public class DueyHandler {
                 break;
             }
             case 5: { // Recieve Package
-                if (c.getPlayer().getConversation() != 2) {
+                if (c.getPlayer().getConversationState() != 2) {
                     return;
                 }
                 final int packageid = reader.readInt();
@@ -180,7 +161,7 @@ public class DueyHandler {
                 break;
             }
             case 6: { // Remove package
-                if (c.getPlayer().getConversation() != 2) {
+                if (c.getPlayer().getConversationState() != 2) {
                     return;
                 }
                 final int packageid = reader.readInt();
@@ -189,7 +170,7 @@ public class DueyHandler {
                 break;
             }
             case 8: { // Close Duey
-                c.getPlayer().setConversation(0);
+                c.getPlayer().setConversationState(0);
                 break;
             }
             default: {
@@ -222,7 +203,7 @@ public class DueyHandler {
     private static final boolean addItemToDB(final IItem item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement("INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, recipientID);
             ps.setString(2, sName);
             ps.setInt(3, mesos);

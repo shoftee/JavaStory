@@ -197,7 +197,7 @@ public class PlayerStats implements Serializable {
         int jump = 100;
         magic = localint_;
         watk = 0;
-        for (IItem item : chra.getInventory(InventoryType.EQUIPPED)) {
+        for (IItem item : chra.getInventoryType(InventoryType.EQUIPPED)) {
             final IEquip equip = (IEquip) item;
 
             if (equip.getPosition() == -11) {
@@ -263,7 +263,7 @@ public class PlayerStats implements Serializable {
         switch (chra.getJob()) {
             case 322: { // Crossbowman
                 final ISkill expert = SkillFactory.getSkill(3220004);
-                final int boostLevel = chra.getSkillLevel(expert);
+                final int boostLevel = chra.getCurrentSkillLevel(expert);
                 if (boostLevel > 0) {
                     watk += expert.getEffect(boostLevel).getX();
                 }
@@ -271,7 +271,7 @@ public class PlayerStats implements Serializable {
             }
             case 312: { // Bowmaster
                 final ISkill expert = SkillFactory.getSkill(3120005);
-                final int boostLevel = chra.getSkillLevel(expert);
+                final int boostLevel = chra.getCurrentSkillLevel(expert);
                 if (boostLevel > 0) {
                     watk += expert.getEffect(boostLevel).getX();
                 }
@@ -280,7 +280,7 @@ public class PlayerStats implements Serializable {
             case 211:
             case 212: { // IL
                 final ISkill amp = SkillFactory.getSkill(2110001);
-                final int level = chra.getSkillLevel(amp);
+                final int level = chra.getCurrentSkillLevel(amp);
                 if (level > 0) {
                     element_amp_percent = amp.getEffect(level).getY();
                 }
@@ -289,7 +289,7 @@ public class PlayerStats implements Serializable {
             case 221:
             case 222: { // IL
                 final ISkill amp = SkillFactory.getSkill(2210001);
-                final int level = chra.getSkillLevel(amp);
+                final int level = chra.getCurrentSkillLevel(amp);
                 if (level > 0) {
                     element_amp_percent = amp.getEffect(level).getY();
                 }
@@ -298,7 +298,7 @@ public class PlayerStats implements Serializable {
             case 1211:
             case 1212: { // flame
                 final ISkill amp = SkillFactory.getSkill(12110001);
-                final int level = chra.getSkillLevel(amp);
+                final int level = chra.getCurrentSkillLevel(amp);
                 if (level > 0) {
                     element_amp_percent = amp.getEffect(level).getY();
                 }
@@ -309,7 +309,7 @@ public class PlayerStats implements Serializable {
             case 2217:
             case 2218: {
                 final ISkill amp = SkillFactory.getSkill(22150000);
-                final int level = chra.getSkillLevel(amp);
+                final int level = chra.getCurrentSkillLevel(amp);
                 if (level > 0) {
                     element_amp_percent = amp.getEffect(level).getY();
                 }
@@ -317,7 +317,7 @@ public class PlayerStats implements Serializable {
             }
             case 2112: { // Aran
                 final ISkill expert = SkillFactory.getSkill(21120001);
-                final int boostLevel = chra.getSkillLevel(expert);
+                final int boostLevel = chra.getCurrentSkillLevel(expert);
                 if (boostLevel > 0) {
                     watk += expert.getEffect(boostLevel).getX();
                 }
@@ -325,7 +325,7 @@ public class PlayerStats implements Serializable {
             }
         }
         final ISkill blessoffairy = SkillFactory.getSkill(GameConstants.getBOF_ForJob(chra.getJob()));
-        final int boflevel = chra.getSkillLevel(blessoffairy);
+        final int boflevel = chra.getCurrentSkillLevel(blessoffairy);
         if (boflevel > 0) {
             watk += blessoffairy.getEffect(boflevel).getX();
             magic += blessoffairy.getEffect(boflevel).getY();
@@ -409,7 +409,7 @@ public class PlayerStats implements Serializable {
             case 411:
             case 412: { // Assasin/ Hermit / NL
                 final ISkill critSkill = SkillFactory.getSkill(4100001);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -421,7 +421,7 @@ public class PlayerStats implements Serializable {
             case 1411:
             case 1412: { // Night Walker
                 final ISkill critSkill = SkillFactory.getSkill(14100001);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -432,7 +432,7 @@ public class PlayerStats implements Serializable {
             case 511:
             case 512: { // Buccaner, Viper
                 final ISkill critSkill = SkillFactory.getSkill(5110000);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -443,7 +443,7 @@ public class PlayerStats implements Serializable {
             case 1511:
             case 1512: {
                 final ISkill critSkill = SkillFactory.getSkill(15110000);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -454,7 +454,7 @@ public class PlayerStats implements Serializable {
             case 2111:
             case 2112: { // Aran, TODO : only applies when there's > 10 combo
                 final ISkill critSkill = SkillFactory.getSkill(21110000);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage());
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -470,7 +470,7 @@ public class PlayerStats implements Serializable {
             case 321:
             case 322: { // Bowman
                 final ISkill critSkill = SkillFactory.getSkill(3000001);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -483,7 +483,7 @@ public class PlayerStats implements Serializable {
             case 1311:
             case 1312: { // Bowman
                 final ISkill critSkill = SkillFactory.getSkill(13000000);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -497,7 +497,7 @@ public class PlayerStats implements Serializable {
             case 2217:
             case 2218: { //Evan
                 final ISkill critSkill = SkillFactory.getSkill(22140000);
-                final int critlevel = player.getSkillLevel(critSkill);
+                final int critlevel = player.getCurrentSkillLevel(critSkill);
                 if (critlevel > 0) {
                     this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
                     this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
@@ -527,7 +527,7 @@ public class PlayerStats implements Serializable {
         if (watk == 0) {
             maxbasedamage = 1;
         } else {
-            final IItem weapon_item = chra.getInventory(InventoryType.EQUIPPED).getItem((byte) -11);
+            final IItem weapon_item = chra.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -11);
 
             if (weapon_item != null) {
                 final int job = chra.getJob();
@@ -599,32 +599,32 @@ public class PlayerStats implements Serializable {
         shouldHealMP = 3;
 
         if (GameConstants.isJobFamily(200, playerjob)) { // Improving MP recovery
-            shouldHealMP += ((float) ((float) chra.getSkillLevel(SkillFactory.getSkill(2000000)) / 10) * chra.getLevel());
+            shouldHealMP += ((float) ((float) chra.getCurrentSkillLevel(SkillFactory.getSkill(2000000)) / 10) * chra.getLevel());
 
         } else if (GameConstants.isJobFamily(111, playerjob)) {
             final ISkill effect = SkillFactory.getSkill(1110000); // Improving MP Recovery
-            final int lvl = chra.getSkillLevel(effect);
+            final int lvl = chra.getCurrentSkillLevel(effect);
             if (lvl > 0) {
                 shouldHealMP += effect.getEffect(lvl).getMp();
             }
 
         } else if (GameConstants.isJobFamily(121, playerjob)) {
             final ISkill effect = SkillFactory.getSkill(1210000); // Improving MP Recovery
-            final int lvl = chra.getSkillLevel(effect);
+            final int lvl = chra.getCurrentSkillLevel(effect);
             if (lvl > 0) {
                 shouldHealMP += effect.getEffect(lvl).getMp();
             }
 
         } else if (GameConstants.isJobFamily(1111, playerjob)) {
             final ISkill effect = SkillFactory.getSkill(11110000); // Improving MP Recovery
-            final int lvl = chra.getSkillLevel(effect);
+            final int lvl = chra.getCurrentSkillLevel(effect);
             if (lvl > 0) {
                 shouldHealMP += effect.getEffect(lvl).getMp();
             }
 
         } else if (GameConstants.isJobFamily(410, playerjob)) {
             final ISkill effect = SkillFactory.getSkill(4100002); // Endure
-            final int lvl = chra.getSkillLevel(effect);
+            final int lvl = chra.getCurrentSkillLevel(effect);
             if (lvl > 0) {
                 shouldHealHP += effect.getEffect(lvl).getHp();
                 shouldHealMP += effect.getEffect(lvl).getMp();
@@ -632,7 +632,7 @@ public class PlayerStats implements Serializable {
 
         } else if (GameConstants.isJobFamily(420, playerjob)) {
             final ISkill effect = SkillFactory.getSkill(4200001); // Endure
-            final int lvl = chra.getSkillLevel(effect);
+            final int lvl = chra.getCurrentSkillLevel(effect);
             if (lvl > 0) {
                 shouldHealHP += effect.getEffect(lvl).getHp();
                 shouldHealMP += effect.getEffect(lvl).getMp();

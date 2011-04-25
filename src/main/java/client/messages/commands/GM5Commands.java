@@ -75,32 +75,32 @@ public class GM5Commands implements Command {
             Map<Pair<Short, Short>, InventoryType> eqs = new ArrayMap<Pair<Short, Short>, InventoryType>();
             if (splitted[1].equals("all")) {
                 for (InventoryType type : InventoryType.values()) {
-                    for (IItem item : c.getPlayer().getInventory(type)) {
+                    for (IItem item : c.getPlayer().getInventoryType(type)) {
                         eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), type);
                     }
                 }
             } else if (splitted[1].equals("eqp")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.EQUIPPED)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.EQUIPPED)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIPPED);
                 }
             } else if (splitted[1].equals("eq")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.EQUIP)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.EQUIP)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIP);
                 }
             } else if (splitted[1].equals("u")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.USE)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.USE)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.USE);
                 }
             } else if (splitted[1].equals("s")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.SETUP)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.SETUP)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.SETUP);
                 }
             } else if (splitted[1].equals("e")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.ETC)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.ETC)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.ETC);
                 }
             } else if (splitted[1].equals("c")) {
-                for (IItem item : c.getPlayer().getInventory(InventoryType.CASH)) {
+                for (IItem item : c.getPlayer().getInventoryType(InventoryType.CASH)) {
                     eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.CASH);
                 }
             } else {

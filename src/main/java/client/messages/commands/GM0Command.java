@@ -98,7 +98,7 @@ public class GM0Command implements Command {
 				if (splitted[2].length() < 4 || splitted[2].length() > 16) {
 					c.getPlayer().dropMessage(5, "Your new password must not be length of below 4 or above 16.");
 				} else {
-					final int output = GameCharacterUtil.Change_SecondPassword(c.getAccID(), splitted[1], splitted[2]);
+					final int output = GameCharacterUtil.Change_SecondPassword(c.getAccountId(), splitted[1], splitted[2]);
 					if (output == -2 || output == -1) {
 						c.getPlayer().dropMessage(1, "An unknown error occured");
 					} else if (output == 0) {

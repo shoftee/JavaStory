@@ -15,7 +15,7 @@ public enum InventoryType {
         this.type = (byte) type;
     }
 
-    public byte getType() {
+    public byte asByte() {
         return type;
     }
 
@@ -25,7 +25,7 @@ public enum InventoryType {
 
     public static InventoryType getByType(byte type) {
         for (InventoryType l : InventoryType.values()) {
-            if (l.getType() == type) {
+            if (l.asByte() == type) {
                 return l;
             }
         }

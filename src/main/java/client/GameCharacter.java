@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.Serializable;
 
 import client.anticheat.CheatTracker;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -35,12 +36,13 @@ import handling.world.Party;
 import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
-import handling.world.PlayerCoolDownValueHolder;
+import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
 import handling.world.guild.GuildUnion;
 import handling.world.guild.Guild;
 import handling.world.guild.GuildCharacter;
 import handling.world.remote.WorldChannelInterface;
+import java.sql.Statement;
 import java.util.TimeZone;
 import org.javastory.server.channel.ChannelManager;
 import scripting.EventInstanceManager;
@@ -84,79 +86,85 @@ import org.javastory.server.FameLog;
 
 public class GameCharacter extends AbstractAnimatedGameMapObject implements Serializable {
 
-    private String name, chalktext, BlessOfFairy_Origin;
+    public static int damageCap = 100000000; //Global damage cap
+    public static int magicCap = 999999999;//
+    public static int unlimitedSlotItem = 1082174; //Lunar Glove
+    //
     private transient int linkMid = 0;
-    private long lastCombo, lastFameTime, keydown_skill;
-    private byte dojoRecord, gmLevel, gender; // Make this a quest record, TODO : Transfer it somehow with the current data
-    private short level, mulung_energy, combo, availableCP, totalCP;
-    private int accountId, id,
-            meso, exp, job, rank, rankMove, jobRank, jobRankMove, mpApUsed, hpApUsed,
-            hair, face, skinColor, remainingAp,
-            fame, mapid, initialSpawnPoint, bookCover, dojo,
-            guildid, guildrank, allianceRank, fallcounter,
-            maplepoints, acash,
-            messengerposition,
-            chair, itemEffect, subcategory;
-    private int[] remainingSp = new int[10];
     private transient Dragon dragon;
-    public int reborns;
-    public int world;
-    private boolean canDoor, Berserk, smega, hidden;
-    private int[] wishlist, rocks, savedLocations;
-    private transient AtomicInteger inst;
+    private transient AtomicInteger conversationState;
     private transient List<LifeMovementFragment> lastres;
-    private List<Door> doors;
-    private List<Pet> pets;
-    public int vpoints;
-    private boolean ondmg = true, callgm = true;
     private transient Set<Monster> controlledMonsters;
     private transient Set<GameMapObject> visibleMapObjects;
-    private Map<Quest, QuestStatus> quests;
-    private Map<Integer, String> questinfo;
-    private Map<ISkill, SkillEntry> skills;
-    private transient Map<BuffStat, BuffStatValueHolder> effects;
     private transient Map<Integer, Summon> summons;
     private transient Map<Integer, CooldownValueHolder> cooldowns;
     private transient Map<Disease, DiseaseValueHolder> diseases;
-    private GuildUnion union;
+    private transient Map<BuffStat, BuffStatValueHolder> effects;
     private transient Deque<CarnivalChallenge> pendingCarnivalRequests;
+    private transient EventInstanceManager eventInstance;
     private transient CarnivalParty carnivalParty;
-    private BuddyList buddylist;
-    private MonsterBook monsterbook;
-    private transient CheatTracker anticheat;
-    private GameClient client;
-    private PlayerStats stats;
-    private PlayerRandomStream randomStream;
+    private transient CheatTracker cheatTracker;
     private transient GameMap map;
     private transient Shop shop;
-    private Storage storage;
     private transient Trade trade;
-    private Mount mount;
-    private Messenger messenger;
-    private PlayerShop playerShop;
-    private Party party;
-    private GuildCharacter mgc;
-    private transient EventInstanceManager eventInstance;
-    private Inventory[] inventory;
-    private SkillMacro[] skillMacros = new SkillMacro[5];
-    private KeyLayout keylayout;
+    //
     private transient ScheduledFuture<?> fullnessSchedule, fullnessSchedule_1, fullnessSchedule_2, hpDecreaseTask;
     private transient ScheduledFuture<?> beholderHealingSchedule, beholderBuffSchedule, BerserkSchedule;
     private transient ScheduledFuture<?> dragonBloodSchedule;
     private transient ScheduledFuture<?> mapTimeLimitTask, fishing;
-    public static int damageCap = 100000000; //Global damage cap
-    public static int magicCap = 999999999;//
-    public static int unlimitedSlotItem = 1082174; //Lunar Glove
+    //
+    private boolean canDoor, Berserk, smega, hidden;
+    private boolean ondmg = true, callgm = true;
+    //
+    private byte dojoRecord, gmLevel, gender; // Make this a quest record, TODO : Transfer it somehow with the current data
+    private short level, mulung_energy, combo, availableCP, totalCP;
+    public int vpoints;
+    public int reborns;
+    public int world;
+    //
+    private int accountId, id, meso, exp, jobId, rank, rankMove, jobRank,
+            jobRankMove, mpApUsed, hpApUsed, hairId, faceId, skinColorId,
+            remainingAp, fame, mapId, initialSpawnPoint, bookCover, dojo,
+            fallcounter, maplePoints, aCash, chair, itemEffect, subcategory;
+    //
+    private int[] remainingSp = new int[10];
+    private int[] wishlist, rocks, savedLocations;
+    private long lastCombo, lastFameTime, keydown_skill;
+    private String name, chalktext, BlessOfFairy_Origin;
+    //
+    private Map<Quest, QuestStatus> quests;
+    private Map<Integer, String> questInfo;
+    private Map<ISkill, SkillEntry> skills;
+    private List<Door> doors;
+    private List<Pet> pets;
+    private SkillMacro[] skillMacros = new SkillMacro[5];
+    //
+    private int guildId;
+    private int guildRank;
+    private GuildCharacter guildCharacter;
+    //
+    private GuildUnion guildUnion;
+    private int guildUnionRank;
+    //
+    private BuddyList buddies;
+    private MonsterBook monsterBook;
+    private PlayerStats stats;
+    private PlayerRandomStream randomStream;
+    private Storage storage;
+    private Mount mount;
+    //
+    private Messenger messenger;
+    private int messengerPosition;
+    //
+    private PlayerShop playerShop;
+    private Party party;
+    private KeyLayout keylayout;
+    private PlayerInventory inventory;
+    private GameClient client;
 
     private GameCharacter() {
         setStance(0);
         setPosition(new Point(0, 0));
-        inventory = new Inventory[InventoryType.values().length];
-        for (InventoryType type : InventoryType.values()) {
-            inventory[type.ordinal()] = new Inventory(type);
-        }
-        quests = Maps.newLinkedHashMap(); // Stupid erev quest.
-        stats = new PlayerStats(this);
         for (int i = 0; i < remainingSp.length; i++) {
             remainingSp[i] = 0;
         }
@@ -165,31 +173,40 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         mulung_energy = 0;
         combo = 0;
         keydown_skill = 0;
-        messengerposition = 4;
+        messengerPosition = 4;
         canDoor = true;
         Berserk = false;
         smega = true;
         wishlist = new int[10];
         rocks = new int[10];
-        inst = new AtomicInteger();
-        inst.set(0); // 1 = NPC/ Quest, 2 = Duey, 3 = Hired Merch store, 4 = Storage
+
+        // 1 = NPC/Quest, 
+        // 2 = Duey, 
+        // 3 = Hired Merch store, 
+        // 4 = Storage
+        conversationState = new AtomicInteger();
+
         keylayout = new KeyLayout();
-        skills = Maps.newLinkedHashMap();
+        inventory = new PlayerInventory();
+        stats = new PlayerStats(this);
+        cheatTracker = new CheatTracker(this);
+
         effects = Maps.newEnumMap(BuffStat.class);
-        cooldowns = Maps.newLinkedHashMap();
-        doors = Lists.newArrayList();
         diseases = Maps.newEnumMap(Disease.class);
-        controlledMonsters = Sets.newLinkedHashSet();
-        summons = Maps.newLinkedHashMap();
-        visibleMapObjects = Sets.newLinkedHashSet();
-        pendingCarnivalRequests = Lists.newLinkedList();
-        questinfo = Maps.newLinkedHashMap();
+        doors = Lists.newArrayList();
         pets = Lists.newArrayList();
+        pendingCarnivalRequests = Lists.newLinkedList();
+        controlledMonsters = Sets.newLinkedHashSet();
+        visibleMapObjects = Sets.newLinkedHashSet();
+        quests = Maps.newLinkedHashMap(); // Stupid erev quest.
+        summons = Maps.newLinkedHashMap();
+        skills = Maps.newLinkedHashMap();
+        cooldowns = Maps.newLinkedHashMap();
+        questInfo = Maps.newLinkedHashMap();
         savedLocations = new int[SavedLocationType.values().length];
         for (int i = 0; i < SavedLocationType.values().length; i++) {
             savedLocations[i] = -1;
         }
-        anticheat = new CheatTracker(this);
     }
 
     public static GameCharacter getDefault(final GameClient client, final int type) {
@@ -198,13 +215,13 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         ret.map = null;
         ret.exp = 0;
         ret.gmLevel = 0;
-        ret.job = type == 0 ? 1000 : (type == 1 ? 0 : (type == 2 ? 2000 : 2001));
+        ret.jobId = type == 0 ? 1000 : (type == 1 ? 0 : (type == 2 ? 2000 : 2001));
         ret.meso = 0;
         ret.level = 1;
         ret.remainingAp = 0;
         ret.fame = 0;
-        ret.accountId = client.getAccID();
-        ret.buddylist = new BuddyList(100);
+        ret.accountId = client.getAccountId();
+        ret.buddies = new BuddyList(100);
         ret.stats.str = 12;
         ret.stats.dex = 4;
         ret.stats.int_ = 4;
@@ -221,8 +238,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 ret.client.setAccountName(rs.getString("name"));
-                ret.acash = rs.getInt("ACash");
-                ret.maplepoints = rs.getInt("mPoints");
+                ret.aCash = rs.getInt("ACash");
+                ret.maplePoints = rs.getInt("mPoints");
                 ret.vpoints = rs.getInt("vpoints");
             }
             rs.close();
@@ -234,7 +251,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public static GameCharacter reconstructCharacter(final CharacterTransfer ct, final GameClient client) {
-        final GameCharacter ret = new GameCharacter(); // Always true, it's change channel
+        final GameCharacter ret = new GameCharacter();
         ret.client = client;
         ret.id = ct.characterid;
         ret.name = ct.name;
@@ -259,37 +276,42 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         ret.remainingAp = ct.remainingAp;
         ret.meso = ct.meso;
         ret.gmLevel = ct.gmLevel;
-        ret.skinColor = ct.skinColor;
+        ret.skinColorId = ct.skinColor;
         ret.gender = ct.gender;
-        ret.job = ct.job;
-        ret.hair = ct.hair;
-        ret.face = ct.face;
+        ret.jobId = ct.job;
+        ret.hairId = ct.hair;
+        ret.faceId = ct.face;
         ret.accountId = ct.accountid;
-        ret.mapid = ct.mapId;
+        ret.mapId = ct.mapId;
         ret.initialSpawnPoint = ct.initialSpawnPoint;
         ret.world = ct.worldId;
+
         ret.rank = ct.rank;
         ret.rankMove = ct.rankMove;
         ret.jobRank = ct.jobRank;
         ret.jobRankMove = ct.jobRankMove;
-        ret.bookCover = ct.mBookCover;
+
+        ret.bookCover = ct.monsterBookCover;
         ret.dojo = ct.dojo;
         ret.dojoRecord = ct.dojoRecord;
         ret.reborns = ct.reborns;
-        ret.guildid = ct.guildId;
-        ret.guildrank = ct.guildRank;
-        ret.allianceRank = ct.unionRank;
+
+        ret.guildId = ct.guildId;
+        ret.guildRank = ct.guildRank;
+
+        ret.guildUnionRank = ct.unionRank;
         ret.subcategory = ct.subcategory;
         ret.ondmg = ct.ondmg;
         ret.callgm = ct.callgm;
-        if (ret.guildid > 0) {
-            ret.mgc = new GuildCharacter(ret);
+        if (ret.guildId > 0) {
+            ret.guildCharacter = new GuildCharacter(ret);
         }
-        ret.buddylist = new BuddyList(ct.buddysize);
+        ret.buddies = new BuddyList(ct.buddyListCapacity);
 
         final GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.world);
-        ret.map = mapFactory.getMap(ret.mapid);
-        if (ret.map == null) { //char is on a map that doesn't exist warp it to henesys
+        ret.map = mapFactory.getMap(ret.mapId);
+        if (ret.map == null) {
+            //char is on a map that doesn't exist warp it to henesys
             ret.map = mapFactory.getMap(100000000);
         } else {
             if (ret.map.getForcedReturnId() != 999999999) {
@@ -303,7 +325,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
         ret.setPosition(portal.getPosition());
 
-        int partyid = ct.partyid;
+        int partyid = ct.partyId;
         if (partyid >= 0) {
             try {
                 Party party = client.getChannelServer().getWorldInterface().getParty(partyid);
@@ -315,15 +337,15 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             }
         }
 
-        final int messengerid = ct.messengerid;
-        final int position = ct.messengerposition;
+        final int messengerid = ct.messengerId;
+        final int position = ct.messengerPosition;
         if (messengerid > 0 && position < 4 && position > -1) {
             try {
                 WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
                 Messenger messenger = wci.getMessenger(messengerid);
                 if (messenger != null) {
                     ret.messenger = messenger;
-                    ret.messengerposition = position;
+                    ret.messengerPosition = position;
                 }
             } catch (RemoteException e) {
                 client.getChannelServer().pingWorld();
@@ -333,7 +355,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         QuestStatus queststatus;
         QuestStatus queststatus_from;
         Quest quest;
-        for (final Map.Entry<Integer, Object> qs : ct.Quest.entrySet()) {
+        for (final Map.Entry<Integer, Object> qs : ct.quest.entrySet()) {
             quest = Quest.getInstance(qs.getKey());
             queststatus_from = (QuestStatus) qs.getValue();
 
@@ -349,28 +371,26 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             }
             ret.quests.put(quest, queststatus);
         }
-        for (final Map.Entry<Integer, Object> qs : ct.Skills.entrySet()) {
+        for (final Map.Entry<Integer, Object> qs : ct.skills.entrySet()) {
             ret.skills.put(SkillFactory.getSkill(qs.getKey()), (SkillEntry) qs.getValue());
         }
-        ret.monsterbook = (MonsterBook) ct.monsterbook;
-        ret.inventory = (Inventory[]) ct.inventorys;
-        ret.BlessOfFairy_Origin = ct.BlessOfFairy;
+        ret.monsterBook = (MonsterBook) ct.monsterbook;
+        ret.inventory = (PlayerInventory) ct.inventorys;
+        ret.BlessOfFairy_Origin = ct.blessOfFairy;
         ret.skillMacros = (SkillMacro[]) ct.skillmacro;
         ret.keylayout = (KeyLayout) ct.keyLayout;
-        ret.questinfo = (Map<Integer, String>) ct.InfoQuest;
+        ret.questInfo = (Map<Integer, String>) ct.questInfo;
         ret.savedLocations = (int[]) ct.savedlocation;
         ret.wishlist = (int[]) ct.wishlist;
         ret.rocks = (int[]) ct.rocks;
-        ret.buddylist.loadFromTransfer(ct.buddies);
-        // ret.lastfametime
-        // ret.lastmonthfameids
+        ret.buddies.loadFromTransfer(ct.buddies);
         ret.keydown_skill = 0; // Keydown skill can't be brought over
         ret.lastFameTime = ct.lastFameTime;
         ret.storage = (Storage) ct.storage;
         client.setAccountName(ct.accountname);
-        ret.acash = ct.ACash;
+        ret.aCash = ct.ACash;
         ret.vpoints = ct.vpoints;
-        ret.maplepoints = ct.MaplePoints;
+        ret.maplePoints = ct.MaplePoints;
 
         ret.mount = new Mount(ret, ct.mount_itemid, 1004, ct.mount_Fatigue, ct.mount_level, ct.mount_exp);
 
@@ -437,31 +457,31 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ret.subcategory = rs.getInt("subcategory");
             ret.meso = rs.getInt("meso");
             ret.gmLevel = rs.getByte("gm");
-            ret.skinColor = rs.getInt("skincolor");
+            ret.skinColorId = rs.getInt("skincolor");
             ret.gender = rs.getByte("gender");
-            ret.job = rs.getInt("job");
-            ret.hair = rs.getInt("hair");
-            ret.face = rs.getInt("face");
+            ret.jobId = rs.getInt("job");
+            ret.hairId = rs.getInt("hair");
+            ret.faceId = rs.getInt("face");
             ret.accountId = rs.getInt("accountid");
-            ret.mapid = rs.getInt("map");
+            ret.mapId = rs.getInt("map");
             ret.initialSpawnPoint = rs.getInt("spawnpoint");
             ret.world = rs.getInt("world");
             ret.rank = rs.getInt("rank");
             ret.rankMove = rs.getInt("rankMove");
             ret.jobRank = rs.getInt("jobRank");
             ret.jobRankMove = rs.getInt("jobRankMove");
-            ret.guildid = rs.getInt("guildid");
-            ret.guildrank = rs.getInt("guildrank");
-            ret.allianceRank = rs.getInt("allianceRank");
+            ret.guildId = rs.getInt("guildid");
+            ret.guildRank = rs.getInt("guildrank");
+            ret.guildUnionRank = rs.getInt("allianceRank");
             ret.reborns = rs.getInt("reborns");
-            if (ret.guildid > 0) {
-                ret.mgc = new GuildCharacter(ret);
+            if (ret.guildId > 0) {
+                ret.guildCharacter = new GuildCharacter(ret);
             }
-            ret.buddylist = new BuddyList(rs.getInt("buddyCapacity"));
+            ret.buddies = new BuddyList(rs.getInt("buddyCapacity"));
 
             if (channelserver) {
                 GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.world);
-                ret.map = mapFactory.getMap(ret.mapid);
+                ret.map = mapFactory.getMap(ret.mapId);
                 if (ret.map == null) {
                     //char is on a map that doesn't exist warp it to henesys
                     ret.map = mapFactory.getMap(100000000);
@@ -494,7 +514,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         Messenger messenger = wci.getMessenger(messengerid);
                         if (messenger != null) {
                             ret.messenger = messenger;
-                            ret.messengerposition = position;
+                            ret.messengerPosition = position;
                         }
                     } catch (RemoteException e) {
                         client.getChannelServer().pingWorld();
@@ -538,8 +558,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
             if (channelserver) {
                 ret.randomStream = new PlayerRandomStream();
-                ret.monsterbook = new MonsterBook();
-                ret.monsterbook.loadCards(characterId);
+                ret.monsterBook = new MonsterBook();
+                ret.monsterBook.loadCards(characterId);
 
                 ps = con.prepareStatement("SELECT * FROM inventoryslot where characterid = ?");
                 ps.setInt(1, characterId);
@@ -548,11 +568,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 if (!rs.next()) {
                     throw new RuntimeException("No Inventory slot column found in SQL. [inventoryslot]");
                 } else {
-                    ret.getInventory(InventoryType.EQUIP).setSlotLimit(rs.getByte("equip"));
-                    ret.getInventory(InventoryType.USE).setSlotLimit(rs.getByte("use"));
-                    ret.getInventory(InventoryType.SETUP).setSlotLimit(rs.getByte("setup"));
-                    ret.getInventory(InventoryType.ETC).setSlotLimit(rs.getByte("etc"));
-                    ret.getInventory(InventoryType.CASH).setSlotLimit(rs.getByte("cash"));
+                    ret.getInventoryType(InventoryType.EQUIP).setSlotLimit(rs.getByte("equip"));
+                    ret.getInventoryType(InventoryType.USE).setSlotLimit(rs.getByte("use"));
+                    ret.getInventoryType(InventoryType.SETUP).setSlotLimit(rs.getByte("setup"));
+                    ret.getInventoryType(InventoryType.ETC).setSlotLimit(rs.getByte("etc"));
+                    ret.getInventoryType(InventoryType.CASH).setSlotLimit(rs.getByte("cash"));
                 }
                 ps.close();
                 rs.close();
@@ -597,13 +617,13 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         equip.setLevel(rs.getByte("level"));
                         equip.setExpiration(expiration);
                         equip.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventory(type).addFromDb(equip);
+                        ret.getInventoryType(type).addFromDb(equip);
                     } else {
                         item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
                         item.setExpiration(expiration);
                         item.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventory(type).addFromDb(item);
+                        ret.getInventoryType(type).addFromDb(item);
 
                         if (rs.getInt("petid") > -1) {
                             pet = Pet.loadFromDb(item.getItemId(), rs.getInt("petid"), item.getPosition());
@@ -620,9 +640,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     ret.getClient().setAccountName(rs.getString("name"));
-                    ret.acash = rs.getInt("ACash");
+                    ret.aCash = rs.getInt("ACash");
                     ret.vpoints = rs.getInt("vpoints");
-                    ret.maplepoints = rs.getInt("mPoints");
+                    ret.maplePoints = rs.getInt("mPoints");
                 }
                 rs.close();
                 ps.close();
@@ -632,7 +652,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 rs = ps.executeQuery();
 
                 while (rs.next()) {
-                    ret.questinfo.put(rs.getInt("quest"), rs.getString("customData"));
+                    ret.questInfo.put(rs.getInt("quest"), rs.getString("customData"));
                 }
                 rs.close();
                 ps.close();
@@ -663,7 +683,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         }
                         //}
                         ret.BlessOfFairy_Origin = rs.getString("name");
-                        ret.skills.put(SkillFactory.getSkill(GameConstants.getBOF_ForJob(ret.job)), new SkillEntry(maxlevel, (byte) 0));
+                        ret.skills.put(SkillFactory.getSkill(GameConstants.getBOF_ForJob(ret.jobId)), new SkillEntry(maxlevel, (byte) 0));
                         break;
                     }
                 }
@@ -705,7 +725,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
                 ret.lastFameTime = FameLog.getLastTimestamp(characterId);
 
-                ret.buddylist.loadFromDb(characterId);
+                ret.buddies.loadFromDb(characterId);
                 ret.storage = Storage.loadStorage(ret.accountId);
 
                 ps = con.prepareStatement("SELECT sn FROM wishlist WHERE characterid = ?");
@@ -744,7 +764,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 if (!rs.next()) {
                     throw new RuntimeException("No mount data found on SQL column");
                 }
-                final IItem mount = ret.getInventory(InventoryType.EQUIPPED).getItem((byte) -22);
+                final IItem mount = ret.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22);
                 ret.mount = new Mount(ret, mount != null ? mount.getItemId() : 0, 1004, rs.getInt("Fatigue"), rs.getInt("Level"), rs.getInt("Exp"));
                 ps.close();
                 rs.close();
@@ -784,7 +804,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         equip.setItemEXP(rs.getShort("itemEXP"));
                         equip.setUpgradeSlots(rs.getByte("upgradeslots"));
                         equip.setLevel(rs.getByte("level"));*/
-                        ret.getInventory(type).addFromDb(equip);
+                        ret.getInventoryType(type).addFromDb(equip);
                         /*		} else {
                         Item item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getInt("petid"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
@@ -820,7 +840,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         try {
             con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             con.setAutoCommit(false);
-            ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpApUsed, mpApUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, monsterbookcover, dojo_pts, dojoRecord, accountid, name, world, reborns, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO characters (level, fame, str, dex, luk, `int`, exp, hp, mp, maxhp, maxmp, sp, ap, gm, skincolor, gender, job, hair, face, map, meso, hpApUsed, mpApUsed, spawnpoint, party, buddyCapacity, messengerid, messengerposition, monsterbookcover, dojo_pts, dojoRecord, accountid, name, world, reborns, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, 1); // Level
             ps.setInt(2, 0); // Fame
             final PlayerStats stat = chr.stats;
@@ -836,11 +856,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.setString(12, "0,0,0,0,0,0,0,0,0,0"); // Remaining SP
             ps.setInt(13, 0); // Remaining AP
             ps.setInt(14, 0); // GM Level
-            ps.setInt(15, chr.skinColor);
+            ps.setInt(15, chr.skinColorId);
             ps.setInt(16, chr.gender);
-            ps.setInt(17, chr.job);
-            ps.setInt(18, chr.hair);
-            ps.setInt(19, chr.face);
+            ps.setInt(17, chr.jobId);
+            ps.setInt(18, chr.hairId);
+            ps.setInt(19, chr.faceId);
             ps.setInt(20, type == 1 ? 10000 : (type == 0 ? 130030000 : (type ==
                     2 ? 914000000 : 900010000))); // 0-KOC 1-Adventurer 2-Aran 3-Evan 4-DB
             ps.setInt(21, chr.meso); // Meso
@@ -848,7 +868,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.setInt(23, 0); // MP ap used
             ps.setInt(24, 0); // Spawnpoint
             ps.setInt(25, -1); // Party
-            ps.setInt(26, chr.buddylist.getCapacity()); // Buddylist
+            ps.setInt(26, chr.buddies.getCapacity()); // Buddylist
             ps.setInt(27, 0); // MessengerId
             ps.setInt(28, 4); // Messenger Position
             ps.setInt(29, 0); // Monster book cover
@@ -869,7 +889,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.close();
             rs.close();
 
-            ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
             ps.setInt(1, chr.id);
             for (final QuestStatus q : chr.quests.values()) {
@@ -909,12 +929,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.setInt(4, 0);
             ps.execute();
             ps.close();
-            ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             IEquip equip;
 
             for (final Inventory iv : chr.inventory) {
-                ps.setInt(3, iv.getType().getType());
+                ps.setInt(3, iv.getType().asByte());
                 for (final IItem item : iv.list()) {
                     ps.setInt(1, chr.id);
                     ps.setInt(2, item.getItemId());
@@ -1031,7 +1051,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             con.setAutoCommit(false);
 
-            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, level);
             ps.setInt(2, fame);
             ps.setInt(3, stats.getStr());
@@ -1057,11 +1077,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.setString(12, sp.substring(0, sp.length() - 1));
             ps.setInt(13, remainingAp);
             ps.setInt(14, gmLevel);
-            ps.setInt(15, skinColor);
+            ps.setInt(15, skinColorId);
             ps.setInt(16, gender);
-            ps.setInt(17, job);
-            ps.setInt(18, hair);
-            ps.setInt(19, face);
+            ps.setInt(17, jobId);
+            ps.setInt(18, hairId);
+            ps.setInt(19, faceId);
             if (map.getForcedReturnId() != 999999999) {
                 ps.setInt(20, map.getForcedReturnId());
             } else {
@@ -1077,10 +1097,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 ps.setInt(24, closest != null ? closest.getId() : 0);
             }
             ps.setInt(25, party != null ? party.getId() : -1);
-            ps.setInt(26, buddylist.getCapacity());
+            ps.setInt(26, buddies.getCapacity());
             if (messenger != null) {
                 ps.setInt(27, messenger.getId());
-                ps.setInt(28, messengerposition);
+                ps.setInt(28, messengerPosition);
             } else {
                 ps.setInt(27, 0);
                 ps.setInt(28, 4);
@@ -1123,20 +1143,20 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             deleteByCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, id);
-            ps.setInt(2, getInventory(InventoryType.EQUIP).getSlotLimit());
-            ps.setInt(3, getInventory(InventoryType.USE).getSlotLimit());
-            ps.setInt(4, getInventory(InventoryType.SETUP).getSlotLimit());
-            ps.setInt(5, getInventory(InventoryType.ETC).getSlotLimit());
-            ps.setInt(6, getInventory(InventoryType.CASH).getSlotLimit());
+            ps.setInt(2, getInventoryType(InventoryType.EQUIP).getSlotLimit());
+            ps.setInt(3, getInventoryType(InventoryType.USE).getSlotLimit());
+            ps.setInt(4, getInventoryType(InventoryType.SETUP).getSlotLimit());
+            ps.setInt(5, getInventoryType(InventoryType.ETC).getSlotLimit());
+            ps.setInt(6, getInventoryType(InventoryType.CASH).getSlotLimit());
             ps.execute();
             ps.close();
 
             deleteByCharacterId(con, "DELETE FROM inventoryitems WHERE characterid = ?");
-            ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             for (final Inventory iv : inventory) {
-                ps.setInt(3, iv.getType().getType());
+                ps.setInt(3, iv.getType().asByte());
                 for (final IItem item : iv.list()) {
                     ps.setInt(1, id);
                     ps.setInt(2, item.getItemId());
@@ -1192,7 +1212,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             deleteByCharacterId(con, "DELETE FROM questinfo WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO questinfo (`characterid`, `quest`, `data`) VALUES (?, ?, ?)");
             ps.setInt(1, id);
-            for (final Entry<Integer, String> q : questinfo.entrySet()) {
+            for (final Entry<Integer, String> q : questInfo.entrySet()) {
                 ps.setInt(2, q.getKey());
                 ps.setString(3, q.getValue());
                 ps.execute();
@@ -1200,7 +1220,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.close();
 
             deleteByCharacterId(con, "DELETE FROM queststatus WHERE characterid = ?");
-            ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
             ps.setInt(1, id);
             for (final QuestStatus q : quests.values()) {
@@ -1232,14 +1252,14 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
             for (final Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
                 ps.setInt(2, skill.getKey().getId());
-                ps.setInt(3, skill.getValue().skillevel);
-                ps.setInt(4, skill.getValue().masterlevel);
+                ps.setInt(3, skill.getValue().getCurrentLevel());
+                ps.setInt(4, skill.getValue().getMasterLevel());
                 ps.execute();
             }
             ps.close();
 
             if (dc && getAllCooldowns().size() > 0) {
-                for (final PlayerCoolDownValueHolder cooling : getAllCooldowns()) {
+                for (final PlayerCooldownValueHolder cooling : getAllCooldowns()) {
                     ps = con.prepareStatement("INSERT INTO skills_cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)");
                     ps.setInt(1, getId());
                     ps.setInt(2, cooling.skillId);
@@ -1265,7 +1285,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             deleteByCharacterId(con, "DELETE FROM buddies WHERE characterid = ? AND pending = 0");
             ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, 0)");
             ps.setInt(1, id);
-            for (BuddyListEntry entry : buddylist.getBuddies()) {
+            for (BuddyListEntry entry : buddies.getBuddies()) {
                 if (entry.isVisible()) {
                     ps.setInt(2, entry.getCharacterId());
                     ps.execute();
@@ -1274,10 +1294,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.close();
 
             ps = con.prepareStatement("UPDATE accounts SET `ACash` = ?, `mPoints` = ?, `vpoints` = ? WHERE id = ?");
-            ps.setInt(1, acash);
-            ps.setInt(2, maplepoints);
+            ps.setInt(1, aCash);
+            ps.setInt(2, maplePoints);
             ps.setInt(3, getVPoints());
-            ps.setInt(4, client.getAccID());
+            ps.setInt(4, client.getAccountId());
             ps.execute();
             ps.close();
 
@@ -1286,7 +1306,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             }
             keylayout.saveKeys(id);
             mount.saveMount(id);
-            monsterbook.saveCards(id);
+            monsterBook.saveCards(id);
 
             deleteByCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
             for (int i = 0; i < getWishlistSize(); i++) {
@@ -1355,9 +1375,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public final void QuestInfoPacket(final PacketBuilder builder) {
-        builder.writeAsShort(questinfo.size());
+        builder.writeAsShort(questInfo.size());
 
-        for (final Entry<Integer, String> q : questinfo.entrySet()) {
+        for (final Entry<Integer, String> q : questInfo.entrySet()) {
             builder.writeAsShort(q.getKey());
             builder.writeLengthPrefixedString(q.getValue() == null ? "" : q.getValue());
         }
@@ -1365,13 +1385,13 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public final void updateInfoQuest(final int questid, final String data) {
-        questinfo.put(questid, data);
+        questInfo.put(questid, data);
         client.write(MaplePacketCreator.updateInfoQuest(questid, data));
     }
 
     public final String getInfoQuest(final int questid) {
-        if (questinfo.containsKey(questid)) {
-            return questinfo.get(questid);
+        if (questInfo.containsKey(questid)) {
+            return questInfo.get(questid);
         }
         return "";
     }
@@ -1427,7 +1447,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public final Map<Integer, String> getInfoQuest_Map() {
-        return questinfo;
+        return questInfo;
     }
 
     public final Map<Quest, QuestStatus> getQuest_Map() {
@@ -1435,9 +1455,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public boolean isActiveBuffedValue(int skillid) {
-        LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
-        for (BuffStatValueHolder mbsvh : allBuffs) {
-            if (mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() == skillid) {
+        LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
+        for (BuffStatValueHolder value : allBuffs) {
+            if (value.effect.isSkill() && value.effect.getSourceId() == skillid) {
                 return true;
             }
         }
@@ -1445,54 +1465,54 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public Integer getBuffedValue(BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        return mbsvh == null ? null : Integer.valueOf(mbsvh.value);
+        final BuffStatValueHolder value = effects.get(effect);
+        return value == null ? null : Integer.valueOf(value.value);
     }
 
     public final Integer getBuffedSkill_X(final BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        if (mbsvh == null) {
+        final BuffStatValueHolder value = effects.get(effect);
+        if (value == null) {
             return null;
         }
-        return mbsvh.effect.getX();
+        return value.effect.getX();
     }
 
     public final Integer getBuffedSkill_Y(final BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        if (mbsvh == null) {
+        final BuffStatValueHolder value = effects.get(effect);
+        if (value == null) {
             return null;
         }
-        return mbsvh.effect.getY();
+        return value.effect.getY();
     }
 
     public final StatEffect getBuffedSkillEffect(final BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        if (mbsvh == null) {
+        final BuffStatValueHolder value = effects.get(effect);
+        if (value == null) {
             return null;
         }
-        return mbsvh.effect;
+        return value.effect;
     }
 
     public boolean isBuffFrom(BuffStat stat, ISkill skill) {
-        final BuffStatValueHolder mbsvh = effects.get(stat);
-        if (mbsvh == null) {
+        final BuffStatValueHolder value = effects.get(stat);
+        if (value == null) {
             return false;
         }
-        return mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() ==
+        return value.effect.isSkill() && value.effect.getSourceId() ==
                 skill.getId();
     }
 
     public int getBuffSource(BuffStat stat) {
-        final BuffStatValueHolder mbsvh = effects.get(stat);
-        return mbsvh == null ? -1 : mbsvh.effect.getSourceId();
+        final BuffStatValueHolder value = effects.get(stat);
+        return value == null ? -1 : value.effect.getSourceId();
     }
 
-    public int getItemQuantity(int itemid, boolean checkEquipped) {
-        int possesed = inventory[GameConstants.getInventoryType(itemid).ordinal()].countById(itemid);
+    public int getItemQuantity(int itemId, boolean checkEquipped) {
+        int count = inventory.get(GameConstants.getInventoryType(itemId)).countById(itemId);
         if (checkEquipped) {
-            possesed += inventory[InventoryType.EQUIPPED.ordinal()].countById(itemid);
+            count += inventory.get(InventoryType.EQUIPPED).countById(itemId);
         }
-        return possesed;
+        return count;
     }
 
     public int getReborns() {
@@ -1513,58 +1533,33 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getNX() {
-        return acash;
+        return aCash;
     }
 
     public void gainVPoints(int gainedpoints) {
         this.vpoints += gainedpoints;
     }
 
-    public final void gainItem(final int id, final short quantity, final boolean randomStats, final long period) {
-        if (quantity >= 0) {
-            final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-            final InventoryType type = GameConstants.getInventoryType(id);
-
-            if (!InventoryManipulator.checkSpace(OdinSEA.c, id, quantity, "")) {
-                return;
-            }
-            if (type.equals(InventoryType.EQUIP) &&
-                    !GameConstants.isThrowingStar(id) &&
-                    !GameConstants.isBullet(id)) {
-                final IItem item = randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id)) : ii.getEquipById(id);
-                if (period > 0) {
-                    item.setExpiration(System.currentTimeMillis() + period);
-                }
-                InventoryManipulator.addbyItem(OdinSEA.c, item);
-            } else {
-                InventoryManipulator.addById(OdinSEA.c, id, quantity, "", null, period);
-            }
-        } else {
-            InventoryManipulator.removeById(OdinSEA.c, GameConstants.getInventoryType(id), id, -quantity, true, false);
-        }
-        OdinSEA.c.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
-    }
-
     public int getWorld() {
         return world;
     }
 
-    public void setBuffedValue(BuffStat effect, int value) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        if (mbsvh == null) {
+    public void setBuffedValue(BuffStat effect, int statValue) {
+        final BuffStatValueHolder value = effects.get(effect);
+        if (value == null) {
             return;
         }
-        mbsvh.value = value;
+        value.value = statValue;
     }
 
-    public Long getBuffedStarttime(BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        return mbsvh == null ? null : Long.valueOf(mbsvh.startTime);
+    public Long getBuffedStartTime(BuffStat effect) {
+        final BuffStatValueHolder value = effects.get(effect);
+        return value == null ? null : Long.valueOf(value.startTime);
     }
 
     public StatEffect getStatForBuff(BuffStat effect) {
-        final BuffStatValueHolder mbsvh = effects.get(effect);
-        return mbsvh == null ? null : mbsvh.effect;
+        final BuffStatValueHolder value = effects.get(effect);
+        return value == null ? null : value.effect;
     }
 
     private void prepareDragonBlood(final StatEffect bloodEffect) {
@@ -1718,9 +1713,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         final List<BuffStat> bstats = new ArrayList<BuffStat>();
 
         for (Entry<BuffStat, BuffStatValueHolder> stateffect : effects.entrySet()) {
-            final BuffStatValueHolder mbsvh = stateffect.getValue();
-            if (mbsvh.effect.sameSource(effect) && (startTime == -1 || startTime ==
-                    mbsvh.startTime)) {
+            final BuffStatValueHolder value = stateffect.getValue();
+            if (value.effect.sameSource(effect) && (startTime == -1 || startTime ==
+                    value.startTime)) {
                 bstats.add(stateffect.getKey());
             }
         }
@@ -1730,22 +1725,22 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     private void deregisterBuffStats(List<BuffStat> stats) {
         List<BuffStatValueHolder> effectsToCancel = new ArrayList<BuffStatValueHolder>(stats.size());
         for (BuffStat stat : stats) {
-            final BuffStatValueHolder mbsvh = effects.get(stat);
-            if (mbsvh != null) {
+            final BuffStatValueHolder value = effects.get(stat);
+            if (value != null) {
                 effects.remove(stat);
                 boolean addMbsvh = true;
                 for (BuffStatValueHolder contained : effectsToCancel) {
-                    if (mbsvh.startTime == contained.startTime &&
-                            contained.effect == mbsvh.effect) {
+                    if (value.startTime == contained.startTime &&
+                            contained.effect == value.effect) {
                         addMbsvh = false;
                     }
                 }
                 if (addMbsvh) {
-                    effectsToCancel.add(mbsvh);
+                    effectsToCancel.add(value);
                 }
                 if (stat == BuffStat.SUMMON || stat == BuffStat.PUPPET ||
                         stat == BuffStat.MIRROR_TARGET) {
-                    final int summonId = mbsvh.effect.getSourceId();
+                    final int summonId = value.effect.getSourceId();
                     final Summon summon = summons.get(summonId);
                     if (summon != null) {
                         map.broadcastMessage(MaplePacketCreator.removeSummon(summon, true));
@@ -1850,7 +1845,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
     private void cancelPlayerBuffs(List<BuffStat> buffstats) {
         if (client.getChannelServer().getPlayerStorage().getCharacterById(getId()) !=
-                null) { // are we still connected ?
+                null) {
+            // are we still connected ?
             if (buffstats.contains(BuffStat.HOMING_BEACON)) {
                 client.write(MaplePacketCreator.cancelHoming());
             } else {
@@ -1861,7 +1857,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             }
         }
         if (buffstats.contains(BuffStat.MONSTER_RIDING) &&
-                GameConstants.isEvan(job) && job >= 2200) {
+                GameConstants.isEvan(jobId) && jobId >= 2200) {
             makeDragon();
             map.spawnDragon(dragon);
         }
@@ -1869,73 +1865,73 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
     public void dispel() {
         if (!isHidden()) {
-            final LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
-            for (BuffStatValueHolder mbsvh : allBuffs) {
-                if (mbsvh.effect.isSkill() && mbsvh.schedule != null &&
-                        !mbsvh.effect.isMorph()) {
-                    cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+            final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
+            for (BuffStatValueHolder value : allBuffs) {
+                if (value.effect.isSkill() && value.schedule != null &&
+                        !value.effect.isMorph()) {
+                    cancelEffect(value.effect, false, value.startTime);
                 }
             }
         }
     }
 
     public void dispelSkill(int skillid) {
-        final LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
+        final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
-        for (BuffStatValueHolder mbsvh : allBuffs) {
+        for (BuffStatValueHolder value : allBuffs) {
             if (skillid == 0) {
-                if (mbsvh.effect.isSkill() && (mbsvh.effect.getSourceId() ==
-                        1004 || mbsvh.effect.getSourceId() == 10001004 ||
-                        mbsvh.effect.getSourceId() == 20001004 ||
-                        mbsvh.effect.getSourceId() == 20011004 ||
-                        mbsvh.effect.getSourceId() == 1321007 ||
-                        mbsvh.effect.getSourceId() == 2121005 ||
-                        mbsvh.effect.getSourceId() == 2221005 ||
-                        mbsvh.effect.getSourceId() == 2311006 ||
-                        mbsvh.effect.getSourceId() == 2321003 ||
-                        mbsvh.effect.getSourceId() == 3111002 ||
-                        mbsvh.effect.getSourceId() == 3111005 ||
-                        mbsvh.effect.getSourceId() == 3211002 ||
-                        mbsvh.effect.getSourceId() == 3211005 ||
-                        mbsvh.effect.getSourceId() == 4111002)) {
-                    cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+                if (value.effect.isSkill() && (value.effect.getSourceId() ==
+                        1004 || value.effect.getSourceId() == 10001004 ||
+                        value.effect.getSourceId() == 20001004 ||
+                        value.effect.getSourceId() == 20011004 ||
+                        value.effect.getSourceId() == 1321007 ||
+                        value.effect.getSourceId() == 2121005 ||
+                        value.effect.getSourceId() == 2221005 ||
+                        value.effect.getSourceId() == 2311006 ||
+                        value.effect.getSourceId() == 2321003 ||
+                        value.effect.getSourceId() == 3111002 ||
+                        value.effect.getSourceId() == 3111005 ||
+                        value.effect.getSourceId() == 3211002 ||
+                        value.effect.getSourceId() == 3211005 ||
+                        value.effect.getSourceId() == 4111002)) {
+                    cancelEffect(value.effect, false, value.startTime);
                     break;
                 }
             } else {
-                if (mbsvh.effect.isSkill() && mbsvh.effect.getSourceId() ==
+                if (value.effect.isSkill() && value.effect.getSourceId() ==
                         skillid) {
-                    cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+                    cancelEffect(value.effect, false, value.startTime);
                     break;
                 }
             }
         }
     }
 
-    public void cancelAllBuffs_() {
+    public void clearAllBuffEffects() {
         effects.clear();
     }
 
     public void cancelAllBuffs() {
-        final LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
+        final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
-        for (BuffStatValueHolder mbsvh : allBuffs) {
-            cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+        for (BuffStatValueHolder value : allBuffs) {
+            cancelEffect(value.effect, false, value.startTime);
         }
     }
 
     public void cancelMorphs() {
-        final LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
+        final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
-        for (BuffStatValueHolder mbsvh : allBuffs) {
-            switch (mbsvh.effect.getSourceId()) {
+        for (BuffStatValueHolder value : allBuffs) {
+            switch (value.effect.getSourceId()) {
                 case 5111005:
                 case 5121003:
                 case 15111002:
                 case 13111005:
                     return; // Since we can't have more than 1, save up on loops
                 default:
-                    if (mbsvh.effect.isMorph()) {
-                        cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+                    if (value.effect.isMorph()) {
+                        cancelEffect(value.effect, false, value.startTime);
                         continue;
                     }
             }
@@ -1943,35 +1939,35 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getMorphState() {
-        LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
-        for (BuffStatValueHolder mbsvh : allBuffs) {
-            if (mbsvh.effect.isMorph()) {
-                return mbsvh.effect.getSourceId();
+        LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
+        for (BuffStatValueHolder value : allBuffs) {
+            if (value.effect.isMorph()) {
+                return value.effect.getSourceId();
             }
         }
         return -1;
     }
 
     public void silentGiveBuffs(List<PlayerBuffValueHolder> buffs) {
-        for (PlayerBuffValueHolder mbsvh : buffs) {
-            mbsvh.effect.silentApplyBuff(this, mbsvh.startTime);
+        for (PlayerBuffValueHolder value : buffs) {
+            value.effect.silentApplyBuff(this, value.startTime);
         }
     }
 
     public List<PlayerBuffValueHolder> getAllBuffs() {
-        List<PlayerBuffValueHolder> ret = new ArrayList<PlayerBuffValueHolder>();
-        for (BuffStatValueHolder mbsvh : effects.values()) {
-            ret.add(new PlayerBuffValueHolder(mbsvh.startTime, mbsvh.effect));
+        List<PlayerBuffValueHolder> ret = Lists.newArrayList();
+        for (BuffStatValueHolder value : effects.values()) {
+            ret.add(new PlayerBuffValueHolder(value.startTime, value.effect));
         }
         return ret;
     }
 
     public void cancelMagicDoor() {
-        final LinkedList<BuffStatValueHolder> allBuffs = new LinkedList<BuffStatValueHolder>(effects.values());
+        final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
-        for (BuffStatValueHolder mbsvh : allBuffs) {
-            if (mbsvh.effect.isMagicDoor()) {
-                cancelEffect(mbsvh.effect, false, mbsvh.startTime);
+        for (BuffStatValueHolder value : allBuffs) {
+            if (value.effect.isMagicDoor()) {
+                cancelEffect(value.effect, false, value.startTime);
                 break;
             }
         }
@@ -1979,7 +1975,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
     public final void handleEnergyCharge(final int skillid, final byte targets) {
         final ISkill echskill = SkillFactory.getSkill(skillid);
-        final byte skilllevel = getSkillLevel(echskill);
+        final byte skilllevel = getCurrentSkillLevel(echskill);
         if (skilllevel > 0) {
             if (targets > 0) {
                 if (getBuffedValue(BuffStat.ENERGY_CHARGE) == null) {
@@ -2022,11 +2018,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
 
         StatEffect ceffect = null;
-        int advComboSkillLevel = getSkillLevel(advancedComboSkill);
+        int advComboSkillLevel = getCurrentSkillLevel(advancedComboSkill);
         if (advComboSkillLevel > 0) {
             ceffect = advancedComboSkill.getEffect(advComboSkillLevel);
         } else {
-            ceffect = comboSkill.getEffect(getSkillLevel(comboSkill));
+            ceffect = comboSkill.getEffect(getCurrentSkillLevel(comboSkill));
         }
 
         if (orbcount < ceffect.getX() + 1) {
@@ -2039,7 +2035,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             List<Pair<BuffStat, Integer>> stat = Collections.singletonList(new Pair<BuffStat, Integer>(BuffStat.COMBO, neworbcount));
             setBuffedValue(BuffStat.COMBO, neworbcount);
             int duration = ceffect.getDuration();
-            duration += (int) ((getBuffedStarttime(BuffStat.COMBO) -
+            duration += (int) ((getBuffedStartTime(BuffStat.COMBO) -
                     System.currentTimeMillis()));
 
             client.write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
@@ -2060,11 +2056,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 break;
         }
 
-        StatEffect ceffect = comboSkill.getEffect(getSkillLevel(comboSkill));
+        StatEffect ceffect = comboSkill.getEffect(getCurrentSkillLevel(comboSkill));
         List<Pair<BuffStat, Integer>> stat = Collections.singletonList(new Pair<BuffStat, Integer>(BuffStat.COMBO, 1));
         setBuffedValue(BuffStat.COMBO, 1);
         int duration = ceffect.getDuration();
-        duration += (int) ((getBuffedStarttime(BuffStat.COMBO) -
+        duration += (int) ((getBuffedStartTime(BuffStat.COMBO) -
                 System.currentTimeMillis()));
 
         client.write(MaplePacketCreator.giveBuff(1111002, duration, stat, ceffect));
@@ -2096,22 +2092,22 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public MonsterBook getMonsterBook() {
-        return monsterbook;
+        return monsterBook;
     }
 
-    public void setMap(GameMap newmap) {
-        this.map = newmap;
+    public void setMap(GameMap newMap) {
+        this.map = newMap;
     }
 
-    public void setMap(int PmapId) {
-        this.mapid = PmapId;
+    public void setMap(int newMapId) {
+        this.mapId = newMapId;
     }
 
     public int getMapId() {
         if (map != null) {
             return map.getId();
         }
-        return mapid;
+        return mapId;
     }
 
     public int getInitialSpawnpoint() {
@@ -2195,7 +2191,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getRemainingSp() {
-        return remainingSp[GameConstants.getSkillBook(job)]; //default
+        return remainingSp[GameConstants.getSkillBook(jobId)]; //default
     }
 
     public int getRemainingSp(final int skillbook) {
@@ -2234,15 +2230,15 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getSkinColor() {
-        return skinColor;
+        return skinColorId;
     }
 
     public void setSkinColor(int skinColor) {
-        this.skinColor = skinColor;
+        this.skinColorId = skinColor;
     }
 
     public int getJob() {
-        return job;
+        return jobId;
     }
 
     public int getGender() {
@@ -2250,11 +2246,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getHair() {
-        return hair;
+        return hairId;
     }
 
     public int getFace() {
-        return face;
+        return faceId;
     }
 
     public void setName(String name) {
@@ -2266,11 +2262,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void setHair(int hair) {
-        this.hair = hair;
+        this.hairId = hair;
     }
 
     public void setFace(int face) {
-        this.face = face;
+        this.faceId = face;
     }
 
     public void setFame(int fame) {
@@ -2299,7 +2295,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void setRemainingSp(int remainingSp) {
-        this.remainingSp[GameConstants.getSkillBook(job)] = remainingSp; //default
+        this.remainingSp[GameConstants.getSkillBook(jobId)] = remainingSp; //default
     }
 
     public void setRemainingSp(int remainingSp, final int skillbook) {
@@ -2311,11 +2307,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public CheatTracker getCheatTracker() {
-        return anticheat;
+        return cheatTracker;
     }
 
     public BuddyList getBuddylist() {
-        return buddylist;
+        return buddies;
     }
 
     public void addFame(int famechange) {
@@ -2394,7 +2390,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             public void run() {
                 if (map.getHPDec() < 1 || !isAlive()) {
                     return;
-                } else if (getInventory(InventoryType.EQUIPPED).findById(map.getHPDecProtect()) ==
+                } else if (getInventoryType(InventoryType.EQUIPPED).findById(map.getHPDecProtect()) ==
                         null) {
                     addHP(-map.getHPDec());
                 }
@@ -2403,8 +2399,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void changeJob(int newJob) {
-        final boolean isEv = GameConstants.isEvan(job);
-        this.job = (short) newJob;
+        final boolean isEv = GameConstants.isEvan(jobId);
+        this.jobId = (short) newJob;
         if (newJob != 0 && newJob != 1000 && newJob != 2000 && newJob != 2001) {
             if (GameConstants.isEvan(newJob)) {
                 remainingSp[GameConstants.getSkillBook(newJob)] += 3;
@@ -2431,7 +2427,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
         int maxhp = stats.getMaxHp(), maxmp = stats.getMaxMp();
 
-        switch (job) {
+        switch (jobId) {
             case 100: // Warrior
             case 1100: // Soul Master
             case 2100: // Aran
@@ -2510,16 +2506,16 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             if (newJob == 2217) {
                 for (int i : Skill.evanskills1) {
                     final ISkill skil = SkillFactory.getSkill(i);
-                    if (skil != null && getSkillLevel(skil) <= 0 &&
-                            getMasterLevel(skil) <= 0) {
+                    if (skil != null && getCurrentSkillLevel(skil) <= 0 &&
+                            getMasterSkillLevel(skil) <= 0) {
                         changeSkillLevel(skil, (byte) skil.getMaxLevel(), (byte) skil.getMaxLevel());
                     }
                 }
             } else if (newJob == 2218) {
                 for (int i : Skill.evanskills2) {
                     final ISkill skil = SkillFactory.getSkill(i);
-                    if (skil != null && getSkillLevel(skil) <= 0 &&
-                            getMasterLevel(skil) <= 0) {
+                    if (skil != null && getCurrentSkillLevel(skil) <= 0 &&
+                            getMasterSkillLevel(skil) <= 0) {
                         changeSkillLevel(skil, (byte) skil.getMaxLevel(), (byte) skil.getMaxLevel());
                     }
                 }
@@ -2528,8 +2524,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         } else if (newJob >= 431 && newJob <= 434) { //master skills
             for (int i : Skill.skills) {
                 final ISkill skil = SkillFactory.getSkill(i);
-                if (skil != null && getSkillLevel(skil) <= 0 &&
-                        getMasterLevel(skil) <= 0) {
+                if (skil != null && getCurrentSkillLevel(skil) <= 0 &&
+                        getMasterSkillLevel(skil) <= 0) {
                     changeSkillLevel(skil, (byte) 0, (byte) skil.getMasterLevel());
                 }
             }
@@ -2550,7 +2546,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void gainSP(int sp) {
-        this.remainingSp[GameConstants.getSkillBook(job)] += sp; //default
+        this.remainingSp[GameConstants.getSkillBook(jobId)] += sp; //default
         client.write(MaplePacketCreator.updateSp(this, false));
         client.write(UIPacket.getSPMsg((byte) sp));
     }
@@ -2604,7 +2600,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
         }
 
-        if (job != 0 && job != 1000 && job != 2000 && job != 2001) {
+        if (jobId != 0 && jobId != 1000 && jobId != 2000 && jobId != 2001) {
             int charms = getItemQuantity(5130000, false);
             if (charms > 0) {
                 InventoryManipulator.removeById(client, InventoryType.CASH, 5130000, 1, true, false);
@@ -2622,7 +2618,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                     diepercentage = 0.01f;
                 } else {
                     float v8 = 0.0f;
-                    if (this.job / 100 == 3) {
+                    if (this.jobId / 100 == 3) {
                         v8 = 0.08f;
                     } else {
                         v8 = 0.2f;
@@ -2728,7 +2724,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void gainExp(final int total, final boolean show, final boolean inChat, final boolean white) {
-        if (level == 200 || (GameConstants.isKOC(job) && level == 120)) {
+        if (level == 200 || (GameConstants.isKOC(jobId) && level == 120)) {
             final int needed = GameConstants.getExpNeededForLevel(level);
             if (exp + total > needed) {
                 setExp(needed);
@@ -2763,68 +2759,73 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
     }
 
-    public void gainExpMonster(final int gain, final boolean show, final boolean white, final byte pty, final int CLASS_EXP) {
+    public void gainExpMonster(final int gain, final boolean show, final boolean white, final byte partyMembers, final int CLASS_EXP) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getDefault());
         int day = cal.get(Calendar.DAY_OF_WEEK);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int base_EXP = 0;
-        int Event_EXP = 0;
-        int Wedding_EXP = 0;
-        int Party_Ring_EXP = 0;
-        int Party_EXP = 0;
-        int Premium_EXP = 0;
-        int Item_EXP = 0;
-        int Rainbow_EXP = 0;
+        int eventExp = 0;
+        int weddingExp = 0;
+        int partyRingExp = 0;
+        int partyExp = 0;
+        int premiumExp = 0;
+        int itemExp = 0;
+        int rainbowExp = 0;
+
+        int baseExp = gain;
         if ((haveItem(5210006, 1, false, true) && hour > 22 && hour < 2) ||
                 (haveItem(5210007, 1, false, true) && hour > 2 && hour < 6) ||
                 (haveItem(5210008, 1, false, true) && hour > 6 && hour < 10) ||
                 (haveItem(5210009, 1, false, true) && hour > 10 && hour < 14) ||
                 (haveItem(5210010, 1, false, true) && hour > 14 && hour < 18) ||
                 (haveItem(5210011, 1, false, true) && hour > 18 && hour < 22)) {
-            base_EXP = gain * 2;
-        } else {
-            base_EXP = gain;
+            baseExp *= 2;
         }
+
         if (level >= 1 && level <= 10) {
-            Event_EXP = (int) (base_EXP * 0.1);
-            Premium_EXP = (int) (base_EXP * 0.1);
-            Item_EXP = (int) (base_EXP * 0.1);
+            eventExp = (int) (baseExp * 0.1);
+            premiumExp = (int) (baseExp * 0.1);
+            itemExp = (int) (baseExp * 0.1);
         }
-        if ((haveItem(1112127, 1, true, true))) { // Welcome Back Ring | must be equipped in order to work
-            Party_Ring_EXP = (int) (base_EXP * 0.8);
+
+        if ((haveItem(1112127, 1, true, true))) {
+            // Welcome Back Ring | must be equipped in order to work
+            partyRingExp = (int) (baseExp * 0.8);
         }
-        if (pty > 1) {
-            Party_EXP = (int) (((float) (base_EXP / 10)) * (pty + 1)); // 10%
+
+        if (partyMembers > 1) {
+            partyExp = (int) (((float) (baseExp / 10)) * (partyMembers + 1)); // 10%
         }
-        if (day == 7 || day == 1) { // Saturday and Sunday
-            Rainbow_EXP = (int) (base_EXP * 0.1);
+        if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+            // Saturday and Sunday
+            rainbowExp = (int) (baseExp * 0.1);
         }
-        if (level == 200 || (GameConstants.isKOC(job) && level == 120)) {
+        if (level == 200 || (GameConstants.isKOC(jobId) && level == 120)) {
             final int needed = GameConstants.getExpNeededForLevel(level);
-            if (exp + base_EXP > needed) {
+            if (exp + baseExp > needed) {
                 setExp(needed);
             } else {
-                exp += base_EXP + Event_EXP + Wedding_EXP + Party_Ring_EXP +
-                        Party_EXP + Premium_EXP + Item_EXP + Rainbow_EXP +
+                exp += baseExp + eventExp + weddingExp + partyRingExp +
+                        partyExp + premiumExp + itemExp + rainbowExp +
                         CLASS_EXP;
             }
         } else {
-            if (exp + base_EXP >= GameConstants.getExpNeededForLevel(level)) {
-                exp += base_EXP;
+            if (exp + baseExp >= GameConstants.getExpNeededForLevel(level)) {
+                exp += baseExp;
                 levelUp();
                 final int needed = GameConstants.getExpNeededForLevel(level);
                 if (exp > needed) {
                     setExp(needed);
                 }
             } else {
-                exp += base_EXP + Event_EXP + Wedding_EXP + Party_Ring_EXP +
-                        Party_EXP + Premium_EXP + Item_EXP + Rainbow_EXP +
+                exp += baseExp + eventExp + weddingExp + partyRingExp +
+                        partyExp + premiumExp + itemExp + rainbowExp +
                         CLASS_EXP;
             }
         }
         if (gain != 0) {
-            if (exp < 0) { // After adding, and negative
+            if (exp < 0) {
+                // After adding, and negative
                 if (gain > 0) {
                     setExp(GameConstants.getExpNeededForLevel(level));
                 } else if (gain < 0) {
@@ -2832,8 +2833,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 }
             }
             updateSingleStat(Stat.EXP, getExp());
-            if (show) { // still show the expgain even if it's not there
-                client.write(MaplePacketCreator.GainEXP_Monster(base_EXP, white, Event_EXP, Wedding_EXP, Party_Ring_EXP, Party_EXP, Premium_EXP, Item_EXP, Rainbow_EXP, CLASS_EXP));
+            if (show) {
+                // still show the expgain even if it's not there
+                client.write(MaplePacketCreator.GainEXP_Monster(baseExp, white, eventExp, weddingExp, partyRingExp, partyExp, premiumExp, itemExp, rainbowExp, CLASS_EXP));
             }
         }
     }
@@ -2861,11 +2863,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         return gmLevel >= level;
     }
 
-    public final Inventory getInventory(InventoryType type) {
-        return inventory[type.ordinal()];
+    public final Inventory getInventoryType(InventoryType type) {
+        return inventory.get(type);
     }
 
-    public final Inventory[] getInventorys() {
+    public final PlayerInventory getInventories() {
         return inventory;
     }
 
@@ -3014,24 +3016,24 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         return Collections.unmodifiableMap(skills);
     }
 
-    public byte getSkillLevel(final ISkill skill) {
+    public byte getCurrentSkillLevel(final ISkill skill) {
         final SkillEntry ret = skills.get(skill);
         if (ret == null) {
             return 0;
         }
-        return ret.skillevel;
+        return ret.getCurrentLevel();
     }
 
-    public byte getMasterLevel(final ISkill skill) {
+    public byte getMasterSkillLevel(final ISkill skill) {
         final SkillEntry ret = skills.get(skill);
         if (ret == null) {
             return 0;
         }
-        return ret.masterlevel;
+        return ret.getMasterLevel();
     }
 
     public void levelUp() {
-        if (GameConstants.isKOC(job)) {
+        if (GameConstants.isKOC(jobId)) {
             if (level <= 70) {
                 remainingAp += 6;
             } else {
@@ -3042,68 +3044,81 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
         int maxhp = stats.getMaxHp();
         int maxmp = stats.getMaxMp();
-        if (job == 0 || job == 1000 || job == 2000) { // Beginner
+        if (jobId == 0 || jobId == 1000 || jobId == 2000) {
+            // Beginner
             maxhp += Randomizer.rand(12, 16);
             maxmp += Randomizer.rand(10, 12);
-        } else if (job >= 100 && job <= 132) { // Warrior
+        } else if (jobId >= 100 && jobId <= 132) {
+            // Warrior
             final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
-            final int slevel = getSkillLevel(improvingMaxHP);
+            final int slevel = getCurrentSkillLevel(improvingMaxHP);
             if (slevel > 0) {
                 maxhp += improvingMaxHP.getEffect(slevel).getX();
             }
             maxhp += Randomizer.rand(24, 28);
             maxmp += Randomizer.rand(4, 6);
-        } else if (job >= 200 && job <= 232) { // Magician
+        } else if (jobId >= 200 && jobId <= 232) {
+            // Magician
             final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
-            final int slevel = getSkillLevel(improvingMaxMP);
-            if (slevel > 0) {
-                maxmp += improvingMaxMP.getEffect(slevel).getX() * 2;
+            final int skillLevel = getCurrentSkillLevel(improvingMaxMP);
+            if (skillLevel > 0) {
+                maxmp += improvingMaxMP.getEffect(skillLevel).getX() * 2;
             }
             maxhp += Randomizer.rand(10, 14);
             maxmp += Randomizer.rand(22, 24);
-        } else if ((job >= 300 && job <= 322) || (job >= 400 && job <= 434) ||
-                (job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) { // Bowman, Thief, Wind Breaker and Night Walker
+        } else if ((jobId >= 300 && jobId <= 322) ||
+                (jobId >= 400 && jobId <= 434) ||
+                (jobId >= 1300 && jobId <= 1311) ||
+                (jobId >= 1400 && jobId <= 1411)) {
+            // Bowman, Thief, Wind Breaker and Night Walker
             maxhp += Randomizer.rand(20, 24);
             maxmp += Randomizer.rand(14, 16);
-        } else if (job >= 500 && job <= 522) { // Pirate
+        } else if (jobId >= 500 && jobId <= 522) {
+            // Pirate
             final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
-            final int slevel = getSkillLevel(improvingMaxHP);
+            final int slevel = getCurrentSkillLevel(improvingMaxHP);
             if (slevel > 0) {
                 maxhp += improvingMaxHP.getEffect(slevel).getX();
             }
             maxhp += Randomizer.rand(22, 26);
             maxmp += Randomizer.rand(18, 22);
-        } else if (job >= 1100 && job <= 1111) { // Soul Master
+        } else if (jobId >= 1100 && jobId <= 1111) {
+            // Soul Master
             final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
-            final int slevel = getSkillLevel(improvingMaxHP);
+            final int slevel = getCurrentSkillLevel(improvingMaxHP);
             if (slevel > 0) {
                 maxhp += improvingMaxHP.getEffect(slevel).getX();
             }
             maxhp += Randomizer.rand(24, 28);
             maxmp += Randomizer.rand(4, 6);
-        } else if (job >= 1200 && job <= 1211) { // Flame Wizard
+        } else if (jobId >= 1200 && jobId <= 1211) {
+            // Flame Wizard
             final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
-            final int slevel = getSkillLevel(improvingMaxMP);
+            final int slevel = getCurrentSkillLevel(improvingMaxMP);
             if (slevel > 0) {
                 maxmp += improvingMaxMP.getEffect(slevel).getX() * 2;
             }
             maxhp += Randomizer.rand(10, 14);
             maxmp += Randomizer.rand(22, 24);
-        } else if (job >= 2200 && job <= 2218) { // Evan
+        } else if (jobId >= 2200 && jobId <= 2218) {
+            // Evan
             maxhp += Randomizer.rand(12, 16);
             maxmp += Randomizer.rand(50, 52);
-        } else if (job >= 1500 && job <= 1512) { // Pirate
+        } else if (jobId >= 1500 && jobId <= 1512) {
+            // Pirate
             final ISkill improvingMaxHP = SkillFactory.getSkill(15100000);
-            final int slevel = getSkillLevel(improvingMaxHP);
+            final int slevel = getCurrentSkillLevel(improvingMaxHP);
             if (slevel > 0) {
                 maxhp += improvingMaxHP.getEffect(slevel).getX();
             }
             maxhp += Randomizer.rand(22, 26);
             maxmp += Randomizer.rand(18, 22);
-        } else if (job >= 2100 && job <= 2112) { // Aran
+        } else if (jobId >= 2100 && jobId <= 2112) {
+            // Aran
             maxhp += Randomizer.rand(50, 52);
             maxmp += Randomizer.rand(4, 6);
-        } else { // GameMaster
+        } else {
+            // GameMaster
             maxhp += Randomizer.rand(50, 100);
             maxmp += Randomizer.rand(50, 100);
         }
@@ -3113,7 +3128,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         if (level == 200 && !isGM()) {
             try {
                 final StringBuilder sb = new StringBuilder("[Congratulation] ");
-                final IItem medal = getInventory(InventoryType.EQUIPPED).getItem((byte) -46);
+                final IItem medal = getInventoryType(InventoryType.EQUIPPED).getItem((byte) -46);
                 if (medal != null) { // Medal
                     sb.append("<");
                     sb.append(ItemInfoProvider.getInstance().getName(medal.getItemId()));
@@ -3135,8 +3150,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         statup.add(new Pair<Stat, Integer>(Stat.MP, maxmp));
         statup.add(new Pair<Stat, Integer>(Stat.EXP, exp));
         statup.add(new Pair<Stat, Integer>(Stat.LEVEL, (int) level));
-        if (job != 0 && job != 1000 && job != 2000 && job != 2001) { // Not Beginner, Nobless and Legend
-            remainingSp[GameConstants.getSkillBook(job)] += 3;
+        if (jobId != 0 && jobId != 1000 && jobId != 2000 && jobId != 2001) { // Not Beginner, Nobless and Legend
+            remainingSp[GameConstants.getSkillBook(jobId)] += 3;
             client.write(MaplePacketCreator.updateSp(this, false));
         } else {
             if (level <= 10) {
@@ -3465,8 +3480,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         doors.clear();
     }
 
-    public List<Door> getDoors() {
-        return new ArrayList<Door>(doors);
+    public ImmutableList<Door> getDoors() {
+        return ImmutableList.copyOf(doors);
     }
 
     public void setSmega() {
@@ -3525,43 +3540,43 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getGuildId() {
-        return guildid;
+        return guildId;
     }
 
     public int getGuildRank() {
-        return guildrank;
+        return guildRank;
     }
 
     public void setGuildId(int _id) {
-        guildid = _id;
-        if (guildid > 0) {
-            if (mgc == null) {
-                mgc = new GuildCharacter(this);
+        guildId = _id;
+        if (guildId > 0) {
+            if (guildCharacter == null) {
+                guildCharacter = new GuildCharacter(this);
             } else {
-                mgc.setGuildId(guildid);
+                guildCharacter.setGuildId(guildId);
             }
         } else {
-            mgc = null;
+            guildCharacter = null;
         }
     }
 
     public void setGuildRank(int _rank) {
-        guildrank = _rank;
-        if (mgc != null) {
-            mgc.setGuildRank(_rank);
+        guildRank = _rank;
+        if (guildCharacter != null) {
+            guildCharacter.setGuildRank(_rank);
         }
     }
 
     public GuildCharacter getMGC() {
-        return mgc;
+        return guildCharacter;
     }
 
-    public void setAllianceRank(int rank) {
-        allianceRank = rank;
+    public void setGuildUnionRank(int rank) {
+        guildUnionRank = rank;
     }
 
-    public int getAllianceRank() {
-        return allianceRank;
+    public int getGuildUnionRank() {
+        return guildUnionRank;
     }
 
     public Guild getGuild() {
@@ -3574,14 +3589,14 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void guildUpdate() {
-        if (guildid <= 0) {
+        if (guildId <= 0) {
             return;
         }
-        mgc.setLevel((short) level);
-        mgc.setJobId(job);
+        guildCharacter.setLevel((short) level);
+        guildCharacter.setJobId(jobId);
 
         try {
-            client.getChannelServer().getWorldInterface().memberLevelJobUpdate(mgc);
+            client.getChannelServer().getWorldInterface().memberLevelJobUpdate(guildCharacter);
         } catch (RemoteException re) {
             System.err.println("RemoteExcept while trying to update level/job in guild." +
                     re);
@@ -3596,8 +3611,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?");
-            ps.setInt(1, guildid);
-            ps.setInt(2, guildrank);
+            ps.setInt(1, guildId);
+            ps.setInt(2, guildRank);
             ps.setInt(3, id);
             ps.execute();
             ps.close();
@@ -3606,24 +3621,24 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
     }
 
-    public GuildUnion getAlliance() {
-        return union;
+    public GuildUnion getGuildUnion() {
+        return guildUnion;
     }
 
     public void modifyCSPoints(int type, int quantity, boolean show) {
         if (getNX() < 0) {
-            acash = 0;
+            aCash = 0;
         }
         if (getNX() > 1000000) {
-            acash = 900000;
+            aCash = 900000;
         }
         if (getNX() + quantity < 900000) {
             switch (type) {
                 case 1:
-                    acash += quantity;
+                    aCash += quantity;
                     break;
                 case 2:
-                    maplepoints += quantity;
+                    maplePoints += quantity;
                     break;
                 default:
                     break;
@@ -3640,23 +3655,23 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     public int getCSPoints(int type) {
         switch (type) {
             case 1:
-                return acash;
+                return aCash;
             case 2:
-                return maplepoints;
+                return maplePoints;
             default:
                 return 0;
         }
     }
 
-    public final boolean haveItem(int itemid, int quantity, boolean checkEquipped, boolean greaterOrEquals) {
-        int possesed = inventory[GameConstants.getInventoryType(itemid).ordinal()].countById(itemid);
+    public final boolean haveItem(int itemId, int quantity, boolean checkEquipped, boolean greaterOrEquals) {
+        int count = inventory.get(GameConstants.getInventoryType(itemId)).countById(itemId);
         if (checkEquipped) {
-            possesed += inventory[InventoryType.EQUIPPED.ordinal()].countById(itemid);
+            count += inventory.get(InventoryType.EQUIPPED).countById(itemId);
         }
         if (greaterOrEquals) {
-            return possesed >= quantity;
+            return count >= quantity;
         } else {
-            return possesed == quantity;
+            return count == quantity;
         }
     }
 
@@ -3669,7 +3684,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         if (ret == null) {
             return 0;
         }
-        return ret.skillevel;
+        return ret.getCurrentLevel();
     }
 
     public static enum FameStatus {
@@ -3680,11 +3695,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getBuddyCapacity() {
-        return buddylist.getCapacity();
+        return buddies.getCapacity();
     }
 
     public void setBuddyCapacity(int capacity) {
-        buddylist.setCapacity(capacity);
+        buddies.setCapacity(capacity);
         client.write(MaplePacketCreator.updateBuddyCapacity(capacity));
     }
 
@@ -3697,11 +3712,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getMessengerPosition() {
-        return messengerposition;
+        return messengerPosition;
     }
 
     public void setMessengerPosition(int position) {
-        this.messengerposition = position;
+        this.messengerPosition = position;
     }
 
     public void addCooldown(int skillId, long startTime, long length, ScheduledFuture<?> timer) {
@@ -3714,20 +3729,20 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
     }
 
-    public boolean skillisCooling(int skillId) {
+    public boolean isInCooldown(int skillId) {
         return cooldowns.containsKey(Integer.valueOf(skillId));
     }
 
-    public void giveCoolDowns(final int skillid, long starttime, long length) {
+    public void giveCooldowns(final int skillid, long starttime, long length) {
         int time = (int) ((length + starttime) - System.currentTimeMillis());
         ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, skillid), time);
         addCooldown(skillid, System.currentTimeMillis(), time, timer);
     }
 
-    public void giveCoolDowns(final List<PlayerCoolDownValueHolder> cooldowns) {
+    public void giveCooldowns(final List<PlayerCooldownValueHolder> cooldowns) {
         int time;
         if (cooldowns != null) {
-            for (PlayerCoolDownValueHolder cooldown : cooldowns) {
+            for (PlayerCooldownValueHolder cooldown : cooldowns) {
                 time = (int) ((cooldown.length + cooldown.startTime) -
                         System.currentTimeMillis());
                 ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, cooldown.skillId), time);
@@ -3744,7 +3759,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                             System.currentTimeMillis() <= 0) {
                         continue;
                     }
-                    giveCoolDowns(rs.getInt("SkillID"), rs.getLong("StartTime"), rs.getLong("length"));
+                    giveCooldowns(rs.getInt("SkillID"), rs.getLong("StartTime"), rs.getLong("length"));
                 }
                 deleteByCharacterId(con, "DELETE FROM skills_cooldowns WHERE charid = ?");
 
@@ -3754,10 +3769,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
     }
 
-    public List<PlayerCoolDownValueHolder> getAllCooldowns() {
-        List<PlayerCoolDownValueHolder> ret = new ArrayList<PlayerCoolDownValueHolder>();
+    public List<PlayerCooldownValueHolder> getAllCooldowns() {
+        List<PlayerCooldownValueHolder> ret = new ArrayList<PlayerCooldownValueHolder>();
         for (CooldownValueHolder mcdvh : cooldowns.values()) {
-            ret.add(new PlayerCoolDownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
+            ret.add(new PlayerCooldownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
         }
         return ret;
     }
@@ -3940,7 +3955,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
 
         ISkill BerserkX = SkillFactory.getSkill(1320006);
-        final int skilllevel = getSkillLevel(BerserkX);
+        final int skilllevel = getCurrentSkillLevel(BerserkX);
         if (skilllevel >= 1) {
             StatEffect ampStat = BerserkX.getEffect(skilllevel);
 
@@ -3971,7 +3986,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             beholderBuffSchedule.cancel(false);
         }
         ISkill bHealing = SkillFactory.getSkill(1320008);
-        int bHealingLvl = getSkillLevel(bHealing);
+        int bHealingLvl = getCurrentSkillLevel(bHealing);
         if (bHealingLvl > 0) {
             final StatEffect healEffect = bHealing.getEffect(bHealingLvl);
             int healInterval = healEffect.getX() * 1000;
@@ -3987,7 +4002,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             }, healInterval, healInterval);
         }
         ISkill bBuff = SkillFactory.getSkill(1320009);
-        int bBuffLvl = getSkillLevel(bBuff);
+        int bBuffLvl = getCurrentSkillLevel(bBuff);
         if (bBuffLvl > 0) {
             final StatEffect buffEffect = bBuff.getEffect(bBuffLvl);
             int buffInterval = buffEffect.getX() * 1000;
@@ -4105,12 +4120,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         this.playerShop = playerShop;
     }
 
-    public int getConversation() {
-        return inst.get();
+    public int getConversationState() {
+        return conversationState.get();
     }
 
-    public void setConversation(int inst) {
-        this.inst.set(inst);
+    public void setConversationState(int state) {
+        this.conversationState.set(state);
     }
 
     public CarnivalParty getCarnivalParty() {
@@ -4168,7 +4183,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public int getSubcategory() {
-        if (job >= 430 && job <= 434) {
+        if (jobId >= 430 && jobId <= 434) {
             return 1; //dont set it
         }
         return subcategory;

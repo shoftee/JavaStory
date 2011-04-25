@@ -15,7 +15,7 @@ import handling.world.Party;
 import handling.world.PartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
-import handling.world.PlayerCoolDownValueHolder;
+import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
 import handling.world.guild.Guild;
 import handling.world.guild.GuildCharacter;
@@ -112,9 +112,9 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
 
     public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException;
 
-    public void addCooldownsToStorage(int chrid, List<PlayerCoolDownValueHolder> toStore) throws RemoteException;
+    public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException;
 
-    public List<PlayerCoolDownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException;
+    public List<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException;
 
     public void addDiseaseToStorage(int chrid, List<PlayerDiseaseValueHolder> toStore) throws RemoteException;
 

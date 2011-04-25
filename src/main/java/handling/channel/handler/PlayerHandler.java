@@ -106,14 +106,14 @@ public class PlayerHandler {
     }
 
     public static final void handleUseChair(final int itemId, final GameClient c, final GameCharacter chr) {
-        final IItem toUse = chr.getInventory(InventoryType.SETUP).findById(itemId);
+        final IItem toUse = chr.getInventoryType(InventoryType.SETUP).findById(itemId);
 
         if (toUse == null || toUse.getItemId() != itemId) {
             chr.getCheatTracker().registerOffense(CheatingOffense.USING_UNAVAILABLE_ITEM, Integer.toString(itemId));
             return;
         }
         if (itemId == 3011000) {
-            for (IItem item : c.getPlayer().getInventory(InventoryType.CASH).list()) {
+            for (IItem item : c.getPlayer().getInventoryType(InventoryType.CASH).list()) {
                 if (item.getItemId() == 5340000) {
                     chr.startFishingTask(false);
                     break;
@@ -243,22 +243,22 @@ public class PlayerHandler {
                 switch (chr.getJob()) {
                     case 112: {
                         final ISkill skill = SkillFactory.getSkill(1120004);
-                        if (chr.getSkillLevel(skill) > 0) {
-                            damage = (int) ((skill.getEffect(chr.getSkillLevel(skill)).getX() / 1000.0) * damage);
+                        if (chr.getCurrentSkillLevel(skill) > 0) {
+                            damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
                         }
                         break;
                     }
                     case 122: {
                         final ISkill skill = SkillFactory.getSkill(1220005);
-                        if (chr.getSkillLevel(skill) > 0) {
-                            damage = (int) ((skill.getEffect(chr.getSkillLevel(skill)).getX() / 1000.0) * damage);
+                        if (chr.getCurrentSkillLevel(skill) > 0) {
+                            damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
                         }
                         break;
                     }
                     case 132: {
                         final ISkill skill = SkillFactory.getSkill(1320005);
-                        if (chr.getSkillLevel(skill) > 0) {
-                            damage = (int) ((skill.getEffect(chr.getSkillLevel(skill)).getX() / 1000.0) * damage);
+                        if (chr.getCurrentSkillLevel(skill) > 0) {
+                            damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
                         }
                         break;
                     }
@@ -347,7 +347,7 @@ public class PlayerHandler {
     }
 
     public static final void handleUseItemEffect(final int itemId, final GameClient c, final GameCharacter chr) {
-        final IItem toUse = chr.getInventory(InventoryType.CASH).findById(itemId);
+        final IItem toUse = chr.getInventoryType(InventoryType.CASH).findById(itemId);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -380,7 +380,7 @@ public class PlayerHandler {
         final byte unk = reader.readByte(); // Added on v.82
 
         final ISkill skill = SkillFactory.getSkill(skillId);
-        final int skilllevel_serv = chr.getSkillLevel(skill);
+        final int skilllevel_serv = chr.getCurrentSkillLevel(skill);
 
         if (skilllevel_serv > 0 && skilllevel_serv == level && skill.isChargeSkill() && level > 0) {
             chr.setKeyDownSkill_Time(System.currentTimeMillis());
@@ -398,7 +398,7 @@ public class PlayerHandler {
         final int skillLevel = reader.readByte();
         final ISkill skill = SkillFactory.getSkill(skillid);
 
-        if (chr.getSkillLevel(skill) == 0 || chr.getSkillLevel(skill) != skillLevel) {
+        if (chr.getCurrentSkillLevel(skill) == 0 || chr.getCurrentSkillLevel(skill) != skillLevel) {
             if (!GameConstants.isMulungSkill(skillid)) {
                 c.disconnect(true);
                 return;
@@ -409,10 +409,10 @@ public class PlayerHandler {
                 chr.mulung_EnergyModify(false);
             }
         }
-        final StatEffect effect = skill.getEffect(chr.getSkillLevel(skill));
+        final StatEffect effect = skill.getEffect(chr.getCurrentSkillLevel(skill));
 
         if (effect.getCooldown() > 0) {
-            if (chr.skillisCooling(skillid)) {
+            if (chr.isInCooldown(skillid)) {
                 c.write(MaplePacketCreator.enableActions());
                 return;
             }
@@ -485,7 +485,7 @@ public class PlayerHandler {
 
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
-            skillLevel = chr.getSkillLevel(skill);
+            skillLevel = chr.getCurrentSkillLevel(skill);
             if (skillLevel == 0) {
                 c.disconnect(true);
                 return;
@@ -495,7 +495,7 @@ public class PlayerHandler {
             attackCount = effect.getAttackCount();
 
             if (effect.getCooldown() > 0) {
-                if (chr.skillisCooling(attack.skill)) {
+                if (chr.isInCooldown(attack.skill)) {
                     c.write(MaplePacketCreator.enableActions());
                     return;
                 }
@@ -542,7 +542,7 @@ public class PlayerHandler {
         }
         // handle sacrifice hp loss
         if (attack.targets > 0 && attack.skill == 1211002) { // handle charged blow
-            final int advcharge_level = chr.getSkillLevel(SkillFactory.getSkill(1220010));
+            final int advcharge_level = chr.getCurrentSkillLevel(SkillFactory.getSkill(1220010));
             if (advcharge_level > 0) {
                 if (!SkillFactory.getSkill(1220010).getEffect(advcharge_level).makeChanceResult()) {
                     chr.cancelEffectFromBuffStat(BuffStat.WK_CHARGE);
@@ -561,7 +561,7 @@ public class PlayerHandler {
             } else {
                 combo = SkillFactory.getSkill(1111002);
             }
-            maxdamage *= 1.0 + (combo.getEffect(c.getPlayer().getSkillLevel(combo)).getDamage() / 100.0 - 1.0) * (comboBuff.intValue() - 1);
+            maxdamage *= 1.0 + (combo.getEffect(c.getPlayer().getCurrentSkillLevel(combo)).getDamage() / 100.0 - 1.0) * (comboBuff.intValue() - 1);
         }
 
         if (isFinisher(attack.skill)) {
@@ -588,7 +588,7 @@ public class PlayerHandler {
 
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(attack.skill);
-            skillLevel = chr.getSkillLevel(skill);
+            skillLevel = chr.getCurrentSkillLevel(skill);
             if (skillLevel == 0) {
                 c.disconnect(true);
                 return;
@@ -605,7 +605,7 @@ public class PlayerHandler {
                     break;
             }
             if (effect.getCooldown() > 0) {
-                if (chr.skillisCooling(attack.skill)) {
+                if (chr.isInCooldown(attack.skill)) {
                     c.write(MaplePacketCreator.enableActions());
                     return;
                 }
@@ -619,10 +619,10 @@ public class PlayerHandler {
         }
         int projectile = 0, visProjectile = 0;
         if (attack.AOE != 0 && chr.getBuffedValue(BuffStat.SOULARROW) == null && attack.skill != 4111004) {
-            projectile = chr.getInventory(InventoryType.USE).getItem(attack.slot).getItemId();
+            projectile = chr.getInventoryType(InventoryType.USE).getItem(attack.slot).getItemId();
 
             if (attack.csstar > 0) {
-                visProjectile = chr.getInventory(InventoryType.CASH).getItem(attack.csstar).getItemId();
+                visProjectile = chr.getInventoryType(InventoryType.CASH).getItem(attack.csstar).getItemId();
             } else {
                 visProjectile = projectile;
             }
@@ -689,7 +689,7 @@ public class PlayerHandler {
         }
         final AttackInfo attack = DamageParse.parseDmgMa(reader);
         final ISkill skill = SkillFactory.getSkill(attack.skill);
-        final int skillLevel = chr.getSkillLevel(skill);
+        final int skillLevel = chr.getCurrentSkillLevel(skill);
         if (skillLevel == 0) {
             c.disconnect(true);
             return;
@@ -697,7 +697,7 @@ public class PlayerHandler {
         final StatEffect effect = attack.getAttackEffect(chr, skillLevel, skill);
 
         if (effect.getCooldown() > 0) {
-            if (chr.skillisCooling(attack.skill)) {
+            if (chr.isInCooldown(attack.skill)) {
                 c.write(MaplePacketCreator.enableActions());
                 return;
             }
@@ -737,7 +737,7 @@ public class PlayerHandler {
         if (emote > 7) {
             final int emoteid = 5159992 + emote;
             final InventoryType type = GameConstants.getInventoryType(emoteid);
-            if (chr.getInventory(type).findById(emoteid) == null) {
+            if (chr.getInventoryType(type).findById(emoteid) == null) {
                 chr.getCheatTracker().registerOffense(CheatingOffense.USING_UNAVAILABLE_ITEM, Integer.toString(emoteid));
                 return;
             }

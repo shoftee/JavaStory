@@ -26,11 +26,19 @@ import java.io.Serializable;
 public class SkillEntry implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
-    public final byte skillevel;
-    public final byte masterlevel;
+    private final byte currentLevel;
+    private final byte masterLevel;
 
-    public SkillEntry(final byte skillevel, final byte masterlevel) {
-	this.skillevel = skillevel;
-	this.masterlevel = masterlevel;
+    public SkillEntry(final byte currentLevel, final byte masterLevel) {
+	this.currentLevel = currentLevel;
+	this.masterLevel = masterLevel;
+    }
+
+    public byte getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public byte getMasterLevel() {
+        return masterLevel;
     }
 }

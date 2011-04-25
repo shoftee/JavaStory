@@ -20,13 +20,6 @@ public class DatabaseConnection {
             new ThreadLocalConnection();
     private static boolean isInitialized = false;
     private static Properties settings = null;
-    public static final int CLOSE_CURRENT_RESULT = 1;
-    public static final int KEEP_CURRENT_RESULT = 2;
-    public static final int CLOSE_ALL_RESULTS = 3;
-    public static final int SUCCESS_NO_INFO = -2;
-    public static final int EXECUTE_FAILED = -3;
-    public static final int RETURN_GENERATED_KEYS = 1;
-    public static final int NO_GENERATED_KEYS = 2;
 
     public static void initialize() {
         if (isInitialized) {

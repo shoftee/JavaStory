@@ -34,60 +34,60 @@ import tools.packet.UIPacket;
 
 public class AbstractPlayerInteraction {
 
-    private GameClient c;
+    protected GameClient client;
 
-    public AbstractPlayerInteraction(final GameClient c) {
-        this.c = c;
+    public AbstractPlayerInteraction(final GameClient client) {
+        this.client = client;
     }
 
     public final GameClient getClient() {
-        return c;
+        return client;
     }
 
     public final GameCharacter getPlayer() {
-        return c.getPlayer();
+        return client.getPlayer();
     }
 
     public final EventManager getEventManager(final String event) {
-        return c.getChannelServer().getEventSM(c.getPlayer().getWorld()).getEventManager(event);
+        return client.getChannelServer().getEventSM(client.getPlayer().getWorld()).getEventManager(event);
     }
 
     public final EventInstanceManager getEventInstance() {
-        return c.getPlayer().getEventInstance();
+        return client.getPlayer().getEventInstance();
     }
 
     public final void warp(final int map) {
         final GameMap mapz = getWarpMap(map);
-        c.getPlayer().changeMap(mapz, mapz.getPortal(Randomizer.nextInt(mapz.getPortals().size())));
+        client.getPlayer().changeMap(mapz, mapz.getPortal(Randomizer.nextInt(mapz.getPortals().size())));
     }
 
     public final void warp(final int map, final int portal) {
         final GameMap mapz = getWarpMap(map);
-        c.getPlayer().changeMap(mapz, mapz.getPortal(portal));
+        client.getPlayer().changeMap(mapz, mapz.getPortal(portal));
     }
 
     public final void warp(final int map, final String portal) {
         final GameMap mapz = getWarpMap(map);
-        c.getPlayer().changeMap(mapz, mapz.getPortal(portal));
+        client.getPlayer().changeMap(mapz, mapz.getPortal(portal));
     }
 
     public final void warpMap(final int mapid, final int portal) {
         final GameMap map = getMap(mapid);
-        for (GameCharacter chr : c.getPlayer().getMap().getCharacters()) {
+        for (GameCharacter chr : client.getPlayer().getMap().getCharacters()) {
             chr.changeMap(map, map.getPortal(portal));
         }
     }
 
     public final void playPortalSE() {
-        c.write(MaplePacketCreator.showOwnBuffEffect(0, 7));
+        client.write(MaplePacketCreator.showOwnBuffEffect(0, 7));
     }
 
     private GameMap getWarpMap(final int map) {
-        return ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(map);
+        return ChannelManager.getInstance(client.getChannelId()).getMapFactory(client.getPlayer().getWorld()).getMap(map);
     }
 
     public final GameMap getMap() {
-        return c.getPlayer().getMap();
+        return client.getPlayer().getMap();
     }
 
     public final GameMap getMap(final int map) {
@@ -100,65 +100,65 @@ public class AbstractPlayerInteraction {
 
     private void spawnMob(final int id, final int qty, final Point pos) {
         for (int i = 0; i < qty; i++) {
-            c.getPlayer().getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
+            client.getPlayer().getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
         }
     }
 
     public final void killMob(int ids) {
-        c.getPlayer().getMap().killMonster(ids);
+        client.getPlayer().getMap().killMonster(ids);
     }
 
     public final void killAllMob() {
-        c.getPlayer().getMap().killAllMonsters(true);
+        client.getPlayer().getMap().killAllMonsters(true);
     }
 
     public final void addHP(final int delta) {
-        c.getPlayer().addHP(delta);
+        client.getPlayer().addHP(delta);
     }
 
     public final int getPlayerStat(final String type) {
         if (type.equals("LVL")) {
-            return c.getPlayer().getLevel();
+            return client.getPlayer().getLevel();
         } else if (type.equals("STR")) {
-            return c.getPlayer().getStat().getStr();
+            return client.getPlayer().getStat().getStr();
         } else if (type.equals("DEX")) {
-            return c.getPlayer().getStat().getDex();
+            return client.getPlayer().getStat().getDex();
         } else if (type.equals("INT")) {
-            return c.getPlayer().getStat().getInt();
+            return client.getPlayer().getStat().getInt();
         } else if (type.equals("LUK")) {
-            return c.getPlayer().getStat().getLuk();
+            return client.getPlayer().getStat().getLuk();
         } else if (type.equals("HP")) {
-            return c.getPlayer().getStat().getHp();
+            return client.getPlayer().getStat().getHp();
         } else if (type.equals("MP")) {
-            return c.getPlayer().getStat().getMp();
+            return client.getPlayer().getStat().getMp();
         } else if (type.equals("MAXHP")) {
-            return c.getPlayer().getStat().getMaxHp();
+            return client.getPlayer().getStat().getMaxHp();
         } else if (type.equals("MAXMP")) {
-            return c.getPlayer().getStat().getMaxMp();
+            return client.getPlayer().getStat().getMaxMp();
         } else if (type.equals("RAP")) {
-            return c.getPlayer().getRemainingAp();
+            return client.getPlayer().getRemainingAp();
         } else if (type.equals("RSP")) {
-            return c.getPlayer().getRemainingSp();
+            return client.getPlayer().getRemainingSp();
         } else if (type.equals("GID")) {
-            return c.getPlayer().getGuildId();
+            return client.getPlayer().getGuildId();
         } else if (type.equals("AID")) {
-            return c.getPlayer().getGuild().getAllianceId();
+            return client.getPlayer().getGuild().getAllianceId();
         } else if (type.equals("GRANK")) {
-            return c.getPlayer().getGuildRank();
+            return client.getPlayer().getGuildRank();
         } else if (type.equals("GM")) {
-            return c.getPlayer().isGM() ? 1 : 0;
+            return client.getPlayer().isGM() ? 1 : 0;
         } else if (type.equals("GENDER")) {
-            return c.getPlayer().getGender();
+            return client.getPlayer().getGender();
         } else if (type.equals("FACE")) {
-            return c.getPlayer().getFace();
+            return client.getPlayer().getFace();
         } else if (type.equals("HAIR")) {
-            return c.getPlayer().getHair();
+            return client.getPlayer().getHair();
         }
         return -1;
     }
 
     public final String getName() {
-        return c.getPlayer().getName();
+        return client.getPlayer().getName();
     }
 
     public final boolean haveItem(final int itemid) {
@@ -170,23 +170,23 @@ public class AbstractPlayerInteraction {
     }
 
     public final boolean haveItem(final int itemid, final int quantity, final boolean checkEquipped, final boolean greaterOrEquals) {
-        return c.getPlayer().haveItem(itemid, quantity, checkEquipped, greaterOrEquals);
+        return client.getPlayer().haveItem(itemid, quantity, checkEquipped, greaterOrEquals);
     }
 
     public final boolean canHold(final int itemid) {
-        return c.getPlayer().getInventory(GameConstants.getInventoryType(itemid)).getNextFreeSlot() > -1;
+        return client.getPlayer().getInventoryType(GameConstants.getInventoryType(itemid)).getNextFreeSlot() > -1;
     }
 
     public final QuestStatus getQuestRecord(final int id) {
-        return c.getPlayer().getQuestNAdd(Quest.getInstance(id));
+        return client.getPlayer().getQuestNAdd(Quest.getInstance(id));
     }
 
     public final byte getQuestStatus(final int id) {
-        return c.getPlayer().getQuestStatus(id);
+        return client.getPlayer().getQuestStatus(id);
     }
 
     public final void forceStartQuest(final int id, final String data) {
-        Quest.getInstance(id).forceStart(c.getPlayer(), 0, data);
+        Quest.getInstance(id).forceStart(client.getPlayer(), 0, data);
     }
 
     public final void forceCompleteQuest(final int id) {
@@ -194,59 +194,59 @@ public class AbstractPlayerInteraction {
     }
 
     public void spawnNpc(final int npcId) {
-        c.getPlayer().getMap().spawnNpc(npcId, c.getPlayer().getPosition());
+        client.getPlayer().getMap().spawnNpc(npcId, client.getPlayer().getPosition());
     }
 
     public final void spawnNpc(final int npcId, final int x, final int y) {
-        c.getPlayer().getMap().spawnNpc(npcId, new Point(x, y));
+        client.getPlayer().getMap().spawnNpc(npcId, new Point(x, y));
     }
 
     public final void spawnNpc(final int npcId, final Point pos) {
-        c.getPlayer().getMap().spawnNpc(npcId, pos);
+        client.getPlayer().getMap().spawnNpc(npcId, pos);
     }
 
     public final void removeNpc(final int mapid, final int npcId) {
-        c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid).removeNpc(npcId);
+        client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid).removeNpc(npcId);
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
             if (react.getReactorId() == id) {
-                react.forceStartReactor(c);
+                react.forceStartReactor(client);
                 break;
             }
         }
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
             if (react.getReactorId() == id) {
-                react.hitReactor(c);
+                react.hitReactor(client);
                 break;
             }
         }
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        GameMap map = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
             if (react.getReactorId() == id) {
-                react.hitReactor(c);
+                react.hitReactor(client);
                 break;
             }
         }
     }
 
     public final int getJob() {
-        return c.getPlayer().getJob();
+        return client.getPlayer().getJob();
     }
 
     public int getJobId() {
@@ -254,7 +254,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void gainNX(final int amount) {
-        c.getPlayer().modifyCSPoints(1, amount, true);
+        client.getPlayer().modifyCSPoints(1, amount, true);
     }
 
     public final void gainItem(final int id, final short quantity) {
@@ -273,7 +273,7 @@ public class AbstractPlayerInteraction {
         if (quantity >= 0) {
             final ItemInfoProvider ii = ItemInfoProvider.getInstance();
             final InventoryType type = GameConstants.getInventoryType(id);
-            if (!InventoryManipulator.checkSpace(c, id, quantity, "")) {
+            if (!InventoryManipulator.checkSpace(client, id, quantity, "")) {
                 return;
             }
             if (type.equals(InventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
@@ -281,14 +281,14 @@ public class AbstractPlayerInteraction {
                 if (period > 0) {
                     item.setExpiration(System.currentTimeMillis() + period);
                 }
-                InventoryManipulator.addbyItem(c, item);
+                InventoryManipulator.addbyItem(client, item);
             } else {
-                InventoryManipulator.addById(c, id, quantity, "", null, period);
+                InventoryManipulator.addById(client, id, quantity, "", null, period);
             }
         } else {
-            InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, -quantity, true, false);
+            InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, -quantity, true, false);
         }
-        c.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
+        client.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
     }
 
     public final void changeMusic(final String songName) {
@@ -308,11 +308,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final void playerMessage(final int type, final String message) {
-        c.write(MaplePacketCreator.serverNotice(type, message));
+        client.write(MaplePacketCreator.serverNotice(type, message));
     }
 
     public final void mapMessage(final int type, final String message) {
-        c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.serverNotice(type, message));
+        client.getPlayer().getMap().broadcastMessage(MaplePacketCreator.serverNotice(type, message));
     }
 
     public final void guildMessage(final int type, final String message) {
@@ -323,7 +323,7 @@ public class AbstractPlayerInteraction {
 
     public final Guild getGuild() {
         try {
-            return c.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId(), null);
+            return client.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId(), null);
         } catch (final RemoteException ex) {
             ex.printStackTrace();
         }
@@ -331,7 +331,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final Party getParty() {
-        return c.getPlayer().getParty();
+        return client.getPlayer().getParty();
     }
 
     public final int getCurrentPartyId(int mapid) {
@@ -339,12 +339,12 @@ public class AbstractPlayerInteraction {
     }
 
     public final boolean isLeader() {
-        return getParty().getLeader().equals(new PartyCharacter(c.getPlayer()));
+        return getParty().getLeader().equals(new PartyCharacter(client.getPlayer()));
     }
 
     public final boolean isAllPartyMembersAllowedJob(final int job) {
         boolean allow = true;
-        for (final GameCharacter mem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) {
+        for (final GameCharacter mem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) {
             if (mem.getJob() / 100 != job) {
                 allow = false;
                 break;
@@ -355,8 +355,8 @@ public class AbstractPlayerInteraction {
 
     public final boolean allMembersHere() {
         boolean allHere = true;
-        for (final GameCharacter partymem : c.getChannelServer().getPartyMembers(c.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
-            if (partymem.getMapId() != c.getPlayer().getMapId()) {
+        for (final GameCharacter partymem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
+            if (partymem.getMapId() != client.getPlayer().getMapId()) {
                 allHere = false;
                 break;
             }
@@ -365,7 +365,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void warpParty(final int mapId) {
-        final int cMap = c.getPlayer().getMapId();
+        final int cMap = client.getPlayer().getMapId();
         final GameMap target = getMap(mapId);
         for (final PartyCharacter chr : getPlayer().getParty().getMembers()) {
             final GameCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
@@ -388,38 +388,38 @@ public class AbstractPlayerInteraction {
 
     public final void givePartyExp(final int amount, final List<GameCharacter> party) {
         for (final GameCharacter chr : party) {
-            chr.gainExp(amount * c.getChannelServer().getExpRate(), true, true, true);
+            chr.gainExp(amount * client.getChannelServer().getExpRate(), true, true, true);
         }
     }
 
     public final void removeFromParty(final int id, final List<GameCharacter> party) {
         for (final GameCharacter chr : party) {
-            final int possesed = chr.getInventory(GameConstants.getInventoryType(id)).countById(id);
+            final int possesed = chr.getInventoryType(GameConstants.getInventoryType(id)).countById(id);
             if (possesed > 0) {
-                InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possesed, true, false);
+                InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, possesed, true, false);
                 chr.getClient().write(MaplePacketCreator.getShowItemGain(id, (short) -possesed, true));
             }
         }
     }
 
     public final void useItem(final int id) {
-        ItemInfoProvider.getInstance().getItemEffect(id).applyTo(c.getPlayer());
-        c.write(UIPacket.getStatusMsg(id));
+        ItemInfoProvider.getInstance().getItemEffect(id).applyTo(client.getPlayer());
+        client.write(UIPacket.getStatusMsg(id));
     }
 
     public final void cancelItem(final int id) {
-        c.getPlayer().cancelEffect(ItemInfoProvider.getInstance().getItemEffect(id), false, -1);
+        client.getPlayer().cancelEffect(ItemInfoProvider.getInstance().getItemEffect(id), false, -1);
     }
 
     public final int getMorphState() {
-        return c.getPlayer().getMorphState();
+        return client.getPlayer().getMorphState();
     }
 
     public final void removeAll(final int id) {
-        final int possessed = c.getPlayer().getInventory(GameConstants.getInventoryType(id)).countById(id);
+        final int possessed = client.getPlayer().getInventoryType(GameConstants.getInventoryType(id)).countById(id);
         if (possessed > 0) {
-            InventoryManipulator.removeById(c, GameConstants.getInventoryType(id), id, possessed, true, false);
-            c.write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
+            InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, possessed, true, false);
+            client.write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
         }
     }
 
@@ -453,11 +453,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getMapId() {
-        return c.getPlayer().getMap().getId();
+        return client.getPlayer().getMap().getId();
     }
 
     public final boolean haveMonster(final int mobid) {
-        for (GameMapObject obj : c.getPlayer().getMap().getAllMonster()) {
+        for (GameMapObject obj : client.getPlayer().getMap().getAllMonster()) {
             final Monster mob = (Monster) obj;
             if (mob.getId() == mobid) {
                 return true;
@@ -467,11 +467,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getChannelNumber() {
-        return c.getChannelId();
+        return client.getChannelId();
     }
 
     public final int getMonsterCount(final int mapid) {
-        return c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid).getAllMonster().size();
+        return client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid).getAllMonster().size();
     }
 
     public final void teachSkill(final int id, final byte level, final byte masterlevel) {
@@ -479,28 +479,28 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getPlayerCount(final int mapid) {
-        return c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(mapid).getCharactersSize();
+        return client.getChannelServer().getMapFactory(client.getPlayer().getWorld()).getMap(mapid).getCharactersSize();
     }
 
     public final void dojo_getUp() {
-        c.write(MaplePacketCreator.Mulung_DojoUp());
-        c.write(MaplePacketCreator.Mulung_DojoUp2());
-        c.write(MaplePacketCreator.instantMapWarp((byte) 6));
+        client.write(MaplePacketCreator.Mulung_DojoUp());
+        client.write(MaplePacketCreator.Mulung_DojoUp2());
+        client.write(MaplePacketCreator.instantMapWarp((byte) 6));
     }
 
     public final boolean dojoAgent_NextMap(final boolean dojo, final boolean fromresting) {
         if (dojo) {
-            return Event_DojoAgent.warpNextMap(c.getPlayer(), fromresting);
+            return Event_DojoAgent.warpNextMap(client.getPlayer(), fromresting);
         }
-        return Event_DojoAgent.warpNextMap_Agent(c.getPlayer(), fromresting);
+        return Event_DojoAgent.warpNextMap_Agent(client.getPlayer(), fromresting);
     }
 
     public final int dojo_getPts() {
-        return c.getPlayer().getDojo();
+        return client.getPlayer().getDojo();
     }
 
     public final int getSavedLocation(final String loc) {
-        final Integer ret = c.getPlayer().getSavedLocation(SavedLocationType.fromString(loc));
+        final Integer ret = client.getPlayer().getSavedLocation(SavedLocationType.fromString(loc));
         if (ret == null || ret == -1) {
             return 102000000;
         }
@@ -508,71 +508,71 @@ public class AbstractPlayerInteraction {
     }
 
     public final void saveLocation(final String loc) {
-        c.getPlayer().saveLocation(SavedLocationType.fromString(loc));
+        client.getPlayer().saveLocation(SavedLocationType.fromString(loc));
     }
 
     public final void clearSavedLocation(final String loc) {
-        c.getPlayer().clearSavedLocation(SavedLocationType.fromString(loc));
+        client.getPlayer().clearSavedLocation(SavedLocationType.fromString(loc));
     }
 
     public final void summonMsg(final String msg) {
-        c.write(UIPacket.summonMessage(msg));
+        client.write(UIPacket.summonMessage(msg));
     }
 
     public final void summonMsg(final int type) {
-        c.write(UIPacket.summonMessage(type));
+        client.write(UIPacket.summonMessage(type));
     }
 
     public final void showInstruction(final String msg, final int width, final int height) {
-        c.write(MaplePacketCreator.sendHint(msg, width, height));
+        client.write(MaplePacketCreator.sendHint(msg, width, height));
     }
 
     public final void playerSummonHint(final boolean summon) {
-        c.write(UIPacket.summonHelper(summon));
+        client.write(UIPacket.summonHelper(summon));
     }
 
     public final void playerSummonMessage(final int type) {
-        c.write(UIPacket.summonMessage(type));
+        client.write(UIPacket.summonMessage(type));
     }
 
     public final void playerSummonMessage(final String message) {
-        c.write(UIPacket.summonMessage(message));
+        client.write(UIPacket.summonMessage(message));
     }
 
     public final String getInfoQuest(final int id) {
-        return c.getPlayer().getInfoQuest(id);
+        return client.getPlayer().getInfoQuest(id);
     }
 
     public final void updateInfoQuest(final int id, final String data) {
-        c.getPlayer().updateInfoQuest(id, data);
+        client.getPlayer().updateInfoQuest(id, data);
     }
 
     public final void Aran_Start() {
-        c.write(UIPacket.Aran_Start());
+        client.write(UIPacket.Aran_Start());
     }
 
     public final void AranTutInstructionalBubble(final String data) {
-        c.write(UIPacket.AranTutInstructionalBalloon(data));
+        client.write(UIPacket.AranTutInstructionalBalloon(data));
     }
 
     public final void EvanTutInstructionalBubble(final String data) {
-        c.write(UIPacket.EvanTutInstructionalBalloon(data));
+        client.write(UIPacket.EvanTutInstructionalBalloon(data));
     }
 
     public final void EvanDragonEyes() {
-        c.write(UIPacket.EvanDragonEyes());
+        client.write(UIPacket.EvanDragonEyes());
     }
 
     public final void ShowWZEffect(final String data) {
-        c.write(UIPacket.ShowWZEffect(data));
+        client.write(UIPacket.ShowWZEffect(data));
     }
 
     public final void EarnTitleMsg(final String data) {
-        c.write(UIPacket.EarnTitleMsg(data));
+        client.write(UIPacket.EarnTitleMsg(data));
     }
 
     public final void MovieClipIntroUI(final boolean enabled) {
-        c.write(UIPacket.IntroDisableUI(enabled));
-        c.write(UIPacket.IntroLock(enabled));
+        client.write(UIPacket.IntroDisableUI(enabled));
+        client.write(UIPacket.IntroLock(enabled));
     }
 }
