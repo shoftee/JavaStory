@@ -1,5 +1,6 @@
 package client;
 
+import org.javastory.client.MultiInventory;
 import java.awt.Point;
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -33,17 +34,18 @@ import handling.GamePacket;
 import handling.world.CharacterTransfer;
 import handling.world.Messenger;
 import handling.world.Party;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
 import handling.world.guild.GuildUnion;
 import handling.world.guild.Guild;
-import handling.world.guild.GuildCharacter;
+import handling.world.guild.GuildMember;
 import handling.world.remote.WorldChannelInterface;
 import java.sql.Statement;
 import java.util.TimeZone;
+import org.javastory.client.MemberRank;
 import org.javastory.server.channel.ChannelManager;
 import scripting.EventInstanceManager;
 import scripting.NpcScriptManager;
@@ -113,14 +115,14 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     private transient ScheduledFuture<?> dragonBloodSchedule;
     private transient ScheduledFuture<?> mapTimeLimitTask, fishing;
     //
-    private boolean canDoor, Berserk, smega, hidden;
+    private boolean canDoor, berserk, smega, hidden;
     private boolean ondmg = true, callgm = true;
     //
     private byte dojoRecord, gmLevel, gender; // Make this a quest record, TODO : Transfer it somehow with the current data
     private short level, mulung_energy, combo, availableCP, totalCP;
     public int vpoints;
     public int reborns;
-    public int world;
+    public int worldId;
     //
     private int accountId, id, meso, exp, jobId, rank, rankMove, jobRank,
             jobRankMove, mpApUsed, hpApUsed, hairId, faceId, skinColorId,
@@ -140,11 +142,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     private SkillMacro[] skillMacros = new SkillMacro[5];
     //
     private int guildId;
-    private int guildRank;
-    private GuildCharacter guildCharacter;
+    private MemberRank guildRank;
+    private GuildMember guildCharacter;
     //
     private GuildUnion guildUnion;
-    private int guildUnionRank;
+    private MemberRank guildUnionRank;
     //
     private BuddyList buddies;
     private MonsterBook monsterBook;
@@ -175,7 +177,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         keydown_skill = 0;
         messengerPosition = 4;
         canDoor = true;
-        Berserk = false;
+        berserk = false;
         smega = true;
         wishlist = new int[10];
         rocks = new int[10];
@@ -284,7 +286,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         ret.accountId = ct.accountid;
         ret.mapId = ct.mapId;
         ret.initialSpawnPoint = ct.initialSpawnPoint;
-        ret.world = ct.worldId;
+        ret.worldId = ct.worldId;
 
         ret.rank = ct.rank;
         ret.rankMove = ct.rankMove;
@@ -304,11 +306,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         ret.ondmg = ct.ondmg;
         ret.callgm = ct.callgm;
         if (ret.guildId > 0) {
-            ret.guildCharacter = new GuildCharacter(ret);
+            ret.guildCharacter = new GuildMember(ret);
         }
         ret.buddies = new BuddyList(ct.buddyListCapacity);
 
-        final GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.world);
+        final GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.worldId);
         ret.map = mapFactory.getMap(ret.mapId);
         if (ret.map == null) {
             //char is on a map that doesn't exist warp it to henesys
@@ -465,22 +467,22 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ret.accountId = rs.getInt("accountid");
             ret.mapId = rs.getInt("map");
             ret.initialSpawnPoint = rs.getInt("spawnpoint");
-            ret.world = rs.getInt("world");
+            ret.worldId = rs.getInt("world");
             ret.rank = rs.getInt("rank");
             ret.rankMove = rs.getInt("rankMove");
             ret.jobRank = rs.getInt("jobRank");
             ret.jobRankMove = rs.getInt("jobRankMove");
             ret.guildId = rs.getInt("guildid");
-            ret.guildRank = rs.getInt("guildrank");
-            ret.guildUnionRank = rs.getInt("allianceRank");
+            ret.guildRank = MemberRank.fromNumber(rs.getInt("guildrank"));
+            ret.guildUnionRank = MemberRank.fromNumber(rs.getInt("allianceRank"));
             ret.reborns = rs.getInt("reborns");
             if (ret.guildId > 0) {
-                ret.guildCharacter = new GuildCharacter(ret);
+                ret.guildCharacter = new GuildMember(ret);
             }
             ret.buddies = new BuddyList(rs.getInt("buddyCapacity"));
 
             if (channelserver) {
-                GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.world);
+                GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.worldId);
                 ret.map = mapFactory.getMap(ret.mapId);
                 if (ret.map == null) {
                     //char is on a map that doesn't exist warp it to henesys
@@ -876,7 +878,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps.setInt(31, 0); // Dojo record
             ps.setInt(32, chr.getAccountId());
             ps.setString(33, chr.name);
-            ps.setInt(34, chr.world);
+            ps.setInt(34, chr.worldId);
             ps.setInt(35, chr.reborns);
             ps.setInt(36, db ? 1 : 0); //for now
             ps.executeUpdate();
@@ -1540,8 +1542,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         this.vpoints += gainedpoints;
     }
 
-    public int getWorld() {
-        return world;
+    public int getWorldId() {
+        return worldId;
     }
 
     public void setBuffedValue(BuffStat effect, int statValue) {
@@ -2319,8 +2321,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void changeMapBanish(final int mapid, final String portal, final String msg) {
-        dropMessage(5, msg);
-        final GameMap map = client.getChannelServer().getMapFactory(world).getMap(mapid);
+        sendNotice(5, msg);
+        final GameMap map = client.getChannelServer().getMapFactory(worldId).getMap(mapid);
         changeMap(map, map.getPortal(portal));
     }
 
@@ -2639,7 +2641,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     public void updatePartyMemberHP() {
         if (party != null) {
             final int channel = client.getChannelId();
-            for (PartyCharacter partychar : party.getMembers()) {
+            for (PartyMember partychar : party.getMembers()) {
                 if (partychar.getMapid() == getMapId() && partychar.getChannel() ==
                         channel) {
                     final GameCharacter other = ChannelManager.getInstance(channel).getPlayerStorage().getCharacterByName(partychar.getName());
@@ -2653,7 +2655,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
     public void receivePartyMemberHP() {
         int channel = client.getChannelId();
-        for (PartyCharacter partychar : party.getMembers()) {
+        for (PartyMember partychar : party.getMembers()) {
             if (partychar.getMapid() == getMapId() && partychar.getChannel() ==
                     channel) {
                 GameCharacter other = ChannelManager.getInstance(channel).getPlayerStorage().getCharacterByName(partychar.getName());
@@ -2843,7 +2845,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     public void silentPartyUpdate() {
         if (party != null) {
             try {
-                client.getChannelServer().getWorldInterface().updateParty(party.getId(), PartyOperation.SILENT_UPDATE, new PartyCharacter(this));
+                client.getChannelServer().getWorldInterface().updateParty(party.getId(), PartyOperation.SILENT_UPDATE, new PartyMember(this));
             } catch (RemoteException e) {
                 System.err.println("REMOTE THROW, silentPartyUpdate" + e);
                 client.getChannelServer().pingWorld();
@@ -3481,7 +3483,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public void setWorld(int world) {
-        this.world = world;
+        this.worldId = world;
     }
 
     public void setParty(Party party) {
@@ -3519,10 +3521,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     public void setSmega() {
         if (smega) {
             smega = false;
-            dropMessage(5, "You have set megaphone to disabled mode");
+            sendNotice(5, "You have set megaphone to disabled mode");
         } else {
             smega = true;
-            dropMessage(5, "You have set megaphone to enabled mode");
+            sendNotice(5, "You have set megaphone to enabled mode");
         }
     }
 
@@ -3575,7 +3577,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         return guildId;
     }
 
-    public int getGuildRank() {
+    public MemberRank getGuildRank() {
         return guildRank;
     }
 
@@ -3583,7 +3585,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         guildId = _id;
         if (guildId > 0) {
             if (guildCharacter == null) {
-                guildCharacter = new GuildCharacter(this);
+                guildCharacter = new GuildMember(this);
             } else {
                 guildCharacter.setGuildId(guildId);
             }
@@ -3592,22 +3594,23 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         }
     }
 
-    public void setGuildRank(int _rank) {
-        guildRank = _rank;
+    public void setGuildRank(MemberRank newRank) {
+        guildRank = newRank;
         if (guildCharacter != null) {
-            guildCharacter.setGuildRank(_rank);
+            guildCharacter.setGuildRank(newRank);
         }
     }
 
-    public GuildCharacter getMGC() {
+    public GuildMember getGuildMembership() {
         return guildCharacter;
     }
 
-    public void setGuildUnionRank(int rank) {
+    public void setGuildUnionRank(MemberRank rank) {
+        // TODO: Union rank change logic
         guildUnionRank = rank;
     }
 
-    public int getGuildUnionRank() {
+    public MemberRank getGuildUnionRank() {
         return guildUnionRank;
     }
 
@@ -3644,7 +3647,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?");
             ps.setInt(1, guildId);
-            ps.setInt(2, guildRank);
+            ps.setInt(2, guildRank.asNumber());
             ps.setInt(3, id);
             ps.execute();
             ps.close();
@@ -3676,11 +3679,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                     break;
             }
             if (show) {
-                dropMessage(5, "You have gained " + quantity + " cash.");
+                sendNotice(5, "You have gained " + quantity + " cash.");
                 client.write(MaplePacketCreator.showSpecialEffect(19));
             }
         } else {
-            dropMessage(5, "You have reached the maximum ammount of @cash");
+            sendNotice(5, "You have reached the maximum ammount of @cash");
         }
     }
 
@@ -3696,7 +3699,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     }
 
     public final boolean haveItem(int itemId, int quantity, boolean checkEquipped, boolean greaterOrEquals) {
-        int count = inventory.get(GameConstants.getInventoryType(itemId)).countById(itemId);
+        int count = getInventoryForItem(itemId).countById(itemId);
         if (checkEquipped) {
             count += inventory.get(InventoryType.EQUIPPED).countById(itemId);
         }
@@ -3820,9 +3823,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         return ret;
     }
 
-    public final boolean hasDisease(final Disease dis) {
-        for (final Disease disease : diseases.keySet()) {
-            if (disease == dis) {
+    public final boolean hasDisease(final Disease disease) {
+        for (final Disease current : diseases.keySet()) {
+            if (current == disease) {
                 return true;
             }
         }
@@ -3986,19 +3989,19 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             BerserkSchedule = null;
         }
 
-        ISkill BerserkX = SkillFactory.getSkill(1320006);
-        final int skilllevel = getCurrentSkillLevel(BerserkX);
+        ISkill berserkX = SkillFactory.getSkill(1320006);
+        final int skilllevel = getCurrentSkillLevel(berserkX);
         if (skilllevel >= 1) {
-            StatEffect ampStat = BerserkX.getEffect(skilllevel);
+            StatEffect ampStat = berserkX.getEffect(skilllevel);
 
             if (stats.getHp() * 100 / stats.getMaxHp() > ampStat.getX()) {
-                Berserk = false;
+                berserk = false;
             } else {
-                Berserk = true;
+                berserk = true;
             }
 
-            client.write(MaplePacketCreator.showOwnBerserk(skilllevel, Berserk));
-            map.broadcastMessage(this, MaplePacketCreator.showBerserk(getId(), skilllevel, Berserk), false);
+            client.write(MaplePacketCreator.showOwnBerserk(skilllevel, berserk));
+            map.broadcastMessage(this, MaplePacketCreator.showBerserk(getId(), skilllevel, berserk), false);
 
             BerserkSchedule = TimerManager.getInstance().schedule(new Runnable() {
 
@@ -4140,7 +4143,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         return bookCover;
     }
 
-    public void dropMessage(int type, String message) {
+    public void sendNotice(int type, String message) {
         client.write(MaplePacketCreator.serverNotice(type, message));
     }
 

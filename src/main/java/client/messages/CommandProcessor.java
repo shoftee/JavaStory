@@ -154,11 +154,11 @@ public class CommandProcessor {
 	public void dropHelp(GameCharacter chr, int page) {
 		List<DefinitionCommandPair> allCommands = new ArrayList<DefinitionCommandPair>(commands.values());
 		int startEntry = (page - 1) * 20;
-		chr.dropMessage(6, "Command Help Page: --------" + page + "---------");
+		chr.sendNotice(6, "Command Help Page: --------" + page + "---------");
 		for (int i = startEntry; i < startEntry + 20 && i < allCommands.size(); i++) {
 			CommandDefinition commandDefinition = allCommands.get(i).getDefinition();
 			if (chr.hasGmLevel(commandDefinition.getRequiredLevel())) {
-				chr.dropMessage(6, commandDefinition.getCommand() + " " + commandDefinition.getParameterDescription() + ": " + commandDefinition.getHelp());
+				chr.sendNotice(6, commandDefinition.getCommand() + " " + commandDefinition.getParameterDescription() + ": " + commandDefinition.getHelp());
 			}
 		}
 	}
@@ -172,10 +172,10 @@ public class CommandProcessor {
 					try {
 						definitionCommandPair.getCommand().execute(c, splitted);
 					} catch (IllegalCommandSyntaxException e) {
-						c.getPlayer().dropMessage(6, "IllegalCommandSyntaxException:" + e.getMessage());
+						c.getPlayer().sendNotice(6, "IllegalCommandSyntaxException:" + e.getMessage());
 						return true;
 					} catch (Exception e) {
-						c.getPlayer().dropMessage(6, "An error occured: " + e.getClass().getName() + " " + e.getMessage());
+						c.getPlayer().sendNotice(6, "An error occured: " + e.getClass().getName() + " " + e.getMessage());
 						return true;
 					}
 					if (c.getPlayer().getGMLevel() > 0) {
@@ -188,7 +188,7 @@ public class CommandProcessor {
 					}
 					return true;
 				} else {
-					c.getPlayer().dropMessage(6, "Command " + splitted[0] + " does not exist or you do not have the required priviledges.");
+					c.getPlayer().sendNotice(6, "Command " + splitted[0] + " does not exist or you do not have the required priviledges.");
 					return true;
 				}
 			}

@@ -1,5 +1,6 @@
 package client;
 
+import org.javastory.client.ItemType;
 import java.io.Serializable;
 import org.javastory.tools.Randomizer;
 
@@ -120,9 +121,11 @@ public class Item implements IItem, Serializable {
 
     @Override
     public int compareTo(IItem other) {
-        if (Math.abs(position) < Math.abs(other.getPosition())) {
+        final int absPosition = Math.abs(position);
+        final int otherAbsPosition = Math.abs(other.getPosition());
+        if (absPosition < otherAbsPosition) {
             return -1;
-        } else if (Math.abs(position) == Math.abs(other.getPosition())) {
+        } else if (absPosition == otherAbsPosition) {
             return 0;
         } else {
             return 1;
@@ -139,13 +142,5 @@ public class Item implements IItem, Serializable {
             cashId = Randomizer.nextInt(Integer.MAX_VALUE) + 1;
         }
         return cashId;
-    }
-
-    public int getSN() {
-        return sn;
-    }
-
-    public void setSN(int sn) {
-        this.sn = sn;
     }
 }

@@ -86,7 +86,7 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	    setMeso(gainmeso - GameConstants.EntrustedStoreTax(gainmeso));
 	    c.getPlayer().gainMeso(-pItem.price * quantity, false);
 	} else {
-	    c.getPlayer().dropMessage(1, "Your inventory is full.");
+	    c.getPlayer().sendNotice(1, "Your inventory is full.");
 	}
     }
 

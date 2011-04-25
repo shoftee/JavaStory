@@ -227,7 +227,7 @@ public class DamageParse {
                 if (totDamageToOneMonster > 0) {
                     if (attack.skill == 3221007) {
                         if (player.isOnDMG()) {
-                            player.dropMessage(5, "Damage: " + player.getSnipeDamage());
+                            player.sendNotice(5, "Damage: " + player.getSnipeDamage());
                         }
                         monster.damage(player, player.getSnipeDamage(), true);
                     } else {
@@ -236,7 +236,7 @@ public class DamageParse {
                             //Damage formula
                             totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalWatk() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                             if (player.isOnDMG()) {
-                                player.dropMessage(5, "Damage: " + totDamageToOneMonster);
+                                player.sendNotice(5, "Damage: " + totDamageToOneMonster);
                             }
                         }
                         monster.damage(player, totDamageToOneMonster, true);
@@ -540,7 +540,7 @@ public class DamageParse {
                         //Damage Formula
                         totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalMagic() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                         if (player.isOnDMG()) {
-                            player.dropMessage(5, "Damage: " + totDamageToOneMonster);
+                            player.sendNotice(5, "Damage: " + totDamageToOneMonster);
                         }
                     }
                     monster.damage(player, totDamageToOneMonster, true);

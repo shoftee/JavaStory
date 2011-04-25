@@ -29,8 +29,8 @@ public class GM3Commands implements Command {
     public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         if (splitted[0].equals("-online")) {
-            c.getPlayer().dropMessage(6, "Characters connected to channel " + c.getChannelId() + ":");
-            c.getPlayer().dropMessage(6, c.getChannelServer().getPlayerStorage().getOnlinePlayers(true));
+            c.getPlayer().sendNotice(6, "Characters connected to channel " + c.getChannelId() + ":");
+            c.getPlayer().sendNotice(6, c.getChannelServer().getPlayerStorage().getOnlinePlayers(true));
         } else if (splitted[0].equals("-say")) {
             if (splitted.length > 1) {
                 StringBuilder sb = new StringBuilder();
@@ -45,7 +45,7 @@ public class GM3Commands implements Command {
                     c.getChannelServer().pingWorld();
                 }
             } else {
-                c.getPlayer().dropMessage(6, "Syntax: !say <message>");
+                c.getPlayer().sendNotice(6, "Syntax: !say <message>");
             }
         } else if (splitted[0].equals("-song")) {
             c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.musicChange(splitted[1]));
@@ -62,7 +62,7 @@ public class GM3Commands implements Command {
                 shop.getShop(shopId).sendShop(c);
             }
         } else if (splitted[0].equals("-whereami")) {
-            c.getPlayer().dropMessage(5, "You are on map " + c.getPlayer().getMap().getId());
+            c.getPlayer().sendNotice(5, "You are on map " + c.getPlayer().getMap().getId());
         } else if (splitted[0].equals("-job")) {
             c.getPlayer().changeJob(Integer.parseInt(splitted[1]));
         } else if (splitted[0].equals("-ap")) {
@@ -91,7 +91,7 @@ public class GM3Commands implements Command {
                 map.removeMapObject(i);
                 map.broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, c.getPlayer().getId()));
             }
-            c.getPlayer().dropMessage(6, "You have destroyed " + items.size() + " items on the ground.");
+            c.getPlayer().sendNotice(6, "You have destroyed " + items.size() + " items on the ground.");
         } else if (splitted[0].equals("-servermessage")) {
             Collection<ChannelServer> cservs = ChannelManager.getAllInstances();
             String outputMessage = StringUtil.joinStringFrom(splitted, 1);

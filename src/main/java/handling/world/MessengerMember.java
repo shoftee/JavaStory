@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import client.GameCharacter;
 
-public class MessengerCharacter implements Serializable {
+public class MessengerMember implements Serializable {
 	private static final long serialVersionUID = 6215463252132450750L;
 	private String name;
 	private int id;
@@ -12,7 +12,7 @@ public class MessengerCharacter implements Serializable {
 	private boolean online;
 	private int position;
 
-	public MessengerCharacter(GameCharacter maplechar) {
+	public MessengerMember(GameCharacter maplechar) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
@@ -20,7 +20,7 @@ public class MessengerCharacter implements Serializable {
 		this.position = 0;
 	}
 
-	public MessengerCharacter(GameCharacter maplechar, int position) {
+	public MessengerMember(GameCharacter maplechar, int position) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
@@ -28,7 +28,7 @@ public class MessengerCharacter implements Serializable {
 		this.position = position;
 	}
 
-	public MessengerCharacter() {
+	public MessengerMember() {
 		this.name = "";
 		//default values for everything o.o
 	}
@@ -80,7 +80,7 @@ public class MessengerCharacter implements Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final MessengerCharacter other = (MessengerCharacter) obj;
+		final MessengerMember other = (MessengerMember) obj;
 		if (name == null) {
 			if (other.name != null) {
 				return false;

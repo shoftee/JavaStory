@@ -64,22 +64,22 @@ public class GoToCommands implements Command {
 	@Override
 	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted.length < 2) {
-			c.getPlayer().dropMessage(6, "Syntax: !goto <mapname>");
+			c.getPlayer().sendNotice(6, "Syntax: !goto <mapname>");
 		} else {
 			if (gotomaps.containsKey(splitted[1])) {
-				GameMap target = c.getChannelServer().getMapFactory(c.getPlayer().getWorld()).getMap(gotomaps.get(splitted[1]));
+				GameMap target = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(gotomaps.get(splitted[1]));
 				Portal targetPortal = target.getPortal(0);
 				c.getPlayer().changeMap(target, targetPortal);
 			} else {
 				if (splitted[1].equals("locations")) {
-					c.getPlayer().dropMessage(6, "Use !goto <location>. Locations are as follows:");
+					c.getPlayer().sendNotice(6, "Use !goto <location>. Locations are as follows:");
 					StringBuilder sb = new StringBuilder();
 					for (String s : gotomaps.keySet()) {
 						sb.append(s + ", ");
 					}
-					c.getPlayer().dropMessage(6, sb.substring(0, sb.length() - 2));
+					c.getPlayer().sendNotice(6, sb.substring(0, sb.length() - 2));
 				} else {
-					c.getPlayer().dropMessage(6, "Invalid command syntax - Use !goto <location>. For a list of locations, use !goto locations.");
+					c.getPlayer().sendNotice(6, "Invalid command syntax - Use !goto <location>. For a list of locations, use !goto locations.");
 				}
 			}
 		}

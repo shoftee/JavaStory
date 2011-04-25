@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import handling.ServerConstants;
 import handling.world.Party;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
 import org.javastory.server.channel.ChannelServer;
 import scripting.EventInstanceManager;
 import server.TimerManager;
@@ -1044,7 +1044,7 @@ public class Monster extends AbstractLoadedGameLife {
 
                 CLASS_EXP = 0;
                 expApplicable = new ArrayList<GameCharacter>();
-                for (final PartyCharacter partychar : party.getMembers()) {
+                for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
                         pchr = cserv.getPlayerStorage().getCharacterByName(partychar.getName());
                         if (pchr != null) {

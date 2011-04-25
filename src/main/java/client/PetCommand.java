@@ -28,14 +28,14 @@ public class PetCommand {
 
     private int petId;
     private int skillId;
-    private int prob;
-    private int inc;
+    private int probability;
+    private int increase;
 
     public PetCommand(int petId, int skillId, int prob, int inc) {
         this.petId = petId;
         this.skillId = skillId;
-        this.prob = prob;
-        this.inc = inc;
+        this.probability = prob;
+        this.increase = inc;
     }
 
     public int getPetId() {
@@ -47,10 +47,10 @@ public class PetCommand {
     }
 
     public int getProbability() {
-        return prob;
+        return probability;
     }
 
     public int getIncrease() {
-        return inc;
+        return increase;
     }
 }

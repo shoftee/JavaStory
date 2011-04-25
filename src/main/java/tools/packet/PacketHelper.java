@@ -16,7 +16,7 @@ import client.GameCharacter;
 import client.Inventory;
 import client.QuestStatus;
 import client.IItem;
-import client.ItemType;
+import org.javastory.client.ItemType;
 import client.SkillEntry;
 import com.google.common.collect.Lists;
 import handling.world.PlayerCooldownValueHolder;
@@ -121,7 +121,7 @@ public class PacketHelper {
             }
             builder.writeAsShort(0);
             builder.writeAsShort(1);
-            builder.writeInt(ring.getPartnerChrId());
+            builder.writeInt(ring.getPartnerCharacterId());
             builder.writePaddedString(ring.getPartnerName(), 13);
             builder.writeInt(ring.getRingId());
             builder.writeInt(0);
