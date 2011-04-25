@@ -299,14 +299,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void expandInventory(byte type, int amt) {
-        super.client.getPlayer().getInventoryType(InventoryType.getByType(type)).addSlot((byte) 4);
+        super.client.getPlayer().getInventoryByTypeByte(type).addSlot((byte) 4);
     }
 
     public void unequipEverything() {
-        Inventory equipped = getPlayer().getInventoryType(InventoryType.EQUIPPED);
-        Inventory equip = getPlayer().getInventoryType(InventoryType.EQUIP);
+        Inventory equipped = getPlayer().getEquippedItemsInventory();
+        Inventory equip = getPlayer().getEquipInventory();
         List<Short> ids = new LinkedList<Short>();
-        for (IItem item : equipped.list()) {
+        for (IItem item : equipped) {
             ids.add(item.getPosition());
         }
         for (short id : ids) {
@@ -422,7 +422,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public int itemQuantity(int itemid) {
-        return getPlayer().getInventoryType(GameConstants.getInventoryType(itemid)).countById(itemid);
+        return getPlayer().getInventoryForItem(itemid).countById(itemid);
     }
 
     public int getSkillLevel(int skillid) {
@@ -622,7 +622,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void changeStat(byte slot, int type, short amount) {
-        Equip sel = (Equip) super.client.getPlayer().getInventoryType(InventoryType.EQUIPPED).getItem(slot);
+        Equip sel = (Equip) super.client.getPlayer().getEquippedItemsInventory().getItem(slot);
         switch (type) {
             case 0:
                 sel.setStr(amount);
@@ -770,7 +770,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public final Inventory getInventory(byte type) {
-        return super.client.getPlayer().getInventoryType(InventoryType.getByType(type));
+        return super.client.getPlayer().getInventoryByTypeByte(type);
     }
 
     public final CarnivalParty getCarnivalParty() {
@@ -800,25 +800,25 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         stats.add(new Pair<Stat, Integer>(Stat.DEX, dex));
         stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
         stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
-        stats.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, total));
+        stats.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, total));
         super.client.write(MaplePacketCreator.updatePlayerStats(stats, false, super.client.getPlayer().getJob()));
     }
 
     public final boolean dropItem(int slot, int invType, int quantity) {
-        InventoryType inv = InventoryType.getByType((byte) invType);
-        if (inv == null) {
+        final Inventory inventory = super.client.getPlayer().getInventoryByTypeByte((byte) invType);
+        if (inventory == null) {
             return false;
         }
-        InventoryManipulator.drop(super.client, inv, (short) slot, (short) quantity);
+        InventoryManipulator.drop(super.client, inventory, (short) slot, (short) quantity);
         return true;
     }
 
     public void maxStats() {
         List<Pair<Stat, Integer>> statup = new ArrayList<Pair<Stat, Integer>>(2);
         super.client.getPlayer().setRemainingAp(0);
-        statup.add(new Pair(Stat.AVAILABLEAP, Integer.valueOf(0)));
+        statup.add(new Pair(Stat.AVAILABLE_AP, Integer.valueOf(0)));
         super.client.getPlayer().setRemainingSp(0);
-        statup.add(new Pair(Stat.AVAILABLESP, Integer.valueOf(0)));
+        statup.add(new Pair(Stat.AVAILABLE_SP, Integer.valueOf(0)));
         super.client.getPlayer().getStat().setStr(32767);
         statup.add(new Pair(Stat.STR, Integer.valueOf(32767)));
         super.client.getPlayer().getStat().setDex(32767);
@@ -830,11 +830,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         super.client.getPlayer().getStat().setHp(30000);
         statup.add(new Pair(Stat.HP, Integer.valueOf(30000)));
         super.client.getPlayer().getStat().setMaxHp(30000);
-        statup.add(new Pair(Stat.MAXHP, Integer.valueOf(30000)));
+        statup.add(new Pair(Stat.MAX_HP, Integer.valueOf(30000)));
         super.client.getPlayer().getStat().setMp(30000);
         statup.add(new Pair(Stat.MP, Integer.valueOf(30000)));
         super.client.getPlayer().getStat().setMaxMp(30000);
-        statup.add(new Pair(Stat.MAXMP, Integer.valueOf(30000)));
+        statup.add(new Pair(Stat.MAX_MP, Integer.valueOf(30000)));
         super.client.write(MaplePacketCreator.updatePlayerStats(statup, super.client.getPlayer().getJob()));
     }
 

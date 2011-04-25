@@ -102,7 +102,7 @@ public class StatsHandling {
                     MaxHP = Math.min(30000, MaxHP);
                     chr.setHpApUsed(chr.getHpApUsed() + 1);
                     stat.setMaxHp(MaxHP);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.MAXHP, MaxHP));
+                    statupdate.add(new Pair<Stat, Integer>(Stat.MAX_HP, MaxHP));
                     break;
                 case 8192: // MP
                     int MaxMP = stat.getMaxMp();
@@ -144,14 +144,14 @@ public class StatsHandling {
                     MaxMP = Math.min(30000, MaxMP);
                     chr.setMpApUsed(chr.getMpApUsed() + 1);
                     stat.setMaxMp(MaxMP);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.MAXMP, MaxMP));
+                    statupdate.add(new Pair<Stat, Integer>(Stat.MAX_MP, MaxMP));
                     break;
                 default:
                     c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJob()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - 1);
-            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, chr.getRemainingAp()));
+            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
             c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
         }
     }
@@ -229,7 +229,7 @@ public class StatsHandling {
                 final int skillbook = GameConstants.getSkillBookForSkill(skillid);
                 chr.setRemainingSp(chr.getRemainingSp(skillbook) - 1, skillbook);
             }
-            chr.updateSingleStat(Stat.AVAILABLESP, chr.getRemainingSp());
+            chr.updateSingleStat(Stat.AVAILABLE_SP, chr.getRemainingSp());
             chr.changeSkillLevel(skill, (byte) (curLevel + 1), chr.getMasterSkillLevel(skill));
         } else if (!skill.canBeLearnedBy(chr.getJob())) {
             AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" + skillid + ")");
@@ -313,7 +313,7 @@ public class StatsHandling {
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - (amount + amount2));
-            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, chr.getRemainingAp()));
+            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
             c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
         }
     }

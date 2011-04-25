@@ -16,7 +16,6 @@ import client.Mount;
 import client.BuddyListEntry;
 import client.IEquip;
 import client.IItem;
-import client.Item;
 import client.GameConstants;
 import client.BuffStat;
 import client.GameCharacter;
@@ -29,8 +28,10 @@ import client.QuestStatus;
 import client.Stat;
 import client.IEquip.ScrollResult;
 import client.Disease;
+import client.ItemType;
 import client.Ring;
 import client.SkillMacro;
+import com.google.common.collect.Lists;
 import handling.ByteArrayGamePacket;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
@@ -813,7 +814,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(0);
 
         if (chr.getBuffedValue(BuffStat.MONSTER_RIDING) != null) {
-            final IItem mount = chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22);
+            final IItem mount = chr.getEquippedItemsInventory().getItem((byte) -22);
             if (mount != null) {
                 builder.writeInt(mount.getItemId());
                 builder.writeInt(1004);
@@ -1174,18 +1175,18 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateSpecialItemUse(IItem item, byte invType) {
+    public static GamePacket updateSpecialItemUse(IItem item, byte type) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         builder.writeAsByte(0); // could be from drop
         builder.writeAsByte(2); // always 2
         builder.writeAsByte(3); // quantity > 0 (?)
-        builder.writeByte(invType); // Inventory type
+        builder.writeByte(type);
         builder.writeAsShort(item.getPosition()); // item slot
         builder.writeAsByte(0);
-        builder.writeByte(invType);
-        if (item.getType() == 1) {
+        builder.writeByte(type);
+        if (item.getType() == ItemType.EQUIP) {
             builder.writeAsShort(item.getPosition()); // wtf repeat
         } else {
             builder.writeAsByte(item.getPosition());
@@ -1312,17 +1313,16 @@ public final class MaplePacketCreator {
         builder.writeInt(chr.getId());
         builder.writeAsByte(1);
         PacketHelper.addCharLook(builder, chr, false);
-        Inventory iv = chr.getInventoryType(InventoryType.EQUIPPED);
-        Collection<IItem> equippedC = iv.list();
-        List<Item> equipped = new ArrayList<Item>(equippedC.size());
-        for (IItem item : equippedC) {
-            equipped.add((Item) item);
-        }
+        
+        Inventory iv = chr.getEquippedItemsInventory();
+        List<IItem> equipped = Lists.newLinkedList(iv);
         Collections.sort(equipped);
+        
         List<Ring> rings = new ArrayList<Ring>();
-        for (Item item : equipped) {
-            if (((IEquip) item).getRingId() > -1) {
-                rings.add(Ring.loadFromDb(((IEquip) item).getRingId()));
+        for (IItem item : equipped) {
+            final IEquip equip = (IEquip) item;
+            if (equip.getRingId() > -1) {
+                rings.add(Ring.loadFromDb(equip.getRingId()));
             }
         }
         Collections.sort(rings);
@@ -1485,7 +1485,8 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeAsByte(0);
-        final IItem inv = chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -114);
+        final Inventory equippedItemsInventory = chr.getEquippedItemsInventory();
+        final IItem inv = equippedItemsInventory.getItem((byte) -114);
         final int peteqid = inv != null ? inv.getItemId() : 0;
         for (final Pet pet : chr.getPets()) {
             if (pet.getSummoned()) {
@@ -1500,7 +1501,7 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeAsByte(0); // End of pet
-        if (chr.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
+        if (equippedItemsInventory.getItem((byte) -22) != null) {
             final Mount mount = chr.getMount();
             builder.writeAsByte(1);
             builder.writeInt(mount.getLevel());

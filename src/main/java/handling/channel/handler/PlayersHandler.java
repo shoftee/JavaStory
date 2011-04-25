@@ -90,10 +90,10 @@ public final class PlayersHandler {
         if (Math.abs(receiver.getFame() + change) <= 30000) {
             receiver.addFame(change);
             receiver.updateSingleStat(Stat.FAME, receiver.getFame());
-            
+
             long timestamp = FameLog.addEntry(famer.getId(), receiverId);
             famer.setLastFameTime(timestamp);
-            
+
             c.write(MaplePacketCreator.giveFameResponse(isIncrease, receiver.getName(), receiver.getFame()));
             receiver.getClient().write(MaplePacketCreator.receiveFame(isIncrease, famer.getName()));
         }
@@ -122,7 +122,7 @@ public final class PlayersHandler {
         final int itemId = reader.readInt();
         final String target = reader.readLengthPrefixedString().toLowerCase();
 
-        final IItem toUse = c.getPlayer().getInventoryType(InventoryType.USE).getItem(slot);
+        final IItem toUse = c.getPlayer().getUseInventory().getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() !=
                 itemId) {
@@ -136,7 +136,7 @@ public final class PlayersHandler {
                         ItemInfoProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
                         search_chr.dropMessage(6, chr.getName() +
                                 " has played a prank on you!");
-                        InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
+                        InventoryManipulator.removeFromSlot(c, chr.getUseInventory(), slot, (short) 1, false);
                     }
                 }
                 break;

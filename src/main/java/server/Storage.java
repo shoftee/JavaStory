@@ -19,6 +19,7 @@ import client.IItem;
 import client.Item;
 import client.GameClient;
 import client.InventoryType;
+import client.ItemType;
 import com.google.common.collect.Maps;
 import database.DatabaseConnection;
 import database.DatabaseException;
@@ -84,7 +85,7 @@ public class Storage implements Serializable {
                 ps.setInt(1, storeId);
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    InventoryType type = InventoryType.getByType((byte) rs.getInt("inventorytype"));
+                    InventoryType type = InventoryType.fromByte((byte) rs.getInt("inventorytype"));
                     if (type.equals(InventoryType.EQUIP) ||
                             type.equals(InventoryType.EQUIPPED)) {
                         int itemid = rs.getInt("itemid");
@@ -159,7 +160,7 @@ public class Storage implements Serializable {
             for (IItem item : items) {
                 ps.setInt(1, id);
                 ps.setInt(2, item.getItemId());
-                ps.setInt(3, item.getType()); // type.getType()
+                ps.setInt(3, item.getType().asByte()); // type.getType()
                 ps.setInt(4, item.getPosition());
                 ps.setInt(5, item.getQuantity());
                 ps.setString(6, item.getOwner());
@@ -175,7 +176,7 @@ public class Storage implements Serializable {
                 } else {
                     throw new DatabaseException("Inserting char failed.");
                 }
-                if (item.getType() == 1) {
+                if (item.getType() == ItemType.EQUIP) {
                     pse.setInt(1, itemid);
                     IEquip equip = (IEquip) item;
                     pse.setInt(2, equip.getUpgradeSlots());

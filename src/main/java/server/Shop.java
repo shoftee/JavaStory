@@ -15,6 +15,7 @@ import client.Item;
 import client.SkillFactory;
 import client.GameConstants;
 import client.GameClient;
+import client.Inventory;
 import client.InventoryType;
 import client.Pet;
 import database.DatabaseConnection;
@@ -108,17 +109,17 @@ public class Shop {
 	}
     }
 
-    public void sell(GameClient c, InventoryType type, byte slot, short quantity) {
+    public void sell(GameClient c, Inventory inventory, byte slot, short quantity) {
 	if (quantity == 0xFFFF || quantity == 0) {
 	    quantity = 1;
 	}
-	IItem item = c.getPlayer().getInventoryType(type).getItem(slot);
+	IItem item = inventory.getItem(slot);
 
 	if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 	    quantity = item.getQuantity();
 	}
 	if (quantity < 0) {
-	    AutobanManager.getInstance().addPoints(c, 1000,	0, "Selling " + quantity + " " + item.getItemId() + " (" + type.name() + "/" + slot + ")");
+	    AutobanManager.getInstance().addPoints(c, 1000,	0, "Selling " + quantity + " " + item.getItemId() + " (" + inventory.getType().name() + "/" + slot + ")");
 	    return;
 	}
 	short iQuant = item.getQuantity();
@@ -127,7 +128,7 @@ public class Shop {
 	}
 	final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 	if (quantity <= iQuant && iQuant > 0) {
-	    InventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
+	    InventoryManipulator.removeFromSlot(c, inventory, slot, quantity, false);
 	    double price;
 	    if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 		price = ii.getWholePrice(item.getItemId()) / (double) ii.getSlotMax(c, item.getItemId());
@@ -143,7 +144,7 @@ public class Shop {
     }
 
     public void recharge(final GameClient c, final byte slot) {
-	final IItem item = c.getPlayer().getInventoryType(InventoryType.USE).getItem(slot);
+	final IItem item = c.getPlayer().getUseInventory().getItem(slot);
 
 	if (item == null || (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId()))) {
 	    return;

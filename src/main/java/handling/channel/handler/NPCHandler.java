@@ -5,6 +5,7 @@ import client.InventoryType;
 import client.GameClient;
 import client.GameCharacter;
 import client.GameConstants;
+import client.Inventory;
 import handling.ServerPacketOpcode;
 import org.javastory.io.PacketFormatException;
 import server.AutobanManager;
@@ -16,7 +17,6 @@ import server.quest.Quest;
 import scripting.NpcScriptManager;
 import scripting.NpcConversationManager;
 import tools.MaplePacketCreator;
-import org.javastory.io.PacketReader;
 import org.javastory.io.PacketBuilder;
 import org.javastory.io.PacketReader;
 
@@ -62,7 +62,7 @@ public class NpcHandler {
                 final byte slot = (byte) reader.readShort();
                 final int itemId = reader.readInt();
                 final short quantity = reader.readShort();
-                shop.sell(c, GameConstants.getInventoryType(itemId), slot, quantity);
+                shop.sell(c, chr.getInventoryForItem(itemId), slot, quantity);
                 break;
             }
             case 2: {
@@ -200,9 +200,12 @@ public class NpcHandler {
             storage.setMeso(storageMesos - meso);
             chr.gainMeso(meso, false, true, false);
         } else {
-            AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to store or take out unavailable amount of mesos (" +
-                    meso + "/" + storage.getMeso() + "/" +
-                    c.getPlayer().getMeso() + ")");
+            StringBuilder builder = new StringBuilder();
+            builder.append("Trying to store or take out unavailable amount of mesos (");
+            builder.append(meso).append("/");
+            builder.append(storage.getMeso()).append("/");
+            builder.append(c.getPlayer().getMeso()).append(")");
+            AutobanManager.getInstance().addPoints(c, 1000, 0, builder.toString());
             return;
         }
         storage.sendMeso(c);
@@ -222,8 +225,8 @@ public class NpcHandler {
         if (chr.getMeso() < 100) {
             chr.dropMessage(1, "You don't have enough mesos to store the item");
         } else {
-            InventoryType type = GameConstants.getInventoryType(itemId);
-            IItem item = chr.getInventoryType(type).getItem(slot).copy();
+            Inventory inventory = chr.getInventoryForItem(itemId);
+            IItem item = inventory.getItem(slot).copy();
             if (GameConstants.isPet(item.getItemId())) {
                 c.write(MaplePacketCreator.enableActions());
                 return;
@@ -236,7 +239,7 @@ public class NpcHandler {
                     quantity = item.getQuantity();
                 }
                 chr.gainMeso(-100, false, true, false);
-                InventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
+                InventoryManipulator.removeFromSlot(c, inventory, slot, quantity, false);
                 item.setQuantity(quantity);
                 storage.store(item);
             } else {
@@ -252,7 +255,7 @@ public class NpcHandler {
 
     private static void handleStorageTakeOutItem(final PacketReader reader, final Storage storage, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte type = reader.readByte();
-        final byte slot = storage.getSlot(InventoryType.getByType(type), reader.readByte());
+        final byte slot = storage.getSlot(InventoryType.fromByte(type), reader.readByte());
         final IItem item = storage.takeOut(slot);
         if (item != null) {
             if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {

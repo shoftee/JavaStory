@@ -10,6 +10,7 @@ import client.SkillFactory;
 import client.GameConstants;
 import client.GameCharacter;
 import client.GameClient;
+import client.Inventory;
 import client.InventoryType;
 import client.Pet;
 import client.QuestStatus;
@@ -174,7 +175,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final boolean canHold(final int itemid) {
-        return client.getPlayer().getInventoryType(GameConstants.getInventoryType(itemid)).getNextFreeSlot() > -1;
+        return client.getPlayer().getInventoryForItem(itemid).getNextFreeSlot() >
+                -1;
     }
 
     public final QuestStatus getQuestRecord(final int id) {
@@ -270,13 +272,15 @@ public class AbstractPlayerInteraction {
     }
 
     public final void gainItem(final int id, final short quantity, final boolean randomStats, final long period) {
+        final Inventory inventory = client.getPlayer().getInventoryForItem(id);
         if (quantity >= 0) {
             final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-            final InventoryType type = GameConstants.getInventoryType(id);
             if (!InventoryManipulator.checkSpace(client, id, quantity, "")) {
                 return;
             }
-            if (type.equals(InventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
+            if (inventory.getType().equals(InventoryType.EQUIP) &&
+                    !GameConstants.isThrowingStar(id) &&
+                    !GameConstants.isBullet(id)) {
                 final IItem item = randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id)) : ii.getEquipById(id);
                 if (period > 0) {
                     item.setExpiration(System.currentTimeMillis() + period);
@@ -286,7 +290,7 @@ public class AbstractPlayerInteraction {
                 InventoryManipulator.addById(client, id, quantity, "", null, period);
             }
         } else {
-            InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, -quantity, true, false);
+            InventoryManipulator.removeById(client, inventory, id, -quantity, true, false);
         }
         client.write(MaplePacketCreator.getShowItemGain(id, quantity, true));
     }
@@ -380,7 +384,7 @@ public class AbstractPlayerInteraction {
             if (quantity >= 0) {
                 InventoryManipulator.addById(chr.getClient(), id, quantity);
             } else {
-                InventoryManipulator.removeById(chr.getClient(), GameConstants.getInventoryType(id), id, -quantity, true, false);
+                InventoryManipulator.removeById(chr.getClient(), chr.getInventoryForItem(id), id, -quantity, true, false);
             }
             chr.getClient().write(MaplePacketCreator.getShowItemGain(id, quantity, true));
         }
@@ -394,9 +398,10 @@ public class AbstractPlayerInteraction {
 
     public final void removeFromParty(final int id, final List<GameCharacter> party) {
         for (final GameCharacter chr : party) {
-            final int possesed = chr.getInventoryType(GameConstants.getInventoryType(id)).countById(id);
+            final Inventory inventory = chr.getInventoryForItem(id);
+            final int possesed = inventory.countById(id);
             if (possesed > 0) {
-                InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, possesed, true, false);
+                InventoryManipulator.removeById(client, inventory, id, possesed, true, false);
                 chr.getClient().write(MaplePacketCreator.getShowItemGain(id, (short) -possesed, true));
             }
         }
@@ -416,16 +421,18 @@ public class AbstractPlayerInteraction {
     }
 
     public final void removeAll(final int id) {
-        final int possessed = client.getPlayer().getInventoryType(GameConstants.getInventoryType(id)).countById(id);
-        if (possessed > 0) {
-            InventoryManipulator.removeById(client, GameConstants.getInventoryType(id), id, possessed, true, false);
-            client.write(MaplePacketCreator.getShowItemGain(id, (short) -possessed, true));
+        final Inventory inventory = client.getPlayer().getInventoryForItem(id);
+        final int count = inventory.countById(id);
+        if (count > 0) {
+            InventoryManipulator.removeById(client, inventory, id, count, true, false);
+            client.write(MaplePacketCreator.getShowItemGain(id, (short) -count, true));
         }
     }
 
     public final void gainCloseness(final int closeness, final int index) {
         if (getPlayer().getPet(index) != null) {
-            getPlayer().getPet(index).setCloseness(getPlayer().getPet(index).getCloseness() + closeness);
+            getPlayer().getPet(index).setCloseness(getPlayer().getPet(index).getCloseness() +
+                    closeness);
             getClient().write(PetPacket.updatePet(getPlayer().getPet(index), true));
         }
     }

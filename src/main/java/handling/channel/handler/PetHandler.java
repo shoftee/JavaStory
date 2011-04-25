@@ -1,5 +1,6 @@
 package handling.channel.handler;
 
+import client.Inventory;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,11 @@ import tools.packet.PetPacket;
 
 public class PetHandler {
 
-    public static final void handleSpawnPet(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSpawnPet(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = reader.readByte();
-        final IItem item = chr.getInventoryType(InventoryType.CASH).getItem(slot);
+        final Inventory cashInventory = chr.getCashInventory();
+        final IItem item = cashInventory.getItem(slot);
 
         switch (item.getItemId()) {
             case 5000047:
@@ -37,7 +39,7 @@ public class PetHandler {
                 final Pet pet = Pet.createPet(item.getItemId() + 1);
                 if (pet != null) {
                     InventoryManipulator.addById(c, item.getItemId() + 1, (short) 1, null, pet);
-                    InventoryManipulator.removeFromSlot(c, InventoryType.CASH, slot, (short) 1, false);
+                    InventoryManipulator.removeFromSlot(c, cashInventory, slot, (short) 1, false);
                 }
                 break;
             }
@@ -47,7 +49,8 @@ public class PetHandler {
                     if (pet.getSummoned()) { // Already summoned, let's keep it
                         chr.unequipPet(pet, true, false);
                     } else {
-                        if (chr.getCurrentSkillLevel(SkillFactory.getSkill(8)) == 0 && chr.getPet(0) != null) {
+                        if (chr.getCurrentSkillLevel(SkillFactory.getSkill(8)) ==
+                                0 && chr.getPet(0) != null) {
                             chr.unequipPet(chr.getPet(0), false, false);
                         }
                         if (reader.readByte() == 1) { // Follow the Lead
@@ -75,24 +78,25 @@ public class PetHandler {
         c.write(PetPacket.emptyStatUpdate());
     }
 
-    public static final void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(13);
         final byte slot = reader.readByte();
-        final IItem toUse = chr.getInventoryType(InventoryType.USE).getItem(slot);
+        final Inventory useInventory = chr.getUseInventory();
+        final IItem toUse = useInventory.getItem(slot);
 
         if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
             c.write(MaplePacketCreator.enableActions());
             return;
         }
-        InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
+        InventoryManipulator.removeFromSlot(c, useInventory, slot, (short) 1, false);
         ItemInfoProvider.getInstance().getItemEffect(toUse.getItemId()).applyTo(chr);
     }
 
-    public static final void handlePetChat(final int petid, final short command, final String text, GameCharacter chr) {
+    public static void handlePetChat(final int petid, final short command, final String text, GameCharacter chr) {
         chr.getMap().broadcastMessage(chr, PetPacket.petChat(chr.getId(), command, text, chr.getPetIndex(petid)), true);
     }
 
-    public static final void handlePetCommand(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetCommand(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte petIndex = chr.getPetIndex(reader.readInt());
         if (petIndex == -1) {
             return;
@@ -110,7 +114,9 @@ public class PetHandler {
                     newCloseness = 30000;
                 }
                 pet.setCloseness(newCloseness);
-                if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
+                if (newCloseness >=
+                        GameConstants.getClosenessNeededForLevel(pet.getLevel() +
+                        1)) {
                     pet.setLevel(pet.getLevel() + 1);
                     c.write(PetPacket.showOwnPetLevelUp(petIndex));
                     chr.getMap().broadcastMessage(PetPacket.showPetLevelUp(chr, petIndex));
@@ -121,7 +127,7 @@ public class PetHandler {
         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), command, petIndex, success, false), true);
     }
 
-    public static final void handlePetFood(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetFood(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         int previousFullness = 100;
 
         for (final Pet pet : chr.getPets()) {
@@ -151,7 +157,9 @@ public class PetHandler {
                                 newCloseness = 30000;
                             }
                             pet.setCloseness(newCloseness);
-                            if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
+                            if (newCloseness >=
+                                    GameConstants.getClosenessNeededForLevel(pet.getLevel() +
+                                    1)) {
                                 pet.setLevel(pet.getLevel() + 1);
 
                                 c.write(PetPacket.showOwnPetLevelUp(index));
@@ -159,7 +167,7 @@ public class PetHandler {
                             }
                         }
                         c.write(PetPacket.updatePet(pet, true));
-                        chr.getMap().broadcastMessage(c.getPlayer(), PetPacket.commandResponse(chr.getId(), (byte) 1, index, true, true), true);
+                        chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), (byte) 1, index, true, true), true);
                     } else {
                         if (gainCloseness) {
                             int newCloseness = pet.getCloseness() - 1;
@@ -167,14 +175,15 @@ public class PetHandler {
                                 newCloseness = 0;
                             }
                             pet.setCloseness(newCloseness);
-                            if (newCloseness < GameConstants.getClosenessNeededForLevel(pet.getLevel())) {
+                            if (newCloseness <
+                                    GameConstants.getClosenessNeededForLevel(pet.getLevel())) {
                                 pet.setLevel(pet.getLevel() - 1);
                             }
                         }
                         c.write(PetPacket.updatePet(pet, true));
                         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), (byte) 1, chr.getPetIndex(pet), false, true), true);
                     }
-                    InventoryManipulator.removeById(c, InventoryType.USE, itemId, 1, true, false);
+                    InventoryManipulator.removeById(c, chr.getUseInventory(), itemId, 1, true, false);
                     return;
                 }
             }
@@ -182,13 +191,13 @@ public class PetHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static final void handleMovePet(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleMovePet(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int petId = reader.readInt();
         reader.skip(4);
         reader.skip(8); // Start POS
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
-        if (res.size() != 0) { // map crash hack
+        if (!res.isEmpty()) { // map crash hack
             final byte slot = chr.getPetIndex(petId);
             if (slot == -1) {
                 return;

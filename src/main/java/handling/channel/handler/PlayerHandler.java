@@ -14,6 +14,7 @@ import client.InventoryType;
 import client.BuffStat;
 import client.GameClient;
 import client.GameCharacter;
+import client.Inventory;
 import client.KeyBinding;
 import client.PlayerStats;
 import client.anticheat.CheatingOffense;
@@ -44,7 +45,7 @@ import tools.packet.UIPacket;
 
 public class PlayerHandler {
 
-    private static final boolean isFinisher(final int skillid) {
+    private static boolean isFinisher(final int skillid) {
         switch (skillid) {
             case 1111003:
             case 1111004:
@@ -57,14 +58,14 @@ public class PlayerHandler {
         return false;
     }
 
-    public static final void handleChangeMonsterBookCover(final int bookid, final GameClient c, final GameCharacter chr) {
+    public static void handleChangeMonsterBookCover(final int bookid, final GameClient c, final GameCharacter chr) {
         if (bookid == 0 || GameConstants.isMonsterCard(bookid)) {
             chr.setMonsterBookCover(bookid);
             chr.getMonsterBook().updateCard(c, bookid);
         }
     }
 
-    public static final void handleSkillMacro(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSkillMacro(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int num = reader.readByte();
         String name;
         int shout, skill1, skill2, skill3;
@@ -82,7 +83,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void HandleChangeKeymap(final PacketReader reader, final GameCharacter chr) {
+    public static void HandleChangeKeymap(final PacketReader reader, final GameCharacter chr) {
         if (reader.remaining() != 8) {
             try {
                 // else = pet auto pot
@@ -105,15 +106,15 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleUseChair(final int itemId, final GameClient c, final GameCharacter chr) {
-        final IItem toUse = chr.getInventoryType(InventoryType.SETUP).findById(itemId);
+    public static void handleUseChair(final int itemId, final GameClient c, final GameCharacter chr) {
+        final IItem toUse = chr.getSetupInventory().findById(itemId);
 
         if (toUse == null || toUse.getItemId() != itemId) {
             chr.getCheatTracker().registerOffense(CheatingOffense.USING_UNAVAILABLE_ITEM, Integer.toString(itemId));
             return;
         }
         if (itemId == 3011000) {
-            for (IItem item : c.getPlayer().getInventoryType(InventoryType.CASH).list()) {
+            for (IItem item : c.getPlayer().getCashInventory()) {
                 if (item.getItemId() == 5340000) {
                     chr.startFishingTask(false);
                     break;
@@ -128,7 +129,7 @@ public class PlayerHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static final void handleCancelChair(final short id, final GameClient c, final GameCharacter chr) {
+    public static void handleCancelChair(final short id, final GameClient c, final GameCharacter chr) {
         if (id == -1) { // Cancel Chair
             if (chr.getChair() == 3011000) {
                 chr.cancelFishingTask();
@@ -142,7 +143,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleTeleportRockAddMap(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleTeleportRockAddMap(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte addrem = reader.readByte();
         final byte vip = reader.readByte();
 
@@ -156,7 +157,7 @@ public class PlayerHandler {
         c.write(MTSCSPacket.getTrockRefresh(chr, vip == 1, addrem == 3));
     }
 
-    public static final void handleCharacterInfoRequest(final int objectid, final GameClient c, final GameCharacter chr) {
+    public static void handleCharacterInfoRequest(final int objectid, final GameClient c, final GameCharacter chr) {
         final GameCharacter player = (GameCharacter) c.getPlayer().getMap().getMapObject(objectid);
 
         if (player != null) {
@@ -168,7 +169,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleTakeDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleTakeDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         reader.skip(4); // Ticks
         final byte type = reader.readByte();
         reader.skip(1); // Element - 0x00 = elementless, 0x01 = ice, 0x02 = fire, 0x03 = lightning
@@ -346,8 +347,8 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleUseItemEffect(final int itemId, final GameClient c, final GameCharacter chr) {
-        final IItem toUse = chr.getInventoryType(InventoryType.CASH).findById(itemId);
+    public static void handleUseItemEffect(final int itemId, final GameClient c, final GameCharacter chr) {
+        final IItem toUse = chr.getCashInventory().findById(itemId);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -356,12 +357,12 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.itemEffect(chr.getId(), itemId), false);
     }
 
-    public static final void handleCancelItemEffect(final int id, final GameCharacter chr) {
+    public static void handleCancelItemEffect(final int id, final GameCharacter chr) {
         chr.cancelEffect(
                 ItemInfoProvider.getInstance().getItemEffect(-id), false, -1);
     }
 
-    public static final void handleCancelBuff(final int sourceid, final GameCharacter chr) {
+    public static void handleCancelBuff(final int sourceid, final GameCharacter chr) {
         final ISkill skill = SkillFactory.getSkill(sourceid);
 
         if (skill.isChargeSkill()) {
@@ -372,7 +373,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleSkillEffect(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSkillEffect(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
         final int skillId = reader.readInt();
         final byte level = reader.readByte();
         final byte flags = reader.readByte();
@@ -388,7 +389,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleSpecialMove(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSpecialMove(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -470,7 +471,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleMeleeAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleMeleeAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -575,7 +576,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void handleRangedAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleRangedAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -619,10 +620,10 @@ public class PlayerHandler {
         }
         int projectile = 0, visProjectile = 0;
         if (attack.AOE != 0 && chr.getBuffedValue(BuffStat.SOULARROW) == null && attack.skill != 4111004) {
-            projectile = chr.getInventoryType(InventoryType.USE).getItem(attack.slot).getItemId();
+            projectile = chr.getUseInventory().getItem(attack.slot).getItemId();
 
             if (attack.csstar > 0) {
-                visProjectile = chr.getInventoryType(InventoryType.CASH).getItem(attack.csstar).getItemId();
+                visProjectile = chr.getCashInventory().getItem(attack.csstar).getItemId();
             } else {
                 visProjectile = projectile;
             }
@@ -632,7 +633,7 @@ public class PlayerHandler {
                 if (effect != null && effect.getBulletConsume() != 0) {
                     bulletConsume = effect.getBulletConsume() * (ShadowPartner != null ? 2 : 1);
                 }
-                InventoryManipulator.removeById(c, InventoryType.USE, projectile, bulletConsume, false, true);
+                InventoryManipulator.removeById(c, chr.getUseInventory(), projectile, bulletConsume, false, true);
             }
         }
 
@@ -682,7 +683,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.rangedAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void MagicDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void MagicDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -709,7 +710,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, attack.charge, chr.getLevel()), chr.getPosition());
     }
 
-    public static final void handleWheelOfFortuneEffect(final int itemId, final GameCharacter chr) {
+    public static void handleWheelOfFortuneEffect(final int itemId, final GameCharacter chr) {
         // BA 03 00 00   72 01 00 00 << extra int
         switch (itemId) {
             case 5510000: {
@@ -724,7 +725,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleMesoDrop(final int meso, final GameCharacter chr) {
+    public static void handleMesoDrop(final int meso, final GameCharacter chr) {
         if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
             chr.getClient().write(MaplePacketCreator.enableActions());
             return;
@@ -733,11 +734,11 @@ public class PlayerHandler {
         chr.getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
     }
 
-    public static final void handleFaceExpression(final int emote, final GameCharacter chr) {
+    public static void handleFaceExpression(final int emote, final GameCharacter chr) {
         if (emote > 7) {
             final int emoteid = 5159992 + emote;
-            final InventoryType type = GameConstants.getInventoryType(emoteid);
-            if (chr.getInventoryType(type).findById(emoteid) == null) {
+            final Inventory inventory = chr.getInventoryForItem(emoteid);
+            if (inventory.findById(emoteid) == null) {
                 chr.getCheatTracker().registerOffense(CheatingOffense.USING_UNAVAILABLE_ITEM, Integer.toString(emoteid));
                 return;
             }
@@ -860,7 +861,7 @@ public class PlayerHandler {
                 } else {
                     if (chr.haveItem(5510000, 1, false, true)) { // Wheel of Fortune
                         chr.getStat().setHp((chr.getStat().getMaxHp() / 100) * 40);
-                        InventoryManipulator.removeById(c, InventoryType.CASH, 5510000, 1, true, false);
+                        InventoryManipulator.removeById(c, chr.getCashInventory(), 5510000, 1, true, false);
 
                         final GameMap to = chr.getMap();
                         chr.changeMap(to, to.getPortal(0));

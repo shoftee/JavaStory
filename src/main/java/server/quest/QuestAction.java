@@ -28,6 +28,7 @@ import client.ISkill;
 import client.GameConstants;
 import client.InventoryException;
 import client.GameCharacter;
+import client.Inventory;
 import client.InventoryType;
 import client.QuestStatus;
 import client.Stat;
@@ -149,7 +150,8 @@ public class QuestAction implements Serializable {
 		    final short count = (short) WzDataTool.getInt(iEntry.getChildByPath("count"), 1);
 		    if (count < 0) { // remove items
 			try {
-			    InventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id, (count * -1), true, false);
+                            final Inventory inventory = c.getInventoryForItem(id);
+			    InventoryManipulator.removeById(c.getClient(), inventory, id, (count * -1), true, false);
 			} catch (InventoryException ie) {
 			    // it's better to catch this here so we'll atleast try to remove the other items
 			    System.err.println("[h4x] Completing a quest without meeting the requirements" + ie);
@@ -290,19 +292,19 @@ public class QuestAction implements Serializable {
 			}
 		    }
 		}
-		if (c.getInventoryType(InventoryType.EQUIP).getNumFreeSlot() <= eq) {
+		if (c.getEquipInventory().getNumFreeSlot() <= eq) {
 		    c.dropMessage(1, "Plaase make space for your Equip inventory.");
 		    return false;
-		} else if (c.getInventoryType(InventoryType.USE).getNumFreeSlot() <= use) {
+		} else if (c.getUseInventory().getNumFreeSlot() <= use) {
 		    c.dropMessage(1, "Plaase make space for your Use inventory.");
 		    return false;
-		} else if (c.getInventoryType(InventoryType.SETUP).getNumFreeSlot() <= setup) {
+		} else if (c.getSetupInventory().getNumFreeSlot() <= setup) {
 		    c.dropMessage(1, "Plaase make space for your Setup inventory.");
 		    return false;
-		} else if (c.getInventoryType(InventoryType.ETC).getNumFreeSlot() <= etc) {
+		} else if (c.getEtcInventory().getNumFreeSlot() <= etc) {
 		    c.dropMessage(1, "Plaase make space for your Etc inventory.");
 		    return false;
-		} else if (c.getInventoryType(InventoryType.CASH).getNumFreeSlot() <= cash) {
+		} else if (c.getCashInventory().getNumFreeSlot() <= cash) {
 		    c.dropMessage(1, "Plaase make space for your Cash inventory.");
 		    return false;
 		}
@@ -362,7 +364,7 @@ public class QuestAction implements Serializable {
 		    }
 		    final short count = (short) WzDataTool.getInt(iEntry.getChildByPath("count"), 1);
 		    if (count < 0) { // remove items
-			InventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id, (count * -1), true, false);
+			InventoryManipulator.removeById(c.getClient(), c.getInventoryForItem(id), id, (count * -1), true, false);
 			c.getClient().write(MaplePacketCreator.getShowItemGain(id, count, true));
 		    } else { // add items
 //			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);

@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
+import client.GameCharacter;
+import client.Inventory;
 import java.util.Map;
 
 import client.IItem;
@@ -64,7 +66,8 @@ public class ItemMakerHandler {
         final int itemId = reader.readInt();
         reader.skip(4);
         final byte slot = (byte) reader.readInt();
-        final IItem toUse = c.getPlayer().getInventoryType(InventoryType.EQUIP).getItem(slot);
+        final Inventory equipInventory = c.getPlayer().getEquipInventory();
+        final IItem toUse = equipInventory.getItem(slot);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() <
                 1) {
             return true;
@@ -73,7 +76,7 @@ public class ItemMakerHandler {
         if (!ii.isDropRestricted(itemId)) {
             final int[] toGive = getCrystal(itemId, ii.getReqLevel(itemId));
             InventoryManipulator.addById(c, toGive[0], (byte) toGive[1]);
-            InventoryManipulator.removeFromSlot(c, InventoryType.EQUIP, slot, (byte) 1, false);
+            InventoryManipulator.removeFromSlot(c, equipInventory, slot, (byte) 1, false);
         }
         c.write(MaplePacketCreator.ItemMaker_Success());
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
@@ -83,39 +86,42 @@ public class ItemMakerHandler {
     private static void makeCrystal(final PacketReader reader, final GameClient c) throws PacketFormatException {
         // Making Crystals
         final int etc = reader.readInt();
-        if (c.getPlayer().haveItem(etc, 100, false, true)) {
+        final GameCharacter player = c.getPlayer();
+        final Inventory etcInventory = player.getEtcInventory();
+        if (player.haveItem(etc, 100, false, true)) {
             InventoryManipulator.addById(c, getCreateCrystal(etc), (short) 1);
-            InventoryManipulator.removeById(c, InventoryType.ETC, etc, 100, false, false);
+            InventoryManipulator.removeById(c, etcInventory, etc, 100, false, false);
 
             c.write(MaplePacketCreator.ItemMaker_Success());
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
         }
     }
 
     private static boolean makeGem(final PacketReader reader, final GameClient c) throws PacketFormatException {
         // Gem
         final int toCreate = reader.readInt();
+        final GameCharacter player = c.getPlayer();
         if (GameConstants.isGem(toCreate)) {
             final GemInfo gem = ItemMakerFactory.getInstance().getGemInfo(toCreate);
             if (!hasSkill(c, gem.getRequiredSkillLevel())) {
                 return true;
             }
-            if (c.getPlayer().getMeso() < gem.getCost()) {
+            if (player.getMeso() < gem.getCost()) {
                 return true;
             }
             final int gemItemId = gem.chooseRandomReward();
-            if (c.getPlayer().getInventoryType(GameConstants.getInventoryType(gemItemId)).isFull()) {
+            if (player.getInventoryForItem(gemItemId).isFull()) {
                 return true;
             }
             final int taken = checkRequiredNRemove(c, gem.getRecipe());
             if (taken == 0) {
                 return true;
             }
-            c.getPlayer().gainMeso(-gem.getCost(), false);
+            player.gainMeso(-gem.getCost(), false);
             InventoryManipulator.addById(c, gemItemId, (byte) (taken ==
                     gemItemId ? 9 : 1)); // Gem is always 1
             c.write(MaplePacketCreator.ItemMaker_Success());
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
         } else {
             final boolean stimulator = reader.readByte() > 0;
             final int numEnchanter = reader.readInt();
@@ -126,37 +132,38 @@ public class ItemMakerHandler {
             if (!hasSkill(c, create.getRequiredSkillLevel())) {
                 return true;
             }
-            if (c.getPlayer().getMeso() < create.getCost()) {
+            if (player.getMeso() < create.getCost()) {
                 return true;
             }
-            if (c.getPlayer().getInventoryType(GameConstants.getInventoryType(toCreate)).isFull()) {
+            if (player.getInventoryForItem(toCreate).isFull()) {
                 return true;
             }
             if (checkRequiredNRemove(c, create.getRecipe()) == 0) {
                 return true;
             }
-            c.getPlayer().gainMeso(-create.getCost(), false);
+            player.gainMeso(-create.getCost(), false);
             final ItemInfoProvider ii = ItemInfoProvider.getInstance();
             final Equip toGive = (Equip) ii.getEquipById(toCreate);
+            final Inventory etcInventory = player.getEtcInventory();
             if (stimulator || numEnchanter > 0) {
-                if (c.getPlayer().haveItem(create.getStimulator(), 1, false, true)) {
+                if (player.haveItem(create.getStimulator(), 1, false, true)) {
                     ii.randomizeStats(toGive);
-                    InventoryManipulator.removeById(c, InventoryType.ETC, create.getStimulator(), 1, false, false);
+                    InventoryManipulator.removeById(c, etcInventory, create.getStimulator(), 1, false, false);
                 }
                 for (int i = 0; i < numEnchanter; i++) {
                     final int enchant = reader.readInt();
-                    if (c.getPlayer().haveItem(enchant, 1, false, true)) {
+                    if (player.haveItem(enchant, 1, false, true)) {
                         final Map<String, Byte> stats = ii.getItemMakeStats(enchant);
                         if (stats != null) {
                             addEnchantStats(stats, toGive);
-                            InventoryManipulator.removeById(c, InventoryType.ETC, enchant, 1, false, false);
+                            InventoryManipulator.removeById(c, etcInventory, enchant, 1, false, false);
                         }
                     }
                 }
             }
             InventoryManipulator.addbyItem(c, toGive);
             c.write(MaplePacketCreator.ItemMaker_Success());
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.ItemMaker_Success_3rdParty(c.getPlayer().getId()), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
         }
         return false;
     }
@@ -310,8 +317,8 @@ public class ItemMakerHandler {
         }
         for (final ItemRecipeEntry p : recipe) {
             int itemId = p.getItemId();
-            InventoryType type = GameConstants.getInventoryType(itemId);
-            InventoryManipulator.removeById(c, type, itemId, p.getQuantity(), false, false);
+            final Inventory inventory = c.getPlayer().getInventoryForItem(itemId);
+            InventoryManipulator.removeById(c, inventory, itemId, p.getQuantity(), false, false);
         }
         return removed;
     }

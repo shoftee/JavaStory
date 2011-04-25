@@ -283,7 +283,8 @@ public class StatEffect implements Serializable {
                 //    break;
                 case 4321000: //tornado spin uses same buffstats
                     ret.duration = 1000;
-                    statups.add(new Pair<BuffStat, Integer>(BuffStat.DASH_SPEED, 100 + ret.x));
+                    statups.add(new Pair<BuffStat, Integer>(BuffStat.DASH_SPEED, 100 +
+                            ret.x));
                     statups.add(new Pair<BuffStat, Integer>(BuffStat.DASH_JUMP, ret.y)); //always 0 but its there
                     break;
                 case 5001005: // Dash
@@ -334,7 +335,8 @@ public class StatEffect implements Serializable {
                     statups.add(new Pair<BuffStat, Integer>(BuffStat.DRAGONBLOOD, ret.x));
                     break;
                 case 4341007:
-                    statups.add(new Pair<BuffStat, Integer>(BuffStat.THORNS, ret.x << 8 | ret.y));
+                    statups.add(new Pair<BuffStat, Integer>(BuffStat.THORNS, ret.x <<
+                            8 | ret.y));
                     break;
                 case 4341002:
                     ret.duration = 60 * 1000;
@@ -369,7 +371,8 @@ public class StatEffect implements Serializable {
                     break;
                 case 3121002: // sharp eyes bow master
                 case 3221002: // sharp eyes marksmen
-                    statups.add(new Pair<BuffStat, Integer>(BuffStat.SHARP_EYES, ret.x << 8 | ret.y));
+                    statups.add(new Pair<BuffStat, Integer>(BuffStat.SHARP_EYES, ret.x <<
+                            8 | ret.y));
                     break;
                 case 21101003: // Body Pressure
                     statups.add(new Pair<BuffStat, Integer>(BuffStat.BODY_PRESSURE, ret.x));
@@ -573,15 +576,18 @@ public class StatEffect implements Serializable {
                 case 2100000:
                 case 2200000:
                 case 2300000:
-                    if (obj == null || obj.getType() != GameMapObjectType.MONSTER) {
+                    if (obj == null || obj.getType() !=
+                            GameMapObjectType.MONSTER) {
                         return;
                     }
                     final Monster mob = (Monster) obj; // x is absorb percentage
                     if (!mob.getStats().isBoss()) {
-                        final int absorbMp = Math.min((int) (mob.getMobMaxMp() * (getX() / 100.0)), mob.getMp());
+                        final int absorbMp = Math.min((int) (mob.getMobMaxMp() *
+                                (getX() / 100.0)), mob.getMp());
                         if (absorbMp > 0) {
                             mob.setMp(mob.getMp() - absorbMp);
-                            applyto.getStat().setMp(applyto.getStat().getMp() + absorbMp);
+                            applyto.getStat().setMp(applyto.getStat().getMp() +
+                                    absorbMp);
                             applyto.getClient().write(MaplePacketCreator.showOwnBuffEffect(sourceid, 1));
                             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1), false);
                         }
@@ -610,7 +616,7 @@ public class StatEffect implements Serializable {
 
         if (primary) {
             if (itemConNo != 0) {
-                InventoryManipulator.removeById(applyto.getClient(), GameConstants.getInventoryType(itemCon), itemCon, itemConNo, false, true);
+                InventoryManipulator.removeById(applyto.getClient(), applyto.getInventoryForItem(itemCon), itemCon, itemConNo, false, true);
             }
         } else if (!primary && isResurrection()) {
             hpchange = stat.getMaxHp();
@@ -635,7 +641,8 @@ public class StatEffect implements Serializable {
         }
         final List<Pair<Stat, Integer>> hpmpupdate = new ArrayList<Pair<Stat, Integer>>(2);
         if (hpchange != 0) {
-            if (hpchange < 0 && (-hpchange) > stat.getHp() && !applyto.hasDisease(Disease.ZOMBIFY)) {
+            if (hpchange < 0 && (-hpchange) > stat.getHp() &&
+                    !applyto.hasDisease(Disease.ZOMBIFY)) {
                 return false;
             }
             stat.setHp(stat.getHp() + hpchange);
@@ -658,13 +665,14 @@ public class StatEffect implements Serializable {
         } else if (GameConstants.isMonsterCard(sourceid)) {
             applyto.getMonsterBook().addCard(applyto.getClient(), sourceid);
         } else if (isSpiritClaw()) {
-            Inventory use = applyto.getInventoryType(InventoryType.USE);
+            Inventory use = applyto.getUseInventory();
             IItem item;
             for (int i = 0; i < use.getSlotLimit(); i++) { // impose order...
                 item = use.getItem((byte) i);
                 if (item != null) {
-                    if (GameConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200) {
-                        InventoryManipulator.removeById(applyto.getClient(), InventoryType.USE, item.getItemId(), 200, false, true);
+                    if (GameConstants.isThrowingStar(item.getItemId()) &&
+                            item.getQuantity() >= 200) {
+                        InventoryManipulator.removeById(applyto.getClient(), applyto.getUseInventory(), item.getItemId(), 200, false, true);
                         break;
                     }
                 }
@@ -734,9 +742,12 @@ public class StatEffect implements Serializable {
                     target = applyto.getMap().getReturnMap();
                 } else {
                     target = ChannelManager.getInstance(applyto.getClient().getChannelId()).getMapFactory(applyto.getWorld()).getMap(moveTo);
-                    if (target.getId() / 10000000 != 60 && applyto.getMapId() / 10000000 != 61) {
-                        if (target.getId() / 10000000 != 21 && applyto.getMapId() / 10000000 != 20) {
-                            if (target.getId() / 10000000 != applyto.getMapId() / 10000000) {
+                    if (target.getId() / 10000000 != 60 && applyto.getMapId() /
+                            10000000 != 61) {
+                        if (target.getId() / 10000000 != 21 &&
+                                applyto.getMapId() / 10000000 != 20) {
+                            if (target.getId() / 10000000 != applyto.getMapId() /
+                                    10000000) {
                                 return false;
                             }
                         }
@@ -757,8 +768,10 @@ public class StatEffect implements Serializable {
             for (final GameMapObject affectedmo : affecteds) {
                 final GameCharacter affected = (GameCharacter) affectedmo;
 
-                if (affected != applyfrom && (isGmBuff() || applyfrom.getParty().equals(affected.getParty()))) {
-                    if ((isResurrection() && !affected.isAlive()) || (!isResurrection() && affected.isAlive())) {
+                if (affected != applyfrom && (isGmBuff() ||
+                        applyfrom.getParty().equals(affected.getParty()))) {
+                    if ((isResurrection() && !affected.isAlive()) ||
+                            (!isResurrection() && affected.isAlive())) {
                         applyTo(applyfrom, affected, false, null);
                         affected.getClient().write(MaplePacketCreator.showOwnBuffEffect(sourceid, 2));
                         affected.getMap().broadcastMessage(affected, MaplePacketCreator.showBuffeffect(affected.getId(), sourceid, 2), false);
@@ -808,7 +821,8 @@ public class StatEffect implements Serializable {
     public final void silentApplyBuff(final GameCharacter chr, final long starttime) {
         final int localDuration = alchemistModifyVal(chr, duration, false);
         chr.registerEffect(this, starttime, TimerManager.getInstance().schedule(new CancelEffectAction(chr, this, starttime),
-                                                                                ((starttime + localDuration) - System.currentTimeMillis())));
+                                                                                ((starttime +
+                localDuration) - System.currentTimeMillis())));
 
         final SummonMovementType summonMovementType = getSummonMovementType();
         if (summonMovementType != null) {
@@ -841,7 +855,8 @@ public class StatEffect implements Serializable {
             applyto.registerEffect(this, starttime, null);
         } else {
             final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-            final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + duration) - System.currentTimeMillis()));
+            final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime +
+                    duration) - System.currentTimeMillis()));
             applyto.registerEffect(this, starttime, schedule);
         }
     }
@@ -862,8 +877,10 @@ public class StatEffect implements Serializable {
             case 5001005: // Dash
             case 4321000: //tornado spin
             case 15001003: {
-                applyto.getClient().write(MaplePacketCreator.givePirate(statups, localDuration / 1000, sourceid));
-                applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignPirate(statups, localDuration / 1000, applyto.getId(), sourceid), false);
+                applyto.getClient().write(MaplePacketCreator.givePirate(statups, localDuration /
+                        1000, sourceid));
+                applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.giveForeignPirate(statups, localDuration /
+                        1000, applyto.getId(), sourceid), false);
                 normal = false;
                 break;
             }
@@ -982,7 +999,8 @@ public class StatEffect implements Serializable {
         }
         final long starttime = System.currentTimeMillis();
         final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-        final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + localDuration) - System.currentTimeMillis()));
+        final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime +
+                localDuration) - System.currentTimeMillis()));
         applyto.registerEffect(this, starttime, schedule);
     }
 
@@ -992,8 +1010,9 @@ public class StatEffect implements Serializable {
             case 10001004:
             case 20001004:
             case 20011004:
-                if (player.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22) != null) {
-                    return player.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22).getItemId();
+                final IItem item = player.getEquippedItemsInventory().getItem((byte) -22);
+                if (item != null) {
+                    return item.getItemId();
                 }
                 return 0;
             case 5221006: // Battleship
@@ -1043,7 +1062,9 @@ public class StatEffect implements Serializable {
     }
 
     private static int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor) {
-        return (int) ((Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1)) + (int) (stat * lowerfactor * rate));
+        return (int) ((Math.random() * ((int) (stat * upperfactor * rate) -
+                (int) (stat * lowerfactor * rate) + 1)) + (int) (stat *
+                lowerfactor * rate));
     }
 
     private static int getElementalAmp(final int job) {
@@ -1105,7 +1126,9 @@ public class StatEffect implements Serializable {
         if (!skill) {
             final StatEffect alchemistEffect = getAlchemistEffect(chr);
             if (alchemistEffect != null) {
-                return (int) (val * ((withX ? alchemistEffect.getX() : alchemistEffect.getY()) / 100.0));
+                return (int) (val *
+                        ((withX ? alchemistEffect.getX() : alchemistEffect.getY()) /
+                        100.0));
             }
         }
         return val;
@@ -1179,7 +1202,8 @@ public class StatEffect implements Serializable {
     }
 
     public final boolean isMonsterRiding_() {
-        return skill && (sourceid == 1004 || sourceid == 10001004 || sourceid == 20001004 || sourceid == 20011004);
+        return skill && (sourceid == 1004 || sourceid == 10001004 || sourceid ==
+                20001004 || sourceid == 20011004);
     }
 
     public final boolean isMonsterRiding() {
@@ -1393,7 +1417,8 @@ public class StatEffect implements Serializable {
     }
 
     private boolean isMist() {
-        return skill && (sourceid == 2111003 || sourceid == 4221006 || sourceid == 12111005 || sourceid == 14111006); // poison mist, smokescreen and flame gear
+        return skill && (sourceid == 2111003 || sourceid == 4221006 || sourceid ==
+                12111005 || sourceid == 14111006); // poison mist, smokescreen and flame gear
     }
 
     private boolean isSpiritClaw() {

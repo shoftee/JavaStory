@@ -1,5 +1,6 @@
 package handling.channel.handler;
 
+import client.Inventory;
 import java.util.Arrays;
 
 import client.IItem;
@@ -7,7 +8,6 @@ import client.ItemFlag;
 import client.GameConstants;
 import client.GameClient;
 import client.GameCharacter;
-import client.InventoryType;
 import org.javastory.io.PacketFormatException;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
@@ -47,7 +47,7 @@ public class PlayerInteractionHandler {
             VIEW_MERCHANT_VISITOR = 0x2C,
             VIEW_MERCHANT_BLACKLIST = 0x2D;
 
-    public static final void handlePlayerInteraction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePlayerInteraction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
 
         switch (action) { // Mode
@@ -58,7 +58,7 @@ public class PlayerInteractionHandler {
                 } else if (createType == 3) { // trade
                     Trade.startTrade(chr);
                 } else if (createType == 4 || createType == 5) { // shop
-                    if (chr.getMap().getMapObjectsInRange(chr.getPosition(), 19500, Arrays.asList(GameMapObjectType.SHOP, GameMapObjectType.HIRED_MERCHANT)).size() != 0) {
+                    if (!chr.getMap().getMapObjectsInRange(chr.getPosition(), 19500, Arrays.asList(GameMapObjectType.SHOP, GameMapObjectType.HIRED_MERCHANT)).isEmpty()) {
                         chr.dropMessage(1, "You may not establish a store here.");
                         return;
                     }
@@ -90,7 +90,8 @@ public class PlayerInteractionHandler {
                 break;
             }
             case VISIT: {
-                if (chr.getTrade() != null && chr.getTrade().getPartner() != null) {
+                if (chr.getTrade() != null && chr.getTrade().getPartner() !=
+                        null) {
                     Trade.visitTrade(chr, chr.getTrade().getPartner().getChr());
                 } else {
                     final GameMapObject ob = chr.getMap().getMapObject(reader.readInt());
@@ -144,7 +145,8 @@ public class PlayerInteractionHandler {
                 } else if (chr.getPlayerShop() != null) {
                     final PlayerShop ips = chr.getPlayerShop();
                     final String message = reader.readLengthPrefixedString();
-                    ips.broadcastToVisitors(PlayerShopPacket.shopChat(chr.getName() + " : " + message, ips.isOwner(chr) ? 0 : ips.getVisitorSlot(chr)));
+                    ips.broadcastToVisitors(PlayerShopPacket.shopChat(chr.getName() +
+                            " : " + message, ips.isOwner(chr) ? 0 : ips.getVisitorSlot(chr)));
                 }
                 break;
             }
@@ -206,32 +208,38 @@ public class PlayerInteractionHandler {
             }
             case SET_ITEMS: {
                 final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-                final InventoryType ivType = InventoryType.getByType(reader.readByte());
-                final IItem item = chr.getInventoryType(ivType).getItem((byte) reader.readShort());
+                final byte typeByte = reader.readByte();
+                final Inventory inventory = chr.getInventoryByTypeByte(typeByte);
+                final IItem item = inventory.getItem((byte) reader.readShort());
                 final short quantity = reader.readShort();
                 final byte targetSlot = reader.readByte();
 
                 if (chr.getTrade() != null && item != null) {
-                    if ((quantity <= item.getQuantity() && quantity >= 0) || GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
+                    if ((quantity <= item.getQuantity() && quantity >= 0) ||
+                            GameConstants.isThrowingStar(item.getItemId()) ||
+                            GameConstants.isBullet(item.getItemId())) {
                         final byte flag = item.getFlag();
 
-                        if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
+                        if (ItemFlag.UNTRADEABLE.check(flag) ||
+                                ItemFlag.LOCK.check(flag)) {
                             c.write(MaplePacketCreator.enableActions());
                             return;
                         }
                         if (ii.isDropRestricted(item.getItemId())) {
-                            if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
+                            if (!(ItemFlag.KARMA_EQ.check(flag) ||
+                                    ItemFlag.KARMA_USE.check(flag))) {
                                 c.write(MaplePacketCreator.enableActions());
                                 return;
                             }
                         }
                         IItem tradeItem = item.copy();
-                        if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
+                        if (GameConstants.isThrowingStar(item.getItemId()) ||
+                                GameConstants.isBullet(item.getItemId())) {
                             tradeItem.setQuantity(item.getQuantity());
-                            InventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), item.getQuantity(), true);
+                            InventoryManipulator.removeFromSlot(c, inventory, item.getPosition(), item.getQuantity(), true);
                         } else {
                             tradeItem.setQuantity(quantity);
-                            InventoryManipulator.removeFromSlot(c, ivType, item.getPosition(), quantity, true);
+                            InventoryManipulator.removeFromSlot(c, inventory, item.getPosition(), quantity, true);
                         }
                         tradeItem.setPosition(targetSlot);
                         chr.getTrade().addItem(tradeItem);
@@ -261,7 +269,8 @@ public class PlayerInteractionHandler {
                 break;
             }
             case ADD_ITEM: {
-                final InventoryType type = InventoryType.getByType(reader.readByte());
+                final byte typeByte = reader.readByte();
+                final Inventory inventory = chr.getInventoryByTypeByte(typeByte);
                 final byte slot = (byte) reader.readShort();
                 final short bundles = reader.readShort(); // How many in a bundle
                 final short perBundle = reader.readShort(); // Price per bundle
@@ -275,7 +284,7 @@ public class PlayerInteractionHandler {
                 if (shop == null || !shop.isOwner(chr)) {
                     return;
                 }
-                final IItem ivItem = chr.getInventoryType(type).getItem(slot);
+                final IItem ivItem = inventory.getItem(slot);
 
                 if (ivItem != null) {
                     final short bundles_perbundle = (short) (bundles * perBundle);
@@ -285,24 +294,27 @@ public class PlayerInteractionHandler {
                     if (ivItem.getQuantity() >= bundles_perbundle) {
                         final byte flag = ivItem.getFlag();
 
-                        if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
+                        if (ItemFlag.UNTRADEABLE.check(flag) ||
+                                ItemFlag.LOCK.check(flag)) {
                             c.write(MaplePacketCreator.enableActions());
                             return;
                         }
                         if (ItemInfoProvider.getInstance().isDropRestricted(ivItem.getItemId())) {
-                            if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
+                            if (!(ItemFlag.KARMA_EQ.check(flag) ||
+                                    ItemFlag.KARMA_USE.check(flag))) {
                                 c.write(MaplePacketCreator.enableActions());
                                 return;
                             }
                         }
-                        if (GameConstants.isThrowingStar(ivItem.getItemId()) || GameConstants.isBullet(ivItem.getItemId())) {
+                        if (GameConstants.isThrowingStar(ivItem.getItemId()) ||
+                                GameConstants.isBullet(ivItem.getItemId())) {
                             // Ignore the bundles
-                            InventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
+                            InventoryManipulator.removeFromSlot(c, inventory, slot, ivItem.getQuantity(), true);
 
                             final IItem sellItem = ivItem.copy();
                             shop.addItem(new PlayerShopItem(sellItem, (short) 1, price));
                         } else {
-                            InventoryManipulator.removeFromSlot(c, type, slot, bundles_perbundle, true);
+                            InventoryManipulator.removeFromSlot(c, inventory, slot, bundles_perbundle, true);
 
                             final IItem sellItem = ivItem.copy();
                             sellItem.setQuantity(perBundle);
@@ -324,15 +336,13 @@ public class PlayerInteractionHandler {
                 }
                 final PlayerShopItem tobuy = shop.getItems().get(item);
 
-                if (quantity < 0
-                        || tobuy == null
-                        || tobuy.bundles < quantity
-                        || (tobuy.bundles % quantity != 0 && GameConstants.isEquip(tobuy.item.getItemId())) // Buying
-                        || ((short) (tobuy.bundles * quantity)) < 0
-                        || (quantity * tobuy.price) < 0
-                        || quantity * tobuy.item.getQuantity() < 0
-                        || chr.getMeso() - (quantity * tobuy.price) < 0
-                        || shop.getMeso() + (quantity * tobuy.price) < 0) {
+                if (quantity < 0 || tobuy == null || tobuy.bundles < quantity ||
+                        (tobuy.bundles % quantity != 0 &&
+                        GameConstants.isEquip(tobuy.item.getItemId())) // Buying
+                        || ((short) (tobuy.bundles * quantity)) < 0 || (quantity *
+                        tobuy.price) < 0 || quantity * tobuy.item.getQuantity() <
+                        0 || chr.getMeso() - (quantity * tobuy.price) < 0 ||
+                        shop.getMeso() + (quantity * tobuy.price) < 0) {
                     return;
                 }
                 shop.buy(c, item, quantity);
@@ -351,7 +361,8 @@ public class PlayerInteractionHandler {
                 if (item != null) {
                     if (item.bundles > 0) {
                         IItem item_get = item.item.copy();
-                        item_get.setQuantity((short) (item.bundles * item.item.getQuantity()));
+                        item_get.setQuantity((short) (item.bundles *
+                                item.item.getQuantity()));
                         if (InventoryManipulator.addFromDrop(c, item_get, false)) {
                             item.bundles = 0;
                             shop.removeFromSlot(slot);
@@ -363,7 +374,8 @@ public class PlayerInteractionHandler {
             }
             case MAINTANCE_OFF: {
                 final PlayerShop shop = chr.getPlayerShop();
-                if (shop != null && shop instanceof HiredMerchantStore && shop.isOwner(chr)) {
+                if (shop != null && shop instanceof HiredMerchantStore &&
+                        shop.isOwner(chr)) {
                     shop.setOpen(true);
                     chr.setPlayerShop(null);
                 }
@@ -389,7 +401,8 @@ public class PlayerInteractionHandler {
             }
             case CLOSE_MERCHANT: {
                 final PlayerShop merchant = chr.getPlayerShop();
-                if (merchant != null && merchant.getShopType() == 1 && merchant.isOwner(chr)) {
+                if (merchant != null && merchant.getShopType() == 1 &&
+                        merchant.isOwner(chr)) {
                     boolean save = false;
 
                     if (chr.getMeso() + merchant.getMeso() < 0) {
@@ -404,7 +417,8 @@ public class PlayerInteractionHandler {
                             for (PlayerShopItem items : merchant.getItems()) {
                                 if (items.bundles > 0) {
                                     IItem item_get = items.item.copy();
-                                    item_get.setQuantity((short) (items.bundles * items.item.getQuantity()));
+                                    item_get.setQuantity((short) (items.bundles *
+                                            items.item.getQuantity()));
                                     if (InventoryManipulator.addFromDrop(c, item_get, false)) {
                                         items.bundles = 0;
                                     } else {
@@ -432,7 +446,8 @@ public class PlayerInteractionHandler {
                 break;
             }
             default: {
-                System.out.println("Unhandled interaction action : " + action + ", " + reader.toString());
+                System.out.println("Unhandled interaction action : " + action +
+                        ", " + reader.toString());
                 break;
             }
         }

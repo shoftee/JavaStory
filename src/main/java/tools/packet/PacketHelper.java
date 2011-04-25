@@ -3,29 +3,26 @@ package tools.packet;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import client.IEquip;
-import client.Item;
 import client.ISkill;
 import client.GameConstants;
 import client.Ring;
 import client.Pet;
 import client.GameCharacter;
 import client.Inventory;
-import client.InventoryType;
 import client.QuestStatus;
 import client.IItem;
+import client.ItemType;
 import client.SkillEntry;
+import com.google.common.collect.Lists;
 import handling.world.PlayerCooldownValueHolder;
 import server.movement.LifeMovementFragment;
 import tools.FiletimeUtil;
 import org.javastory.io.PacketBuilder;
-import org.javastory.io.PacketBuilder;
-import tools.StringUtil;
 
 public class PacketHelper {
 
@@ -101,22 +98,25 @@ public class PacketHelper {
 
     public static void addRingInfo(final PacketBuilder builder, final GameCharacter chr) {
         List<Ring> rings = new ArrayList<Ring>();
-        Inventory iv = chr.getInventoryType(InventoryType.EQUIPPED);
-        for (final IItem item : iv.list()) {
-            if (((IEquip) item).getRingId() > -1) {
-                rings.add(Ring.loadFromDb(((IEquip) item).getRingId()));
+        final Inventory equipped = chr.getEquippedItemsInventory();
+        for (final IItem item : equipped) {
+            final IEquip equip = (IEquip) item;
+            if (equip.getRingId() > -1) {
+                rings.add(Ring.loadFromDb(equip.getRingId()));
             }
         }
-        iv = chr.getInventoryType(InventoryType.EQUIP);
-        for (final IItem item : iv.list()) {
-            if (((IEquip) item).getRingId() > -1) {
-                rings.add(Ring.loadFromDb(((IEquip) item).getRingId()));
+        final Inventory equips = chr.getEquipInventory();
+        for (final IItem item : equips) {
+            final IEquip equip = (IEquip) item;
+            if (equip.getRingId() > -1) {
+                rings.add(Ring.loadFromDb(equip.getRingId()));
             }
         }
         Collections.sort(rings);
         boolean FR_last = false;
         for (final Ring ring : rings) {
-            if ((ring.getItemId() >= 1112800 && ring.getItemId() <= 1112803 || ring.getItemId() <= 1112806 || ring.getItemId() <= 1112807 || ring.getItemId() <= 1112809) && rings.indexOf(ring) == 0) {
+            final int ringItemId = ring.getItemId();
+            if ((ringItemId >= 1112800 && ringItemId <= 1112803 || ringItemId <= 1112806 || ringItemId <= 1112807 || ringItemId <= 1112809) && rings.indexOf(ring) == 0) {
                 builder.writeAsShort(0);
             }
             builder.writeAsShort(0);
@@ -126,10 +126,10 @@ public class PacketHelper {
             builder.writeInt(ring.getRingId());
             builder.writeInt(0);
             builder.writeInt(ring.getPartnerRingId());
-            if (ring.getItemId() >= 1112800 && ring.getItemId() <= 1112803 || ring.getItemId() <= 1112806 || ring.getItemId() <= 1112807 || ring.getItemId() <= 1112809) {
+            if (ringItemId >= 1112800 && ringItemId <= 1112803 || ringItemId <= 1112806 || ringItemId <= 1112807 || ringItemId <= 1112809) {
                 FR_last = true;
                 builder.writeInt(0);
-                builder.writeInt(ring.getItemId());
+                builder.writeInt(ringItemId);
                 builder.writeAsShort(0);
             } else {
                 if (rings.size() > 1) {
@@ -145,55 +145,52 @@ public class PacketHelper {
 
     public static void addInventoryInfo(PacketBuilder builder, GameCharacter chr) {
         builder.writeInt(chr.getMeso()); // mesos
-        builder.writeByte(chr.getInventoryType(InventoryType.EQUIP).getSlotLimit()); // equip slots
-        builder.writeByte(chr.getInventoryType(InventoryType.USE).getSlotLimit()); // use slots
-        builder.writeByte(chr.getInventoryType(InventoryType.SETUP).getSlotLimit()); // set-up slots
-        builder.writeByte(chr.getInventoryType(InventoryType.ETC).getSlotLimit()); // etc slots
-        builder.writeByte(chr.getInventoryType(InventoryType.CASH).getSlotLimit()); // cash slots
+        builder.writeByte(chr.getEquipInventory().getSlotLimit()); // equip slots
+        builder.writeByte(chr.getUseInventory().getSlotLimit()); // use slots
+        builder.writeByte(chr.getSetupInventory().getSlotLimit()); // set-up slots
+        builder.writeByte(chr.getEtcInventory().getSlotLimit()); // etc slots
+        builder.writeByte(chr.getCashInventory().getSlotLimit()); // cash slots
         builder.writeBytes(unk1);
         builder.writeBytes(unk2);
-        Inventory iv = chr.getInventoryType(InventoryType.EQUIPPED);
-        Collection<IItem> equippedC = iv.list();
-        List<Item> equipped = new ArrayList<Item>(equippedC.size());
-        for (IItem item : equippedC) {
-            equipped.add((Item) item);
-        }
+        Inventory inventory = chr.getEquippedItemsInventory();
+        List<IItem> equipped = Lists.newArrayList(inventory);
+
         Collections.sort(equipped);
-        for (Item item : equipped) {
+        for (IItem item : equipped) {
             if (item.getPosition() < 0 && item.getPosition() > -100) {
                 addItemInfo(builder, item, false, false);
             }
         }
         builder.writeAsShort(0); // start of equipped nx
-        for (Item item : equipped) {
+        for (IItem item : equipped) {
             if (item.getPosition() < -100) {
                 addItemInfo(builder, item, false, false);
             }
         }
 
         builder.writeAsShort(0); // start of equip inventory
-        iv = chr.getInventoryType(InventoryType.EQUIP);
-        for (IItem item : iv.list()) {
+        inventory = chr.getEquipInventory();
+        for (IItem item : inventory) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeInt(0); // start of use inventory
-        iv = chr.getInventoryType(InventoryType.USE);
-        for (IItem item : iv.list()) {
+        inventory = chr.getUseInventory();
+        for (IItem item : inventory) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of set-up inventory
-        iv = chr.getInventoryType(InventoryType.SETUP);
-        for (IItem item : iv.list()) {
+        inventory = chr.getSetupInventory();
+        for (IItem item : inventory) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of etc inventory
-        iv = chr.getInventoryType(InventoryType.ETC);
-        for (IItem item : iv.list()) {
+        inventory = chr.getEtcInventory();
+        for (IItem item : inventory) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0); // start of cash inventory
-        iv = chr.getInventoryType(InventoryType.CASH);
-        for (IItem item : iv.list()) {
+        inventory = chr.getCashInventory();
+        for (IItem item : inventory) {
             addItemInfo(builder, item, false, false);
         }
         builder.writeAsByte(0);
@@ -241,9 +238,9 @@ public class PacketHelper {
 
         final Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         final Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
-        Inventory equip = chr.getInventoryType(InventoryType.EQUIPPED);
+        Inventory equip = chr.getEquippedItemsInventory();
 
-        for (final IItem item : equip.list()) {
+        for (final IItem item : equip) {
             byte pos = (byte) (item.getPosition() * -1);
             if (pos < 100 && myEquip.get(pos) == null) {
                 myEquip.put(pos, item.getItemId());
@@ -300,13 +297,13 @@ public class PacketHelper {
                     pos -= 100;
                 }
             }
-            if (!trade && item.getType() == 1) {
+            if (!trade && item.getType() == ItemType.EQUIP) {
                 builder.writeAsShort(pos);
             } else {
                 builder.writeAsByte(pos);
             }
         }
-        builder.writeByte(item.getPet() != null ? 3 : item.getType());
+        builder.writeByte(item.getPet() != null ? 3 : item.getType().asByte());
         builder.writeInt(item.getItemId());
 
         if (item.getPet() != null) { // Pet
@@ -331,7 +328,7 @@ public class PacketHelper {
             builder.writeAsByte(0);
             addExpirationTime(builder, item.getExpiration());
 
-            if (item.getType() == 1) {
+            if (item.getType() == ItemType.EQUIP) {
                 final IEquip equip = (IEquip) item;
                 builder.writeByte(equip.getUpgradeSlots());
                 builder.writeByte(equip.getLevel());

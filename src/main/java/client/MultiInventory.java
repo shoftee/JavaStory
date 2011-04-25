@@ -12,10 +12,10 @@ import java.util.Map;
  *
  * @author Tosho
  */
-public class PlayerInventory implements Iterable<Inventory> {
+public class MultiInventory implements Iterable<Inventory> {
     private Map<InventoryType, Inventory> tabs;
     
-    public PlayerInventory() {
+    public MultiInventory() {
         this.tabs = Maps.newEnumMap(InventoryType.class);
     }
     

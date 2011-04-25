@@ -67,10 +67,10 @@ public class GM3Commands implements Command {
             c.getPlayer().changeJob(Integer.parseInt(splitted[1]));
         } else if (splitted[0].equals("-ap")) {
             c.getPlayer().setRemainingAp(getOptionalIntArg(splitted, 1, 1));
-            c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+            c.getPlayer().updateSingleStat(Stat.AVAILABLE_AP, c.getPlayer().getRemainingAp());
         } else if (splitted[0].equals("-sp")) {
             c.getPlayer().setRemainingSp(getOptionalIntArg(splitted, 1, 1));
-            c.getPlayer().updateSingleStat(Stat.AVAILABLESP, c.getPlayer().getRemainingSp());
+            c.getPlayer().updateSingleStat(Stat.AVAILABLE_SP, c.getPlayer().getRemainingSp());
         } else if (splitted[0].equals("-skill")) {
             ISkill skill = SkillFactory.getSkill(Integer.parseInt(splitted[1]));
             byte level = (byte) getOptionalIntArg(splitted, 2, 1);

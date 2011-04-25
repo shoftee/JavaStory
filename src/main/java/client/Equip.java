@@ -69,8 +69,8 @@ public class Equip extends Item implements IEquip, Serializable {
     }
 
     @Override
-    public byte getType() {
-	return 1;
+    public ItemType getType() {
+	return ItemType.EQUIP;
     }
 
     @Override

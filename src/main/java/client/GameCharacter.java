@@ -159,7 +159,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     private PlayerShop playerShop;
     private Party party;
     private KeyLayout keylayout;
-    private PlayerInventory inventory;
+    private MultiInventory inventory;
     private GameClient client;
 
     private GameCharacter() {
@@ -187,7 +187,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         conversationState = new AtomicInteger();
 
         keylayout = new KeyLayout();
-        inventory = new PlayerInventory();
+        inventory = new MultiInventory();
         stats = new PlayerStats(this);
         cheatTracker = new CheatTracker(this);
 
@@ -375,7 +375,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ret.skills.put(SkillFactory.getSkill(qs.getKey()), (SkillEntry) qs.getValue());
         }
         ret.monsterBook = (MonsterBook) ct.monsterbook;
-        ret.inventory = (PlayerInventory) ct.inventorys;
+        ret.inventory = (MultiInventory) ct.inventorys;
         ret.BlessOfFairy_Origin = ct.blessOfFairy;
         ret.skillMacros = (SkillMacro[]) ct.skillmacro;
         ret.keylayout = (KeyLayout) ct.keyLayout;
@@ -568,11 +568,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 if (!rs.next()) {
                     throw new RuntimeException("No Inventory slot column found in SQL. [inventoryslot]");
                 } else {
-                    ret.getInventoryType(InventoryType.EQUIP).setSlotLimit(rs.getByte("equip"));
-                    ret.getInventoryType(InventoryType.USE).setSlotLimit(rs.getByte("use"));
-                    ret.getInventoryType(InventoryType.SETUP).setSlotLimit(rs.getByte("setup"));
-                    ret.getInventoryType(InventoryType.ETC).setSlotLimit(rs.getByte("etc"));
-                    ret.getInventoryType(InventoryType.CASH).setSlotLimit(rs.getByte("cash"));
+                    ret.getEquipInventory().setSlotLimit(rs.getByte("equip"));
+                    ret.getUseInventory().setSlotLimit(rs.getByte("use"));
+                    ret.getSetupInventory().setSlotLimit(rs.getByte("setup"));
+                    ret.getEtcInventory().setSlotLimit(rs.getByte("etc"));
+                    ret.getCashInventory().setSlotLimit(rs.getByte("cash"));
                 }
                 ps.close();
                 rs.close();
@@ -587,7 +587,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 Pet pet;
 
                 while (rs.next()) {
-                    type = InventoryType.getByType(rs.getByte("inventorytype"));
+                    type = InventoryType.fromByte(rs.getByte("inventorytype"));
                     expiration = rs.getLong("expiredate");
 
                     if (type.equals(InventoryType.EQUIP) ||
@@ -617,13 +617,13 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         equip.setLevel(rs.getByte("level"));
                         equip.setExpiration(expiration);
                         equip.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventoryType(type).addFromDb(equip);
+                        ret.inventory.get(type).addFromDb(equip);
                     } else {
                         item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
                         item.setExpiration(expiration);
                         item.setGMLog(rs.getString("GM_Log"));
-                        ret.getInventoryType(type).addFromDb(item);
+                        ret.inventory.get(type).addFromDb(item);
 
                         if (rs.getInt("petid") > -1) {
                             pet = Pet.loadFromDb(item.getItemId(), rs.getInt("petid"), item.getPosition());
@@ -764,7 +764,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 if (!rs.next()) {
                     throw new RuntimeException("No mount data found on SQL column");
                 }
-                final IItem mount = ret.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -22);
+                final IItem mount = ret.getEquippedItemsInventory().getItem((byte) -22);
                 ret.mount = new Mount(ret, mount != null ? mount.getItemId() : 0, 1004, rs.getInt("Fatigue"), rs.getInt("Level"), rs.getInt("Exp"));
                 ps.close();
                 rs.close();
@@ -778,7 +778,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
                 InventoryType type;
                 while (rs.next()) {
-                    type = InventoryType.getByType(rs.getByte("inventorytype"));
+                    type = InventoryType.fromByte(rs.getByte("inventorytype"));
                     if (type.equals(InventoryType.EQUIP) ||
                             type.equals(InventoryType.EQUIPPED)) {
                         final Equip equip = new Equip(rs.getInt("itemid"), rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
@@ -804,7 +804,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         equip.setItemEXP(rs.getShort("itemEXP"));
                         equip.setUpgradeSlots(rs.getByte("upgradeslots"));
                         equip.setLevel(rs.getByte("level"));*/
-                        ret.getInventoryType(type).addFromDb(equip);
+                        ret.inventory.get(type).addFromDb(equip);
                         /*		} else {
                         Item item = new Item(rs.getInt("itemid"), rs.getByte("position"), rs.getShort("quantity"), rs.getInt("petid"), rs.getByte("flag"));
                         item.setOwner(rs.getString("owner"));
@@ -933,9 +933,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             IEquip equip;
 
-            for (final Inventory iv : chr.inventory) {
-                ps.setInt(3, iv.getType().asByte());
-                for (final IItem item : iv.list()) {
+            for (final Inventory inventory : chr.inventory) {
+                ps.setInt(3, inventory.getType().asByte());
+                for (final IItem item : inventory) {
                     ps.setInt(1, chr.id);
                     ps.setInt(2, item.getItemId());
                     ps.setInt(4, item.getPosition());
@@ -956,8 +956,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                     }
                     rs.close();
 
-                    if (iv.getType().equals(InventoryType.EQUIP) ||
-                            iv.getType().equals(InventoryType.EQUIPPED)) {
+                    if (inventory.getType().equals(InventoryType.EQUIP) ||
+                            inventory.getType().equals(InventoryType.EQUIPPED)) {
                         pse.setInt(1, itemid);
                         equip = (IEquip) item;
                         pse.setInt(2, equip.getUpgradeSlots());
@@ -1143,11 +1143,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             deleteByCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
             ps = con.prepareStatement("INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, id);
-            ps.setInt(2, getInventoryType(InventoryType.EQUIP).getSlotLimit());
-            ps.setInt(3, getInventoryType(InventoryType.USE).getSlotLimit());
-            ps.setInt(4, getInventoryType(InventoryType.SETUP).getSlotLimit());
-            ps.setInt(5, getInventoryType(InventoryType.ETC).getSlotLimit());
-            ps.setInt(6, getInventoryType(InventoryType.CASH).getSlotLimit());
+            ps.setInt(2, getEquipInventory().getSlotLimit());
+            ps.setInt(3, getUseInventory().getSlotLimit());
+            ps.setInt(4, getSetupInventory().getSlotLimit());
+            ps.setInt(5, getEtcInventory().getSlotLimit());
+            ps.setInt(6, getCashInventory().getSlotLimit());
             ps.execute();
             ps.close();
 
@@ -1155,9 +1155,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            for (final Inventory iv : inventory) {
-                ps.setInt(3, iv.getType().asByte());
-                for (final IItem item : iv.list()) {
+            for (final Inventory inv : this.inventory) {
+                ps.setInt(3, inv.getType().asByte());
+                for (final IItem item : inv) {
                     ps.setInt(1, id);
                     ps.setInt(2, item.getItemId());
                     ps.setInt(4, item.getPosition());
@@ -1177,8 +1177,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         throw new DatabaseException("Inserting char failed.");
                     }
 
-                    if (iv.getType().equals(InventoryType.EQUIP) ||
-                            iv.getType().equals(InventoryType.EQUIPPED)) {
+                    if (inv.getType().equals(InventoryType.EQUIP) ||
+                            inv.getType().equals(InventoryType.EQUIPPED)) {
                         pse.setInt(1, itemid);
                         IEquip equip = (IEquip) item;
                         pse.setInt(2, equip.getUpgradeSlots());
@@ -1654,7 +1654,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                     cancelFishingTask();
                     return;
                 }
-                InventoryManipulator.removeById(client, InventoryType.USE, 2300000, 1, false, false);
+                InventoryManipulator.removeById(client, getUseInventory(), 2300000, 1, false, false);
 
                 final int randval = RandomRewards.getInstance().getFishingReward();
 
@@ -2379,7 +2379,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         stats.add(new Pair<Stat, Integer>(Stat.DEX, dex));
         stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
         stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
-        stats.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, total));
+        stats.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, total));
         client.write(MaplePacketCreator.updatePlayerStats(stats, false, chr.getJob()));
     }
 
@@ -2390,7 +2390,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
             public void run() {
                 if (map.getHPDec() < 1 || !isAlive()) {
                     return;
-                } else if (getInventoryType(InventoryType.EQUIPPED).findById(map.getHPDecProtect()) ==
+                } else if (getEquippedItemsInventory().findById(map.getHPDecProtect()) ==
                         null) {
                     addHP(-map.getHPDec());
                 }
@@ -2485,8 +2485,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         stats.setHp(maxhp);
         stats.setMp(maxmp);
         List<Pair<Stat, Integer>> statup = Lists.newArrayList();
-        statup.add(new Pair<Stat, Integer>(Stat.MAXHP, Integer.valueOf(maxhp)));
-        statup.add(new Pair<Stat, Integer>(Stat.MAXMP, Integer.valueOf(maxmp)));
+        statup.add(new Pair<Stat, Integer>(Stat.MAX_HP, Integer.valueOf(maxhp)));
+        statup.add(new Pair<Stat, Integer>(Stat.MAX_MP, Integer.valueOf(maxmp)));
         stats.recalcLocalStats();
         client.write(MaplePacketCreator.updatePlayerStats(statup, getJob()));
         map.broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 8), false);
@@ -2542,7 +2542,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
 
     public void gainAp(int ap) {
         this.remainingAp += ap;
-        updateSingleStat(Stat.AVAILABLEAP, this.remainingAp);
+        updateSingleStat(Stat.AVAILABLE_AP, this.remainingAp);
     }
 
     public void gainSP(int sp) {
@@ -2603,7 +2603,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         if (jobId != 0 && jobId != 1000 && jobId != 2000 && jobId != 2001) {
             int charms = getItemQuantity(5130000, false);
             if (charms > 0) {
-                InventoryManipulator.removeById(client, InventoryType.CASH, 5130000, 1, true, false);
+                InventoryManipulator.removeById(client, getCashInventory(), 5130000, 1, true, false);
 
                 charms--;
                 if (charms > 0xFF) {
@@ -2715,7 +2715,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
      * @param itemReaction
      */
     public void updateSingleStat(Stat stat, int newval, boolean itemReaction) {
-        if (stat == Stat.AVAILABLESP) {
+        if (stat == Stat.AVAILABLE_SP) {
             client.write(MaplePacketCreator.updateSp(this, itemReaction, false));
             return;
         }
@@ -2862,12 +2862,44 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
     public boolean hasGmLevel(int level) {
         return gmLevel >= level;
     }
-
-    public final Inventory getInventoryType(InventoryType type) {
+    
+    public final Inventory getEquipInventory() {
+        return inventory.get(InventoryType.EQUIP);
+    }
+    
+    public final Inventory getUseInventory() {
+        return inventory.get(InventoryType.USE);
+    }
+    
+    public final Inventory getSetupInventory() {
+        return inventory.get(InventoryType.SETUP);
+    }
+    
+    public final Inventory getEtcInventory() {
+        return inventory.get(InventoryType.ETC);
+    }
+    
+    public final Inventory getCashInventory() {
+        return inventory.get(InventoryType.CASH);
+    }
+    
+    public final Inventory getEquippedItemsInventory() {
+        return inventory.get(InventoryType.EQUIPPED);
+    }
+    
+    public final Inventory getInventoryForItem(int itemId) {
+        return inventory.get(GameConstants.getInventoryType(itemId));
+    }
+    
+    public final Inventory getInventoryByTypeByte(byte typeByte) {
+        final InventoryType type = InventoryType.fromByte(typeByte);
+        if (type == null) {
+            return null;
+        }
         return inventory.get(type);
     }
 
-    public final PlayerInventory getInventories() {
+    public final MultiInventory getInventories() {
         return inventory;
     }
 
@@ -2877,7 +2909,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         final List<IItem> toberemove = new ArrayList<IItem>(); // This is here to prevent deadlock.
 
         for (final Inventory inv : inventory) {
-            for (final IItem item : inv.list()) {
+            for (final IItem item : inv) {
                 expiration = item.getExpiration();
 
                 if (expiration != -1 && !GameConstants.isPet(item.getItemId())) {
@@ -2887,7 +2919,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                         if (currenttime > expiration) {
                             item.setExpiration(-1);
                             item.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
-                            client.write(MaplePacketCreator.updateSpecialItemUse(item, item.getType()));
+                            client.write(MaplePacketCreator.updateSpecialItemUse(item, item.getType().asByte()));
                         }
                     } else if (currenttime > expiration) {
                         client.write(MTSCSPacket.itemExpired(item.getItemId()));
@@ -2896,7 +2928,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 }
             }
             for (final IItem item : toberemove) {
-                InventoryManipulator.removeFromSlot(client, inv.getType(), item.getPosition(), item.getQuantity(), false);
+                InventoryManipulator.removeFromSlot(client, inv, item.getPosition(), item.getQuantity(), false);
             }
         }
     }
@@ -3128,7 +3160,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         if (level == 200 && !isGM()) {
             try {
                 final StringBuilder sb = new StringBuilder("[Congratulation] ");
-                final IItem medal = getInventoryType(InventoryType.EQUIPPED).getItem((byte) -46);
+                final IItem medal = getEquippedItemsInventory().getItem((byte) -46);
                 if (medal != null) { // Medal
                     sb.append("<");
                     sb.append(ItemInfoProvider.getInstance().getName(medal.getItemId()));
@@ -3144,8 +3176,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
         maxhp = Math.min(30000, maxhp);
         maxmp = Math.min(30000, maxmp);
         final List<Pair<Stat, Integer>> statup = new ArrayList<Pair<Stat, Integer>>(8);
-        statup.add(new Pair<Stat, Integer>(Stat.MAXHP, maxhp));
-        statup.add(new Pair<Stat, Integer>(Stat.MAXMP, maxmp));
+        statup.add(new Pair<Stat, Integer>(Stat.MAX_HP, maxhp));
+        statup.add(new Pair<Stat, Integer>(Stat.MAX_MP, maxmp));
         statup.add(new Pair<Stat, Integer>(Stat.HP, maxhp));
         statup.add(new Pair<Stat, Integer>(Stat.MP, maxmp));
         statup.add(new Pair<Stat, Integer>(Stat.EXP, exp));
@@ -3160,7 +3192,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Seri
                 statup.add(new Pair<Stat, Integer>(Stat.STR, stats.getStr()));
             }
         }
-        statup.add(new Pair<Stat, Integer>(Stat.AVAILABLEAP, remainingAp));
+        statup.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, remainingAp));
         stats.setMaxHp(maxhp);
         stats.setMaxMp(maxmp);
         stats.setHp(maxhp);

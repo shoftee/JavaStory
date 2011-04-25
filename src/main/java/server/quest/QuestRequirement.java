@@ -172,15 +172,13 @@ public class QuestRequirement implements Serializable {
 		}
 		return true;
 	    case item:
-		InventoryType iType;
 		int itemId;
 		short quantity;
 
 		for (Pair a : dataStore) {
 		    itemId = (Integer) a.getLeft();
 		    quantity = 0;
-		    iType = GameConstants.getInventoryType(itemId);
-		    for (IItem item : c.getInventoryType(iType).listById(itemId)) {
+		    for (IItem item : c.getInventoryForItem(itemId).listById(itemId)) {
 			quantity += item.getQuantity();
 		    }
 		    final int count = (Integer) a.getRight();

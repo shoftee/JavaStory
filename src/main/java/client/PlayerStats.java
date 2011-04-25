@@ -197,7 +197,7 @@ public class PlayerStats implements Serializable {
         int jump = 100;
         magic = localint_;
         watk = 0;
-        for (IItem item : chra.getInventoryType(InventoryType.EQUIPPED)) {
+        for (IItem item : chra.getEquippedItemsInventory()) {
             final IEquip equip = (IEquip) item;
 
             if (equip.getPosition() == -11) {
@@ -527,7 +527,7 @@ public class PlayerStats implements Serializable {
         if (watk == 0) {
             maxbasedamage = 1;
         } else {
-            final IItem weapon_item = chra.getInventoryType(InventoryType.EQUIPPED).getItem((byte) -11);
+            final IItem weapon_item = chra.getEquippedItemsInventory().getItem((byte) -11);
 
             if (weapon_item != null) {
                 final int job = chra.getJob();

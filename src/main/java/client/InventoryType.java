@@ -23,7 +23,7 @@ public enum InventoryType {
         return (short) (2 << type);
     }
 
-    public static InventoryType getByType(byte type) {
+    public static InventoryType fromByte(byte type) {
         for (InventoryType l : InventoryType.values()) {
             if (l.asByte() == type) {
                 return l;

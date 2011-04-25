@@ -10,11 +10,13 @@ import client.GameConstants;
 import client.IItem;
 import client.GameCharacter;
 import client.GameClient;
+import client.Inventory;
 import client.InventoryType;
 import client.anticheat.CheatingOffense;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
+import com.google.common.collect.Maps;
 import handling.ServerPacketOpcode;
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -47,6 +49,7 @@ public class GM5Commands implements Command {
     public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         final GameCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+        final GameCharacter player = c.getPlayer();
         if (splitted[0].equalsIgnoreCase("-proitem")) {
             if (splitted.length == 3) {
                 int itemid;
@@ -63,70 +66,66 @@ public class GM5Commands implements Command {
                 if (type.equals(InventoryType.EQUIP)) {
                     InventoryManipulator.addFromDrop(c, ii.hardcoreItem((Equip) item, multiply), true);
                 } else {
-                    c.getPlayer().dropMessage(6, "Make sure it's an equippable item.");
+                    player.dropMessage(6, "Make sure it's an equippable item.");
                 }
             } else {
-                c.getPlayer().dropMessage(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
+                player.dropMessage(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
             }
         } else if (splitted[0].equals("-mutecall")) {
-            c.getPlayer().setCallGM(!c.getPlayer().isCallGM());
-            c.getPlayer().dropMessage(6, "GM Messages set to " + c.getPlayer().isCallGM());
+            player.setCallGM(!player.isCallGM());
+            player.dropMessage(6, "GM Messages set to " +
+                    player.isCallGM());
         } else if (splitted[0].equals("-clearinv")) {
-            Map<Pair<Short, Short>, InventoryType> eqs = new ArrayMap<Pair<Short, Short>, InventoryType>();
+            Map<Pair<Short, Short>, Inventory> items = Maps.newLinkedHashMap();
             if (splitted[1].equals("all")) {
-                for (InventoryType type : InventoryType.values()) {
-                    for (IItem item : c.getPlayer().getInventoryType(type)) {
-                        eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), type);
+                for (Inventory inventory : player.getInventories()) {
+                    for (IItem item : inventory) {
+                        items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inventory);
                     }
                 }
-            } else if (splitted[1].equals("eqp")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.EQUIPPED)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIPPED);
-                }
-            } else if (splitted[1].equals("eq")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.EQUIP)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.EQUIP);
-                }
-            } else if (splitted[1].equals("u")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.USE)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.USE);
-                }
-            } else if (splitted[1].equals("s")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.SETUP)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.SETUP);
-                }
-            } else if (splitted[1].equals("e")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.ETC)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.ETC);
-                }
-            } else if (splitted[1].equals("c")) {
-                for (IItem item : c.getPlayer().getInventoryType(InventoryType.CASH)) {
-                    eqs.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), InventoryType.CASH);
-                }
             } else {
-                c.getPlayer().dropMessage(6, "[all/eqp/eq/u/s/e/c]");
+                Inventory inventory;
+                if (splitted[1].equals("eqp")) {
+                    inventory = player.getEquippedItemsInventory();
+                } else if (splitted[1].equals("eq")) {
+                    inventory = player.getEquipInventory();
+                } else if (splitted[1].equals("u")) {
+                    inventory = player.getUseInventory();
+                } else if (splitted[1].equals("s")) {
+                    inventory = player.getSetupInventory();
+                } else if (splitted[1].equals("e")) {
+                    inventory = player.getEtcInventory();
+                } else if (splitted[1].equals("c")) {
+                    inventory = player.getCashInventory();
+                } else {
+                    player.dropMessage(6, "[all/eqp/eq/u/s/e/c]");
+                    return;
+                }
+                for (IItem item : inventory) {
+                    items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inventory);
+                }
             }
-            for (Entry<Pair<Short, Short>, InventoryType> eq : eqs.entrySet()) {
+            for (Entry<Pair<Short, Short>, Inventory> eq : items.entrySet()) {
                 InventoryManipulator.removeFromSlot(c, eq.getValue(), eq.getKey().left, eq.getKey().right, false, false);
             }
         } else if (splitted[0].equals("-ban")) {
             if (splitted.length < 3) {
                 return;
             }
-            final StringBuilder sb = new StringBuilder(c.getPlayer().getName());
+            final StringBuilder sb = new StringBuilder(player.getName());
             sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
             if (chr != null) {
                 sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 if (chr.ban(sb.toString(), false, false)) {
-                    c.getPlayer().dropMessage(6, "Successfully banned.");
+                    player.dropMessage(6, "Successfully banned.");
                 } else {
-                    c.getPlayer().dropMessage(6, "Failed to ban.");
+                    player.dropMessage(6, "Failed to ban.");
                 }
             } else {
                 if (Bans.banBySessionIP(splitted[1], sb.toString())) {
                     sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 } else {
-                    c.getPlayer().dropMessage(6, "Failed to ban " + splitted[1]);
+                    player.dropMessage(6, "Failed to ban " + splitted[1]);
                 }
             }
         } else if (splitted[0].equals("-tempban")) {
@@ -137,22 +136,25 @@ public class GM5Commands implements Command {
             cal.add(Calendar.DATE, numDay);
             final DateFormat df = DateFormat.getInstance();
             if (victim == null) {
-                c.getPlayer().dropMessage(6, "Unable to find character");
+                player.dropMessage(6, "Unable to find character");
                 return;
             }
-            victim.temporaryBan("Temp banned by : " + c.getPlayer().getName() + "", cal, reason, true);
-            c.getPlayer().dropMessage(6, "The character " + splitted[1] + " has been successfully tempbanned till " + df.format(cal.getTime()));
+            victim.temporaryBan("Temp banned by : " + player.getName() +
+                    "", cal, reason, true);
+            player.dropMessage(6, "The character " + splitted[1] +
+                    " has been successfully tempbanned till " +
+                    df.format(cal.getTime()));
         } else if (splitted[0].equals("-unban")) {
             if (splitted.length < 1) {
-                c.getPlayer().dropMessage(6, "!unban <Character name>");
+                player.dropMessage(6, "!unban <Character name>");
             } else {
                 final byte result = c.unban(splitted[1]);
                 if (result == -1) {
-                    c.getPlayer().dropMessage(6, "No character found with that name.");
+                    player.dropMessage(6, "No character found with that name.");
                 } else if (result == -2) {
-                    c.getPlayer().dropMessage(6, "Error occured while unbanning, please try again later.");
+                    player.dropMessage(6, "Error occured while unbanning, please try again later.");
                 } else {
-                    c.getPlayer().dropMessage(6, "Character successfully unbanned.");
+                    player.dropMessage(6, "Character successfully unbanned.");
                 }
             }
         } else if (splitted[0].equals("-dc")) {
@@ -170,15 +172,16 @@ public class GM5Commands implements Command {
                     victim.getClient().disconnect();
                 }
             } else {
-                c.getPlayer().dropMessage(6, "Please use dc -f instead.");
+                player.dropMessage(6, "Please use dc -f instead.");
             }
         } else if (splitted[0].equals("-resetquest")) {
-            Quest.getInstance(Integer.parseInt(splitted[1])).forfeit(c.getPlayer());
+            Quest.getInstance(Integer.parseInt(splitted[1])).forfeit(player);
         } else if (splitted[0].equals("-nearestPortal")) {
             final Portal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
-            c.getPlayer().dropMessage(6, portal.getName() + " id: " + portal.getId() + " script: " + portal.getScriptName());
+            player.dropMessage(6, portal.getName() + " id: " +
+                    portal.getId() + " script: " + portal.getScriptName());
         } else if (splitted[0].equals("-spawndebug")) {
-            c.getPlayer().dropMessage(6, c.getPlayer().getMap().spawnDebug());
+            player.dropMessage(6, player.getMap().spawnDebug());
         } else if (splitted[0].equals("-threads")) {
             Thread[] threads = new Thread[Thread.activeCount()];
             Thread.enumerate(threads);
@@ -189,7 +192,7 @@ public class GM5Commands implements Command {
             for (int i = 0; i < threads.length; i++) {
                 String tstring = threads[i].toString();
                 if (tstring.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
-                    c.getPlayer().dropMessage(6, i + ": " + tstring);
+                    player.dropMessage(6, i + ": " + tstring);
                 }
             }
         } else if (splitted[0].equals("-showtrace")) {
@@ -199,9 +202,9 @@ public class GM5Commands implements Command {
             Thread[] threads = new Thread[Thread.activeCount()];
             Thread.enumerate(threads);
             Thread t = threads[Integer.parseInt(splitted[1])];
-            c.getPlayer().dropMessage(6, t.toString() + ":");
+            player.dropMessage(6, t.toString() + ":");
             for (StackTraceElement elem : t.getStackTrace()) {
-                c.getPlayer().dropMessage(6, elem.toString());
+                player.dropMessage(6, elem.toString());
             }
         } else if (splitted[0].equals("-fakerelog")) {
             c.write(MaplePacketCreator.getCharInfo(chr));
@@ -212,7 +215,8 @@ public class GM5Commands implements Command {
                 CheatingOffense co = CheatingOffense.valueOf(splitted[1]);
                 co.setEnabled(!co.isEnabled());
             } catch (IllegalArgumentException iae) {
-                c.getPlayer().dropMessage(6, "Offense " + splitted[1] + " not found");
+                player.dropMessage(6, "Offense " + splitted[1] +
+                        " not found");
             }
         } else if (splitted[0].equals("-tdrops")) {
             chr.getMap().toggleDrops();
@@ -222,58 +226,65 @@ public class GM5Commands implements Command {
             } catch (RemoteException e) {
                 c.getChannelServer().pingWorld();
             }
-            c.getPlayer().dropMessage(6, "Megaphone state : " + (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
+            player.dropMessage(6, "Megaphone state : " +
+                    (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
         } else if (splitted[0].equalsIgnoreCase("!sreactor")) {
             ReactorStats reactorSt = ReactorFactory.getReactor(Integer.parseInt(splitted[1]));
             Reactor reactor = new Reactor(reactorSt, Integer.parseInt(splitted[1]));
             reactor.setDelay(-1);
-            reactor.setPosition(c.getPlayer().getPosition());
-            c.getPlayer().getMap().spawnReactor(reactor);
+            reactor.setPosition(player.getPosition());
+            player.getMap().spawnReactor(reactor);
         } else if (splitted[0].equals("-hreactor")) {
-            c.getPlayer().getMap().getReactorByOid(Integer.parseInt(splitted[1])).hitReactor(c);
+            player.getMap().getReactorByOid(Integer.parseInt(splitted[1])).hitReactor(c);
         } else if (splitted[0].equals("-lreactor")) {
-            GameMap map = c.getPlayer().getMap();
-            List<GameMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+            GameMap map = player.getMap();
+            List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
             for (GameMapObject reactorL : reactors) {
                 Reactor reactor2l = (Reactor) reactorL;
-                c.getPlayer().dropMessage(6, "Reactor: oID: " + reactor2l.getObjectId() + " reactorID: " + reactor2l.getReactorId() + " Position: " + reactor2l.getPosition().toString() + " State: " + reactor2l.getState());
+                player.dropMessage(6, "Reactor: oID: " +
+                        reactor2l.getObjectId() + " reactorID: " +
+                        reactor2l.getReactorId() + " Position: " +
+                        reactor2l.getPosition().toString() + " State: " +
+                        reactor2l.getState());
             }
         } else if (splitted[0].equals("-dreactor")) {
-            GameMap map = c.getPlayer().getMap();
-            List<GameMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+            GameMap map = player.getMap();
+            List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
             if (splitted[1].equals("all")) {
                 for (GameMapObject reactorL : reactors) {
                     Reactor reactor2l = (Reactor) reactorL;
-                    c.getPlayer().getMap().destroyReactor(reactor2l.getObjectId());
+                    player.getMap().destroyReactor(reactor2l.getObjectId());
                 }
             } else {
-                c.getPlayer().getMap().destroyReactor(Integer.parseInt(splitted[1]));
+                player.getMap().destroyReactor(Integer.parseInt(splitted[1]));
             }
         } else if (splitted[0].equals("-resetreactor")) {
-            c.getPlayer().getMap().resetReactors();
+            player.getMap().resetReactors();
         } else if (splitted[0].equals("-setreactor")) {
-            c.getPlayer().getMap().setReactorState();
+            player.getMap().setReactorState();
         } else if (splitted[0].equals("-removedrops")) {
-            List<GameMapObject> items = c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
+            List<GameMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
             for (GameMapObject i : items) {
-                c.getPlayer().getMap().removeMapObject(i);
-                c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
+                player.getMap().removeMapObject(i);
+                player.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
             }
         } else if (splitted[0].equals("-exprate")) {
             if (splitted.length > 1) {
                 final byte rate = Byte.parseByte(splitted[1]);
                 c.getChannelServer().setExpRate(rate);
-                c.getPlayer().dropMessage(6, "Exprate has been changed to " + rate + "x");
+                player.dropMessage(6, "Exprate has been changed to " +
+                        rate + "x");
             } else {
-                c.getPlayer().dropMessage(6, "Syntax: !exprate <number>");
+                player.dropMessage(6, "Syntax: !exprate <number>");
             }
         } else if (splitted[0].equals("-droprate")) {
             if (splitted.length > 1) {
                 final byte rate = Byte.parseByte(splitted[1]);
                 c.getChannelServer().setDropRate(rate);
-                c.getPlayer().dropMessage(6, "Drop Rate has been changed to " + rate + "x");
+                player.dropMessage(6, "Drop Rate has been changed to " +
+                        rate + "x");
             } else {
-                c.getPlayer().dropMessage(6, "Syntax: !droprate <number>");
+                player.dropMessage(6, "Syntax: !droprate <number>");
             }
         } else if (splitted[0].equals("-dcall")) {
             c.getChannelServer().getPlayerStorage().disconnectAll();

@@ -25,7 +25,7 @@ public class GM0Command implements Command {
 			} else {
 				stat.setStr(stat.getStr() + str);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - str);
-				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLE_AP, c.getPlayer().getRemainingAp());
 				c.getPlayer().updateSingleStat(Stat.STR, stat.getStr());
 			}
 		} else if (splitted[0].equals("@dex")) {
@@ -36,7 +36,7 @@ public class GM0Command implements Command {
 			} else {
 				stat.setDex(stat.getDex() + dex);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - dex);
-				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLE_AP, c.getPlayer().getRemainingAp());
 				c.getPlayer().updateSingleStat(Stat.DEX, stat.getDex());
 			}
 		} else if (splitted[0].equals("@int")) {
@@ -47,7 +47,7 @@ public class GM0Command implements Command {
 			} else {
 				stat.setInt(stat.getInt() + int_);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - int_);
-				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLE_AP, c.getPlayer().getRemainingAp());
 				c.getPlayer().updateSingleStat(Stat.INT, stat.getInt());
 			}
 		} else if (splitted[0].equals("@luk")) {
@@ -58,7 +58,7 @@ public class GM0Command implements Command {
 			} else {
 				stat.setLuk(stat.getLuk() + luk);
 				c.getPlayer().setRemainingAp(c.getPlayer().getRemainingAp() - luk);
-				c.getPlayer().updateSingleStat(Stat.AVAILABLEAP, c.getPlayer().getRemainingAp());
+				c.getPlayer().updateSingleStat(Stat.AVAILABLE_AP, c.getPlayer().getRemainingAp());
 				c.getPlayer().updateSingleStat(Stat.LUK, stat.getLuk());
 			}
 		} else if (splitted[0].equals("@gmlist")) {

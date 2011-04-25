@@ -152,11 +152,11 @@ public final class HiredMerchantHandler {
                 cash++;
             }
         }
-        if (chr.getInventoryType(InventoryType.EQUIP).getNumFreeSlot() <= eq ||
-                chr.getInventoryType(InventoryType.USE).getNumFreeSlot() <= use ||
-                chr.getInventoryType(InventoryType.SETUP).getNumFreeSlot() <= setup ||
-                chr.getInventoryType(InventoryType.ETC).getNumFreeSlot() <= etc ||
-                chr.getInventoryType(InventoryType.CASH).getNumFreeSlot() <= cash) {
+        if (chr.getEquipInventory().getNumFreeSlot() <= eq ||
+                chr.getUseInventory().getNumFreeSlot() <= use ||
+                chr.getSetupInventory().getNumFreeSlot() <= setup ||
+                chr.getEtcInventory().getNumFreeSlot() <= etc ||
+                chr.getCashInventory().getNumFreeSlot() <= cash) {
             return false;
         }
         return true;

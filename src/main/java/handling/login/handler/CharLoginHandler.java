@@ -43,7 +43,8 @@ public class CharLoginHandler {
         if (loginok == 0 && (ipBan || macBan)) {
             loginok = 3;
             if (macBan) {
-                Bans.banBySessionIP(c.getSessionIP(), "Enforcing account ban, account " + login);
+                Bans.banBySessionIP(c.getSessionIP(), "Enforcing account ban, account " +
+                        login);
             }
         }
         if (loginok != 0) {
@@ -85,7 +86,8 @@ public class CharLoginHandler {
         final int server = reader.readByte();
         final int channel = reader.readByte() + 1;
         c.setWorld(server);
-        System.out.println(":: Client is connecting to server " + server + " channel " + channel + " ::");
+        System.out.println(":: Client is connecting to server " + server +
+                " channel " + channel + " ::");
         c.setChannel(channel);
         final List<GameCharacter> chars = c.loadCharacters(server);
         if (chars != null) {
@@ -99,7 +101,8 @@ public class CharLoginHandler {
 
     public static void handleCharacterNameCheck(final String name, final GameClient c) {
         c.write(LoginPacket.charNameResponse(name,
-                                                          !GameCharacterUtil.canCreateChar(name) || LoginInformationProvider.getInstance().isForbiddenName(name)));
+                                             !GameCharacterUtil.canCreateChar(name) ||
+                LoginInformationProvider.getInstance().isForbiddenName(name)));
     }
 
     public static void handleCreateCharacter(final PacketReader reader, final GameClient c) throws PacketFormatException {
@@ -123,7 +126,7 @@ public class CharLoginHandler {
         newchar.setGender(gender);
         newchar.setName(name);
         newchar.setSkinColor(skinColor);
-        Inventory equip = newchar.getInventoryType(InventoryType.EQUIPPED);
+        Inventory equip = newchar.getEquippedItemsInventory();
         final LoginInformationProvider li = LoginInformationProvider.getInstance();
         IItem item = li.getEquipById(top);
         item.setPosition((byte) -5);
@@ -139,7 +142,8 @@ public class CharLoginHandler {
         equip.addFromDb(item);
 
         if (GameCharacterUtil.canCreateChar(name) && !li.isForbiddenName(name)) {
-            GameCharacter.saveNewCharacterToDb(newchar, JobType, JobType == 1 && db > 0);
+            GameCharacter.saveNewCharacterToDb(newchar, JobType, JobType == 1 &&
+                    db > 0);
             c.write(LoginPacket.addNewCharEntry(newchar, true));
             c.createdChar(newchar.getId());
         } else {
@@ -198,7 +202,8 @@ public class CharLoginHandler {
                 c.write(LoginPacket.secondPwError((byte) 0x14));
                 return;
             }
-        } else if (loginFailCount(c) || currentpw != null || !c.login_Auth(charId)) {
+        } else if (loginFailCount(c) || currentpw != null ||
+                !c.login_Auth(charId)) {
             c.disconnect();
             return;
         }
@@ -212,7 +217,8 @@ public class CharLoginHandler {
     public static void handleWithSecondPassword(final PacketReader reader, final GameClient c) throws PacketFormatException {
         final String password = reader.readLengthPrefixedString();
         final int charId = reader.readInt();
-        if (loginFailCount(c) || c.getSecondPassword() == null || !c.login_Auth(charId)) {
+        if (loginFailCount(c) || c.getSecondPassword() == null ||
+                !c.login_Auth(charId)) {
             c.disconnect();
             return;
         }
