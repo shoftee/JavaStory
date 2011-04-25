@@ -48,7 +48,7 @@ public class AutobanManager implements Runnable {
 
     public final synchronized void addPoints(final GameClient c, final int points, final long expiration, final String reason) {
 	List<String> reasonList;
-	final int acc = c.getPlayer().getAccountID();
+	final int acc = c.getPlayer().getAccountId();
 
 	if (this.points.containsKey(acc)) {
 	    final int SavedPoints = this.points.get(acc);

@@ -35,7 +35,7 @@ public class Guild implements java.io.Serializable {
     private final Map<Integer, List<Integer>> notifications = new LinkedHashMap<Integer, List<Integer>>();
     private boolean bDirty = true;
     private int allianceid = 0;
-    private MapleAlliance ally;
+    private GuildUnion ally;
     private Lock lock = new ReentrantLock();
 
     public Guild(final GuildCharacter initiator) {
@@ -240,11 +240,11 @@ public class Guild implements java.io.Serializable {
         return allianceid;
     }
 
-    public final MapleAlliance getAlliance(final GameClient c) {
+    public final GuildUnion getAlliance(final GameClient c) {
         if (ally != null) {
             return ally;
         } else if (allianceid > 0) {
-            final MapleAlliance al = new MapleAlliance(c, allianceid);
+            final GuildUnion al = new GuildUnion(c, allianceid);
             ally = al;
             return al;
         } else {

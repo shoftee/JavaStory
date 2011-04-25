@@ -15,6 +15,7 @@ import org.javastory.io.PacketFormatException;
 import org.javastory.server.login.LoginServer;
 import handling.login.LoginWorker;
 import org.javastory.io.PacketReader;
+import org.javastory.server.Bans;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.MaplePacketCreator;
@@ -42,7 +43,7 @@ public class CharLoginHandler {
         if (loginok == 0 && (ipBan || macBan)) {
             loginok = 3;
             if (macBan) {
-                GameCharacter.ban(c.getSessionIP(), "Enforcing account ban, account " + login, false);
+                Bans.banBySessionIP(c.getSessionIP(), "Enforcing account ban, account " + login);
             }
         }
         if (loginok != 0) {

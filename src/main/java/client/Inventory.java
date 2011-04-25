@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
 
-public class Inventory implements Iterable<IItem>, InventoryContainer, Serializable {
+public class Inventory implements Iterable<IItem>, Serializable {
 
     private Map<Short, IItem> inventory;
     private byte slotLimit = 0;
@@ -226,10 +226,5 @@ public class Inventory implements Iterable<IItem>, InventoryContainer, Serializa
     @Override
     public Iterator<IItem> iterator() {
 	return Collections.unmodifiableCollection(inventory.values()).iterator();
-    }
-
-    @Override
-    public Collection<Inventory> allInventories() {
-	return Collections.singletonList(this);
     }
 }

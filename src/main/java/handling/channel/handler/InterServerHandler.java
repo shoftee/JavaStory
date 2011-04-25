@@ -62,7 +62,7 @@ public class InterServerHandler {
             player = GameCharacter.reconstructCharacter(transfer, c);
         }
         c.setPlayer(player);
-        c.setAccID(player.getAccountID());
+        c.setAccID(player.getAccountId());
         if (!c.checkIPAddress()) { // Remote hack
             c.disconnect(true);
             return;

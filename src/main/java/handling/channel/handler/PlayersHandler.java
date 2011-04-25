@@ -28,6 +28,7 @@ import client.Stat;
 import client.anticheat.CheatingOffense;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
+import org.javastory.server.FameLog;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
 import server.maps.Door;
@@ -59,38 +60,42 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleGiveFame(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
-        final int who = reader.readInt();
-        final int mode = reader.readByte();
+    public static void handleGiveFame(final PacketReader reader, final GameClient c, final GameCharacter famer) throws PacketFormatException {
+        final int receiverId = reader.readInt();
+        final int isIncrease = reader.readByte();
 
-        final int famechange = mode == 0 ? -1 : 1;
-        final GameCharacter target = (GameCharacter) chr.getMap().getMapObject(who);
+        final int change = (isIncrease != 0 ? 1 : -1);
+        final GameCharacter receiver = (GameCharacter) famer.getMap().getMapObject(receiverId);
 
-        if (target == chr) { // faming self
-            chr.getCheatTracker().registerOffense(CheatingOffense.FAMING_SELF);
-            return;
-        } else if (chr.getLevel() < 15) {
-            chr.getCheatTracker().registerOffense(CheatingOffense.FAMING_UNDER_15);
+        if (receiver == famer) {
+            famer.getCheatTracker().registerOffense(CheatingOffense.FAMING_SELF);
             return;
         }
-        switch (chr.canGiveFame(target)) {
-            case OK:
-                if (Math.abs(target.getFame() + famechange) <= 30000) {
-                    target.addFame(famechange);
-                    target.updateSingleStat(Stat.FAME, target.getFame());
-                }
-                if (!chr.isGM()) {
-                    chr.hasGivenFame(target);
-                }
-                c.write(MaplePacketCreator.giveFameResponse(mode, target.getName(), target.getFame()));
-                target.getClient().write(MaplePacketCreator.receiveFame(mode, chr.getName()));
-                break;
-            case NOT_TODAY:
-                c.write(MaplePacketCreator.giveFameErrorResponse(3));
-                break;
-            case NOT_THIS_MONTH:
-                c.write(MaplePacketCreator.giveFameErrorResponse(4));
-                break;
+
+        if (famer.getLevel() < 15) {
+            famer.getCheatTracker().registerOffense(CheatingOffense.FAMING_UNDER_15);
+            return;
+        }
+
+        if (FameLog.hasFamedRecently(famer.getId(), receiverId)) {
+            c.write(MaplePacketCreator.giveFameErrorResponse(4));
+            return;
+        }
+
+        if (famer.hasFamedToday()) {
+            c.write(MaplePacketCreator.giveFameErrorResponse(3));
+            return;
+        }
+
+        if (Math.abs(receiver.getFame() + change) <= 30000) {
+            receiver.addFame(change);
+            receiver.updateSingleStat(Stat.FAME, receiver.getFame());
+            
+            long timestamp = FameLog.addEntry(famer.getId(), receiverId);
+            famer.setLastFameTime(timestamp);
+            
+            c.write(MaplePacketCreator.giveFameResponse(isIncrease, receiver.getName(), receiver.getFame()));
+            receiver.getClient().write(MaplePacketCreator.receiveFame(isIncrease, famer.getName()));
         }
     }
 
@@ -119,7 +124,8 @@ public final class PlayersHandler {
 
         final IItem toUse = c.getPlayer().getInventory(InventoryType.USE).getItem(slot);
 
-        if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
+        if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() !=
+                itemId) {
             c.write(MaplePacketCreator.enableActions());
             return;
         }
@@ -128,7 +134,8 @@ public final class PlayersHandler {
                 for (final GameCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
                     if (search_chr.getName().toLowerCase().equals(target)) {
                         ItemInfoProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
-                        search_chr.dropMessage(6, chr.getName() + " has played a prank on you!");
+                        search_chr.dropMessage(6, chr.getName() +
+                                " has played a prank on you!");
                         InventoryManipulator.removeFromSlot(c, InventoryType.USE, slot, (short) 1, false);
                     }
                 }

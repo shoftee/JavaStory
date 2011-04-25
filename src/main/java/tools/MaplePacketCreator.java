@@ -41,7 +41,7 @@ import handling.world.PartyOperation;
 import handling.world.guild.Guild;
 import handling.world.guild.MapleGuildSummary;
 import handling.world.guild.GuildCharacter;
-import handling.world.guild.MapleAlliance;
+import handling.world.guild.GuildUnion;
 import org.javastory.server.channel.GuildRankingInfo;
 import server.ItemInfoProvider;
 import server.ShopItem;
@@ -1476,7 +1476,7 @@ public final class MaplePacketCreator {
         } else {
             final MapleGuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
             builder.writeLengthPrefixedString(gs.getName());
-            final MapleAlliance alliance = chr.getGuild().getAlliance(chr.getClient());
+            final GuildUnion alliance = chr.getGuild().getAlliance(chr.getClient());
             if (alliance == null) {
                 builder.writeLengthPrefixedString("");
                 //builder.writeLengthPrefixedString("Resets: " + chr.getReborns());
@@ -3068,7 +3068,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0C);
-        MapleAlliance alliance = chr.getGuild().getAlliance(chr.getClient());
+        GuildUnion alliance = chr.getGuild().getAlliance(chr.getClient());
         if (alliance == null) { //show empty alliance (used for leaving, expelled)
             builder.writeAsByte(0);
             return builder.getPacket();
@@ -3104,7 +3104,7 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0D);
-        MapleAlliance az = chr.getGuild().getAlliance(chr.getClient());
+        GuildUnion az = chr.getGuild().getAlliance(chr.getClient());
         int e = 0;
         for (int u = 0; u < 5; u++) {
             if (az.getGuilds().get(u) != null) {

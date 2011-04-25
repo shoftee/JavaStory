@@ -21,7 +21,7 @@
 package handling.channel.handler;
 
 import client.GameClient;
-import handling.world.guild.MapleAlliance;
+import handling.world.guild.GuildUnion;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 
@@ -30,7 +30,7 @@ public class AllianceHandler {
     public static final void handleAllianceOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
 	final byte mode = reader.readByte();
 
-	final MapleAlliance alliance = new MapleAlliance(c, c.getChannelServer().getGuildSummary(c.getPlayer().getGuildId()).getAllianceId());
+	final GuildUnion alliance = new GuildUnion(c, c.getChannelServer().getGuildSummary(c.getPlayer().getGuildId()).getAllianceId());
 
 	switch (mode) {
 	    case 0x01: // show info?

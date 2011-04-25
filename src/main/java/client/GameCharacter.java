@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.io.Serializable;
 
 import client.anticheat.CheatTracker;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import database.DatabaseConnection;
 import database.DatabaseException;
 import handling.GamePacket;
@@ -36,7 +37,7 @@ import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCoolDownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
-import handling.world.guild.MapleAlliance;
+import handling.world.guild.GuildUnion;
 import handling.world.guild.Guild;
 import handling.world.guild.GuildCharacter;
 import handling.world.remote.WorldChannelInterface;
@@ -79,15 +80,16 @@ import server.life.MobSkill;
 import server.maps.Dragon;
 import server.movement.LifeMovementFragment;
 import org.javastory.io.PacketBuilder;
+import org.javastory.server.FameLog;
 
-public class GameCharacter extends AbstractAnimatedGameMapObject implements InventoryContainer, Serializable {
+public class GameCharacter extends AbstractAnimatedGameMapObject implements Serializable {
 
     private String name, chalktext, BlessOfFairy_Origin;
     private transient int linkMid = 0;
-    private long lastCombo, lastfametime, keydown_skill;
+    private long lastCombo, lastFameTime, keydown_skill;
     private byte dojoRecord, gmLevel, gender; // Make this a quest record, TODO : Transfer it somehow with the current data
     private short level, mulung_energy, combo, availableCP, totalCP;
-    private int accountid, id,
+    private int accountId, id,
             meso, exp, job, rank, rankMove, jobRank, jobRankMove, mpApUsed, hpApUsed,
             hair, face, skinColor, remainingAp,
             fame, mapid, initialSpawnPoint, bookCover, dojo,
@@ -103,21 +105,20 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     private int[] wishlist, rocks, savedLocations;
     private transient AtomicInteger inst;
     private transient List<LifeMovementFragment> lastres;
-    private List<Integer> lastmonthfameids;
     private List<Door> doors;
     private List<Pet> pets;
     public int vpoints;
     private boolean ondmg = true, callgm = true;
-    private transient Set<Monster> controlled;
+    private transient Set<Monster> controlledMonsters;
     private transient Set<GameMapObject> visibleMapObjects;
     private Map<Quest, QuestStatus> quests;
     private Map<Integer, String> questinfo;
-    private Map<ISkill, SkillEntry> skills = new LinkedHashMap<ISkill, SkillEntry>();
-    private transient Map<BuffStat, BuffStatValueHolder> effects = new LinkedHashMap<BuffStat, BuffStatValueHolder>(50);
+    private Map<ISkill, SkillEntry> skills;
+    private transient Map<BuffStat, BuffStatValueHolder> effects;
     private transient Map<Integer, Summon> summons;
-    private transient Map<Integer, CooldownValueHolder> coolDowns = new LinkedHashMap<Integer, CooldownValueHolder>(50);
+    private transient Map<Integer, CooldownValueHolder> cooldowns;
     private transient Map<Disease, DiseaseValueHolder> diseases;
-    private MapleAlliance alliance;
+    private GuildUnion union;
     private transient Deque<CarnivalChallenge> pendingCarnivalRequests;
     private transient CarnivalParty carnivalParty;
     private BuddyList buddylist;
@@ -154,7 +155,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         for (InventoryType type : InventoryType.values()) {
             inventory[type.ordinal()] = new Inventory(type);
         }
-        quests = new LinkedHashMap<Quest, QuestStatus>(); // Stupid erev quest.
+        quests = Maps.newLinkedHashMap(); // Stupid erev quest.
         stats = new PlayerStats(this);
         for (int i = 0; i < remainingSp.length; i++) {
             remainingSp[i] = 0;
@@ -173,19 +174,22 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         inst = new AtomicInteger();
         inst.set(0); // 1 = NPC/ Quest, 2 = Duey, 3 = Hired Merch store, 4 = Storage
         keylayout = new KeyLayout();
-        doors = new ArrayList<Door>();
-        diseases = new LinkedHashMap<Disease, DiseaseValueHolder>(5);
-        controlled = new LinkedHashSet<Monster>();
-        summons = new LinkedHashMap<Integer, Summon>();
-        visibleMapObjects = new LinkedHashSet<GameMapObject>();
-        pendingCarnivalRequests = new LinkedList<CarnivalChallenge>();
+        skills = Maps.newLinkedHashMap();
+        effects = Maps.newEnumMap(BuffStat.class);
+        cooldowns = Maps.newLinkedHashMap();
+        doors = Lists.newArrayList();
+        diseases = Maps.newEnumMap(Disease.class);
+        controlledMonsters = Sets.newLinkedHashSet();
+        summons = Maps.newLinkedHashMap();
+        visibleMapObjects = Sets.newLinkedHashSet();
+        pendingCarnivalRequests = Lists.newLinkedList();
+        questinfo = Maps.newLinkedHashMap();
+        pets = Lists.newArrayList();
         savedLocations = new int[SavedLocationType.values().length];
         for (int i = 0; i < SavedLocationType.values().length; i++) {
             savedLocations[i] = -1;
         }
-        questinfo = new LinkedHashMap<Integer, String>();
         anticheat = new CheatTracker(this);
-        pets = new ArrayList<Pet>();
     }
 
     public static GameCharacter getDefault(final GameClient client, final int type) {
@@ -199,7 +203,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         ret.level = 1;
         ret.remainingAp = 0;
         ret.fame = 0;
-        ret.accountid = client.getAccID();
+        ret.accountId = client.getAccID();
         ret.buddylist = new BuddyList(100);
         ret.stats.str = 12;
         ret.stats.dex = 4;
@@ -213,7 +217,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps;
             ps = con.prepareStatement("SELECT * FROM accounts WHERE id = ?");
-            ps.setInt(1, ret.accountid);
+            ps.setInt(1, ret.accountId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 ret.client.setAccountName(rs.getString("name"));
@@ -260,10 +264,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         ret.job = ct.job;
         ret.hair = ct.hair;
         ret.face = ct.face;
-        ret.accountid = ct.accountid;
-        ret.mapid = ct.mapid;
+        ret.accountId = ct.accountid;
+        ret.mapid = ct.mapId;
         ret.initialSpawnPoint = ct.initialSpawnPoint;
-        ret.world = ct.world;
+        ret.world = ct.worldId;
         ret.rank = ct.rank;
         ret.rankMove = ct.rankMove;
         ret.jobRank = ct.jobRank;
@@ -272,9 +276,9 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         ret.dojo = ct.dojo;
         ret.dojoRecord = ct.dojoRecord;
         ret.reborns = ct.reborns;
-        ret.guildid = ct.guildid;
-        ret.guildrank = ct.guildrank;
-        ret.allianceRank = ct.alliancerank;
+        ret.guildid = ct.guildId;
+        ret.guildrank = ct.guildRank;
+        ret.allianceRank = ct.unionRank;
         ret.subcategory = ct.subcategory;
         ret.ondmg = ct.ondmg;
         ret.callgm = ct.callgm;
@@ -352,7 +356,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         ret.inventory = (Inventory[]) ct.inventorys;
         ret.BlessOfFairy_Origin = ct.BlessOfFairy;
         ret.skillMacros = (SkillMacro[]) ct.skillmacro;
-        ret.keylayout = (KeyLayout) ct.keymap;
+        ret.keylayout = (KeyLayout) ct.keyLayout;
         ret.questinfo = (Map<Integer, String>) ct.InfoQuest;
         ret.savedLocations = (int[]) ct.savedlocation;
         ret.wishlist = (int[]) ct.wishlist;
@@ -361,8 +365,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         // ret.lastfametime
         // ret.lastmonthfameids
         ret.keydown_skill = 0; // Keydown skill can't be brought over
-        ret.lastfametime = ct.lastfametime;
-        ret.lastmonthfameids = (List<Integer>) ct.famedcharacters;
+        ret.lastFameTime = ct.lastFameTime;
         ret.storage = (Storage) ct.storage;
         client.setAccountName(ct.accountname);
         ret.acash = ct.ACash;
@@ -377,10 +380,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         return ret;
     }
 
-    public static GameCharacter loadFromDb(int charid, GameClient client, boolean channelserver) {
+    public static GameCharacter loadFromDb(int characterId, GameClient client, boolean channelserver) {
         final GameCharacter ret = new GameCharacter();
         ret.client = client;
-        ret.id = charid;
+        ret.id = characterId;
 
         Connection con = DatabaseConnection.getConnection();
         PreparedStatement ps = null;
@@ -389,7 +392,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
         try {
             ps = con.prepareStatement("SELECT * FROM characters WHERE id = ?");
-            ps.setInt(1, charid);
+            ps.setInt(1, characterId);
             rs = ps.executeQuery();
             if (!rs.next()) {
                 throw new RuntimeException("Loading the Char Failed (char not found)");
@@ -439,7 +442,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             ret.job = rs.getInt("job");
             ret.hair = rs.getInt("hair");
             ret.face = rs.getInt("face");
-            ret.accountid = rs.getInt("accountid");
+            ret.accountId = rs.getInt("accountid");
             ret.mapid = rs.getInt("map");
             ret.initialSpawnPoint = rs.getInt("spawnpoint");
             ret.world = rs.getInt("world");
@@ -459,12 +462,14 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             if (channelserver) {
                 GameMapFactory mapFactory = ChannelManager.getInstance(client.getChannelId()).getMapFactory(ret.world);
                 ret.map = mapFactory.getMap(ret.mapid);
-                if (ret.map == null) { //char is on a map that doesn't exist warp it to henesys
+                if (ret.map == null) {
+                    //char is on a map that doesn't exist warp it to henesys
                     ret.map = mapFactory.getMap(100000000);
                 }
                 Portal portal = ret.map.getPortal(ret.initialSpawnPoint);
                 if (portal == null) {
-                    portal = ret.map.getPortal(0); // char is on a spawnpoint that doesn't exist - select the first spawnpoint instead
+                    // char is on a spawnpoint that doesn't exist - select the first spawnpoint instead
+                    portal = ret.map.getPortal(0);
                     ret.initialSpawnPoint = 0;
                 }
                 ret.setPosition(portal.getPosition());
@@ -504,7 +509,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             ps.close();
 
             ps = con.prepareStatement("SELECT * FROM queststatus WHERE characterid = ?");
-            ps.setInt(1, charid);
+            ps.setInt(1, characterId);
             rs = ps.executeQuery();
             pse = con.prepareStatement("SELECT * FROM queststatusmobs WHERE queststatusid = ?");
 
@@ -534,10 +539,10 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             if (channelserver) {
                 ret.randomStream = new PlayerRandomStream();
                 ret.monsterbook = new MonsterBook();
-                ret.monsterbook.loadCards(charid);
+                ret.monsterbook.loadCards(characterId);
 
                 ps = con.prepareStatement("SELECT * FROM inventoryslot where characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
 
                 if (!rs.next()) {
@@ -553,7 +558,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 rs.close();
 
                 ps = con.prepareStatement("SELECT * FROM inventoryitems LEFT JOIN inventoryequipment USING (inventoryitemid) WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
 
                 long expiration;
@@ -611,7 +616,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT * FROM accounts WHERE id = ?");
-                ps.setInt(1, ret.accountid);
+                ps.setInt(1, ret.accountId);
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     ret.getClient().setAccountName(rs.getString("name"));
@@ -623,7 +628,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT * FROM questinfo WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
 
                 while (rs.next()) {
@@ -633,7 +638,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT skillid, skilllevel, masterlevel FROM skills WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 while (rs.next()) {
                     if (GameConstants.isApplicableSkill(rs.getInt("skillid"))) {
@@ -645,11 +650,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
                 // Bless of Fairy handling
                 ps = con.prepareStatement("SELECT * FROM characters WHERE accountid = ? ORDER BY level DESC");
-                ps.setInt(1, ret.accountid);
+                ps.setInt(1, ret.accountId);
                 rs = ps.executeQuery();
 
                 while (rs.next()) {
-                    if (rs.getInt("id") != charid) { // Not this character
+                    if (rs.getInt("id") != characterId) { // Not this character
                         byte maxlevel = (byte) (rs.getInt("level") / 10);
 
                         //if (!GameConstants.isKOC(ret.job)) {
@@ -667,7 +672,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 // END
 
                 ps = con.prepareStatement("SELECT * FROM skillmacros WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 int position;
                 while (rs.next()) {
@@ -679,7 +684,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT `key`,`type`,`action` FROM keymap WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
 
                 final Map<Integer, KeyBinding> keyb = ret.keylayout.Layout();
@@ -690,7 +695,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT `locationtype`,`map` FROM savedlocations WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 while (rs.next()) {
                     ret.savedLocations[rs.getInt("locationtype")] = rs.getInt("map");
@@ -698,23 +703,13 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 rs.close();
                 ps.close();
 
-                ps = con.prepareStatement("SELECT `characterid_to`,`when` FROM famelog WHERE characterid = ? AND DATEDIFF(NOW(),`when`) < 30");
-                ps.setInt(1, charid);
-                rs = ps.executeQuery();
-                ret.lastfametime = 0;
-                ret.lastmonthfameids = new ArrayList<Integer>(31);
-                while (rs.next()) {
-                    ret.lastfametime = Math.max(ret.lastfametime, rs.getTimestamp("when").getTime());
-                    ret.lastmonthfameids.add(Integer.valueOf(rs.getInt("characterid_to")));
-                }
-                rs.close();
-                ps.close();
+                ret.lastFameTime = FameLog.getLastTimestamp(characterId);
 
-                ret.buddylist.loadFromDb(charid);
-                ret.storage = Storage.loadStorage(ret.accountid);
+                ret.buddylist.loadFromDb(characterId);
+                ret.storage = Storage.loadStorage(ret.accountId);
 
                 ps = con.prepareStatement("SELECT sn FROM wishlist WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 int i = 0;
                 while (rs.next()) {
@@ -729,7 +724,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT mapid FROM trocklocations WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 int r = 0;
                 while (rs.next()) {
@@ -744,7 +739,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ps.close();
 
                 ps = con.prepareStatement("SELECT * FROM mountdata WHERE characterid = ?");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
                 if (!rs.next()) {
                     throw new RuntimeException("No mount data found on SQL column");
@@ -758,7 +753,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
                 ret.silentEnforceMaxHpMp();
             } else { // Not channel server
                 ps = con.prepareStatement("SELECT * FROM inventoryitems LEFT JOIN inventoryequipment USING (inventoryitemid) WHERE characterid = ? AND inventorytype = -1");
-                ps.setInt(1, charid);
+                ps.setInt(1, characterId);
                 rs = ps.executeQuery();
 
                 InventoryType type;
@@ -859,7 +854,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             ps.setInt(29, 0); // Monster book cover
             ps.setInt(30, 0); // Dojo
             ps.setInt(31, 0); // Dojo record
-            ps.setInt(32, chr.getAccountID());
+            ps.setInt(32, chr.getAccountId());
             ps.setString(33, chr.name);
             ps.setInt(34, chr.world);
             ps.setInt(35, chr.reborns);
@@ -1777,8 +1772,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             }
         }
         for (BuffStatValueHolder cancelEffectCancelTasks : effectsToCancel) {
-            if (getBuffStats(cancelEffectCancelTasks.effect, cancelEffectCancelTasks.startTime).size() ==
-                    0) {
+            if (getBuffStats(cancelEffectCancelTasks.effect, cancelEffectCancelTasks.startTime).isEmpty()) {
                 if (cancelEffectCancelTasks.schedule != null) {
                     cancelEffectCancelTasks.schedule.cancel(false);
                 }
@@ -2012,27 +2006,27 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public final void handleOrbgain() {
         int orbcount = getBuffedValue(BuffStat.COMBO);
-        ISkill combo;
-        ISkill advcombo;
+        ISkill comboSkill;
+        ISkill advancedComboSkill;
 
         switch (getJob()) {
             case 1110:
             case 1111:
-                combo = SkillFactory.getSkill(11111001);
-                advcombo = SkillFactory.getSkill(11110005);
+                comboSkill = SkillFactory.getSkill(11111001);
+                advancedComboSkill = SkillFactory.getSkill(11110005);
                 break;
             default:
-                combo = SkillFactory.getSkill(1111002);
-                advcombo = SkillFactory.getSkill(1120003);
+                comboSkill = SkillFactory.getSkill(1111002);
+                advancedComboSkill = SkillFactory.getSkill(1120003);
                 break;
         }
 
         StatEffect ceffect = null;
-        int advComboSkillLevel = getSkillLevel(advcombo);
+        int advComboSkillLevel = getSkillLevel(advancedComboSkill);
         if (advComboSkillLevel > 0) {
-            ceffect = advcombo.getEffect(advComboSkillLevel);
+            ceffect = advancedComboSkill.getEffect(advComboSkillLevel);
         } else {
-            ceffect = combo.getEffect(getSkillLevel(combo));
+            ceffect = comboSkill.getEffect(getSkillLevel(comboSkill));
         }
 
         if (orbcount < ceffect.getX() + 1) {
@@ -2054,19 +2048,19 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void handleOrbconsume() {
-        ISkill combo;
+        ISkill comboSkill;
 
         switch (getJob()) {
             case 1110:
             case 1111:
-                combo = SkillFactory.getSkill(11111001);
+                comboSkill = SkillFactory.getSkill(11111001);
                 break;
             default:
-                combo = SkillFactory.getSkill(1111002);
+                comboSkill = SkillFactory.getSkill(1111002);
                 break;
         }
 
-        StatEffect ceffect = combo.getEffect(getSkillLevel(combo));
+        StatEffect ceffect = comboSkill.getEffect(getSkillLevel(comboSkill));
         List<Pair<BuffStat, Integer>> stat = Collections.singletonList(new Pair<BuffStat, Integer>(BuffStat.COMBO, 1));
         setBuffedValue(BuffStat.COMBO, 1);
         int duration = ceffect.getDuration();
@@ -2358,7 +2352,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void leaveMap() {
-        controlled.clear();
+        controlledMonsters.clear();
         visibleMapObjects.clear();
         if (chair != 0) {
             cancelFishingTask();
@@ -2371,7 +2365,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void resetStats(final int str, final int dex, final int int_, final int luk) {
-        List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(2);
+        List<Pair<Stat, Integer>> stats = Lists.newArrayList();
         final GameCharacter chr = this;
         int total = chr.getStat().getStr() + chr.getStat().getDex() +
                 chr.getStat().getLuk() + chr.getStat().getInt() +
@@ -2494,7 +2488,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         stats.setMaxMp(maxmp);
         stats.setHp(maxhp);
         stats.setMp(maxmp);
-        List<Pair<Stat, Integer>> statup = new ArrayList<Pair<Stat, Integer>>(2);
+        List<Pair<Stat, Integer>> statup = Lists.newArrayList();
         statup.add(new Pair<Stat, Integer>(Stat.MAXHP, Integer.valueOf(maxhp)));
         statup.add(new Pair<Stat, Integer>(Stat.MAXMP, Integer.valueOf(maxmp)));
         stats.recalcLocalStats();
@@ -2955,12 +2949,12 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public void controlMonster(Monster monster, boolean aggro) {
         monster.setController(this);
-        controlled.add(monster);
+        controlledMonsters.add(monster);
         client.write(MobPacket.controlMonster(monster, false, aggro));
     }
 
     public void stopControllingMonster(Monster monster) {
-        controlled.remove(monster);
+        controlledMonsters.remove(monster);
     }
 
     public void checkMonsterAggro(Monster monster) {
@@ -2972,11 +2966,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public Collection<Monster> getControlledMonsters() {
-        return Collections.unmodifiableCollection(controlled);
+        return Collections.unmodifiableCollection(controlledMonsters);
     }
 
-    public int getAccountID() {
-        return accountid;
+    public int getAccountId() {
+        return accountId;
     }
 
     public void mobKilled(final int id) {
@@ -3189,7 +3183,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         return skillMacros;
     }
 
-    public void tempban(String reason, Calendar duration, int greason, boolean IPMac) {
+    public void temporaryBan(String reason, Calendar duration, int greason, boolean IPMac) {
         if (IPMac) {
             client.banMacs();
         }
@@ -3204,11 +3198,11 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
             client.disconnect(true);
 
             ps = con.prepareStatement("UPDATE accounts SET tempban = ?, banreason = ?, greason = ? WHERE id = ?");
-            Timestamp TS = new Timestamp(duration.getTimeInMillis());
-            ps.setTimestamp(1, TS);
+            Timestamp timestamp = new Timestamp(duration.getTimeInMillis());
+            ps.setTimestamp(1, timestamp);
             ps.setString(2, reason);
             ps.setInt(3, greason);
-            ps.setInt(4, accountid);
+            ps.setInt(4, accountId);
             ps.execute();
             ps.close();
         } catch (SQLException ex) {
@@ -3218,66 +3212,19 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public final boolean ban(String reason, boolean IPMac, boolean autoban) {
-        if (lastmonthfameids == null) {
-            throw new RuntimeException("Trying to ban a non-loaded character (testhack)");
-        }
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = ?, banreason = ? WHERE id = ?");
             ps.setInt(1, autoban ? 2 : 1);
             ps.setString(2, reason);
-            ps.setInt(3, accountid);
+            ps.setInt(3, accountId);
             ps.execute();
             ps.close();
-
-            if (IPMac) {
-                client.banMacs();
-                ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
-                ps.setString(1, client.getSessionIP());
-                ps.execute();
-                ps.close();
-            }
         } catch (SQLException ex) {
             System.err.println("Error while banning" + ex);
             return false;
         }
         return true;
-    }
-
-    public static boolean ban(String id, String reason, boolean accountId) {
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps;
-            if (id.matches("/[0-9]{1,3}\\..*")) {
-                ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
-                ps.setString(1, id);
-                ps.execute();
-                ps.close();
-                return true;
-            }
-            if (accountId) {
-                ps = con.prepareStatement("SELECT id FROM accounts WHERE name = ?");
-            } else {
-                ps = con.prepareStatement("SELECT accountid FROM characters WHERE name = ?");
-            }
-            boolean ret = false;
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                PreparedStatement psb = con.prepareStatement("UPDATE accounts SET banned = 1, banreason = ? WHERE id = ?");
-                psb.setString(1, reason);
-                psb.setInt(2, rs.getInt(1));
-                psb.execute();
-                psb.close();
-                ret = true;
-            }
-            rs.close();
-            ps.close();
-            return ret;
-        } catch (SQLException ex) {
-            System.err.println("Error while banning" + ex);
-        }
-        return false;
     }
 
     /**
@@ -3446,8 +3393,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         cancelFullnessSchedule(getPetIndex(pet));
         pet.saveToDb();
         map.broadcastMessage(this, PetPacket.showPet(this, pet, true, hunger), true);
-        List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>();
-        stats.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(0)));
+        List<Pair<Stat, Integer>> petStat = Lists.newArrayList();
+        petStat.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(0)));
         client.write(PetPacket.petStatUpdate(this));
         client.write(MaplePacketCreator.enableActions());
         removePet(pet, shiftLeft);
@@ -3461,36 +3408,17 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
     }*/
     public final long getLastFameTime() {
-        return lastfametime;
+        return lastFameTime;
     }
 
-    public final List<Integer> getFamedCharacters() {
-        return lastmonthfameids;
+    public final void setLastFameTime(long timestamp) {
+        this.lastFameTime = timestamp;
     }
 
-    public FameStatus canGiveFame(GameCharacter from) {
-        if (lastfametime >= System.currentTimeMillis() - 60 * 60 * 24 * 1000) {
-            return FameStatus.NOT_TODAY;
-        } else if (lastmonthfameids.contains(Integer.valueOf(from.getId()))) {
-            return FameStatus.NOT_THIS_MONTH;
-        }
-        return FameStatus.OK;
-    }
-
-    public void hasGivenFame(GameCharacter to) {
-        lastfametime = System.currentTimeMillis();
-        lastmonthfameids.add(Integer.valueOf(to.getId()));
-        Connection con = DatabaseConnection.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO famelog (characterid, characterid_to) VALUES (?, ?)");
-            ps.setInt(1, getId());
-            ps.setInt(2, to.getId());
-            ps.execute();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("ERROR writing famelog for char " + getName() +
-                    " to " + to.getName() + e);
-        }
+    public final boolean hasFamedToday() {
+        long day = (long) Math.floor(lastFameTime / 86400000.0);
+        long today = (long) Math.floor(System.currentTimeMillis() / 86400000.0);
+        return day < today;
     }
 
     public final KeyLayout getKeyLayout() {
@@ -3592,11 +3520,6 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     @Override
-    public Collection<Inventory> allInventories() {
-        return Arrays.asList(inventory);
-    }
-
-    @Override
     public GameMapObjectType getType() {
         return GameMapObjectType.PLAYER;
     }
@@ -3683,8 +3606,8 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
         }
     }
 
-    public MapleAlliance getAlliance() {
-        return alliance;
+    public GuildUnion getAlliance() {
+        return union;
     }
 
     public void modifyCSPoints(int type, int quantity, boolean show) {
@@ -3782,17 +3705,17 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
     }
 
     public void addCooldown(int skillId, long startTime, long length, ScheduledFuture<?> timer) {
-        coolDowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length, timer));
+        cooldowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length, timer));
     }
 
     public void removeCooldown(int skillId) {
-        if (coolDowns.containsKey(Integer.valueOf(skillId))) {
-            coolDowns.remove(Integer.valueOf(skillId));
+        if (cooldowns.containsKey(Integer.valueOf(skillId))) {
+            cooldowns.remove(Integer.valueOf(skillId));
         }
     }
 
     public boolean skillisCooling(int skillId) {
-        return coolDowns.containsKey(Integer.valueOf(skillId));
+        return cooldowns.containsKey(Integer.valueOf(skillId));
     }
 
     public void giveCoolDowns(final int skillid, long starttime, long length) {
@@ -3833,7 +3756,7 @@ public class GameCharacter extends AbstractAnimatedGameMapObject implements Inve
 
     public List<PlayerCoolDownValueHolder> getAllCooldowns() {
         List<PlayerCoolDownValueHolder> ret = new ArrayList<PlayerCoolDownValueHolder>();
-        for (CooldownValueHolder mcdvh : coolDowns.values()) {
+        for (CooldownValueHolder mcdvh : cooldowns.values()) {
             ret.add(new PlayerCoolDownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
         }
         return ret;

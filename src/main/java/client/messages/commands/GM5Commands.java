@@ -19,6 +19,7 @@ import handling.ServerPacketOpcode;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
+import org.javastory.server.Bans;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import scripting.PortalScriptManager;
@@ -122,7 +123,7 @@ public class GM5Commands implements Command {
                     c.getPlayer().dropMessage(6, "Failed to ban.");
                 }
             } else {
-                if (GameCharacter.ban(splitted[1], sb.toString(), false)) {
+                if (Bans.banBySessionIP(splitted[1], sb.toString())) {
                     sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
                 } else {
                     c.getPlayer().dropMessage(6, "Failed to ban " + splitted[1]);
@@ -139,7 +140,7 @@ public class GM5Commands implements Command {
                 c.getPlayer().dropMessage(6, "Unable to find character");
                 return;
             }
-            victim.tempban("Temp banned by : " + c.getPlayer().getName() + "", cal, reason, true);
+            victim.temporaryBan("Temp banned by : " + c.getPlayer().getName() + "", cal, reason, true);
             c.getPlayer().dropMessage(6, "The character " + splitted[1] + " has been successfully tempbanned till " + df.format(cal.getTime()));
         } else if (splitted[0].equals("-unban")) {
             if (splitted.length < 1) {

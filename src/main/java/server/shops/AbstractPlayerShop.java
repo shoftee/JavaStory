@@ -53,7 +53,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	this.setPosition(owner.getPosition());
 	this.ownerName = owner.getName();
 	this.ownerId = owner.getId();
-	this.owneraccount = owner.getAccountID();
+	this.owneraccount = owner.getAccountId();
 	this.itemId = itemId;
 	this.des = desc;
 	this.open = false;

@@ -19,6 +19,8 @@ import client.GameClient;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import handling.ServerConstants;
 import handling.world.Party;
 import handling.world.PartyCharacter;
@@ -34,19 +36,20 @@ import tools.packet.MobPacket;
 public class Monster extends AbstractLoadedGameLife {
 
     private MonsterStats stats;
-    private OverrideMonsterStats ostats = null;
+    private OverrideMonsterStats statsOverride = null;
     private int hp, mp;
     //   private short showdown;
     private byte venom_counter, carnivalTeam;
     private GameMap map;
     private Monster sponge;
-    private GameCharacter highestDamageChar; // Just a reference for monster EXP distribution after dead
+    // Just a reference for monster EXP distribution after death
+    private GameCharacter highestDamageChar; 
     private WeakReference<GameCharacter> controller = new WeakReference<GameCharacter>(null);
-    private boolean fake, dropsDisabled, controllerHasAggro, controllerKnowsAboutAggro;
-    private final Collection<AttackerEntry> attackers = new LinkedList<AttackerEntry>();
+    private boolean isFake, dropsDisabled, controllerHasAggro, controllerKnowsAboutAggro;
+    private final Collection<AttackerEntry> attackers = Lists.newLinkedList();
     private EventInstanceManager eventInstance;
     private MonsterListener listener = null;
-    private final Map<MonsterStatus, MonsterStatusEffect> stati = new LinkedHashMap<MonsterStatus, MonsterStatusEffect>();
+    private final Map<MonsterStatus, MonsterStatusEffect> statuses = Maps.newEnumMap(MonsterStatus.class);
 //    private final List<MonsterStatusEffect> activeEffects = new ArrayList<MonsterStatusEffect>();
 //    private final List<MonsterStatus> monsterBuffs = new ArrayList<MonsterStatus>();
     private Map<Integer, Long> usedSkills;
@@ -69,7 +72,7 @@ public class Monster extends AbstractLoadedGameLife {
         venom_counter = 0;
 //	showdown = 100;
         carnivalTeam = -1;
-        fake = false;
+        isFake = false;
         dropsDisabled = false;
 
         if (stats.getNoSkills() > 0) {
@@ -106,8 +109,8 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final int getMobMaxHp() {
-        if (ostats != null) {
-            return ostats.getHp();
+        if (statsOverride != null) {
+            return statsOverride.getHp();
         }
         return stats.getHp();
     }
@@ -124,21 +127,21 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final int getMobMaxMp() {
-        if (ostats != null) {
-            return ostats.getMp();
+        if (statsOverride != null) {
+            return statsOverride.getMp();
         }
         return stats.getMp();
     }
 
     public final int getMobExp() {
-        if (ostats != null) {
-            return ostats.getExp();
+        if (statsOverride != null) {
+            return statsOverride.getExp();
         }
         return stats.getExp();
     }
 
     public final void setOverrideStats(final OverrideMonsterStats ostats) {
-        this.ostats = ostats;
+        this.statsOverride = ostats;
         this.hp = ostats.getHp();
         this.mp = ostats.getMp();
     }
@@ -464,9 +467,9 @@ public class Monster extends AbstractLoadedGameLife {
         if (!isAlive()) {
             return;
         }
-        client.write(MobPacket.spawnMonster(this, -1, fake ? 0xfc : 0, 0));
-        if (stati.size() > 0) {
-            for (final MonsterStatusEffect mse : this.stati.values()) {
+        client.write(MobPacket.spawnMonster(this, -1, isFake ? 0xfc : 0, 0));
+        if (statuses.size() > 0) {
+            for (final MonsterStatusEffect mse : this.statuses.values()) {
                 client.write(MobPacket.applyMonsterStatus(getObjectId(), mse));
             }
         }
@@ -521,7 +524,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final int getStatusSourceID(final MonsterStatus status) {
-        final MonsterStatusEffect effect = stati.get(status);
+        final MonsterStatusEffect effect = statuses.get(status);
         if (effect != null) {
             return effect.getSkill().getId();
         }
@@ -529,7 +532,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final ElementalEffectiveness getEffectiveness(final Element e) {
-        if (stati.size() > 0 && stati.get(MonsterStatus.DOOM) != null) {
+        if (statuses.size() > 0 && statuses.get(MonsterStatus.DOOM) != null) {
             return ElementalEffectiveness.NORMAL; // like blue snails
         }
         return stats.getEffectiveness(e);
@@ -587,7 +590,7 @@ public class Monster extends AbstractLoadedGameLife {
             }
         }
         for (MonsterStatus stat : statis.keySet()) {
-            final MonsterStatusEffect oldEffect = stati.get(stat);
+            final MonsterStatusEffect oldEffect = statuses.get(stat);
             if (oldEffect != null) {
                 oldEffect.removeActiveStatus(stat);
                 if (oldEffect.getEffects().isEmpty()) {
@@ -607,7 +610,7 @@ public class Monster extends AbstractLoadedGameLife {
                         getController().getClient().write(MobPacket.cancelMonsterStatus(getObjectId(), statis));
                     }
                     for (final MonsterStatus stat : statis.keySet()) {
-                        stati.remove(stat);
+                        statuses.remove(stat);
                     }
                     setVenomMulti((byte) 0);
                 }
@@ -672,7 +675,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
 
         for (final MonsterStatus stat : statis.keySet()) {
-            stati.put(stat, status);
+            statuses.put(stat, status);
         }
         map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), status), getPosition());
         if (getController() != null && !getController().isMapObjectVisible(this)) {
@@ -694,14 +697,14 @@ public class Monster extends AbstractLoadedGameLife {
                         getController().getClient().write(MobPacket.cancelMonsterStatus(getObjectId(), stats));
                     }
                     for (final MonsterStatus stat : stats.keySet()) {
-                        stati.remove(stat);
+                        statuses.remove(stat);
                     }
                 }
             }
         };
         final MonsterStatusEffect effect = new MonsterStatusEffect(stats, null, skill, true);
         for (final MonsterStatus stat : stats.keySet()) {
-            stati.put(stat, effect);
+            statuses.put(stat, effect);
         }
         if (reflection.size() > 0) {
             map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), effect, reflection), getPosition());
@@ -728,15 +731,15 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final boolean isBuffed(final MonsterStatus status) {
-        return stati.containsKey(status);
+        return statuses.containsKey(status);
     }
 
     public final void setFake(final boolean fake) {
-        this.fake = fake;
+        this.isFake = fake;
     }
 
     public final boolean isFake() {
-        return fake;
+        return isFake;
     }
 
     public final GameMap getMap() {
