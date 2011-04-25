@@ -22,7 +22,7 @@ public class TestCommands implements Command {
 			if (splitted.length > 1) {
 				c.write(MaplePacketCreator.getPacketFromHexString(StringUtil.joinStringFrom(splitted, 1)));
 			} else {
-				c.getPlayer().dropMessage(6, "Please enter packet data!");
+				c.getPlayer().sendNotice(6, "Please enter packet data!");
 			}
 		}
 	}

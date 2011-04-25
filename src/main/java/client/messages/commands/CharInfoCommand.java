@@ -55,7 +55,7 @@ public class CharInfoCommand implements Command {
 		builder.append(other.getClient().getPlayer().getDojo());
 		builder.append("] || remoteAddress: ");
 		other.getClient().DebugMessage(builder);
-		c.getPlayer().dropMessage(6, builder.toString());
+		c.getPlayer().sendNotice(6, builder.toString());
 	}
 
 	@Override

@@ -59,14 +59,14 @@ public class BuddyListHandler {
 	}
     }
 
-    private static final void nextPendingRequest(final GameClient c) {
+    private static void nextPendingRequest(final GameClient c) {
 	CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
 	if (pendingBuddyRequest != null) {
 	    c.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
 	}
     }
 
-    private static final CharacterIdNameBuddyCapacity getCharacterIdAndNameFromDatabase(final String name) throws SQLException {
+    private static CharacterIdNameBuddyCapacity getCharacterIdAndNameFromDatabase(final String name) throws SQLException {
 	Connection con = DatabaseConnection.getConnection();
 
 	PreparedStatement ps = con.prepareStatement("SELECT * FROM characters WHERE name LIKE ?");
@@ -84,7 +84,7 @@ public class BuddyListHandler {
 	return ret;
     }
 
-    public static final void handleBuddyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleBuddyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
 	final int mode = reader.readByte();
 	final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
 	final BuddyList buddylist = c.getPlayer().getBuddylist();
@@ -169,7 +169,7 @@ public class BuddyListHandler {
 				ps.close();
 			    }
 			    buddylist.put(new BuddyListEntry(charWithId.getName(), otherCid, groupName, displayChannel, true, charWithId.getLevel(), charWithId.getJob()));
-			    c.write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+			    c.write(MaplePacketCreator.updateBuddyList(buddylist.getBuddies()));
 			}
 		    } else {
 			c.write(MaplePacketCreator.buddylistMessage((byte) 15));
@@ -205,7 +205,7 @@ public class BuddyListHandler {
 		    }
 		    if (otherName != null) {
 			buddylist.put(new BuddyListEntry(otherName, otherCid, "ETC", channel, true, otherLevel, otherJob));
-			c.write(MaplePacketCreator.updateBuddylist(buddylist.getBuddies()));
+			c.write(MaplePacketCreator.updateBuddyList(buddylist.getBuddies()));
 			notifyRemoteChannel(c, channel, otherCid, ADDED);
 		    }
 		} catch (RemoteException e) {
@@ -225,12 +225,12 @@ public class BuddyListHandler {
 		}
 	    }
 	    buddylist.remove(otherCid);
-	    c.write(MaplePacketCreator.updateBuddylist(c.getPlayer().getBuddylist().getBuddies()));
+	    c.write(MaplePacketCreator.updateBuddyList(c.getPlayer().getBuddylist().getBuddies()));
 	    nextPendingRequest(c);
 	}
     }
 
-    private static final void notifyRemoteChannel(final GameClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
+    private static void notifyRemoteChannel(final GameClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
 	final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
 	final GameCharacter player = c.getPlayer();
 

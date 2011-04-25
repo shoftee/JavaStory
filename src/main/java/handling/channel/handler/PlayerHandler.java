@@ -456,7 +456,7 @@ public class PlayerHandler {
                             c.write(MaplePacketCreator.enableActions());
                         }
                     } else {
-                        chr.dropMessage(5, "Please wait 5 seconds before casting Mystic Door again.");
+                        chr.sendNotice(5, "Please wait 5 seconds before casting Mystic Door again.");
                         c.write(MaplePacketCreator.enableActions());
                     }
                 } else {
@@ -870,7 +870,7 @@ public class PlayerHandler {
                     }
                 }
             } else if (targetid != -1 && chr.isGM()) {
-                final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                 chr.changeMap(to, to.getPortal(0));
 
             } else if (targetid != -1 && !chr.isGM()) {
@@ -878,28 +878,28 @@ public class PlayerHandler {
                 if (divi == 9130401) { // Only allow warp if player is already in Intro map, or else = hack
 
                     if (targetid == 130000000 || targetid / 100 == 9130401) { // Cygnus introduction
-                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                         chr.changeMap(to, to.getPortal(0));
                     }
                 } else if (divi == 9140900) { // Aran Introduction
                     if (targetid == 914090011 || targetid == 914090012 || targetid == 914090013 || targetid == 140090000) {
-                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                         chr.changeMap(to, to.getPortal(0));
                     }
                 } else if (divi == 9140901 && targetid == 140000000) {
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (divi == 9140902 && (targetid == 140030000 || targetid == 140000000)) { //thing is. dont really know which one!
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (divi == 9000900 && targetid / 100 == 9000900 && targetid > chr.getMapId()) {
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (divi / 1000 == 9000 && targetid / 100000 == 9000) {
                     if (targetid < 900090000 || targetid > 900090004) { //1 movie
@@ -907,40 +907,40 @@ public class PlayerHandler {
                         c.write(UIPacket.IntroLock(false));
                         c.write(MaplePacketCreator.enableActions());
                     }
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (divi / 10 == 1020 && targetid == 1020000) { // Adventurer movie clip Intro
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
 
                 } else if (chr.getMapId() == 900090101 && targetid == 100030100) {
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (chr.getMapId() == 2010000 && targetid == 104000000) {
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 } else if (chr.getMapId() == 106020001 || chr.getMapId() == 106020502) {
                     if (targetid == (chr.getMapId() - 1)) {
                         c.write(UIPacket.IntroDisableUI(false));
                         c.write(UIPacket.IntroLock(false));
                         c.write(MaplePacketCreator.enableActions());
-                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                        final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                         chr.changeMap(to, to.getPortal(0));
                     }
                 } else if (chr.getMapId() == 0 && targetid == 10000) {
                     c.write(UIPacket.IntroDisableUI(false));
                     c.write(UIPacket.IntroLock(false));
                     c.write(MaplePacketCreator.enableActions());
-                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getPlayer().getWorld()).getMap(targetid);
+                    final GameMap to = ChannelManager.getInstance(c.getChannelId()).getMapFactory(c.getWorldId()).getMap(targetid);
                     chr.changeMap(to, to.getPortal(0));
                 }
             } else {

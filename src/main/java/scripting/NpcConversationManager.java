@@ -18,7 +18,6 @@ import client.GameCharacter;
 import client.GameConstants;
 import client.GameClient;
 import client.Inventory;
-import client.InventoryType;
 import client.SkillFactory;
 import client.SkillEntry;
 import client.Stat;
@@ -36,7 +35,8 @@ import tools.Pair;
 import tools.packet.PlayerShopPacket;
 import org.javastory.server.channel.MapleGuildRanking;
 import database.DatabaseConnection;
-import handling.world.PartyCharacter;
+import handling.world.PartyMember;
+import org.javastory.client.MemberRank;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import server.CarnivalChallenge;
@@ -79,7 +79,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public int getWorld() {
-        return getPlayer().getWorld();
+        return getPlayer().getWorldId();
     }
 
     public int getQuest() {
@@ -396,7 +396,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public void warpPartyWithExp(int mapId, int exp) {
         GameMap target = getMap(mapId);
-        for (PartyCharacter chr : getPlayer().getParty().getMembers()) {
+        for (PartyMember chr : getPlayer().getParty().getMembers()) {
             GameCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if ((curChar.getEventInstance() == null &&
                     getPlayer().getEventInstance() == null) ||
@@ -409,7 +409,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
         GameMap target = getMap(mapId);
-        for (PartyCharacter chr : getPlayer().getParty().getMembers()) {
+        for (PartyMember chr : getPlayer().getParty().getMembers()) {
             GameCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if ((curChar.getEventInstance() == null &&
                     getPlayer().getEventInstance() == null) ||
@@ -530,8 +530,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void disbandGuild() {
-        final int gid = super.client.getPlayer().getGuildId();
-        if (gid <= 0 || super.client.getPlayer().getGuildRank() != 1) {
+        final GameCharacter player = super.client.getPlayer();
+        final int gid = player.getGuildId();
+        if (gid <= 0 || player.getGuildRank().equals(MemberRank.MASTER)) {
             return;
         }
         try {
@@ -578,15 +579,15 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         super.client.getPlayer().gainMeso(-5000000, true, false, true);
     }
 
-    public void createAlliance(String name) {
+    public void createUnion(String name) {
         super.client.getPlayer().getGuild().createAlliance(super.client, name);
     }
 
-    public boolean hasAlliance() {
-        return super.client.getPlayer().getGuild().getAlliance(super.client) != null;
+    public boolean hasUnion() {
+        return super.client.getPlayer().getGuild().getUnion(super.client) != null;
     }
 
-    public void sendAllianceInvite(String charname) {
+    public void sendUnionInvite(String charname) {
         GameCharacter z = super.client.getChannelServer().getPlayerStorage().getCharacterByName(charname);
         if (z != null) {
             if (z.getGuild().getLeader(z.getClient()) == z) {
@@ -595,10 +596,10 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
                 //               z.setAllianceInvited(getPlayer().getGuild().getAlliance(getPlayer().super.client));
                 super.client.getPlayer().getGuildUnion().addGuild( super.client, super.client.getPlayer().getGuildId());
             } else {
-                getPlayer().dropMessage(0, "That character is not the leader of the guild");
+                getPlayer().sendNotice(0, "That character is not the leader of the guild");
             }
         } else {
-            getPlayer().dropMessage(0, "That character is offline");
+            getPlayer().sendNotice(0, "That character is offline");
         }
     }
 

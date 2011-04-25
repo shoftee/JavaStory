@@ -21,12 +21,14 @@
 
 package client;
 
+import org.javastory.client.ItemType;
 import java.io.Serializable;
 
 public class Equip extends Item implements IEquip, Serializable {
 
     private byte upgradeSlots, level, vicioushammer, itemLevel;
-    private short str, dex, _int, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, itemEXP;
+    private short STR, DEX, INT, LUK, hp, mp, physicalAttack, magicAttack, 
+            physicalDefense, magicDefense, acc, avoid, hands, speed, jump, itemEXP;
     private int ringid, job;
 
     public Equip(int id, short position, byte flag) {
@@ -42,16 +44,16 @@ public class Equip extends Item implements IEquip, Serializable {
     @Override
     public IItem copy() {
 	Equip ret = new Equip(getItemId(), getPosition(), ringid, getFlag());
-	ret.str = str;
-	ret.dex = dex;
-	ret._int = _int;
-	ret.luk = luk;
+	ret.STR = STR;
+	ret.DEX = DEX;
+	ret.INT = INT;
+	ret.LUK = LUK;
 	ret.hp = hp;
 	ret.mp = mp;
-	ret.matk = matk;
-	ret.mdef = mdef;
-	ret.watk = watk;
-	ret.wdef = wdef;
+	ret.magicAttack = magicAttack;
+	ret.magicDefense = magicDefense;
+	ret.physicalAttack = physicalAttack;
+	ret.physicalDefense = physicalDefense;
 	ret.acc = acc;
 	ret.avoid = avoid;
 	ret.hands = hands;
@@ -85,22 +87,22 @@ public class Equip extends Item implements IEquip, Serializable {
 
     @Override
     public short getStr() {
-	return str;
+	return STR;
     }
 
     @Override
     public short getDex() {
-	return dex;
+	return DEX;
     }
 
     @Override
     public short getInt() {
-	return _int;
+	return INT;
     }
 
     @Override
     public short getLuk() {
-	return luk;
+	return LUK;
     }
 
     @Override
@@ -115,22 +117,22 @@ public class Equip extends Item implements IEquip, Serializable {
 
     @Override
     public short getWatk() {
-	return watk;
+	return physicalAttack;
     }
 
     @Override
     public short getMatk() {
-	return matk;
+	return magicAttack;
     }
 
     @Override
     public short getWdef() {
-	return wdef;
+	return physicalDefense;
     }
 
     @Override
     public short getMdef() {
-	return mdef;
+	return magicDefense;
     }
 
     @Override
@@ -166,28 +168,28 @@ public class Equip extends Item implements IEquip, Serializable {
 	if (str < 0) {
 	    str = 0;
 	}
-	this.str = str;
+	this.STR = str;
     }
 
     public void setDex(short dex) {
 	if (dex < 0) {
 	    dex = 0;
 	}
-	this.dex = dex;
+	this.DEX = dex;
     }
 
     public void setInt(short _int) {
 	if (_int < 0) {
 	    _int = 0;
 	}
-	this._int = _int;
+	this.INT = _int;
     }
 
     public void setLuk(short luk) {
 	if (luk < 0) {
 	    luk = 0;
 	}
-	this.luk = luk;
+	this.LUK = luk;
     }
 
     public void setHp(short hp) {
@@ -208,14 +210,14 @@ public class Equip extends Item implements IEquip, Serializable {
 	if (watk < 0) {
 	    watk = 0;
 	}
-	this.watk = watk;
+	this.physicalAttack = watk;
     }
 
     public void setMatk(short matk) {
 	if (matk < 0) {
 	    matk = 0;
 	}
-	this.matk = matk;
+	this.magicAttack = matk;
     }
 
     public void setWdef(short wdef) {
@@ -224,7 +226,7 @@ public class Equip extends Item implements IEquip, Serializable {
 	} else if (wdef > 255) {
 	    wdef = 255;
 	}
-	this.wdef = wdef;
+	this.physicalDefense = wdef;
     }
 
     public void setMdef(short mdef) {
@@ -233,7 +235,7 @@ public class Equip extends Item implements IEquip, Serializable {
 	} else if (mdef > 255) {
 	    mdef = 255;
 	}
-	this.mdef = mdef;
+	this.magicDefense = mdef;
     }
 
     public void setAcc(short acc) {

@@ -38,7 +38,6 @@ public class QuestStatus implements Serializable {
     private boolean custom;
     private String customData;
 
-    /** Creates a new instance of MapleQuestStatus */
     public QuestStatus(final Quest quest, final byte status) {
         this.quest = quest;
         this.custom = quest.getId() > 99999;

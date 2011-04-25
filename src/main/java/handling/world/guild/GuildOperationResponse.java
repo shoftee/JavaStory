@@ -23,14 +23,14 @@ package handling.world.guild;
 import tools.MaplePacketCreator;
 import handling.GamePacket;
 
-public enum MapleGuildResponse {
+public enum GuildOperationResponse {
 
     NOT_IN_CHANNEL(0x2a),
     ALREADY_IN_GUILD(0x28),
     NOT_IN_GUILD(0x2d);
     private int value;
 
-    private MapleGuildResponse(int val) {
+    private GuildOperationResponse(int val) {
 	value = val;
     }
 

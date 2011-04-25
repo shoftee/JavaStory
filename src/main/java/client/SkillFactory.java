@@ -16,14 +16,16 @@ public class SkillFactory {
 
     private static final Map<Integer, ISkill> skills = new HashMap<Integer, ISkill>();
     private static final Map<Integer, SummonSkillEntry> SummonSkillInformation = new HashMap<Integer, SummonSkillEntry>();
-    private final static WzData stringData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/String.wz")).getData("Skill.img");
+    private final static WzData stringData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
+            "/String.wz")).getData("Skill.img");
 
-    public static final ISkill getSkill(final int id) {
-        if (skills.size() != 0) {
+    public static ISkill getSkill(final int id) {
+        if (!skills.isEmpty()) {
             return skills.get(Integer.valueOf(id));
         }
         System.out.println(":: Loading SkillFactory ::");
-        final WzDataProvider datasource = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Skill.wz"));
+        final WzDataProvider datasource = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
+                "/Skill.wz"));
         final WzDataDirectoryEntry root = datasource.getRoot();
         int skillid;
         WzData summon_data;
@@ -53,7 +55,7 @@ public class SkillFactory {
         return null;
     }
 
-    public static final String getSkillName(final int id) {
+    public static String getSkillName(final int id) {
         String strId = Integer.toString(id);
         strId = StringUtil.getLeftPaddedStr(strId, '0', 7);
         WzData skillroot = stringData.getChildByPath(strId);
@@ -63,7 +65,7 @@ public class SkillFactory {
         return null;
     }
 
-    public static final SummonSkillEntry getSummonData(final int skillid) {
+    public static SummonSkillEntry getSummonData(final int skillid) {
         return SummonSkillInformation.get(skillid);
     }
 }

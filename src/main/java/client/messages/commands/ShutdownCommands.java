@@ -18,7 +18,7 @@ public class ShutdownCommands implements Command {
             }
             CommandProcessor.forcePersisting();
             c.getChannelServer().shutdown(time);
-            c.getPlayer().dropMessage(6, "Shutting down... in " + time + "");
+            c.getPlayer().sendNotice(6, "Shutting down... in " + time + "");
         } else if (splitted[0].equals("-shutdownworld")) {
             int time = 60000;
             if (splitted.length > 1) {
@@ -26,17 +26,17 @@ public class ShutdownCommands implements Command {
             }
             CommandProcessor.forcePersisting();
             c.getChannelServer().shutdownWorld(time);
-            c.getPlayer().dropMessage(6, "Shutting down... in 1 minutes");
+            c.getPlayer().sendNotice(6, "Shutting down... in 1 minutes");
         } else if (splitted[0].equals("-shutdownlogin")) {
             c.getChannelServer().shutdownLogin();
-            c.getPlayer().dropMessage(6, "Shutting down...");
+            c.getPlayer().sendNotice(6, "Shutting down...");
         } else if (splitted[0].equals("-shutdownnow")) {
             CommandProcessor.forcePersisting();
             new ShutdownChannelServer(c.getChannelServer().getChannelId()).run();
-            c.getPlayer().dropMessage(6, "Shutting down...");
+            c.getPlayer().sendNotice(6, "Shutting down...");
         } else if (splitted[0].equals("-shutdownmerchant")) {
             c.getChannelServer().closeAllMerchant();
-            c.getPlayer().dropMessage(6, "All Merchant has been closed.");
+            c.getPlayer().sendNotice(6, "All Merchant has been closed.");
         }
     }
 

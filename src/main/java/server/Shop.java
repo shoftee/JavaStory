@@ -102,7 +102,7 @@ public class Shop {
 			}
 		    }
 		} else {
-		    c.getPlayer().dropMessage(1, "Your Inventory is full");
+		    c.getPlayer().sendNotice(1, "Your Inventory is full");
 		}
 		c.write(MaplePacketCreator.confirmShopTransaction((byte) 0));
 	    }

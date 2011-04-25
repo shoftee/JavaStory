@@ -38,12 +38,15 @@ public class BuddyList implements Serializable {
 
     public static enum BuddyOperation {
 
-        ADDED, DELETED
+        ADDED,
+        DELETED
     }
 
     public static enum BuddyAddResult {
 
-        BUDDYLIST_FULL, ALREADY_ON_LIST, OK
+        BUDDYLIST_FULL,
+        ALREADY_ON_LIST,
+        OK
     }
     private static final long serialVersionUID = 1413738569L;
     private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<Integer, BuddyListEntry>();
