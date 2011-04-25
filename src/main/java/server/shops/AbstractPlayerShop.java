@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
 import client.IItem;
 import client.Equip;
 import client.GameCharacter;
+import client.ItemType;
 import database.DatabaseConnection;
 import handling.GamePacket;
 import java.sql.Statement;
@@ -123,7 +124,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 		}
 		final IItem item = pItems.item;
 
-		if (item.getType() == 1) { // equips
+		if (item.getType() == ItemType.EQUIP) { // equips
 		    ps2 = con.prepareStatement("INSERT INTO hiredmerchitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		    final Equip eq = (Equip) item;
 		    ps2.setInt(1, packageid);
