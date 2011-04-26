@@ -32,8 +32,8 @@ import java.sql.SQLException;
 import client.BuddyList;
 import client.BuddyListEntry;
 import client.CharacterNameAndId;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
@@ -59,7 +59,7 @@ public class BuddyListHandler {
 	}
     }
 
-    private static void nextPendingRequest(final GameClient c) {
+    private static void nextPendingRequest(final ChannelClient c) {
 	CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
 	if (pendingBuddyRequest != null) {
 	    c.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
@@ -84,7 +84,7 @@ public class BuddyListHandler {
 	return ret;
     }
 
-    public static void handleBuddyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleBuddyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 	final int mode = reader.readByte();
 	final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
 	final BuddyList buddylist = c.getPlayer().getBuddylist();
@@ -105,12 +105,12 @@ public class BuddyListHandler {
 		try {
 		    CharacterIdNameBuddyCapacity charWithId = null;
 		    int channel;
-		    final GameCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
+		    final ChannelCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
 		    if (otherChar != null) {
 			channel = c.getChannelId();
 
 			if (!otherChar.isGM() || c.getPlayer().isGM()) {
-			    charWithId = new CharacterIdNameBuddyCapacity(otherChar.getId(), otherChar.getName(), otherChar.getLevel(), otherChar.getJob(), otherChar.getBuddylist().getCapacity());
+			    charWithId = new CharacterIdNameBuddyCapacity(otherChar.getId(), otherChar.getName(), otherChar.getLevel(), otherChar.getJobId(), otherChar.getBuddylist().getCapacity());
 			}
 		    } else {
 			channel = worldInterface.find(addName);
@@ -121,7 +121,7 @@ public class BuddyListHandler {
 			BuddyAddResult buddyAddResult = null;
 			if (channel != -1) {
 			    final ChannelWorldInterface channelInterface = worldInterface.getChannelInterface(channel);
-			    buddyAddResult = channelInterface.requestBuddyAdd(addName, c.getChannelId(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob());
+			    buddyAddResult = channelInterface.requestBuddyAdd(addName, c.getChannelId(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJobId());
 			} else {
 			    Connection con = DatabaseConnection.getConnection();
 			    PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) as buddyCount FROM buddies WHERE characterid = ? AND pending = 0");
@@ -187,7 +187,7 @@ public class BuddyListHandler {
 		    final int channel = worldInterface.find(otherCid);
 		    String otherName = null;
                     int otherLevel = 0, otherJob = 0;
-		    final GameCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
+		    final ChannelCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
 		    if (otherChar == null) {
 			Connection con = DatabaseConnection.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT name, level, job FROM characters WHERE id = ?");
@@ -230,13 +230,13 @@ public class BuddyListHandler {
 	}
     }
 
-    private static void notifyRemoteChannel(final GameClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
+    private static void notifyRemoteChannel(final ChannelClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
 	final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
-	final GameCharacter player = c.getPlayer();
+	final ChannelCharacter player = c.getPlayer();
 
 	if (remoteChannel != -1) {
 	    final ChannelWorldInterface channelInterface = worldInterface.getChannelInterface(remoteChannel);
-	    channelInterface.buddyChanged(otherCid, player.getId(), player.getName(), c.getChannelId(), operation, player.getLevel(), player.getJob());
+	    channelInterface.buddyChanged(otherCid, player.getId(), player.getName(), c.getChannelId(), operation, player.getLevel(), player.getJobId());
 	}
     }
 }

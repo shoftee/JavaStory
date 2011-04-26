@@ -25,21 +25,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import handling.world.PartyMember;
 import server.Portal;
 import tools.MaplePacketCreator;
 
 public class Door extends AbstractGameMapObject {
 
-    private GameCharacter owner;
+    private ChannelCharacter owner;
     private GameMap town;
     private Portal townPortal;
     private GameMap target;
     private Point targetPosition;
 
-    public Door(final GameCharacter owner, final Point targetPosition) {
+    public Door(final ChannelCharacter owner, final Point targetPosition) {
         super();
         this.owner = owner;
         this.target = owner.getMap();
@@ -92,7 +92,7 @@ public class Door extends AbstractGameMapObject {
     }
 
     @Override
-    public final void sendSpawnData(final GameClient client) {
+    public final void sendSpawnData(final ChannelClient client) {
         if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() && owner.getParty() == null) {
             client.write(MaplePacketCreator.spawnDoor(owner.getId(), town.getId() == client.getPlayer().getMapId() ? townPortal.getPosition() : targetPosition, true));
             if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyMember(client.getPlayer())))) {
@@ -103,7 +103,7 @@ public class Door extends AbstractGameMapObject {
     }
 
     @Override
-    public final void sendDestroyData(final GameClient client) {
+    public final void sendDestroyData(final ChannelClient client) {
         if (target.getId() == client.getPlayer().getMapId() || owner == client.getPlayer() || owner.getParty() != null && owner.getParty().containsMembers(new PartyMember(client.getPlayer()))) {
             if (owner.getParty() != null && (owner == client.getPlayer() || owner.getParty().containsMembers(new PartyMember(client.getPlayer())))) {
                 client.write(MaplePacketCreator.partyPortal(999999999, 999999999, new Point(-1, -1)));
@@ -113,7 +113,7 @@ public class Door extends AbstractGameMapObject {
         }
     }
 
-    public final void warp(final GameCharacter chr, final boolean toTown) {
+    public final void warp(final ChannelCharacter chr, final boolean toTown) {
         if (chr == owner || owner.getParty() != null && owner.getParty().containsMembers(new PartyMember(chr))) {
             if (!toTown) {
                 chr.changeMap(target, targetPosition);
@@ -125,7 +125,7 @@ public class Door extends AbstractGameMapObject {
         }
     }
 
-    public final GameCharacter getOwner() {
+    public final ChannelCharacter getOwner() {
         return owner;
     }
 

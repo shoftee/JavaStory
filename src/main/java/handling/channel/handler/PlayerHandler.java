@@ -12,11 +12,11 @@ import client.GameConstants;
 import client.CancelCooldownAction;
 import client.InventoryType;
 import client.BuffStat;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.Inventory;
 import client.KeyBinding;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.anticheat.CheatingOffense;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,14 +58,14 @@ public class PlayerHandler {
         return false;
     }
 
-    public static void handleChangeMonsterBookCover(final int bookid, final GameClient c, final GameCharacter chr) {
+    public static void handleChangeMonsterBookCover(final int bookid, final ChannelClient c, final ChannelCharacter chr) {
         if (bookid == 0 || GameConstants.isMonsterCard(bookid)) {
             chr.setMonsterBookCover(bookid);
             chr.getMonsterBook().updateCard(c, bookid);
         }
     }
 
-    public static void handleSkillMacro(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSkillMacro(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int num = reader.readByte();
         String name;
         int shout, skill1, skill2, skill3;
@@ -83,7 +83,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void HandleChangeKeymap(final PacketReader reader, final GameCharacter chr) {
+    public static void HandleChangeKeymap(final PacketReader reader, final ChannelCharacter chr) {
         if (reader.remaining() != 8) {
             try {
                 // else = pet auto pot
@@ -106,7 +106,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleUseChair(final int itemId, final GameClient c, final GameCharacter chr) {
+    public static void handleUseChair(final int itemId, final ChannelClient c, final ChannelCharacter chr) {
         final IItem toUse = chr.getSetupInventory().findById(itemId);
 
         if (toUse == null || toUse.getItemId() != itemId) {
@@ -129,7 +129,7 @@ public class PlayerHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleCancelChair(final short id, final GameClient c, final GameCharacter chr) {
+    public static void handleCancelChair(final short id, final ChannelClient c, final ChannelCharacter chr) {
         if (id == -1) { // Cancel Chair
             if (chr.getChair() == 3011000) {
                 chr.cancelFishingTask();
@@ -143,7 +143,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleTeleportRockAddMap(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleTeleportRockAddMap(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte addrem = reader.readByte();
         final byte vip = reader.readByte();
 
@@ -157,8 +157,8 @@ public class PlayerHandler {
         c.write(MTSCSPacket.getTrockRefresh(chr, vip == 1, addrem == 3));
     }
 
-    public static void handleCharacterInfoRequest(final int objectid, final GameClient c, final GameCharacter chr) {
-        final GameCharacter player = (GameCharacter) c.getPlayer().getMap().getMapObject(objectid);
+    public static void handleCharacterInfoRequest(final int objectid, final ChannelClient c, final ChannelCharacter chr) {
+        final ChannelCharacter player = (ChannelCharacter) c.getPlayer().getMap().getMapObject(objectid);
 
         if (player != null) {
             if (!player.isGM() || (c.getPlayer().isGM() && player.isGM())) {
@@ -169,7 +169,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleTakeDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleTakeDamage(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4); // Ticks
         final byte type = reader.readByte();
         reader.skip(1); // Element - 0x00 = elementless, 0x01 = ice, 0x02 = fire, 0x03 = lightning
@@ -186,7 +186,7 @@ public class PlayerHandler {
         boolean is_pg = false;
         boolean isDeadlyAttack = false;
         Monster attacker = null;
-        final PlayerStats stats = chr.getStat();
+        final ActivePlayerStats stats = chr.getStats();
 
         if (type != -2 && type != -3 && type != -4) { // Not map damage
             monsteridfrom = reader.readInt();
@@ -214,7 +214,7 @@ public class PlayerHandler {
         }
 
         if (damage == -1) {
-            fake = 4020002 + ((chr.getJob() / 10 - 40) * 100000);
+            fake = 4020002 + ((chr.getJobId() / 10 - 40) * 100000);
         } else if (damage < -1 || damage > 60000) {
             AutobanManager.getInstance().addPoints(c, 1000, 60000, "Taking abnormal amounts of damge from " + monsteridfrom + ": " + damage);
             return;
@@ -241,7 +241,7 @@ public class PlayerHandler {
                     }
                 }
             } else if (type != -2 && type != -3 && type != -4) {
-                switch (chr.getJob()) {
+                switch (chr.getJobId()) {
                     case 112: {
                         final ISkill skill = SkillFactory.getSkill(1120004);
                         if (chr.getCurrentSkillLevel(skill) > 0) {
@@ -316,8 +316,8 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleAranCombo(final GameClient c, final GameCharacter chr) {
-        if (chr.getJob() >= 2000 && chr.getJob() <= 2112) {
+    public static final void handleAranCombo(final ChannelClient c, final ChannelCharacter chr) {
+        if (chr.getJobId() >= 2000 && chr.getJobId() <= 2112) {
             short combo = chr.getCombo();
             final long curr = System.currentTimeMillis();
             if (combo > 0 && (curr - chr.getLastCombo()) > 5000) {
@@ -347,7 +347,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleUseItemEffect(final int itemId, final GameClient c, final GameCharacter chr) {
+    public static void handleUseItemEffect(final int itemId, final ChannelClient c, final ChannelCharacter chr) {
         final IItem toUse = chr.getCashInventory().findById(itemId);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
             c.write(MaplePacketCreator.enableActions());
@@ -357,12 +357,12 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.itemEffect(chr.getId(), itemId), false);
     }
 
-    public static void handleCancelItemEffect(final int id, final GameCharacter chr) {
+    public static void handleCancelItemEffect(final int id, final ChannelCharacter chr) {
         chr.cancelEffect(
                 ItemInfoProvider.getInstance().getItemEffect(-id), false, -1);
     }
 
-    public static void handleCancelBuff(final int sourceid, final GameCharacter chr) {
+    public static void handleCancelBuff(final int sourceid, final ChannelCharacter chr) {
         final ISkill skill = SkillFactory.getSkill(sourceid);
 
         if (skill.isChargeSkill()) {
@@ -373,7 +373,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleSkillEffect(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSkillEffect(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int skillId = reader.readInt();
         final byte level = reader.readByte();
         final byte flags = reader.readByte();
@@ -389,7 +389,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleSpecialMove(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSpecialMove(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -471,16 +471,16 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleMeleeAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleMeleeAttack(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
         }
         final AttackInfo attack = DamageParse.parseDmgM(reader);
 
-        double maxdamage = chr.getStat().getCurrentMaxBaseDamage();
+        double maxdamage = chr.getStats().getCurrentMaxBaseDamage();
         final boolean mirror = chr.getBuffedValue(BuffStat.MIRROR_IMAGE) != null;
-        int attackCount = (chr.getJob() >= 430 && chr.getJob() <= 434 ? 2 : 1), skillLevel = 0;
+        int attackCount = (chr.getJobId() >= 430 && chr.getJobId() <= 434 ? 2 : 1), skillLevel = 0;
         StatEffect effect = null;
         ISkill skill = null;
 
@@ -517,7 +517,7 @@ public class PlayerHandler {
 
         } else if (attack.targets > 0 && comboBuff != null) {
             // handle combo orbgain
-            switch (chr.getJob()) {
+            switch (chr.getJobId()) {
                 case 111:
                 case 112:
                 case 1110:
@@ -528,7 +528,7 @@ public class PlayerHandler {
                     break;
             }
         }
-        switch (chr.getJob()) {
+        switch (chr.getJobId()) {
             case 511:
             case 512: {
                 chr.handleEnergyCharge(5110001, attack.targets);
@@ -557,7 +557,7 @@ public class PlayerHandler {
             maxdamage *= numFinisherOrbs;
         } else if (comboBuff != null) {
             ISkill combo;
-            if (c.getPlayer().getJob() == 1110 || c.getPlayer().getJob() == 1111) {
+            if (c.getPlayer().getJobId() == 1110 || c.getPlayer().getJobId() == 1111) {
                 combo = SkillFactory.getSkill(11111001);
             } else {
                 combo = SkillFactory.getSkill(1111002);
@@ -569,14 +569,14 @@ public class PlayerHandler {
             if (numFinisherOrbs == 0) {
                 return;
             }
-            maxdamage = GameCharacter.getDamageCap(); // FIXME reenable damage calculation for finishers
+            maxdamage = ChannelCharacter.getDamageCap(); // FIXME reenable damage calculation for finishers
         }
         DamageParse.applyAttack(attack, skill, c.getPlayer(), attackCount, maxdamage, effect, mirror ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
 
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, chr.getLevel()), chr.getPosition());
     }
 
-    public static void handleRangedAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleRangedAttack(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -642,7 +642,7 @@ public class PlayerHandler {
         if (projectile != 0) {
             projectileWatk = ItemInfoProvider.getInstance().getWatkForProjectile(projectile);
         }
-        final PlayerStats statst = chr.getStat();
+        final ActivePlayerStats statst = chr.getStats();
         switch (attack.skill) {
             case 4001344: // Lucky Seven
             case 4121007: // Triple Throw
@@ -683,7 +683,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.rangedAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel()), chr.getPosition());
     }
 
-    public static void MagicDamage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void MagicDamage(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -710,7 +710,7 @@ public class PlayerHandler {
         chr.getMap().broadcastMessage(chr, MaplePacketCreator.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.animation, attack.speed, attack.allDamage, attack.charge, chr.getLevel()), chr.getPosition());
     }
 
-    public static void handleWheelOfFortuneEffect(final int itemId, final GameCharacter chr) {
+    public static void handleWheelOfFortuneEffect(final int itemId, final ChannelCharacter chr) {
         // BA 03 00 00   72 01 00 00 << extra int
         switch (itemId) {
             case 5510000: {
@@ -725,7 +725,7 @@ public class PlayerHandler {
         }
     }
 
-    public static void handleMesoDrop(final int meso, final GameCharacter chr) {
+    public static void handleMesoDrop(final int meso, final ChannelCharacter chr) {
         if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
             chr.getClient().write(MaplePacketCreator.enableActions());
             return;
@@ -734,7 +734,7 @@ public class PlayerHandler {
         chr.getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
     }
 
-    public static void handleFaceExpression(final int emote, final GameCharacter chr) {
+    public static void handleFaceExpression(final int emote, final ChannelCharacter chr) {
         if (emote > 7) {
             final int emoteid = 5159992 + emote;
             final Inventory inventory = chr.getInventoryForItem(emoteid);
@@ -748,11 +748,11 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleHealthRegeneration(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleHealthRegeneration(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final int healHP = reader.readShort();
         final int healMP = reader.readShort();
-        final PlayerStats stats = chr.getStat();
+        final ActivePlayerStats stats = chr.getStats();
         if (stats.getHp() <= 0) {
             return;
         }
@@ -770,7 +770,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleMovePlayer(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleMovePlayer(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
 //	reader.skip(5); // unknown
         final Point Original_Pos = chr.getPosition(); // 4 bytes Added on v.80 MSEA
         reader.skip(37);
@@ -807,8 +807,8 @@ public class PlayerHandler {
         }
     }
 
-    private static final void speedCheck(final List<LifeMovementFragment> res, final GameClient c) {
-        double speedMod, playerSpeedMod = c.getPlayer().getStat().getSpeedMod() + 0.005;
+    private static final void speedCheck(final List<LifeMovementFragment> res, final ChannelClient c) {
+        double speedMod, playerSpeedMod = c.getPlayer().getStats().getSpeedMod() + 0.005;
         for (LifeMovementFragment lmf : res) {
             if (lmf.getClass() == AbsoluteLifeMovement.class) {
                 final AbsoluteLifeMovement alm = (AbsoluteLifeMovement) lmf;
@@ -825,7 +825,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleChangeMapSpecial(final String portal_name, final GameClient c, final GameCharacter chr) {
+    public static final void handleChangeMapSpecial(final String portal_name, final ChannelClient c, final ChannelCharacter chr) {
         final Portal portal = chr.getMap().getPortal(portal_name);
 //	reader.skip(2);
 
@@ -834,7 +834,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleChangeMap(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleChangeMap(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (reader.remaining() != 0) {
             reader.skip(7); // 1 = from dying 2 = regular portals
             final int targetid = reader.readInt(); // FF FF FF FF
@@ -854,13 +854,13 @@ public class PlayerHandler {
                 chr.setStance(0);
 
                 if (!wheel) {
-                    chr.getStat().setHp(50);
+                    chr.getStats().setHp(50);
 
                     final GameMap to = chr.getMap().getReturnMap();
                     chr.changeMap(to, to.getPortal(0));
                 } else {
                     if (chr.haveItem(5510000, 1, false, true)) { // Wheel of Fortune
-                        chr.getStat().setHp((chr.getStat().getMaxHp() / 100) * 40);
+                        chr.getStats().setHp((chr.getStats().getMaxHp() / 100) * 40);
                         InventoryManipulator.removeById(c, chr.getCashInventory(), 5510000, 1, true, false);
 
                         final GameMap to = chr.getMap();
@@ -953,7 +953,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleUseInnerPortal(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleUseInnerPortal(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Portal portal = c.getPlayer().getMap().getPortal(reader.readLengthPrefixedString());
         final int toX = reader.readShort();
         final int toY = reader.readShort();

@@ -20,14 +20,14 @@
 */
 package handling.channel.handler;
 
-import client.GameClient;
+import client.ChannelClient;
 import handling.world.guild.GuildUnion;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 
 public class AllianceHandler {
 
-    public static final void handleAllianceOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleAllianceOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 	final byte mode = reader.readByte();
 
 	final GuildUnion alliance = new GuildUnion(c, c.getChannelServer().getGuildSummary(c.getPlayer().getGuildId()).getAllianceId());

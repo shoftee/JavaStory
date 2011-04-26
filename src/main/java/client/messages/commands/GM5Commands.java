@@ -8,8 +8,8 @@ import java.text.DateFormat;
 import client.Equip;
 import client.GameConstants;
 import client.IItem;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.anticheat.CheatingOffense;
@@ -46,10 +46,10 @@ import tools.StringUtil;
 public class GM5Commands implements Command {
 
     @Override
-    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
-        final GameCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+        final ChannelCharacter player = c.getPlayer();
         if (splitted[0].equalsIgnoreCase("-proitem")) {
             if (splitted.length == 3) {
                 int itemid;
@@ -116,7 +116,7 @@ public class GM5Commands implements Command {
             sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
             if (chr != null) {
                 sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
-                if (chr.ban(sb.toString(), false, false)) {
+                if (chr.ban(sb.toString(), false)) {
                     player.sendNotice(6, "Successfully banned.");
                 } else {
                     player.sendNotice(6, "Failed to ban.");
@@ -129,7 +129,7 @@ public class GM5Commands implements Command {
                 }
             }
         } else if (splitted[0].equals("-tempban")) {
-            final GameCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+            final ChannelCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
             final int reason = Integer.parseInt(splitted[2]);
             final int numDay = Integer.parseInt(splitted[3]);
             final Calendar cal = Calendar.getInstance();
@@ -140,7 +140,7 @@ public class GM5Commands implements Command {
                 return;
             }
             victim.temporaryBan("Temp banned by : " + player.getName() +
-                    "", cal, reason, true);
+                    "", cal, reason);
             player.sendNotice(6, "The character " + splitted[1] +
                     " has been successfully tempbanned till " +
                     df.format(cal.getTime()));
@@ -159,7 +159,7 @@ public class GM5Commands implements Command {
             }
         } else if (splitted[0].equals("-dc")) {
             int level = 0;
-            GameCharacter victim;
+            ChannelCharacter victim;
             if (splitted[1].charAt(0) == '-') {
                 level = StringUtil.countCharacters(splitted[1], 'f');
                 victim = cserv.getPlayerStorage().getCharacterByName(splitted[2]);

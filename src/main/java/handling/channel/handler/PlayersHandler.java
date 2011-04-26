@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.IItem;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.InventoryType;
 import client.Stat;
 import client.anticheat.CheatingOffense;
@@ -41,7 +41,7 @@ public final class PlayersHandler {
     private PlayersHandler() {
     }
 
-    public static void handleNoteAction(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleNoteAction(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final byte type = reader.readByte();
 
         switch (type) {
@@ -60,12 +60,12 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleGiveFame(final PacketReader reader, final GameClient c, final GameCharacter famer) throws PacketFormatException {
+    public static void handleGiveFame(final PacketReader reader, final ChannelClient c, final ChannelCharacter famer) throws PacketFormatException {
         final int receiverId = reader.readInt();
         final int isIncrease = reader.readByte();
 
         final int change = (isIncrease != 0 ? 1 : -1);
-        final GameCharacter receiver = (GameCharacter) famer.getMap().getMapObject(receiverId);
+        final ChannelCharacter receiver = (ChannelCharacter) famer.getMap().getMapObject(receiverId);
 
         if (receiver == famer) {
             famer.getCheatTracker().registerOffense(CheatingOffense.FAMING_SELF);
@@ -99,7 +99,7 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleUseDoor(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseDoor(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int oid = reader.readInt();
         final boolean mode = reader.readByte() == 0; // specifies if backwarp or not, 1 town to target, 0 target to town
 
@@ -112,7 +112,7 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleTransformPlayer(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleTransformPlayer(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         // D9 A4 FD 00
         // 11 00
         // A0 C0 21 00
@@ -131,7 +131,7 @@ public final class PlayersHandler {
         }
         switch (itemId) {
             case 2212000:
-                for (final GameCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
+                for (final ChannelCharacter search_chr : c.getPlayer().getMap().getCharacters()) {
                     if (search_chr.getName().toLowerCase().equals(target)) {
                         ItemInfoProvider.getInstance().getItemEffect(2210023).applyTo(search_chr);
                         search_chr.sendNotice(6, chr.getName() +
@@ -143,7 +143,7 @@ public final class PlayersHandler {
         }
     }
 
-    public static void handleHitReactor(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleHitReactor(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int oid = reader.readInt();
         final int charPos = reader.readInt();
         final short stance = reader.readShort();

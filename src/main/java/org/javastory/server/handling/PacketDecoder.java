@@ -18,9 +18,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.javastory.server.mina;
+package org.javastory.server.handling;
 
-import client.GameClient;
+import client.ChannelClient;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.javastory.cryptography.AesTransform;
@@ -45,8 +45,8 @@ public class PacketDecoder extends CumulativeProtocolDecoder {
         final DecoderState decoderState =
                 (DecoderState) session.getAttribute(DECODER_STATE_KEY);
 
-        final GameClient client =
-                (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
+        final ChannelClient client =
+                (ChannelClient) session.getAttribute(ChannelClient.CLIENT_KEY);
 
         if (decoderState.packetLength == -1) {
             if (buffer.remaining() < 4) {

@@ -14,7 +14,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import client.GameClient;
+import client.ChannelClient;
 import server.Portal;
 
 public class PortalScriptManager {
@@ -60,7 +60,7 @@ public class PortalScriptManager {
         return script;
     }
 
-    public final void executePortalScript(final Portal portal, final GameClient c) {
+    public final void executePortalScript(final Portal portal, final ChannelClient c) {
         final PortalScript script = getPortalScript(portal.getScriptName());
         if (script != null) {
             script.enter(new PortalPlayerInteraction(c, portal));

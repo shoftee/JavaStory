@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.util.List;
 import java.io.Serializable;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import server.maps.Door;
 
 public class PartyMember implements Serializable {
@@ -21,12 +21,12 @@ public class PartyMember implements Serializable {
     private Point doorPosition = new Point(0, 0);
     private boolean online;
 
-    public PartyMember(GameCharacter maplechar) {
+    public PartyMember(ChannelCharacter maplechar) {
         this.name = maplechar.getName();
         this.level = maplechar.getLevel();
         this.channel = maplechar.getClient().getChannelId();
         this.id = maplechar.getId();
-        this.jobid = maplechar.getJob();
+        this.jobid = maplechar.getJobId();
         this.mapid = maplechar.getMapId();
         this.online = true;
         final List<Door> doors = maplechar.getDoors();

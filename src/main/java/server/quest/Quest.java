@@ -27,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.QuestStatus;
 import scripting.NpcScriptManager;
 import provider.WzData;
@@ -144,7 +144,7 @@ public class Quest implements Serializable {
 	return ret;
     }
 
-    public boolean canStart(GameCharacter c, Integer npcid) {
+    public boolean canStart(ChannelCharacter c, Integer npcid) {
 	if (c.getQuest(this).getStatus() != 0 && !(c.getQuest(this).getStatus() == 2 && repeatable)) {
 	    return false;
 	}
@@ -156,7 +156,7 @@ public class Quest implements Serializable {
 	return true;
     }
 
-    public boolean canComplete(GameCharacter c, Integer npcid) {
+    public boolean canComplete(ChannelCharacter c, Integer npcid) {
 	if (c.getQuest(this).getStatus() != 1) {
 	    return false;
 	}
@@ -168,7 +168,7 @@ public class Quest implements Serializable {
 	return true;
     }
 
-    public final void RestoreLostItem(final GameCharacter c, final int itemid) {
+    public final void RestoreLostItem(final ChannelCharacter c, final int itemid) {
 	for (final QuestAction a : startActs) {
 	    if (a.RestoreLostItem(c, itemid)) {
 		break;
@@ -176,7 +176,7 @@ public class Quest implements Serializable {
 	}
     }
 
-    public void start(GameCharacter c, int npc) {
+    public void start(ChannelCharacter c, int npc) {
 	if ((autoStart || checkNPCOnMap(c, npc)) && canStart(c, npc)) {
 	    for (QuestAction a : startActs) {
 		a.runStart(c, null);
@@ -193,11 +193,11 @@ public class Quest implements Serializable {
 	}
     }
 
-    public void complete(GameCharacter c, int npc) {
+    public void complete(ChannelCharacter c, int npc) {
 	complete(c, npc, null);
     }
 
-    public void complete(GameCharacter c, int npc, Integer selection) {
+    public void complete(ChannelCharacter c, int npc, Integer selection) {
 	if ((autoPreComplete || checkNPCOnMap(c, npc)) && canComplete(c, npc)) {
 	    for (QuestAction a : completeActs) {
 		if (!a.checkEnd(c, selection)) {
@@ -218,7 +218,7 @@ public class Quest implements Serializable {
 	}
     }
 
-    public void forfeit(GameCharacter c) {
+    public void forfeit(ChannelCharacter c) {
 	if (c.getQuest(this).getStatus() != (byte) 1) {
 	    return;
 	}
@@ -229,14 +229,14 @@ public class Quest implements Serializable {
 	c.updateQuest(newStatus);
     }
 
-    public void forceStart(GameCharacter c, int npc, String customData) {
+    public void forceStart(ChannelCharacter c, int npc, String customData) {
 	final QuestStatus newStatus = new QuestStatus(this, (byte) 1, npc);
 	newStatus.setForfeited(c.getQuest(this).getForfeited());
 	newStatus.setCustomData(customData);
 	c.updateQuest(newStatus);
     }
 
-    public void forceComplete(GameCharacter c, int npc) {
+    public void forceComplete(ChannelCharacter c, int npc) {
 	final QuestStatus newStatus = new QuestStatus(this, (byte) 2, npc);
 	newStatus.setForfeited(c.getQuest(this).getForfeited());
 	c.updateQuest(newStatus);
@@ -250,7 +250,7 @@ public class Quest implements Serializable {
 	return relevantMobs;
     }
 
-    private boolean checkNPCOnMap(GameCharacter player, int npcid) {
+    private boolean checkNPCOnMap(ChannelCharacter player, int npcid) {
 	return player.getMap().containsNPC(npcid) != -1;
     }
 }

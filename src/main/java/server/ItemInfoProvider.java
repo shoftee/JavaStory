@@ -13,8 +13,8 @@ import client.Equip;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.InventoryType;
 import org.javastory.client.ItemType;
 import provider.WzData;
@@ -218,7 +218,7 @@ public final class ItemInfoProvider {
     }
 
     /** returns the maximum of items in one slot */
-    public final short getSlotMax(final GameClient c, final int itemId) {
+    public final short getSlotMax(final ChannelClient c, final int itemId) {
         if (slotMaxCache.containsKey(itemId)) {
             return slotMaxCache.get(itemId);
         }
@@ -593,7 +593,7 @@ public final class ItemInfoProvider {
                 }
                 if (!GameConstants.isCleanSlate(scrollId) &&
                         !GameConstants.isSpecialScroll(scrollId)) {
-                    if (nEquip.getItemId() != GameCharacter.unlimitedSlotItem) { // unlimited slot item check
+                    if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
                         nEquip.setUpgradeSlots((byte) (nEquip.getUpgradeSlots() -
                                 1));
                     }
@@ -602,12 +602,12 @@ public final class ItemInfoProvider {
             } else {
                 if (!ws && !GameConstants.isCleanSlate(scrollId) &&
                         !GameConstants.isSpecialScroll(scrollId)) {
-                    if (nEquip.getItemId() != GameCharacter.unlimitedSlotItem) { // unlimited slot item check
+                    if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
                         nEquip.setUpgradeSlots((byte) (nEquip.getUpgradeSlots() -
                                 1));
                     }
                 }
-                if (nEquip.getItemId() != GameCharacter.unlimitedSlotItem) { // unlimited slot item check
+                if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
                     if (Randomizer.nextInt(99) < stats.get("cursed")) {
                         return null;
                     }

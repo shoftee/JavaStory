@@ -17,7 +17,7 @@ import client.Equip;
 import client.IEquip;
 import client.IItem;
 import client.Item;
-import client.GameClient;
+import client.ChannelClient;
 import client.InventoryType;
 import org.javastory.client.ItemType;
 import com.google.common.collect.Maps;
@@ -252,7 +252,7 @@ public class Storage implements Serializable {
         return -1;
     }
 
-    public void sendStorage(GameClient c, int npcId) {
+    public void sendStorage(ChannelClient c, int npcId) {
         // sort by inventorytype to avoid confusion
         Collections.sort(items, new Comparator<IItem>() {
 
@@ -274,11 +274,11 @@ public class Storage implements Serializable {
         c.write(MaplePacketCreator.getStorage(npcId, slots, items, meso));
     }
 
-    public void sendStored(GameClient c, InventoryType type) {
+    public void sendStored(ChannelClient c, InventoryType type) {
         c.write(MaplePacketCreator.storeStorage(slots, type, typeItems.get(type)));
     }
 
-    public void sendTakenOut(GameClient c, InventoryType type) {
+    public void sendTakenOut(ChannelClient c, InventoryType type) {
         c.write(MaplePacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
@@ -294,7 +294,7 @@ public class Storage implements Serializable {
         this.meso = meso;
     }
 
-    public void sendMeso(GameClient c) {
+    public void sendMeso(ChannelClient c) {
         c.write(MaplePacketCreator.mesoStorage(slots, meso));
     }
 

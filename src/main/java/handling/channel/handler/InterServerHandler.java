@@ -5,7 +5,7 @@ import java.util.List;
 
 import client.BuddyListEntry;
 import client.CharacterNameAndId;
-import client.GameClient;
+import client.ChannelClient;
 import client.QuestStatus;
 import client.BuffStat;
 import handling.world.CharacterTransfer;
@@ -25,18 +25,20 @@ import tools.MaplePacketCreator;
 import tools.packet.FamilyPacket;
 import org.javastory.io.PacketReader;
 import server.maps.GameMap;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.SkillFactory;
 import handling.world.remote.ServerStatus;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
+import org.javastory.server.channel.PlayerStorage;
 import server.maps.SavedLocationType;
 
 public class InterServerHandler {
 
-    public static void handleEnterMTS(final GameClient c) {
+    public static void handleEnterMTS(final ChannelClient c) {
         final GameMap map = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(910000000);
-        if ((c.getPlayer().getMapId() < 910000000) || (c.getPlayer().getMapId() > 910000022)) {
+        if ((c.getPlayer().getMapId() < 910000000) || (c.getPlayer().getMapId() >
+                910000022)) {
             if (c.getPlayer().getLevel() >= 10) {
                 c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET);
                 c.getPlayer().changeMap(map, map.getPortal("out00"));
@@ -51,56 +53,43 @@ public class InterServerHandler {
         }
     }
 
-    public static void handlePlayerLoggedIn(final int playerid, final GameClient c) {
-        final ChannelServer channelServer = c.getChannelServer();
-        GameCharacter player;
-        final CharacterTransfer transfer = channelServer.getPlayerStorage().getPendingCharacter(playerid);
-        if (transfer == null) { 
+    public static void handlePlayerLoggedIn(final int playerId, final ChannelClient client) {
+        final ChannelServer channelServer = client.getChannelServer();
+        final PlayerStorage playerStorage = channelServer.getPlayerStorage();
+        
+        // Remote hack
+        if (!playerStorage.checkSession(playerId, client.getSessionIP())) {
+            client.disconnect(true);
+        }
+        
+        ChannelCharacter player;
+        final CharacterTransfer transfer = playerStorage.getPendingTransfer(playerId);
+        if (transfer == null) {
             // Player isn't in storage, probably isn't CC
-            player = GameCharacter.loadFromDb(playerid, c, true);
+            player = ChannelCharacter.loadFromDb(playerId, client);
         } else {
-            player = GameCharacter.reconstructCharacter(transfer, c);
+            player = ChannelCharacter.reconstructCharacter(transfer, client);
         }
-        c.setPlayer(player);
-        c.setAccID(player.getAccountId());
-        if (!c.checkIPAddress()) { // Remote hack
-            c.disconnect(true);
-            return;
-        }
-        final int state = c.getLoginState();
-        boolean allowLogin = false;
-        try {
-            if (state == GameClient.LOGIN_SERVER_TRANSITION || state == GameClient.CHANGE_CHANNEL) {
-                if (!channelServer.getWorldInterface().isCharacterListConnected(c.loadCharacterNames(c.getWorld()))) {
-                    allowLogin = true;
-                }
-            }
-        } catch (RemoteException e) {
-            channelServer.pingWorld();
-        }
-        if (!allowLogin) {
-            c.setPlayer(null);
-            c.disconnect(true);
-            return;
-        }
-        c.updateLoginState(GameClient.LOGIN_LOGGEDIN, c.getSessionIP());
-        final ChannelServer cserv = ChannelManager.getInstance(c.getChannelId());
+        client.setPlayer(player);
+        client.setAccountId(player.getAccountId());
+
+        final ChannelServer cserv = ChannelManager.getInstance(client.getChannelId());
         cserv.addPlayer(player);
-        c.write(MaplePacketCreator.getCharInfo(player));
+        client.write(MaplePacketCreator.getCharInfo(player));
         player.getMap().addPlayer(player);
         try {
             // Start of cooldown, buffs
-            final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
+            final WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
             final List<PlayerBuffValueHolder> buffs = wci.getBuffsFromStorage(player.getId());
             if (buffs != null) {
                 player.silentGiveBuffs(buffs);
             }
-            c.getPlayer().giveCooldowns(wci.getCooldownsFromStorage(player.getId()));
-            c.getPlayer().giveSilentDebuff(wci.getDiseaseFromStorage(player.getId()));
-            
+            client.getPlayer().giveCooldowns(wci.getCooldownsFromStorage(player.getId()));
+            client.getPlayer().giveSilentDebuff(wci.getDiseaseFromStorage(player.getId()));
+
             // Start of buddylist
             final int buddyIds[] = player.getBuddylist().getBuddyIds();
-            cserv.getWorldInterface().loggedOn(player.getName(), player.getId(), c.getChannelId(), buddyIds);
+            cserv.getWorldInterface().loggedOn(player.getName(), player.getId(), client.getChannelId(), buddyIds);
             if (player.getParty() != null) {
                 channelServer.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, new PartyMember(player));
             }
@@ -110,44 +99,45 @@ public class InterServerHandler {
                 ble.setChannel(onlineBuddy.getChannel());
                 player.getBuddylist().put(ble);
             }
-            c.write(MaplePacketCreator.updateBuddyList(player.getBuddylist().getBuddies()));
-            
+            client.write(MaplePacketCreator.updateBuddyList(player.getBuddylist().getBuddies()));
+
             // Start of Messenger
             final Messenger messenger = player.getMessenger();
             final int messenger_pos = player.getMessengerPosition();
-            if (player.getMessenger() != null && messenger_pos < 4 && messenger_pos > -1) {
-                MessengerMember messengerplayer = new MessengerMember(c.getPlayer(), messenger_pos);
+            if (player.getMessenger() != null && messenger_pos < 4 &&
+                    messenger_pos > -1) {
+                MessengerMember messengerplayer = new MessengerMember(client.getPlayer(), messenger_pos);
                 wci.silentJoinMessenger(messenger.getId(), messengerplayer, messenger_pos);
-                wci.updateMessenger(c.getPlayer().getMessenger().getId(), c.getPlayer().getName(), c.getChannelId());
+                wci.updateMessenger(client.getPlayer().getMessenger().getId(), client.getPlayer().getName(), client.getChannelId());
             }
-            
+
             // Start of Guild and alliance
             if (player.getGuildId() > 0) {
-                c.getChannelServer().getWorldInterface().setGuildMemberOnline(player.getGuildMembership(), true, c.getChannelId());
-                c.write(MaplePacketCreator.showGuildInfo(player));
+                client.getChannelServer().getWorldInterface().setGuildMemberOnline(player.getGuildMembership(), true, client.getChannelId());
+                client.write(MaplePacketCreator.showGuildInfo(player));
             }
         } catch (RemoteException e) {
             channelServer.pingWorld();
         } catch (Exception e) {
             LogUtil.outputFileError(LogUtil.Login_Error, e);
         }
-        c.write(FamilyPacket.getFamilyData());
+        client.write(FamilyPacket.getFamilyData());
         player.sendMacros();
         player.showNote();
         player.updatePartyMemberHP();
-        c.write(MaplePacketCreator.getKeymap(player.getKeyLayout()));
+        client.write(MaplePacketCreator.getKeymap(player.getKeyLayout()));
         for (QuestStatus status : player.getStartedQuests()) {
             if (status.hasMobKills()) {
-                c.write(MaplePacketCreator.updateQuestMobKills(status));
+                client.write(MaplePacketCreator.updateQuestMobKills(status));
             }
         }
         final CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
-            c.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+            client.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
         }
         player.expirationTask();
-        if (player.getJob() == 132) { // DARKKNIGHT
+        if (player.getJobId() == 132) { // DARKKNIGHT
             player.checkBerserk();
         }
         if (player.isGM()) {
@@ -155,7 +145,7 @@ public class InterServerHandler {
         }
     }
 
-    public static void handleChannelChange(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleChannelChange(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -163,7 +153,8 @@ public class InterServerHandler {
         final int channel = reader.readByte() + 1;
         final ChannelServer toch = ChannelManager.getInstance(channel);
 
-        if (FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit()) || channel == c.getChannelId()) {
+        if (FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit()) ||
+                channel == c.getChannelId()) {
             c.disconnect();
             return;
         } else if (toch == null || toch.getStatus() != ServerStatus.ONLINE) {
@@ -171,31 +162,29 @@ public class InterServerHandler {
             return;
         }
 
-        {
-            if (chr.getTrade() != null) {
-                Trade.cancelTrade(chr.getTrade());
-            }
-            if (chr.getPets() != null) {
-                chr.unequipAllPets();
-            }
-            if (chr.getCheatTracker() != null) {
-                chr.getCheatTracker().dispose();
-            }
-            if (chr.getBuffedValue(BuffStat.SUMMON) != null) {
-                chr.cancelEffectFromBuffStat(BuffStat.SUMMON);
-            }
-            if (chr.getBuffedValue(BuffStat.PUPPET) != null) {
-                chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
-            }
-            if (chr.getBuffedValue(BuffStat.MIRROR_TARGET) != null) {
-                chr.cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
-            }
-            final PlayerShop shop = chr.getPlayerShop();
-            if (shop != null) {
-                shop.removeVisitor(chr);
-                if (shop.isOwner(chr)) {
-                    shop.setOpen(true);
-                }
+        if (chr.getTrade() != null) {
+            Trade.cancelTrade(chr.getTrade());
+        }
+        if (chr.getPets() != null) {
+            chr.unequipAllPets();
+        }
+        if (chr.getCheatTracker() != null) {
+            chr.getCheatTracker().dispose();
+        }
+        if (chr.getBuffedValue(BuffStat.SUMMON) != null) {
+            chr.cancelEffectFromBuffStat(BuffStat.SUMMON);
+        }
+        if (chr.getBuffedValue(BuffStat.PUPPET) != null) {
+            chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
+        }
+        if (chr.getBuffedValue(BuffStat.MIRROR_TARGET) != null) {
+            chr.cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
+        }
+        final PlayerShop shop = chr.getPlayerShop();
+        if (shop != null) {
+            shop.removeVisitor(chr);
+            if (shop.isOwner(chr)) {
+                shop.setOpen(true);
             }
         }
 
@@ -215,7 +204,6 @@ public class InterServerHandler {
             c.getChannelServer().pingWorld();
         }
         ch.removePlayer(chr);
-        c.updateLoginState(GameClient.CHANGE_CHANNEL, c.getSessionIP());
 
         final String[] socket = ch.getIP(channel).split(":");
         c.write(MaplePacketCreator.getChannelChange(Integer.parseInt(socket[1])));

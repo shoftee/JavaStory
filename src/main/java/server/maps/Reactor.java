@@ -21,7 +21,7 @@
 package server.maps;
 
 import java.awt.Rectangle;
-import client.GameClient;
+import client.ChannelClient;
 import scripting.ReactorScriptManager;
 import tools.MaplePacketCreator;
 import tools.Pair;
@@ -104,25 +104,25 @@ public class Reactor extends AbstractGameMapObject {
     }
 
     @Override
-    public void sendDestroyData(GameClient client) {
+    public void sendDestroyData(ChannelClient client) {
 	client.write(MaplePacketCreator.destroyReactor(this));
     }
 
     @Override
-    public void sendSpawnData(GameClient client) {
+    public void sendSpawnData(ChannelClient client) {
 	client.write(MaplePacketCreator.spawnReactor(this));
     }
 
-    public void forceStartReactor(GameClient c) {
+    public void forceStartReactor(ChannelClient c) {
 	ReactorScriptManager.getInstance().act(c, this);
     }
 
     //hitReactor command for item-triggered reactors
-    public void hitReactor(GameClient c) {
+    public void hitReactor(ChannelClient c) {
 	hitReactor(0, (short) 0, c);
     }
 
-    public void hitReactor(int charPos, short stance, GameClient c) {
+    public void hitReactor(int charPos, short stance, ChannelClient c) {
 	if (stats.getType(state) < 999 && stats.getType(state) != -1) {
 	    //type 2 = only hit from right (kerning swamp plants), 00 is air left 02 is ground left
 

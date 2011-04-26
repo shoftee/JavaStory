@@ -4,7 +4,7 @@
  */
 package org.javastory.server;
 
-import client.GameCharacter.FameStatus;
+import client.ChannelCharacter.FameStatus;
 import database.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

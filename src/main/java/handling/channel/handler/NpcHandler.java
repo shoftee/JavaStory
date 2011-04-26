@@ -2,8 +2,8 @@ package handling.channel.handler;
 
 import client.IItem;
 import client.InventoryType;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.GameConstants;
 import client.Inventory;
 import handling.ServerPacketOpcode;
@@ -22,7 +22,7 @@ import org.javastory.io.PacketReader;
 
 public class NpcHandler {
 
-    public static void handleNpcAnimation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleNpcAnimation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         PacketBuilder builder = new PacketBuilder();
         final int length = (int) reader.remaining();
 
@@ -39,7 +39,7 @@ public class NpcHandler {
         }
     }
 
-    public static void handleNpcShop(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleNpcShop(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte bmode = reader.readByte();
 
         switch (bmode) {
@@ -80,7 +80,7 @@ public class NpcHandler {
         }
     }
 
-    public static void handleNpcTalk(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleNpcTalk(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Npc npc = (Npc) chr.getMap().getNPCByOid(reader.readInt());
         if (npc == null || chr.getConversationState() != 0) {
             return;
@@ -93,7 +93,7 @@ public class NpcHandler {
         }
     }
 
-    public static void handleQuestAction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleQuestAction(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
         final int quest = reader.readUnsignedShort();
         switch (action) {
@@ -148,7 +148,7 @@ public class NpcHandler {
         }
     }
 
-    public static void handleStorage(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleStorage(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte mode = reader.readByte();
         final Storage storage = chr.getStorage();
 
@@ -178,7 +178,7 @@ public class NpcHandler {
         }
     }
 
-    private static void handleStorageMesoTransaction(final PacketReader reader, final Storage storage, final GameCharacter chr, final GameClient c) throws PacketFormatException {
+    private static void handleStorageMesoTransaction(final PacketReader reader, final Storage storage, final ChannelCharacter chr, final ChannelClient c) throws PacketFormatException {
         int meso = reader.readInt();
         final int storageMesos = storage.getMeso();
         final int playerMesos = chr.getMeso();
@@ -211,7 +211,7 @@ public class NpcHandler {
         storage.sendMeso(c);
     }
 
-    private static void handleStoragePutInItem(final PacketReader reader, final Storage storage, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    private static void handleStoragePutInItem(final PacketReader reader, final Storage storage, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte slot = (byte) reader.readShort();
         final int itemId = reader.readInt();
         short quantity = reader.readShort();
@@ -253,7 +253,7 @@ public class NpcHandler {
         storage.sendStored(c, GameConstants.getInventoryType(itemId));
     }
 
-    private static void handleStorageTakeOutItem(final PacketReader reader, final Storage storage, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    private static void handleStorageTakeOutItem(final PacketReader reader, final Storage storage, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte type = reader.readByte();
         final byte slot = storage.getSlot(InventoryType.fromByte(type), reader.readByte());
         final IItem item = storage.takeOut(slot);
@@ -268,7 +268,7 @@ public class NpcHandler {
         }
     }
 
-    public static void handleNpcTalkMore(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleNpcTalkMore(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final byte lastMsg = reader.readByte(); // 00 (last msg type I think)
         final byte action = reader.readByte(); // 00 = end chat, 01 == follow
 

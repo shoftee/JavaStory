@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 import java.io.File;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -19,7 +19,7 @@ import provider.WzDataTool;
 
 public class SearchCommands implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted.length == 1) {
 			c.getPlayer().sendNotice(6, splitted[0] + ": <NPC> <MOB> <ITEM> <MAP> <SKILL>");
 		} else {

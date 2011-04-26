@@ -28,7 +28,7 @@ import java.io.Serializable;
 import client.IItem;
 import client.SkillFactory;
 import client.GameConstants;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.InventoryType;
 import client.QuestStatus;
 import provider.WzData;
@@ -131,11 +131,11 @@ public class QuestRequirement implements Serializable {
 	}
     }
 
-    public boolean check(GameCharacter c, Integer npcid) {
+    public boolean check(ChannelCharacter c, Integer npcid) {
 	switch (type) {
 	    case job:
 		for (Pair a : dataStore) {
-		    if (a.getRight().equals(c.getJob()) || c.isGM()) {
+		    if (a.getRight().equals(c.getJobId()) || c.isGM()) {
 			return true;
 		    }
 		}

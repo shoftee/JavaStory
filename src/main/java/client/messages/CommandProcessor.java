@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedList;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.messages.commands.*;
 import server.TimerManager;
 import tools.LogUtil;
@@ -143,7 +143,7 @@ public class CommandProcessor {
 		return null;
 	}
 
-	public boolean processCommand(GameClient c, String line) {
+	public boolean processCommand(ChannelClient c, String line) {
 		return instance.processCommandInternal(c, line);
 	}
 
@@ -151,7 +151,7 @@ public class CommandProcessor {
 		persister.run();
 	}
 
-	public void dropHelp(GameCharacter chr, int page) {
+	public void dropHelp(ChannelCharacter chr, int page) {
 		List<DefinitionCommandPair> allCommands = new ArrayList<DefinitionCommandPair>(commands.values());
 		int startEntry = (page - 1) * 20;
 		chr.sendNotice(6, "Command Help Page: --------" + page + "---------");
@@ -163,12 +163,12 @@ public class CommandProcessor {
 		}
 	}
 
-	private boolean processCommandInternal(GameClient c, String line) {
+	private boolean processCommandInternal(ChannelClient c, String line) {
 		if (line.charAt(0) == '-' || line.charAt(0) == '@') {
 			String[] splitted = line.split(" ");
 			if (splitted.length > 0 && splitted[0].length() > 1) {
 				DefinitionCommandPair definitionCommandPair = commands.get(splitted[0].substring(1));
-				if (definitionCommandPair != null && c.getPlayer().getGMLevel() >= definitionCommandPair.getDefinition().getRequiredLevel()) {
+				if (definitionCommandPair != null && c.getPlayer().getGmLevel() >= definitionCommandPair.getDefinition().getRequiredLevel()) {
 					try {
 						definitionCommandPair.getCommand().execute(c, splitted);
 					} catch (IllegalCommandSyntaxException e) {
@@ -178,7 +178,7 @@ public class CommandProcessor {
 						c.getPlayer().sendNotice(6, "An error occured: " + e.getClass().getName() + " " + e.getMessage());
 						return true;
 					}
-					if (c.getPlayer().getGMLevel() > 0) {
+					if (c.getPlayer().getGmLevel() > 0) {
 						rl.lock();
 						try {
 							gmlog.add(new Pair<String, String>(c.getPlayer().getName(), line));

@@ -3,7 +3,7 @@ package client.messages.commands;
 import java.awt.Point;
 import java.util.List;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -14,7 +14,7 @@ import tools.MaplePacketCreator;
 
 public class NPCSpawningCommands implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-npc")) {
 			int npcId = Integer.parseInt(splitted[1]);
 			Npc npc = LifeFactory.getNPC(npcId);

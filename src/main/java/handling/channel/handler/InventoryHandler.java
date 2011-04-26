@@ -15,13 +15,13 @@ import client.ISkill;
 import client.ItemFlag;
 import client.Pet;
 import client.Mount;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.GameCharacterUtil;
-import client.GameClient;
+import client.ChannelClient;
 import client.InventoryType;
 import client.Inventory;
 import client.Stat;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;
@@ -51,7 +51,7 @@ import tools.MaplePacketCreator;
 
 public class InventoryHandler {
 
-    public static void handleItemMove(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleItemMove(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         reader.skip(4);
         final byte mode = reader.readByte();
         final Inventory inventory = c.getPlayer().getInventoryByTypeByte(mode);
@@ -70,7 +70,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleItemSort(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleItemSort(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         reader.skip(4);
         byte mode = reader.readByte();
         final Inventory inventory = c.getPlayer().getInventoryByTypeByte(mode);
@@ -96,7 +96,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void ItemSort2(final PacketReader reader, final GameClient c) {
+    public static void ItemSort2(final PacketReader reader, final ChannelClient c) {
         /*reader.skip(4);
         byte mode = reader.readByte();
         if (mode < 0 || mode > 5) {
@@ -119,7 +119,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());*/
     }
 
-    public static void handleUseRewardItem(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseRewardItem(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte slot = (byte) reader.readShort();
         final int itemId = reader.readInt();
         final Inventory useInventory = c.getPlayer().getUseInventory();
@@ -163,7 +163,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleUseItem(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseItem(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -188,7 +188,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleUseReturnScroll(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseReturnScroll(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -215,7 +215,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleUseUpgradeScroll(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseUpgradeScroll(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         //Lunar Gloves unlimited scroll
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
@@ -308,11 +308,11 @@ public class InventoryHandler {
         if (scrollSuccess == IEquip.ScrollResult.CURSE) {
             c.write(MaplePacketCreator.scrolledItem(scroll, toScroll, true));
             if (dst < 0) {
-                if (toScroll.getItemId() != GameCharacter.unlimitedSlotItem) { //unlimited slot item check
+                if (toScroll.getItemId() != ChannelCharacter.unlimitedSlotItem) { //unlimited slot item check
                     equippedInventory.removeItem(toScroll.getPosition());
                 }
             } else {
-                if (toScroll.getItemId() != GameCharacter.unlimitedSlotItem) { //unlimited slot item check
+                if (toScroll.getItemId() != ChannelCharacter.unlimitedSlotItem) { //unlimited slot item check
                     equipInventory.removeItem(toScroll.getPosition());
                 }
             }
@@ -329,7 +329,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleUseSkillBook(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseSkillBook(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
         final int itemId = reader.readInt();
@@ -359,7 +359,7 @@ public class InventoryHandler {
             if (CurrentLoopedSkillId == null) {
                 break; // End of data
             }
-            if (Math.floor(CurrentLoopedSkillId / 100000) == chr.getJob() / 10) {
+            if (Math.floor(CurrentLoopedSkillId / 100000) == chr.getJobId() / 10) {
                 final ISkill CurrSkillData = SkillFactory.getSkill(CurrentLoopedSkillId);
                 if (chr.getCurrentSkillLevel(CurrSkillData) >= ReqSkillLevel &&
                         chr.getMasterSkillLevel(CurrSkillData) < MasterLevel) {
@@ -382,7 +382,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.useSkillBook(chr, skill, maxlevel, canuse, success));
     }
 
-    public static void handleUseCatchItem(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseCatchItem(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
         final int itemid = reader.readInt();
@@ -441,7 +441,7 @@ public class InventoryHandler {
         // c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.updateAriantPQRanking(c.getPlayer().getName(), c.getPlayer().getAPQScore(), false));
     }
 
-    public static void handleUseMountFood(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseMountFood(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
         final int itemid = reader.readInt(); //2260000 usually
@@ -472,7 +472,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleUseScriptedNpcItem(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseScriptedNpcItem(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
         final int itemId = reader.readInt();
@@ -529,7 +529,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleUseSummonBag(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseSummonBag(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             c.write(MaplePacketCreator.enableActions());
             return;
@@ -567,7 +567,7 @@ public class InventoryHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleUseTreasureChest(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleUseTreasureChest(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final short slot = reader.readShort();
         final int itemid = reader.readInt();
         final Inventory etcInventory = chr.getEtcInventory();
@@ -630,11 +630,11 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleUseCashItem(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleUseCashItem(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         reader.skip(4);
         final byte slot = (byte) reader.readShort();
         final int itemId = reader.readInt();
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter player = c.getPlayer();
         final IItem toUse = player.getCashInventory().getItem(slot);
         if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() <
                 1) {
@@ -669,7 +669,7 @@ public class InventoryHandler {
                         used = true;
                     }
                 } else {
-                    final GameCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
+                    final ChannelCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                     if (victim != null && !victim.isGM()) {
                         if (!FieldLimitType.VipRock.check(c.getChannelServer().getMapFactory(player.getWorldId()).getMap(victim.getMapId()).getFieldLimit())) {
                             if (itemId == 5041000 || (victim.getMapId() /
@@ -691,8 +691,8 @@ public class InventoryHandler {
                 if (apto == apfrom) {
                     break; // Hack
                 }
-                final int job = player.getJob();
-                final PlayerStats playerst = player.getStat();
+                final int job = player.getJobId();
+                final ActivePlayerStats playerst = player.getStats();
                 used = true;
 
                 switch (apto) { // AP to
@@ -987,7 +987,7 @@ public class InventoryHandler {
                             statupdate.add(new Pair<Stat, Integer>(Stat.MP, maxmp));
                             break;
                     }
-                    c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, player.getJob()));
+                    c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, player.getJobId()));
                 }
                 break;
             }
@@ -1520,7 +1520,7 @@ public class InventoryHandler {
 
                     final int buff = ii.getStateChangeItem(itemId);
                     if (buff != 0) {
-                        for (GameCharacter mChar : player.getMap().getCharacters()) {
+                        for (ChannelCharacter mChar : player.getMap().getCharacters()) {
                             ii.getItemEffect(buff).applyTo(mChar);
                         }
                     }
@@ -1540,7 +1540,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleItemLoot(final PacketReader reader, GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleItemLoot(final PacketReader reader, ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(5); // [4] Seems to be tickcount, [1] always 0
         final Point Client_Reportedpos = reader.readVector();
         final GameMapObject ob = chr.getMap().getMapObject(reader.readInt());
@@ -1567,16 +1567,16 @@ public class InventoryHandler {
         }
         if (mapitem.getMeso() > 0) {
             if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
-                final List<GameCharacter> toGive = new LinkedList<GameCharacter>();
+                final List<ChannelCharacter> toGive = new LinkedList<ChannelCharacter>();
 
-                for (final GameCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
+                for (final ChannelCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
                     if (m != null) {
                         if (m.getMapId() == chr.getMapId()) {
                             toGive.add(m);
                         }
                     }
                 }
-                for (final GameCharacter m : toGive) {
+                for (final ChannelCharacter m : toGive) {
                     m.gainMeso(mapitem.getMeso() / toGive.size(), true, true);
                 }
             } else {
@@ -1594,7 +1594,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handlePetLoot(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetLoot(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Pet pet = chr.getPet(chr.getPetIndex(reader.readInt()));
         reader.skip(9); // [4] Zero, [4] Seems to be tickcount, [1] Always zero
         final Point Client_Reportedpos = reader.readVector();
@@ -1626,16 +1626,16 @@ public class InventoryHandler {
                 return;
             }
             if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
-                final List<GameCharacter> toGive = new LinkedList<GameCharacter>();
+                final List<ChannelCharacter> toGive = new LinkedList<ChannelCharacter>();
 
-                for (final GameCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
+                for (final ChannelCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
                     if (m != null) {
                         if (m.getMapId() == chr.getMapId()) {
                             toGive.add(m);
                         }
                     }
                 }
-                for (final GameCharacter m : toGive) {
+                for (final ChannelCharacter m : toGive) {
                     m.gainMeso(mapitem.getMeso() / toGive.size(), true, true);
                 }
             } else {
@@ -1653,7 +1653,7 @@ public class InventoryHandler {
         }
     }
 
-    private static boolean useItem(final GameClient c, final int id) {
+    private static boolean useItem(final ChannelClient c, final int id) {
         if (GameConstants.isUse(id)) { // TO prevent caching of everything, waste of mem
             final ItemInfoProvider ii = ItemInfoProvider.getInstance();
             final byte consumeval = ii.isConsumeOnPickup(id);
@@ -1662,7 +1662,7 @@ public class InventoryHandler {
                 if (consumeval == 2) {
                     if (c.getPlayer().getParty() != null) {
                         for (final PartyMember pc : c.getPlayer().getParty().getMembers()) {
-                            final GameCharacter chr = c.getPlayer().getMap().getCharacterById_InMap(pc.getId());
+                            final ChannelCharacter chr = c.getPlayer().getMap().getCharacterById_InMap(pc.getId());
                             if (chr != null) {
                                 ii.getItemEffect(id).applyTo(chr);
                             }
@@ -1680,13 +1680,13 @@ public class InventoryHandler {
         return false;
     }
 
-    private static void removeItem(final GameCharacter chr, final GameMapItem mapitem, final GameMapObject ob) {
+    private static void removeItem(final ChannelCharacter chr, final GameMapItem mapitem, final GameMapObject ob) {
         mapitem.setPickedUp(true);
         chr.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(mapitem.getObjectId(), 2, chr.getId()), mapitem.getPosition());
         chr.getMap().removeMapObject(ob);
     }
 
-    private static void addMedalString(final GameCharacter c, final StringBuilder sb) {
+    private static void addMedalString(final ChannelCharacter c, final StringBuilder sb) {
         final IItem medal = c.getEquippedItemsInventory().getItem((byte) -46);
         if (medal != null) { // Medal
             sb.append("<");

@@ -18,8 +18,8 @@ import client.IEquip;
 import client.IItem;
 import client.GameConstants;
 import client.BuffStat;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.KeyLayout;
@@ -97,7 +97,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getCharInfo(final GameCharacter chr) {
+    public static GamePacket getCharInfo(final ChannelCharacter chr) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.WARP_TO_MAP.getValue());
@@ -186,16 +186,16 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateSp(GameCharacter chr, final boolean itemReaction) { //this will do..
+    public static GamePacket updateSp(ChannelCharacter chr, final boolean itemReaction) { //this will do..
         return updateSp(chr, itemReaction, false);
     }
 
-    public static GamePacket updateSp(GameCharacter chr, final boolean itemReaction, final boolean overrideJob) { //this will do..
+    public static GamePacket updateSp(ChannelCharacter chr, final boolean itemReaction, final boolean overrideJob) { //this will do..
         final PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
         builder.writeAsByte(itemReaction ? 1 : 0);
         builder.writeInt(0x8000);
-        if (overrideJob || GameConstants.isEvan(chr.getJob())) {
+        if (overrideJob || GameConstants.isEvan(chr.getJobId())) {
             builder.writeAsByte(chr.getRemainingSpSize());
             for (int i = 0; i < chr.getRemainingSps().length; i++) {
                 if (chr.getRemainingSp(i) > 0) {
@@ -210,7 +210,7 @@ public final class MaplePacketCreator {
 
     }
 
-    public static GamePacket getWarpToMap(final GameMap to, final int spawnPoint, final GameCharacter chr) {
+    public static GamePacket getWarpToMap(final GameMap to, final int spawnPoint, final ChannelCharacter chr) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.WARP_TO_MAP.getValue());
@@ -219,7 +219,7 @@ public final class MaplePacketCreator {
         builder.writeAsByte(0);
         builder.writeInt(to.getId());
         builder.writeAsByte(spawnPoint);
-        builder.writeAsShort(chr.getStat().getHp());
+        builder.writeAsShort(chr.getStats().getHp());
         builder.writeAsByte(0);
         builder.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
 
@@ -424,7 +424,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getAvatarMega(GameCharacter chr, int channel, int itemId, String message, boolean ear) {
+    public static GamePacket getAvatarMega(ChannelCharacter chr, int channel, int itemId, String message, boolean ear) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.AVATAR_MEGA.getValue());
@@ -734,7 +734,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket spawnPlayerMapobject(GameCharacter chr) {
+    public static GamePacket spawnPlayerMapobject(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_PLAYER.getValue());
@@ -844,7 +844,7 @@ public final class MaplePacketCreator {
         builder.writeAsByte(1);
         builder.writeInt(CHAR_MAGIC_SPAWN);
         builder.writeAsShort(0);
-        builder.writeAsShort(chr.getJob());
+        builder.writeAsShort(chr.getJobId());
         PacketHelper.addCharLook(builder, chr, false);
         builder.writeLong(0);
         builder.writeLong(0);
@@ -874,7 +874,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket facialExpression(GameCharacter from, int expression) {
+    public static GamePacket facialExpression(ChannelCharacter from, int expression) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.FACIAL_EXPRESSION.getValue());
@@ -1044,7 +1044,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getNPCShop(GameClient c, int sid, List<ShopItem> items) {
+    public static GamePacket getNPCShop(ChannelClient c, int sid, List<ShopItem> items) {
         PacketBuilder builder = new PacketBuilder();
 
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
@@ -1307,7 +1307,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateCharLook(GameCharacter chr) {
+    public static GamePacket updateCharLook(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_LOOK.getValue());
@@ -1399,7 +1399,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket startQuest(final GameCharacter c, final short quest, final String data) {
+    public static GamePacket startQuest(final ChannelCharacter c, final short quest, final String data) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
@@ -1412,7 +1412,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket forfeitQuest(GameCharacter c, short quest) {
+    public static GamePacket forfeitQuest(ChannelCharacter c, short quest) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
@@ -1449,7 +1449,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateQuestInfo(GameCharacter c, short quest, int npc, byte progress) {
+    public static GamePacket updateQuestInfo(ChannelCharacter c, short quest, int npc, byte progress) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_QUEST_INFO.getValue());
@@ -1461,13 +1461,13 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket charInfo(final GameCharacter chr, final boolean isSelf) {
+    public static GamePacket charInfo(final ChannelCharacter chr, final boolean isSelf) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CHAR_INFO.getValue());
         builder.writeInt(chr.getId());
         builder.writeAsByte(chr.getLevel());
-        builder.writeAsShort(chr.getJob());
+        builder.writeAsShort(chr.getJobId());
         builder.writeAsShort(chr.getFame());
         builder.writeAsByte(0); // heart red or gray
         if (chr.getGuildId() <= 0) {
@@ -1837,7 +1837,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateMount(GameCharacter chr, boolean levelup) {
+    public static GamePacket updateMount(ChannelCharacter chr, boolean levelup) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_MOUNT.getValue());
@@ -1850,7 +1850,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket mountInfo(GameCharacter chr) {
+    public static GamePacket mountInfo(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_MOUNT.getValue());
@@ -1863,7 +1863,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getPlayerShopChat(GameCharacter c, String chat, boolean owner) {
+    public static GamePacket getPlayerShopChat(ChannelCharacter c, String chat, boolean owner) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -1874,14 +1874,14 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getPlayerShopNewVisitor(GameCharacter c, int slot) {
+    public static GamePacket getPlayerShopNewVisitor(ChannelCharacter c, int slot) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("04 0" + slot));
         PacketHelper.addCharLook(builder, c, false);
         builder.writeLengthPrefixedString(c.getName());
-        builder.writeAsShort(c.getJob());
+        builder.writeAsShort(c.getJobId());
 
         return builder.getPacket();
     }
@@ -1895,7 +1895,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getTradePartnerAdd(GameCharacter c) {
+    public static GamePacket getTradePartnerAdd(ChannelCharacter c) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -1903,12 +1903,12 @@ public final class MaplePacketCreator {
         builder.writeAsByte(1);
         PacketHelper.addCharLook(builder, c, false);
         builder.writeLengthPrefixedString(c.getName());
-        builder.writeAsShort(c.getJob());
+        builder.writeAsShort(c.getJobId());
 
         return builder.getPacket();
     }
 
-    public static GamePacket getTradeInvite(GameCharacter c) {
+    public static GamePacket getTradeInvite(ChannelCharacter c) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -1942,7 +1942,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getTradeStart(GameClient c, Trade trade, byte number) {
+    public static GamePacket getTradeStart(ChannelClient c, Trade trade, byte number) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -1955,12 +1955,12 @@ public final class MaplePacketCreator {
             builder.writeAsByte(0);
             PacketHelper.addCharLook(builder, trade.getPartner().getChr(), false);
             builder.writeLengthPrefixedString(trade.getPartner().getChr().getName());
-            builder.writeAsShort(trade.getPartner().getChr().getJob());
+            builder.writeAsShort(trade.getPartner().getChr().getJobId());
         }
         builder.writeByte(number);
         PacketHelper.addCharLook(builder, c.getPlayer(), false);
         builder.writeLengthPrefixedString(c.getPlayer().getName());
-        builder.writeAsShort(c.getPlayer().getJob());
+        builder.writeAsShort(c.getPlayer().getJobId());
         builder.writeAsByte(0xFF);
 
         return builder.getPacket();
@@ -2438,7 +2438,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket partyInvite(GameCharacter from) {
+    public static GamePacket partyInvite(ChannelCharacter from) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
@@ -2446,7 +2446,7 @@ public final class MaplePacketCreator {
         builder.writeInt(from.getParty().getId());
         builder.writeLengthPrefixedString(from.getName());
         builder.writeInt(from.getLevel());
-        builder.writeInt(from.getJob());
+        builder.writeInt(from.getJobId());
         builder.writeAsByte(0);
 
         return builder.getPacket();
@@ -2864,7 +2864,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showGuildInfo(GameCharacter c) {
+    public static GamePacket showGuildInfo(ChannelCharacter c) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
@@ -3066,7 +3066,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showGuildUnionInfo(GameCharacter chr) {
+    public static GamePacket showGuildUnionInfo(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
@@ -3103,7 +3103,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showAllianceMembers(GameCharacter chr) {
+    public static GamePacket showAllianceMembers(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0D);
@@ -3243,7 +3243,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket skillEffect(GameCharacter from, int skillId, byte level, byte flags, byte speed, byte unk) {
+    public static GamePacket skillEffect(ChannelCharacter from, int skillId, byte level, byte flags, byte speed, byte unk) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SKILL_EFFECT.getValue());
@@ -3257,7 +3257,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket skillCancel(GameCharacter from, int skillId) {
+    public static GamePacket skillCancel(ChannelCharacter from, int skillId) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CANCEL_SKILL_EFFECT.getValue());
@@ -3311,7 +3311,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket addMessengerPlayer(String from, GameCharacter chr, int position, int channel) {
+    public static GamePacket addMessengerPlayer(String from, ChannelCharacter chr, int position, int channel) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
@@ -3335,7 +3335,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateMessengerPlayer(String from, GameCharacter chr, int position, int channel) {
+    public static GamePacket updateMessengerPlayer(String from, ChannelCharacter chr, int position, int channel) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
@@ -3421,7 +3421,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket useSkillBook(GameCharacter chr, int skillid, int maxlevel, boolean canuse, boolean success) {
+    public static GamePacket useSkillBook(ChannelCharacter chr, int skillid, int maxlevel, boolean canuse, boolean success) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.USE_SKILL_BOOK.getValue());
@@ -3576,7 +3576,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket sendTV(GameCharacter chr, List<String> messages, int type, GameCharacter partner) {
+    public static GamePacket sendTV(ChannelCharacter chr, List<String> messages, int type, ChannelCharacter partner) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SEND_TV.getValue());

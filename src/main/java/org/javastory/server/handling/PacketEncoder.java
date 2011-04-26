@@ -18,9 +18,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.javastory.server.mina;
+package org.javastory.server.handling;
 
-import client.GameClient;
+import client.ChannelClient;
 import handling.GamePacket;
 import org.javastory.cryptography.AesTransform;
 import org.javastory.cryptography.CustomEncryption;
@@ -36,8 +36,8 @@ public class PacketEncoder implements ProtocolEncoder {
 
     @Override
     public void encode(final IoSession session, final Object message, final ProtocolEncoderOutput out) throws Exception {
-        final GameClient client =
-                (GameClient) session.getAttribute(GameClient.CLIENT_KEY);
+        final ChannelClient client =
+                (ChannelClient) session.getAttribute(ChannelClient.CLIENT_KEY);
 
         if (client != null) {
             final byte[] packet = ((GamePacket) message).getBytes();

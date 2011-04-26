@@ -20,7 +20,7 @@
 */
 package tools.packet;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.IItem;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
@@ -45,7 +45,7 @@ public class PlayerShopPacket {
 	builder.writeAsByte(0);
     }
 
-    public static final GamePacket addCharBox(final GameCharacter c, final int type) {
+    public static final GamePacket addCharBox(final ChannelCharacter c, final int type) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -55,7 +55,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket removeCharBox(final GameCharacter c) {
+    public static final GamePacket removeCharBox(final ChannelCharacter c) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -74,7 +74,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket sendPlayerShopBox(final GameCharacter c) {
+    public static final GamePacket sendPlayerShopBox(final ChannelCharacter c) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_BOX.getValue());
@@ -84,7 +84,7 @@ public class PlayerShopPacket {
 	return builder.getPacket();
     }
 
-    public static final GamePacket getHiredMerch(final GameCharacter chr, final HiredMerchantStore merch, final boolean firstTime) {
+    public static final GamePacket getHiredMerch(final ChannelCharacter chr, final HiredMerchantStore merch, final boolean firstTime) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -96,11 +96,11 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	builder.writeInt(merch.getItemId());
 	builder.writeLengthPrefixedString("Hired Merchant");
 
-	for (final Pair<Byte, GameCharacter> storechr : merch.getVisitors()) {
+	for (final Pair<Byte, ChannelCharacter> storechr : merch.getVisitors()) {
 	    builder.writeByte(storechr.left);
 	    PacketHelper.addCharLook(builder, storechr.right, false);
 	    builder.writeLengthPrefixedString(storechr.right.getName());
-	builder.writeAsShort(storechr.right.getJob());
+	builder.writeAsShort(storechr.right.getJobId());
 	}
 	builder.writeAsByte(-1);
 	builder.writeAsShort(0);
@@ -125,7 +125,7 @@ builder.writeAsShort(merch.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket getPlayerStore(final GameCharacter chr, final boolean firstTime) {
+    public static final GamePacket getPlayerStore(final ChannelCharacter chr, final boolean firstTime) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -153,7 +153,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	PacketHelper.addCharLook(builder, ((GenericPlayerStore) ips).getMCOwner(), false);
 	builder.writeLengthPrefixedString(ips.getOwnerName());
 
-	for (final Pair<Byte, GameCharacter> storechr : ips.getVisitors()) {
+	for (final Pair<Byte, ChannelCharacter> storechr : ips.getVisitors()) {
 	    builder.writeByte(storechr.left);
 	    PacketHelper.addCharLook(builder, storechr.right, false);
 	    builder.writeLengthPrefixedString(storechr.right.getName());
@@ -242,7 +242,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	return builder.getPacket();
     }
 
-    public static final GamePacket shopVisitorAdd(final GameCharacter chr, final int slot) {
+    public static final GamePacket shopVisitorAdd(final ChannelCharacter chr, final int slot) {
 	final PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -250,7 +250,7 @@ builder.writeAsShort(ips.getVisitorSlot(chr));
 	builder.writeAsByte(slot);
 	PacketHelper.addCharLook(builder, chr, false);
 	builder.writeLengthPrefixedString(chr.getName());
-	builder.writeAsShort(chr.getJob());
+	builder.writeAsShort(chr.getJobId());
 
 	return builder.getPacket();
     }

@@ -31,7 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.script.ScriptException;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.QuestStatus;
 import handling.world.Party;
 import handling.world.PartyMember;
@@ -46,9 +46,9 @@ import tools.MaplePacketCreator;
 
 public class EventInstanceManager {
 
-    private List<GameCharacter> chars = new LinkedList<GameCharacter>();
+    private List<ChannelCharacter> chars = new LinkedList<ChannelCharacter>();
     private List<Monster> mobs = new LinkedList<Monster>();
-    private Map<GameCharacter, Integer> killCount = new HashMap<GameCharacter, Integer>();
+    private Map<ChannelCharacter, Integer> killCount = new HashMap<ChannelCharacter, Integer>();
     private EventManager em;
     private GameMapFactory mapFactory;
     private String name;
@@ -67,7 +67,7 @@ public class EventInstanceManager {
 	this.world = world;
     }
 
-    public void registerPlayer(GameCharacter chr) {
+    public void registerPlayer(ChannelCharacter chr) {
 	try {
 	    mutex.lock();
 	    try {
@@ -84,7 +84,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public void changedMap(final GameCharacter chr, final int mapid) {
+    public void changedMap(final ChannelCharacter chr, final int mapid) {
 	try {
 	    em.getIv().invokeFunction("changedMap", this, chr, mapid);
 	} catch (NullPointerException npe) {
@@ -130,7 +130,7 @@ public class EventInstanceManager {
 
 	mutex.lock();
 	try {
-	    for (final GameCharacter chr : chars) {
+	    for (final ChannelCharacter chr : chars) {
 		chr.getClient().write(MaplePacketCreator.getClock(timesend));
 	    }
 	} finally {
@@ -146,7 +146,7 @@ public class EventInstanceManager {
 
 	mutex.lock();
 	try {
-	    for (final GameCharacter chr : chars) {
+	    for (final ChannelCharacter chr : chars) {
 		chr.getClient().write(MaplePacketCreator.getClock(timesend));
 	    }
 	} finally {
@@ -165,12 +165,12 @@ public class EventInstanceManager {
 
     public void registerParty(Party party, GameMap map) {
 	for (PartyMember pc : party.getMembers()) {
-	    GameCharacter c = map.getCharacterById_InMap(pc.getId());
+	    ChannelCharacter c = map.getCharacterById_InMap(pc.getId());
 	    registerPlayer(c);
 	}
     }
 
-    public void unregisterPlayer(final GameCharacter chr) {
+    public void unregisterPlayer(final ChannelCharacter chr) {
 	mutex.lock();
 	try {
 	    chars.remove(chr);
@@ -189,7 +189,7 @@ public class EventInstanceManager {
 	try {
 	    if (chars.size() <= size) {
 
-		GameCharacter chr;
+		ChannelCharacter chr;
 		for (int i = 0; i < chars.size(); i++) {
 		    chr = chars.get(i);
 		    unregisterPlayer(chr);
@@ -210,7 +210,7 @@ public class EventInstanceManager {
     public final void saveBossQuest(final int points) {
 	mutex.lock();
 	try {
-	    for (GameCharacter chr : chars) {
+	    for (ChannelCharacter chr : chars) {
 		final QuestStatus record = chr.getQuestNAdd(Quest.getInstance(150001));
 
 		if (record.getCustomData() != null) {
@@ -224,7 +224,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public List<GameCharacter> getPlayers() {
+    public List<ChannelCharacter> getPlayers() {
 	return Collections.unmodifiableList(chars);
     }
 
@@ -251,7 +251,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public void playerKilled(GameCharacter chr) {
+    public void playerKilled(ChannelCharacter chr) {
 	try {
 	    em.getIv().invokeFunction("playerDead", this, chr);
 	} catch (ScriptException ex) {
@@ -261,7 +261,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public boolean revivePlayer(GameCharacter chr) {
+    public boolean revivePlayer(ChannelCharacter chr) {
 	try {
 	    Object b = em.getIv().invokeFunction("playerRevive", this, chr);
 	    if (b instanceof Boolean) {
@@ -275,7 +275,7 @@ public class EventInstanceManager {
 	return true;
     }
 
-    public void playerDisconnected(final GameCharacter chr) {
+    public void playerDisconnected(final ChannelCharacter chr) {
 	try {
 	    byte ret = ((Double) em.getIv().invokeFunction("playerDisconnected", this, chr)).byteValue();
 
@@ -290,7 +290,7 @@ public class EventInstanceManager {
 		    if (ret > 0) {
 			unregisterPlayer(chr);
 			if (getPlayerCount() < ret) {
-			    for (GameCharacter player : chars) {
+			    for (ChannelCharacter player : chars) {
 				removePlayer(player);
 			    }
 			    dispose();
@@ -300,13 +300,13 @@ public class EventInstanceManager {
 			ret *= -1;
 
 			if (isLeader(chr)) {
-			    for (GameCharacter player : chars) {
+			    for (ChannelCharacter player : chars) {
 				removePlayer(player);
 			    }
 			    dispose();
 			} else {
 			    if (getPlayerCount() < ret) {
-				for (GameCharacter player : chars) {
+				for (ChannelCharacter player : chars) {
 				    removePlayer(player);
 				}
 				dispose();
@@ -329,7 +329,7 @@ public class EventInstanceManager {
      * @param chr
      * @param mob
      */
-    public void monsterKilled(final GameCharacter chr, final Monster mob) {
+    public void monsterKilled(final ChannelCharacter chr, final Monster mob) {
 	try {
 	    Integer kc = killCount.get(chr);
 	    int inc = ((Double) em.getIv().invokeFunction("monsterValue", this, mob.getId())).intValue();
@@ -349,7 +349,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public int getKillCount(GameCharacter chr) {
+    public int getKillCount(ChannelCharacter chr) {
 	Integer kc = killCount.get(chr);
 	if (kc == null) {
 	    return 0;
@@ -386,7 +386,7 @@ public class EventInstanceManager {
     public final void broadcastPlayerMsg(final int type, final String msg) {
 	mutex.lock();
 	try {
-	    for (final GameCharacter chr : chars) {
+	    for (final ChannelCharacter chr : chars) {
 		chr.getClient().write(MaplePacketCreator.serverNotice(type, msg));
 	    }
 	} finally {
@@ -454,7 +454,7 @@ public class EventInstanceManager {
 	return props.getProperty(key);
     }
 
-    public final void leftParty(final GameCharacter chr) {
+    public final void leftParty(final ChannelCharacter chr) {
 	try {
 	    em.getIv().invokeFunction("leftParty", this, chr);
 	} catch (ScriptException ex) {
@@ -485,7 +485,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public final void removePlayer(final GameCharacter chr) {
+    public final void removePlayer(final ChannelCharacter chr) {
 	try {
 	    em.getIv().invokeFunction("playerExit", this, chr);
 	} catch (ScriptException ex) {
@@ -495,16 +495,16 @@ public class EventInstanceManager {
 	}
     }
 
-    public final void registerCarnivalParty(final GameCharacter leader, final GameMap map, final byte team) {
+    public final void registerCarnivalParty(final ChannelCharacter leader, final GameMap map, final byte team) {
 	leader.clearCarnivalRequests();
-	List<GameCharacter> characters = new LinkedList<GameCharacter>();
+	List<ChannelCharacter> characters = new LinkedList<ChannelCharacter>();
 	final Party party = leader.getParty();
 
 	if (party == null) {
 	    return;
 	}
 	for (PartyMember pc : party.getMembers()) {
-	    final GameCharacter c = map.getCharacterById_InMap(pc.getId());
+	    final ChannelCharacter c = map.getCharacterById_InMap(pc.getId());
 	    characters.add(c);
 	    registerPlayer(c);
 	    c.resetCP();
@@ -519,7 +519,7 @@ public class EventInstanceManager {
 	}
     }
 
-    public void onMapLoad(final GameCharacter chr) {
+    public void onMapLoad(final ChannelCharacter chr) {
 	try {
 	    em.getIv().invokeFunction("onMapLoad", this, chr);
 	} catch (ScriptException ex) {
@@ -529,14 +529,14 @@ public class EventInstanceManager {
 	}
     }
 
-    public boolean isLeader(final GameCharacter chr) {
+    public boolean isLeader(final ChannelCharacter chr) {
 	return (chr.getParty().getLeader().getId() == chr.getId());
     }
 
     public void registerSquad(Squad squad, GameMap map) {
 	final int mapid = map.getId();
 
-	for (GameCharacter player : squad.getMembers()) {
+	for (ChannelCharacter player : squad.getMembers()) {
 	    if (player != null && player.getMapId() == mapid) {
 		registerPlayer(player);
 	    }

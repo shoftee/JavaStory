@@ -1,6 +1,6 @@
 package handling.world.guild;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import java.io.Serializable;
 import org.javastory.client.MemberRank;
 
@@ -16,12 +16,12 @@ public class GuildMember implements Serializable {
 
     // either read from active character...
     // if it's online
-    public GuildMember(final GameCharacter c) {
+    public GuildMember(final ChannelCharacter c) {
         name = c.getName();
         level = (short) c.getLevel();
         id = c.getId();
         channelId = (byte) c.getClient().getChannelId();
-        jobId = c.getJob();
+        jobId = c.getJobId();
         guildRank = c.getGuildRank();
         guildId = c.getGuildId();
         isOnline = true;

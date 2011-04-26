@@ -27,7 +27,7 @@ import java.io.ObjectOutput;
 import java.util.Map;
 
 import client.Mount;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.QuestStatus;
 import client.ISkill;
 import client.SkillEntry;
@@ -59,7 +59,7 @@ public class CharacterTransfer implements Externalizable {
     public CharacterTransfer() {
     }
 
-    public CharacterTransfer(final GameCharacter chr) {
+    public CharacterTransfer(final ChannelCharacter chr) {
 	this.characterid = chr.getId();
 	this.accountid = chr.getAccountId();
 	this.accountname = chr.getClient().getAccountName();
@@ -72,26 +72,26 @@ public class CharacterTransfer implements Externalizable {
 	this.fame = chr.getFame();
 	this.gender = (byte) chr.getGender();
 	this.level = chr.getLevel();
-	this.str = chr.getStat().getStr();
-	this.dex = chr.getStat().getDex();
-	this.int_ = chr.getStat().getInt();
-	this.luk = chr.getStat().getLuk();
-	this.hp = chr.getStat().getHp();
-	this.mp = chr.getStat().getMp();
-	this.maxhp = chr.getStat().getMaxHp();
-	this.maxmp = chr.getStat().getMaxMp();
+	this.str = chr.getStats().getStr();
+	this.dex = chr.getStats().getDex();
+	this.int_ = chr.getStats().getInt();
+	this.luk = chr.getStats().getLuk();
+	this.hp = chr.getStats().getHp();
+	this.mp = chr.getStats().getMp();
+	this.maxhp = chr.getStats().getMaxHp();
+	this.maxmp = chr.getStats().getMaxMp();
 	this.exp = chr.getExp();
 	this.hpApUsed = chr.getHpApUsed();
 	this.mpApUsed = chr.getMpApUsed();
 	this.remainingAp = chr.getRemainingAp();
 	this.remainingSp = chr.getRemainingSps();
 	this.meso = chr.getMeso();
-	this.skinColor = chr.getSkinColor();
-	this.job = chr.getJob();
-	this.hair = chr.getHair();
-	this.face = chr.getFace();
+	this.skinColor = chr.getSkinColorId();
+	this.job = chr.getJobId();
+	this.hair = chr.getHairId();
+	this.face = chr.getFaceId();
 	this.mapId = chr.getMapId();
-	this.initialSpawnPoint = chr.getInitialSpawnpoint();
+	this.initialSpawnPoint = chr.getInitialSpawnPoint();
 	this.worldId = chr.getWorldId();
 	this.rank = chr.getRank();
 	this.rankMove = chr.getRankMove();
@@ -100,7 +100,7 @@ public class CharacterTransfer implements Externalizable {
 	this.guildId = chr.getGuildId();
 	this.guildRank = chr.getGuildRank();
 	this.unionRank = chr.getGuildUnionRank();
-	this.gmLevel = (byte) chr.getGMLevel();
+	this.gmLevel = (byte) chr.getGmLevel();
 	this.subcategory = chr.getSubcategory();
 	this.ondmg = chr.isOnDMG();
 	this.callgm = chr.isCallGM();

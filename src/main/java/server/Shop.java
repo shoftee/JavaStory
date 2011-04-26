@@ -14,7 +14,7 @@ import client.IItem;
 import client.Item;
 import client.SkillFactory;
 import client.GameConstants;
-import client.GameClient;
+import client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.Pet;
@@ -73,12 +73,12 @@ public class Shop {
 	items.add(item);
     }
 
-    public void sendShop(GameClient c) {
+    public void sendShop(ChannelClient c) {
 	c.getPlayer().setShop(this);
 	c.write(MaplePacketCreator.getNPCShop(c, getNpcId(), items));
     }
 
-    public void buy(GameClient c, int itemId, short quantity) {
+    public void buy(ChannelClient c, int itemId, short quantity) {
 	if (quantity <= 0) {
 	    AutobanManager.getInstance().addPoints(c, 1000, 0, "Buying " + quantity + " " + itemId);
 	    return;
@@ -109,7 +109,7 @@ public class Shop {
 	}
     }
 
-    public void sell(GameClient c, Inventory inventory, byte slot, short quantity) {
+    public void sell(ChannelClient c, Inventory inventory, byte slot, short quantity) {
 	if (quantity == 0xFFFF || quantity == 0) {
 	    quantity = 1;
 	}
@@ -143,7 +143,7 @@ public class Shop {
 	}
     }
 
-    public void recharge(final GameClient c, final byte slot) {
+    public void recharge(final ChannelClient c, final byte slot) {
 	final IItem item = c.getPlayer().getUseInventory().getItem(slot);
 
 	if (item == null || (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId()))) {
@@ -151,7 +151,7 @@ public class Shop {
 	}
 	final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 	short slotMax = ii.getSlotMax(c, item.getItemId());
-	final int skill = GameConstants.getMasterySkill(c.getPlayer().getJob());
+	final int skill = GameConstants.getMasterySkill(c.getPlayer().getJobId());
 
 	if (skill != 0) {
 	    slotMax += c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(skill)) * 10;

@@ -25,8 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import handling.GamePacket;
 import handling.world.remote.WorldChannelInterface;
 import server.TimerManager;
@@ -35,13 +35,13 @@ import tools.MaplePacketCreator;
 public class TVEffect {
 
     private static List<String> message = new LinkedList<String>();
-    private static GameCharacter user;
+    private static ChannelCharacter user;
     private static boolean active;
     private static int type;
-    private static GameCharacter partner = null;
-    GameClient c;
+    private static ChannelCharacter partner = null;
+    ChannelClient c;
 
-    public TVEffect(GameCharacter User, GameCharacter Partner, List<String> Msg, int Type) {
+    public TVEffect(ChannelCharacter User, ChannelCharacter Partner, List<String> Msg, int Type) {
         message = Msg;
         user = User;
         type = Type;

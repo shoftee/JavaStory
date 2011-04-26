@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.LinkedList;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.Disease;
 import client.status.MonsterStatus;
 import com.google.common.collect.Maps;
@@ -100,7 +100,7 @@ public class MobSkill {
 	this.limit = limit;
     }
 
-    public boolean checkCurrentBuff(GameCharacter player, Monster monster) {
+    public boolean checkCurrentBuff(ChannelCharacter player, Monster monster) {
 	boolean stop = false;
 	switch (skillId) {
 	    case 100:
@@ -139,7 +139,7 @@ public class MobSkill {
 	return stop;
     }
 
-    public void applyEffect(GameCharacter player, Monster monster, boolean skill) {
+    public void applyEffect(ChannelCharacter player, Monster monster, boolean skill) {
 	Disease disease = null;
 	Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
 	List<Integer> reflection = new LinkedList<Integer>();
@@ -195,7 +195,7 @@ public class MobSkill {
 		break;
 	    case 127:
 		if (lt != null && rb != null && skill) {
-		    for (GameCharacter character : getPlayersInRange(monster, player)) {
+		    for (ChannelCharacter character : getPlayersInRange(monster, player)) {
 			character.dispel();
 		    }
 		} else {
@@ -208,7 +208,7 @@ public class MobSkill {
 	    case 129: // Banish
 		final BanishInfo info = monster.getStats().getBanishInfo();
 		if (lt != null && rb != null && skill) {
-		    for (GameCharacter chr : getPlayersInRange(monster, player)) {
+		    for (ChannelCharacter chr : getPlayersInRange(monster, player)) {
 			chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
 		    }
 		} else {
@@ -311,7 +311,7 @@ public class MobSkill {
 	}
 	if (disease != null) {
 	    if (lt != null && rb != null && skill) {
-		for (GameCharacter chr : getPlayersInRange(monster, player)) {
+		for (ChannelCharacter chr : getPlayersInRange(monster, player)) {
 		    chr.giveDebuff(disease, this);
 		}
 	    } else {
@@ -393,9 +393,9 @@ public class MobSkill {
 	return bounds;
     }
 
-    private List<GameCharacter> getPlayersInRange(Monster monster, GameCharacter player) {
+    private List<ChannelCharacter> getPlayersInRange(Monster monster, ChannelCharacter player) {
 	final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-	List<GameCharacter> players = new ArrayList<GameCharacter>();
+	List<ChannelCharacter> players = new ArrayList<ChannelCharacter>();
 	players.add(player);
 	return monster.getMap().getPlayersInRect(bounds, players);
     }

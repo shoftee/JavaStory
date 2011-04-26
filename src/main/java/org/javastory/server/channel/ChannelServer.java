@@ -10,18 +10,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.SkillFactory;
-import database.DatabaseConnection;
-import handling.ServerType;
 import handling.GamePacket;
-import org.javastory.server.mina.PacketHandler;
+import org.javastory.server.handling.PacketHandler;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.world.PartyMember;
 import handling.world.Party;
@@ -30,7 +27,7 @@ import handling.world.guild.GuildMember;
 import handling.world.guild.GuildSummary;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
-import handling.world.remote.WorldRegistry;
+import org.javastory.server.handling.ChannelPacketHandler;
 
 import scripting.EventScriptManager;
 import server.AutobanManager;
@@ -135,7 +132,7 @@ public final class ChannelServer extends GameService {
         }
 
         final PacketHandler serverHandler =
-                new PacketHandler(ServerType.CHANNEL, this.channelId);
+                new ChannelPacketHandler(this.channelId);
         super.bind(serverHandler);
         try {
             wci.serverReady();
@@ -154,7 +151,7 @@ public final class ChannelServer extends GameService {
         return mapFactories[world == 6 ? 0 : 1];
     }
 
-    public void addPlayer(final GameCharacter chr) {
+    public void addPlayer(final ChannelCharacter chr) {
         players.registerPlayer(chr);
         chr.getClient().write(MaplePacketCreator.serverMessage(serverMessage));
     }
@@ -163,7 +160,7 @@ public final class ChannelServer extends GameService {
         return players;
     }
 
-    public void removePlayer(final GameCharacter chr) {
+    public void removePlayer(final ChannelCharacter chr) {
         players.deregisterPlayer(chr);
     }
 
@@ -385,12 +382,12 @@ public final class ChannelServer extends GameService {
         return MegaphoneMuteState;
     }
 
-    public final List<GameCharacter> getPartyMembers(final Party party) {
-        List<GameCharacter> partym = new LinkedList<GameCharacter>();
+    public final List<ChannelCharacter> getPartyMembers(final Party party) {
+        List<ChannelCharacter> partym = new LinkedList<ChannelCharacter>();
         for (final PartyMember partychar : party.getMembers()) {
             if (partychar.getChannel() == getChannelId()) {
                 // Make sure the thing doesn't get duplicate plays due to ccing bug.
-                GameCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
+                ChannelCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     partym.add(chr);
                 }

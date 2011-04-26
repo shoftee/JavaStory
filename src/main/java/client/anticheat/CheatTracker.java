@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import client.GameConstants;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import server.AutobanManager;
 import server.TimerManager;
 import tools.StringUtil;
@@ -19,7 +19,7 @@ import tools.StringUtil;
 public class CheatTracker {
 
     private Map<CheatingOffense, CheatingOffenseEntry> offenses = Collections.synchronizedMap(new LinkedHashMap<CheatingOffense, CheatingOffenseEntry>());
-    private final WeakReference<GameCharacter> chr;
+    private final WeakReference<ChannelCharacter> chr;
     // For keeping track of speed attack hack.
     private int lastAttackTickCount = 0;
     private byte Attack_tickResetCount = 0;
@@ -37,8 +37,8 @@ public class CheatTracker {
     private int attacksWithoutHit = 0;
     private ScheduledFuture<?> invalidationTask;
 
-    public CheatTracker(final GameCharacter chr) {
-        this.chr = new WeakReference<GameCharacter>(chr);
+    public CheatTracker(final ChannelCharacter chr) {
+        this.chr = new WeakReference<ChannelCharacter>(chr);
         invalidationTask = TimerManager.getInstance().register(new InvalidationTask(), 60000);
         takingDamageSince = System.currentTimeMillis();
     }
@@ -156,7 +156,7 @@ public class CheatTracker {
     }
 
     public final void registerOffense(final CheatingOffense offense, final String param) {
-        final GameCharacter chrhardref = chr.get();
+        final ChannelCharacter chrhardref = chr.get();
         if (chrhardref == null || !offense.isEnabled()) {
             return;
         }

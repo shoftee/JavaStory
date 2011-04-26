@@ -1,7 +1,7 @@
 package client.messages.commands;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -17,10 +17,10 @@ import tools.MaplePacketCreator;
 
 public class WarpCommands implements Command {
 
-    private GameCharacter victim;
+    private ChannelCharacter victim;
 
     @Override
-    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         if (splitted[0].equals("-warp")) {
             victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);

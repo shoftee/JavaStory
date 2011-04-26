@@ -16,13 +16,13 @@ import client.IItem;
 import client.ISkill;
 import client.GameConstants;
 import client.BuffStat;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.Disease;
 import client.Inventory;
 import client.InventoryType;
 import client.Stat;
 import client.SkillFactory;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import com.google.common.collect.Maps;
@@ -570,7 +570,7 @@ public class StatEffect implements Serializable {
      * @param obj
      * @param attack damage done by the skill
      */
-    public final void applyPassive(final GameCharacter applyto, final GameMapObject obj) {
+    public final void applyPassive(final ChannelCharacter applyto, final GameMapObject obj) {
         if (makeChanceResult()) {
             switch (sourceid) { // MP eater
                 case 2100000:
@@ -586,7 +586,7 @@ public class StatEffect implements Serializable {
                                 (getX() / 100.0)), mob.getMp());
                         if (absorbMp > 0) {
                             mob.setMp(mob.getMp() - absorbMp);
-                            applyto.getStat().setMp(applyto.getStat().getMp() +
+                            applyto.getStats().setMp(applyto.getStats().getMp() +
                                     absorbMp);
                             applyto.getClient().write(MaplePacketCreator.showOwnBuffEffect(sourceid, 1));
                             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1), false);
@@ -597,22 +597,22 @@ public class StatEffect implements Serializable {
         }
     }
 
-    public final boolean applyTo(GameCharacter chr) {
+    public final boolean applyTo(ChannelCharacter chr) {
         return applyTo(chr, chr, true, null);
     }
 
-    public final boolean applyTo(GameCharacter chr, Point pos) {
+    public final boolean applyTo(ChannelCharacter chr, Point pos) {
         return applyTo(chr, chr, true, pos);
     }
 
-    private boolean applyTo(final GameCharacter applyfrom, final GameCharacter applyto, final boolean primary, final Point pos) {
+    private boolean applyTo(final ChannelCharacter applyfrom, final ChannelCharacter applyto, final boolean primary, final Point pos) {
         /*	if (sourceid == 4341006 && applyfrom.getBuffedValue(BuffStat.MIRROR_IMAGE) == null) {
         return false;
         } */
         int hpchange = calcHPChange(applyfrom, primary);
         int mpchange = calcMPChange(applyfrom, primary);
 
-        final PlayerStats stat = applyto.getStat();
+        final ActivePlayerStats stat = applyto.getStats();
 
         if (primary) {
             if (itemConNo != 0) {
@@ -657,7 +657,7 @@ public class StatEffect implements Serializable {
         }
         hpmpupdate.add(new Pair<Stat, Integer>(Stat.HP, Integer.valueOf(stat.getHp())));
 
-        applyto.getClient().write(MaplePacketCreator.updatePlayerStats(hpmpupdate, true, applyto.getJob()));
+        applyto.getClient().write(MaplePacketCreator.updatePlayerStats(hpmpupdate, true, applyto.getJobId()));
 
         if (expinc != 0) {
             applyto.gainExp(expinc, true, true, false);
@@ -734,7 +734,7 @@ public class StatEffect implements Serializable {
         return true;
     }
 
-    public final boolean applyReturnScroll(final GameCharacter applyto) {
+    public final boolean applyReturnScroll(final ChannelCharacter applyto) {
         if (moveTo != -1) {
             if (applyto.getMap().getReturnMapId() != applyto.getMapId()) {
                 GameMap target;
@@ -760,13 +760,13 @@ public class StatEffect implements Serializable {
         return false;
     }
 
-    private void applyBuff(final GameCharacter applyfrom) {
+    private void applyBuff(final ChannelCharacter applyfrom) {
         if (isPartyBuff() && (applyfrom.getParty() != null || isGmBuff())) {
             final Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
             final List<GameMapObject> affecteds = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(GameMapObjectType.PLAYER));
 
             for (final GameMapObject affectedmo : affecteds) {
-                final GameCharacter affected = (GameCharacter) affectedmo;
+                final ChannelCharacter affected = (ChannelCharacter) affectedmo;
 
                 if (affected != applyfrom && (isGmBuff() ||
                         applyfrom.getParty().equals(affected.getParty()))) {
@@ -789,7 +789,7 @@ public class StatEffect implements Serializable {
         }
     }
 
-    private void applyMonsterBuff(final GameCharacter applyfrom) {
+    private void applyMonsterBuff(final ChannelCharacter applyfrom) {
         final Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
         final List<GameMapObject> affected = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(GameMapObjectType.MONSTER));
         int i = 0;
@@ -818,7 +818,7 @@ public class StatEffect implements Serializable {
         return new Rectangle(mylt.x, mylt.y, myrb.x - mylt.x, myrb.y - mylt.y);
     }
 
-    public final void silentApplyBuff(final GameCharacter chr, final long starttime) {
+    public final void silentApplyBuff(final ChannelCharacter chr, final long starttime) {
         final int localDuration = alchemistModifyVal(chr, duration, false);
         chr.registerEffect(this, starttime, TimerManager.getInstance().schedule(new CancelEffectAction(chr, this, starttime),
                                                                                 ((starttime +
@@ -836,7 +836,7 @@ public class StatEffect implements Serializable {
         }
     }
 
-    public final void applyComboBuff(final GameCharacter applyto, short combo) {
+    public final void applyComboBuff(final ChannelCharacter applyto, short combo) {
         final List<Pair<BuffStat, Integer>> stat = Collections.singletonList(new Pair<BuffStat, Integer>(BuffStat.ARAN_COMBO, (int) combo));
         applyto.getClient().write(MaplePacketCreator.giveBuff(sourceid, 99999, stat, this)); // Hackish timing, todo find out
 
@@ -846,7 +846,7 @@ public class StatEffect implements Serializable {
         applyto.registerEffect(this, starttime, null);
     }
 
-    public final void applyEnergyBuff(final GameCharacter applyto, final boolean infinity) {
+    public final void applyEnergyBuff(final ChannelCharacter applyto, final boolean infinity) {
 //	final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(BuffStat.ENERGY_CHARGE, (int) applyto.getEnergyCharge()));
         applyto.getClient().write(MaplePacketCreator.giveEnergyChargeTest(0));
 
@@ -861,7 +861,7 @@ public class StatEffect implements Serializable {
         }
     }
 
-    private void applyBuffEffect(final GameCharacter applyfrom, final GameCharacter applyto, final boolean primary) {
+    private void applyBuffEffect(final ChannelCharacter applyfrom, final ChannelCharacter applyto, final boolean primary) {
         if (!isMonsterRiding_()) {
             applyto.cancelEffect(this, true, -1);
         }
@@ -1004,7 +1004,7 @@ public class StatEffect implements Serializable {
         applyto.registerEffect(this, starttime, schedule);
     }
 
-    public static int parseMountInfo(final GameCharacter player, final int skillid) {
+    public static int parseMountInfo(final ChannelCharacter player, final int skillid) {
         switch (skillid) {
             case 1004: // Monster riding
             case 10001004:
@@ -1021,7 +1021,7 @@ public class StatEffect implements Serializable {
         return 0;
     }
 
-    private int calcHPChange(final GameCharacter applyfrom, final boolean primary) {
+    private int calcHPChange(final ChannelCharacter applyfrom, final boolean primary) {
         int hpchange = 0;
         if (hp != 0) {
             if (!skill) {
@@ -1034,14 +1034,14 @@ public class StatEffect implements Serializable {
                     hpchange /= 2;
                 }
             } else { // assumption: this is heal
-                hpchange += makeHealHP(hp / 100.0, applyfrom.getStat().getTotalMagic(), 3, 5);
+                hpchange += makeHealHP(hp / 100.0, applyfrom.getStats().getTotalMagic(), 3, 5);
                 if (applyfrom.hasDisease(Disease.ZOMBIFY)) {
                     hpchange = -hpchange;
                 }
             }
         }
         if (hpR != 0) {
-            hpchange += (int) (applyfrom.getStat().getCurrentMaxHp() * hpR);
+            hpchange += (int) (applyfrom.getStats().getCurrentMaxHp() * hpR);
         }
         // actually receivers probably never get any hp when it's not heal but whatever
         if (primary) {
@@ -1051,11 +1051,11 @@ public class StatEffect implements Serializable {
         }
         switch (this.sourceid) {
             case 4211001: // Chakra
-//		final PlayerStats stat = applyfrom.getStat();
+//		final PlayerStats stat = applyfrom.getStats();
 //		int v42 = getY() + 100;
 //		int v38 = Randomizer.rand(100, 200) % 0x64 + 100;
 //		hpchange = (int) ((v38 * stat.getLuk() * 0.033 + stat.getDex()) * v42 * 0.002);
-                hpchange += makeHealHP(getY() / 100.0, applyfrom.getStat().getTotalLuk(), 2.3, 3.5);
+                hpchange += makeHealHP(getY() / 100.0, applyfrom.getStats().getTotalLuk(), 2.3, 3.5);
                 break;
         }
         return hpchange;
@@ -1087,7 +1087,7 @@ public class StatEffect implements Serializable {
         return -1;
     }
 
-    private int calcMPChange(final GameCharacter applyfrom, final boolean primary) {
+    private int calcMPChange(final ChannelCharacter applyfrom, final boolean primary) {
         int mpchange = 0;
         if (mp != 0) {
             if (primary) {
@@ -1097,13 +1097,13 @@ public class StatEffect implements Serializable {
             }
         }
         if (mpR != 0) {
-            mpchange += (int) (applyfrom.getStat().getCurrentMaxMp() * mpR);
+            mpchange += (int) (applyfrom.getStats().getCurrentMaxMp() * mpR);
         }
         if (primary) {
             if (mpCon != 0) {
                 double mod = 1.0;
 
-                final int ElemSkillId = getElementalAmp(applyfrom.getJob());
+                final int ElemSkillId = getElementalAmp(applyfrom.getJobId());
                 if (ElemSkillId != -1) {
                     final ISkill amp = SkillFactory.getSkill(ElemSkillId);
                     final int ampLevel = applyfrom.getCurrentSkillLevel(amp);
@@ -1122,7 +1122,7 @@ public class StatEffect implements Serializable {
         return mpchange;
     }
 
-    private int alchemistModifyVal(final GameCharacter chr, final int val, final boolean withX) {
+    private int alchemistModifyVal(final ChannelCharacter chr, final int val, final boolean withX) {
         if (!skill) {
             final StatEffect alchemistEffect = getAlchemistEffect(chr);
             if (alchemistEffect != null) {
@@ -1134,9 +1134,9 @@ public class StatEffect implements Serializable {
         return val;
     }
 
-    private StatEffect getAlchemistEffect(final GameCharacter chr) {
+    private StatEffect getAlchemistEffect(final ChannelCharacter chr) {
         ISkill al;
-        switch (chr.getJob()) {
+        switch (chr.getJobId()) {
             case 411:
             case 412:
                 al = SkillFactory.getSkill(4110000);
@@ -1473,7 +1473,7 @@ public class StatEffect implements Serializable {
         return morphId;
     }
 
-    public final int getMorph(final GameCharacter chr) {
+    public final int getMorph(final ChannelCharacter chr) {
         switch (morphId) {
             case 1000:
             case 1100:
@@ -1553,18 +1553,18 @@ public class StatEffect implements Serializable {
     public static class CancelEffectAction implements Runnable {
 
         private final StatEffect effect;
-        private final WeakReference<GameCharacter> target;
+        private final WeakReference<ChannelCharacter> target;
         private final long startTime;
 
-        public CancelEffectAction(final GameCharacter target, final StatEffect effect, final long startTime) {
+        public CancelEffectAction(final ChannelCharacter target, final StatEffect effect, final long startTime) {
             this.effect = effect;
-            this.target = new WeakReference<GameCharacter>(target);
+            this.target = new WeakReference<ChannelCharacter>(target);
             this.startTime = startTime;
         }
 
         @Override
         public void run() {
-            final GameCharacter realTarget = target.get();
+            final ChannelCharacter realTarget = target.get();
             if (realTarget != null) {
                 realTarget.cancelEffect(effect, false, startTime);
             }

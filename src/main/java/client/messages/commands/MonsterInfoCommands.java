@@ -2,7 +2,7 @@ package client.messages.commands;
 
 import java.util.Arrays;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -13,7 +13,7 @@ import server.maps.GameMapObjectType;
 
 public class MonsterInfoCommands implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		GameMap map = c.getPlayer().getMap();
 		double range = Double.POSITIVE_INFINITY;
 		if (splitted.length > 1) {

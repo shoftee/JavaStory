@@ -20,14 +20,14 @@
 */
 package scripting;
 
-import client.GameClient;
+import client.ChannelClient;
 import server.Portal;
 
 public class PortalPlayerInteraction extends AbstractPlayerInteraction {
 
     private final Portal portal;
 
-    public PortalPlayerInteraction(final GameClient c, final Portal portal) {
+    public PortalPlayerInteraction(final ChannelClient c, final Portal portal) {
 	super(c);
 	this.portal = portal;
     }

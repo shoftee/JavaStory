@@ -130,11 +130,11 @@ public class MonsterBook implements Serializable {
         builder.writeInt(ItemInfoProvider.getInstance().getCardMobId(bookcover));
     }
 
-    public final void updateCard(final GameClient c, final int cardid) {
+    public final void updateCard(final ChannelClient c, final int cardid) {
         c.write(MonsterBookPacket.changeCover(cardid));
     }
 
-    public final void addCard(final GameClient c, final int cardid) {
+    public final void addCard(final ChannelClient c, final int cardid) {
         changed = true;
 //	c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MonsterBookPacket.showForeginCardEffect(c.getPlayer().getId()), false);
 

@@ -5,7 +5,7 @@ import java.util.List;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.InventoryType;
 import tools.MaplePacketCreator;
 
@@ -16,10 +16,10 @@ public class Trade {
     private List<IItem> exchangeItems;
     private int meso = 0, exchangeMeso = 0;
     private boolean locked = false;
-    private final GameCharacter chr;
+    private final ChannelCharacter chr;
     private final byte tradingslot;
 
-    public Trade(final byte tradingslot, final GameCharacter chr) {
+    public Trade(final byte tradingslot, final ChannelCharacter chr) {
 	this.tradingslot = tradingslot;
 	this.chr = chr;
     }
@@ -106,7 +106,7 @@ public class Trade {
 	this.partner = partner;
     }
 
-    public final GameCharacter getChr() {
+    public final ChannelCharacter getChr() {
 	return chr;
     }
 
@@ -142,7 +142,7 @@ public class Trade {
 	return true;
     }
 
-    public final static void completeTrade(final GameCharacter c) {
+    public final static void completeTrade(final ChannelCharacter c) {
 	final Trade local = c.getTrade();
 	final Trade partner = local.getPartner();
 
@@ -183,7 +183,7 @@ public class Trade {
 	Localtrade.chr.setTrade(null);
     }
 
-    public static final void startTrade(final GameCharacter c) {
+    public static final void startTrade(final ChannelCharacter c) {
 	if (c.getTrade() == null) {
 	    c.setTrade(new Trade((byte) 0, c));
 	    c.getClient().write(MaplePacketCreator.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
@@ -192,7 +192,7 @@ public class Trade {
 	}
     }
 
-    public static final void inviteTrade(final GameCharacter c1, final GameCharacter c2) {
+    public static final void inviteTrade(final ChannelCharacter c1, final ChannelCharacter c2) {
 	if (c2.getTrade() == null) {
 	    c2.setTrade(new Trade((byte) 1, c2));
 	    c2.getTrade().setPartner(c1.getTrade());
@@ -204,7 +204,7 @@ public class Trade {
 	}
     }
 
-    public static final void visitTrade(final GameCharacter c1, final GameCharacter c2) {
+    public static final void visitTrade(final ChannelCharacter c1, final ChannelCharacter c2) {
 	if (c1.getTrade() != null && c1.getTrade().getPartner() == c2.getTrade() && c2.getTrade() != null && c2.getTrade().getPartner() == c1.getTrade()) {
 	    // We don't need to check for map here as the user is found via MapleMap.getCharacterById_InMap()
 	    c2.getClient().write(MaplePacketCreator.getTradePartnerAdd(c1));
@@ -214,11 +214,11 @@ public class Trade {
 	}
     }
 
-    public static final void declineTrade(final GameCharacter c) {
+    public static final void declineTrade(final ChannelCharacter c) {
 	final Trade trade = c.getTrade();
 	if (trade != null) {
 	    if (trade.getPartner() != null) {
-		GameCharacter other = trade.getPartner().getChr();
+		ChannelCharacter other = trade.getPartner().getChr();
 		other.getTrade().cancel();
 		other.setTrade(null);
 		other.getClient().write(MaplePacketCreator.serverNotice(5, c.getName() + " has declined your trade request"));

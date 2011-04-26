@@ -18,18 +18,18 @@ import provider.WzDataTool;
 
 import client.IItem;
 
-public class LoginInformationProvider {
+public class LoginInfoProvider {
 
-    private final static LoginInformationProvider instance = new LoginInformationProvider();
+    private final static LoginInfoProvider instance = new LoginInfoProvider();
     protected final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<Integer, Map<String, Integer>>();
     protected final Map<Integer, Equip> equipCache = new HashMap<Integer, Equip>();
     protected final List<String> ForbiddenName = new ArrayList<String>();
 
-    public static LoginInformationProvider getInstance() {
+    public static LoginInfoProvider getInstance() {
         return instance;
     }
 
-    protected LoginInformationProvider() {
+    protected LoginInfoProvider() {
         System.out.println(":: Loading LoginInformationProvider ::");
 
         final int[] LoadEquipment = {

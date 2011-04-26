@@ -11,9 +11,9 @@ import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
 import client.Item;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.GameCharacterUtil;
-import client.GameClient;
+import client.ChannelClient;
 import client.Inventory;
 import org.javastory.client.ItemType;
 import database.DatabaseConnection;
@@ -34,9 +34,9 @@ public class DueyHandler {
      * 15 = Same account
      * 14 = Name does not exist
      */
-    public static void handleDueyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleDueyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final byte operation = reader.readByte();
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter player = c.getPlayer();
 
         switch (operation) {
             case 1: { // Start Duey, 13 digit AS
@@ -279,7 +279,7 @@ public class DueyHandler {
         }
     }
 
-    public static List<DueyActions> loadItems(final GameCharacter chr) {
+    public static List<DueyActions> loadItems(final ChannelCharacter chr) {
         List<DueyActions> packages = new LinkedList<DueyActions>();
         Connection con = DatabaseConnection.getConnection();
         try {
@@ -331,7 +331,7 @@ public class DueyHandler {
         }
     }
 
-    public static void reciveMsg(final GameClient c, final int recipientId) {
+    public static void reciveMsg(final ChannelClient c, final int recipientId) {
         Connection con = DatabaseConnection.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?");

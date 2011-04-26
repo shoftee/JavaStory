@@ -14,8 +14,8 @@ import java.util.concurrent.ScheduledFuture;
 
 import client.Disease;
 import client.BuffStat;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -43,8 +43,8 @@ public class Monster extends AbstractLoadedGameLife {
     private GameMap map;
     private Monster sponge;
     // Just a reference for monster EXP distribution after death
-    private GameCharacter highestDamageChar; 
-    private WeakReference<GameCharacter> controller = new WeakReference<GameCharacter>(null);
+    private ChannelCharacter highestDamageChar; 
+    private WeakReference<ChannelCharacter> controller = new WeakReference<ChannelCharacter>(null);
     private boolean isFake, dropsDisabled, controllerHasAggro, controllerKnowsAboutAggro;
     private final Collection<AttackerEntry> attackers = Lists.newLinkedList();
     private EventInstanceManager eventInstance;
@@ -158,7 +158,7 @@ public class Monster extends AbstractLoadedGameLife {
         this.venom_counter = venom_counter;
     }
 
-    public final void damage(final GameCharacter from, final int damage, final boolean updateAttackTime) {
+    public final void damage(final ChannelCharacter from, final int damage, final boolean updateAttackTime) {
         if (damage <= 0 || !isAlive()) {
             return;
         }
@@ -271,7 +271,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
     }
 
-    private void giveExpToCharacter(final GameCharacter attacker, int exp, final boolean highestDamage, final int numExpSharers, final byte pty, final byte CLASS_EXP_PERCENT) {
+    private void giveExpToCharacter(final ChannelCharacter attacker, int exp, final boolean highestDamage, final int numExpSharers, final byte pty, final byte CLASS_EXP_PERCENT) {
         if (highestDamage) {
             if (eventInstance != null) {
                 eventInstance.monsterKilled(attacker, this);
@@ -304,7 +304,7 @@ public class Monster extends AbstractLoadedGameLife {
         attacker.mobKilled(getId());
     }
 
-    public final GameCharacter killBy(final GameCharacter killer) {
+    public final ChannelCharacter killBy(final ChannelCharacter killer) {
         int totalBaseExp = (int) (Math.min(Integer.MAX_VALUE, (getMobExp() * killer.getClient().getChannelServer().getExpRate())));
         AttackerEntry highest = null;
         int highdamage = 0;
@@ -319,7 +319,7 @@ public class Monster extends AbstractLoadedGameLife {
             baseExp = (int) Math.ceil(totalBaseExp * ((double) attackEntry.getDamage() / getMobMaxHp()));
             attackEntry.killedMob(killer.getMap(), baseExp, attackEntry == highest);
         }
-        final GameCharacter controll = controller.get();
+        final ChannelCharacter controll = controller.get();
         if (controll != null) { // this can/should only happen when a hidden gm attacks the monster
             controll.getClient().write(MobPacket.stopControllingMonster(getObjectId()));
             controll.stopControllingMonster(this);
@@ -334,7 +334,7 @@ public class Monster extends AbstractLoadedGameLife {
         if (listener != null) {
             listener.monsterKilled();
         }
-        final GameCharacter ret = highestDamageChar;
+        final ChannelCharacter ret = highestDamageChar;
         highestDamageChar = null; // may not keep hard references to chars outside of PlayerStorage or MapleMap
         return ret;
     }
@@ -418,16 +418,16 @@ public class Monster extends AbstractLoadedGameLife {
         return carnivalTeam;
     }
 
-    public final GameCharacter getController() {
+    public final ChannelCharacter getController() {
         return controller.get();
     }
 
-    public final void setController(final GameCharacter controller) {
-        this.controller = new WeakReference<GameCharacter>(controller);
+    public final void setController(final ChannelCharacter controller) {
+        this.controller = new WeakReference<ChannelCharacter>(controller);
     }
 
-    public final void switchController(final GameCharacter newController, final boolean immediateAggro) {
-        final GameCharacter controllers = getController();
+    public final void switchController(final ChannelCharacter newController, final boolean immediateAggro) {
+        final ChannelCharacter controllers = getController();
         if (controllers == newController) {
             return;
         } else if (controllers != null) {
@@ -463,7 +463,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     @Override
-    public final void sendSpawnData(final GameClient client) {
+    public final void sendSpawnData(final ChannelClient client) {
         if (!isAlive()) {
             return;
         }
@@ -476,7 +476,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     @Override
-    public final void sendDestroyData(final GameClient client) {
+    public final void sendDestroyData(final ChannelClient client) {
         client.write(MobPacket.killMonster(getObjectId(), 0));
     }
 
@@ -504,7 +504,7 @@ public class Monster extends AbstractLoadedGameLife {
         sb.append(" oid: ");
         sb.append(getObjectId());
         sb.append(") || Controller name : ");
-        final GameCharacter chr = controller.get();
+        final ChannelCharacter chr = controller.get();
         sb.append(chr != null ? chr.getName() : "null");
 
         return sb.toString();
@@ -538,7 +538,7 @@ public class Monster extends AbstractLoadedGameLife {
         return stats.getEffectiveness(e);
     }
 
-    public final void applyStatus(final GameCharacter from, final MonsterStatusEffect status, final boolean poison, final long duration, final boolean venom) {
+    public final void applyStatus(final ChannelCharacter from, final MonsterStatusEffect status, final boolean poison, final long duration, final boolean venom) {
         if (!isAlive()) {
             return;
         }
@@ -625,7 +625,7 @@ public class Monster extends AbstractLoadedGameLife {
             int poisonLevel = 0;
             int matk = 0;
 
-            switch (from.getJob()) {
+            switch (from.getJobId()) {
                 case 412:
                     poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(4120005));
                     if (poisonLevel <= 0) {
@@ -651,7 +651,7 @@ public class Monster extends AbstractLoadedGameLife {
                 default:
                     return; // Hack, using venom without the job required
             }
-            final int luk = from.getStat().getLuk();
+            final int luk = from.getStats().getLuk();
             final int maxDmg = (int) Math.ceil(Math.min(Short.MAX_VALUE, 0.2 * luk * matk));
             final int minDmg = (int) Math.ceil(Math.min(Short.MAX_VALUE, 0.1 * luk * matk));
             int gap = maxDmg - minDmg;
@@ -670,7 +670,7 @@ public class Monster extends AbstractLoadedGameLife {
             status.setPoisonSchedule(timerManager.schedule(new PoisonTask((int) (getMobMaxHp() / 50.0 + 0.999), from, status, cancelTask, true), 3500));
 
         } else if (statusSkill == 4121004 || statusSkill == 4221004) {
-            final int damage = (from.getStat().getStr() + from.getStat().getLuk()) * 2 * (60 / 100);
+            final int damage = (from.getStats().getStr() + from.getStats().getLuk()) * 2 * (60 / 100);
             status.setPoisonSchedule(timerManager.register(new PoisonTask(damage, from, status, cancelTask, false), 1000, 1000));
         }
 
@@ -792,13 +792,13 @@ public class Monster extends AbstractLoadedGameLife {
     private final class PoisonTask implements Runnable {
 
         private final int poisonDamage;
-        private final GameCharacter chr;
+        private final ChannelCharacter chr;
         private final MonsterStatusEffect status;
         private final Runnable cancelTask;
         private final boolean shadowWeb;
         private final GameMap map;
 
-        private PoisonTask(final int poisonDamage, final GameCharacter chr, final MonsterStatusEffect status, final Runnable cancelTask, final boolean shadowWeb) {
+        private PoisonTask(final int poisonDamage, final ChannelCharacter chr, final MonsterStatusEffect status, final Runnable cancelTask, final boolean shadowWeb) {
             this.poisonDamage = poisonDamage;
             this.chr = chr;
             this.status = status;
@@ -828,10 +828,10 @@ public class Monster extends AbstractLoadedGameLife {
 
     private class AttackingMapleCharacter {
 
-        private GameCharacter attacker;
+        private ChannelCharacter attacker;
         private long lastAttackTime;
 
-        public AttackingMapleCharacter(final GameCharacter attacker, final long lastAttackTime) {
+        public AttackingMapleCharacter(final ChannelCharacter attacker, final long lastAttackTime) {
             super();
             this.attacker = attacker;
             this.lastAttackTime = lastAttackTime;
@@ -845,7 +845,7 @@ public class Monster extends AbstractLoadedGameLife {
             this.lastAttackTime = lastAttackTime;
         }
 
-        public final GameCharacter getAttacker() {
+        public final ChannelCharacter getAttacker() {
             return attacker;
         }
     }
@@ -854,11 +854,11 @@ public class Monster extends AbstractLoadedGameLife {
 
         List<AttackingMapleCharacter> getAttackers();
 
-        public void addDamage(GameCharacter from, int damage, boolean updateAttackTime);
+        public void addDamage(ChannelCharacter from, int damage, boolean updateAttackTime);
 
         public int getDamage();
 
-        public boolean contains(GameCharacter chr);
+        public boolean contains(ChannelCharacter chr);
 
         public void killedMob(GameMap map, int baseExp, boolean mostDamage);
     }
@@ -870,13 +870,13 @@ public class Monster extends AbstractLoadedGameLife {
         private long lastAttackTime;
         private ChannelServer cserv;
 
-        public SingleAttackerEntry(final GameCharacter from, final ChannelServer cserv) {
+        public SingleAttackerEntry(final ChannelCharacter from, final ChannelServer cserv) {
             this.chrid = from.getId();
             this.cserv = cserv;
         }
 
         @Override
-        public void addDamage(final GameCharacter from, final int damage, final boolean updateAttackTime) {
+        public void addDamage(final ChannelCharacter from, final int damage, final boolean updateAttackTime) {
             if (chrid == from.getId()) {
                 this.damage += damage;
                 if (updateAttackTime) {
@@ -887,7 +887,7 @@ public class Monster extends AbstractLoadedGameLife {
 
         @Override
         public final List<AttackingMapleCharacter> getAttackers() {
-            final GameCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
+            final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
             if (chr != null) {
                 return Collections.singletonList(new AttackingMapleCharacter(chr, lastAttackTime));
             } else {
@@ -896,7 +896,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
 
         @Override
-        public boolean contains(final GameCharacter chr) {
+        public boolean contains(final ChannelCharacter chr) {
             return chrid == chr.getId();
         }
 
@@ -907,7 +907,7 @@ public class Monster extends AbstractLoadedGameLife {
 
         @Override
         public void killedMob(final GameMap map, final int baseExp, final boolean mostDamage) {
-            final GameCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
+            final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
             if (chr != null && chr.getMap() == map && chr.isAlive()) {
                 giveExpToCharacter(chr, baseExp, mostDamage, 1, (byte) 0, (byte) 0);
             }
@@ -977,7 +977,7 @@ public class Monster extends AbstractLoadedGameLife {
         public List<AttackingMapleCharacter> getAttackers() {
             final List<AttackingMapleCharacter> ret = new ArrayList<AttackingMapleCharacter>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> entry : attackers.entrySet()) {
-                final GameCharacter chr = cserv.getPlayerStorage().getCharacterById(entry.getKey());
+                final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(entry.getKey());
                 if (chr != null) {
                     ret.add(new AttackingMapleCharacter(chr, entry.getValue().lastAttackTime));
                 }
@@ -985,10 +985,10 @@ public class Monster extends AbstractLoadedGameLife {
             return ret;
         }
 
-        private final Map<GameCharacter, OnePartyAttacker> resolveAttackers() {
-            final Map<GameCharacter, OnePartyAttacker> ret = new HashMap<GameCharacter, OnePartyAttacker>(attackers.size());
+        private final Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
+            final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<ChannelCharacter, OnePartyAttacker>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> aentry : attackers.entrySet()) {
-                final GameCharacter chr = cserv.getPlayerStorage().getCharacterById(aentry.getKey());
+                final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(aentry.getKey());
                 if (chr != null) {
                     ret.put(chr, aentry.getValue());
                 }
@@ -997,7 +997,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
 
         @Override
-        public final boolean contains(final GameCharacter chr) {
+        public final boolean contains(final ChannelCharacter chr) {
             return attackers.containsKey(chr.getId());
         }
 
@@ -1006,7 +1006,7 @@ public class Monster extends AbstractLoadedGameLife {
             return totDamage;
         }
 
-        public void addDamage(final GameCharacter from, final int damage, final boolean updateAttackTime) {
+        public void addDamage(final ChannelCharacter from, final int damage, final boolean updateAttackTime) {
             final OnePartyAttacker oldPartyAttacker = attackers.get(from.getId());
             if (oldPartyAttacker != null) {
                 oldPartyAttacker.damage += damage;
@@ -1030,20 +1030,20 @@ public class Monster extends AbstractLoadedGameLife {
 
         @Override
         public final void killedMob(final GameMap map, final int baseExp, final boolean mostDamage) {
-            GameCharacter pchr, highest = null;
+            ChannelCharacter pchr, highest = null;
             int iDamage, iexp, highestDamage = 0;
             Party party;
             double averagePartyLevel, expWeight, levelMod, innerBaseExp, expFraction;
-            List<GameCharacter> expApplicable;
-            final Map<GameCharacter, ExpMap> expMap = new HashMap<GameCharacter, ExpMap>(6);
+            List<ChannelCharacter> expApplicable;
+            final Map<ChannelCharacter, ExpMap> expMap = new HashMap<ChannelCharacter, ExpMap>(6);
             byte CLASS_EXP;
 
-            for (final Entry<GameCharacter, OnePartyAttacker> attacker : resolveAttackers().entrySet()) {
+            for (final Entry<ChannelCharacter, OnePartyAttacker> attacker : resolveAttackers().entrySet()) {
                 party = attacker.getValue().lastKnownParty;
                 averagePartyLevel = 0;
 
                 CLASS_EXP = 0;
-                expApplicable = new ArrayList<GameCharacter>();
+                expApplicable = new ArrayList<ChannelCharacter>();
                 for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
                         pchr = cserv.getPlayerStorage().getCharacterByName(partychar.getName());
@@ -1053,7 +1053,7 @@ public class Monster extends AbstractLoadedGameLife {
                                 averagePartyLevel += pchr.getLevel();
 
                                 if (CLASS_EXP == 0) {
-                                    CLASS_EXP = ServerConstants.CLASS_EXP(pchr.getJob());
+                                    CLASS_EXP = ServerConstants.CLASS_EXP(pchr.getJobId());
                                 }
                             }
                         }
@@ -1070,7 +1070,7 @@ public class Monster extends AbstractLoadedGameLife {
                 innerBaseExp = baseExp * ((double) iDamage / totDamage);
                 expFraction = innerBaseExp / (expApplicable.size() + 1);
 
-                for (final GameCharacter expReceiver : expApplicable) {
+                for (final ChannelCharacter expReceiver : expApplicable) {
                     iexp = expMap.get(expReceiver) == null ? 0 : expMap.get(expReceiver).exp;
                     expWeight = (expReceiver == attacker.getKey() ? 2.0 : 0.7);
                     levelMod = expReceiver.getLevel() / averagePartyLevel;
@@ -1082,7 +1082,7 @@ public class Monster extends AbstractLoadedGameLife {
                 }
             }
             ExpMap expmap;
-            for (final Entry<GameCharacter, ExpMap> expReceiver : expMap.entrySet()) {
+            for (final Entry<ChannelCharacter, ExpMap> expReceiver : expMap.entrySet()) {
                 expmap = expReceiver.getValue();
                 giveExpToCharacter(expReceiver.getKey(), expmap.exp, mostDamage ? expReceiver.getKey() == highest : false, expMap.size(), expmap.ptysize, expmap.CLASS_EXP);
             }

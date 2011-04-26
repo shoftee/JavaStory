@@ -27,7 +27,7 @@ import java.io.Serializable;
 import client.ISkill;
 import client.GameConstants;
 import client.InventoryException;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.Inventory;
 import client.InventoryType;
 import client.QuestStatus;
@@ -54,7 +54,7 @@ public class QuestAction implements Serializable {
 	this.quest = quest;
     }
 
-    private static boolean canGetItem(WzData item, GameCharacter c) {
+    private static boolean canGetItem(WzData item, ChannelCharacter c) {
 	if (item.getChildByPath("gender") != null) {
 	    final int gender = WzDataTool.getInt(item.getChildByPath("gender"));
 	    if (gender != 2 && gender != c.getGender()) {
@@ -65,23 +65,23 @@ public class QuestAction implements Serializable {
 	    final int job = WzDataTool.getInt(item.getChildByPath("job"));
 	    if (job < 100) {
 		final int codec = getJobBy5ByteEncoding(job);
-		if (codec / 100 != c.getJob() / 100) {
+		if (codec / 100 != c.getJobId() / 100) {
 		    return false;
 		}
 	    } else if (job > 3000) {
-		final int playerjob = c.getJob();
+		final int playerjob = c.getJobId();
 		final int codec = getJobByEncoding(job, playerjob);
 		if (codec >= 1000) {
-		    if (codec / 1000 != c.getJob() / 1000) {
+		    if (codec / 1000 != c.getJobId() / 1000) {
 			return false;
 		    }
 		} else {
-		    if (codec / 100 != c.getJob() / 100) {
+		    if (codec / 100 != c.getJobId() / 100) {
 			return false;
 		    }
 		}
 	    } else {
-		if (job != c.getJob()) {
+		if (job != c.getJobId()) {
 		    return false;
 		}
 	    }
@@ -89,7 +89,7 @@ public class QuestAction implements Serializable {
 	return true;
     }
 
-    public final boolean RestoreLostItem(final GameCharacter c, final int itemid) {
+    public final boolean RestoreLostItem(final ChannelCharacter c, final int itemid) {
 	if (type == QuestActionType.item) {
 	    int retitem;
 
@@ -106,7 +106,7 @@ public class QuestAction implements Serializable {
 	return false;
     }
 
-    public void runStart(GameCharacter c, Integer extSelection) {
+    public void runStart(ChannelCharacter c, Integer extSelection) {
 	QuestStatus status;
 	switch (type) {
 	    case exp:
@@ -191,7 +191,7 @@ public class QuestAction implements Serializable {
 		    final ISkill skillObject = SkillFactory.getSkill(skillid);
 
 		    for (WzData applicableJob : sEntry.getChildByPath("job")) {
-			if (skillObject.isBeginnerSkill() || c.getJob() == WzDataTool.getInt(applicableJob)) {
+			if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {
 			    c.changeSkillLevel(skillObject,
 				    (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)),
 				    (byte) Math.max(masterLevel, c.getMasterSkillLevel(skillObject)));
@@ -231,7 +231,7 @@ public class QuestAction implements Serializable {
 	}
     }
 
-    public boolean checkEnd(GameCharacter c, Integer extSelection) {
+    public boolean checkEnd(ChannelCharacter c, Integer extSelection) {
 	switch (type) {
 	    case item: {
 		// first check for randomness in item selection
@@ -325,7 +325,7 @@ public class QuestAction implements Serializable {
 	return true;
     }
 
-    public void runEnd(GameCharacter c, Integer extSelection) {
+    public void runEnd(ChannelCharacter c, Integer extSelection) {
 	switch (type) {
 	    case exp: {
 		c.gainExp((WzDataTool.getInt(data, 0) * (c.getLevel() <= 10 ? 1 : c.getClient().getChannelServer().getExpRate())), true, true, true);
@@ -398,7 +398,7 @@ public class QuestAction implements Serializable {
 		    final ISkill skillObject = SkillFactory.getSkill(skillid);
 
 		    for (WzData applicableJob : sEntry.getChildByPath("job")) {
-			if (skillObject.isBeginnerSkill() || c.getJob() == WzDataTool.getInt(applicableJob)) {
+			if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {
 			    c.changeSkillLevel(skillObject,
 				    (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)),
 				    (byte) Math.max(masterLevel, c.getMasterSkillLevel(skillObject)));

@@ -5,8 +5,8 @@ import client.Equip;
 import client.GameConstants;
 import client.IItem;
 import client.Item;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.InventoryType;
 import client.messages.Command;
 import client.messages.CommandDefinition;
@@ -22,7 +22,7 @@ import tools.packet.MobPacket;
 public class GM4Commands implements Command {
 
     @Override
-    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         if (splitted[0].equals("-item")) {
             final int itemId = Integer.parseInt(splitted[1]);
@@ -69,7 +69,7 @@ public class GM4Commands implements Command {
             }
         } else if (splitted[0].equals("-saveall")) {
             for (ChannelServer chan : ChannelManager.getAllInstances()) {
-                for (GameCharacter chr : chan.getPlayerStorage().getAllCharacters()) {
+                for (ChannelCharacter chr : chan.getPlayerStorage().getAllCharacters()) {
                     chr.saveToDb(false);
                 }
             }

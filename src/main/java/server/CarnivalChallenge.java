@@ -5,7 +5,7 @@
 
 package server;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import handling.world.Party;
 import handling.world.PartyMember;
 
@@ -14,21 +14,21 @@ import handling.world.PartyMember;
  * @author Rob
  */
 public class CarnivalChallenge {
-    GameCharacter challenger;
+    ChannelCharacter challenger;
     String challengeinfo = "";
 
-    public CarnivalChallenge(GameCharacter challenger) {
+    public CarnivalChallenge(ChannelCharacter challenger) {
         this.challenger = challenger;
         Party party = challenger.getParty();
         challengeinfo += "#b";
         for (PartyMember pc : party.getMembers()) {
-	    GameCharacter c = challenger.getMap().getCharacterById_InMap(pc.getId());
-	    challengeinfo += (c.getName() + " / Level" + c.getLevel() + " / " + getJobNameById(c.getJob()));
+	    ChannelCharacter c = challenger.getMap().getCharacterById_InMap(pc.getId());
+	    challengeinfo += (c.getName() + " / Level" + c.getLevel() + " / " + getJobNameById(c.getJobId()));
 	}
         challengeinfo += "#k";
     }
 
-    public GameCharacter getChallenger() {
+    public ChannelCharacter getChallenger() {
         return challenger;
     }
 

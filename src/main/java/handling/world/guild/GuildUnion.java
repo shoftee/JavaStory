@@ -30,7 +30,7 @@ import java.rmi.RemoteException;
 
 import database.DatabaseConnection;
 
-import client.GameClient;
+import client.ChannelClient;
 import com.google.common.collect.Maps;
 import handling.GamePacket;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class GuildUnion implements java.io.Serializable {
     private String notice;
     private int id;
 
-    public GuildUnion(GameClient c, int id) {
+    public GuildUnion(ChannelClient c, int id) {
         guilds = new ArrayList<Guild>();
         this.id = id;
 
@@ -92,7 +92,7 @@ public class GuildUnion implements java.io.Serializable {
         }
     }
 
-    public void addGuild(GameClient c, int guildId) {
+    public void addGuild(ChannelClient c, int guildId) {
         for (int i = 0; i < 5; i++) {
             if (guilds.get(i) == null) {
                 try {

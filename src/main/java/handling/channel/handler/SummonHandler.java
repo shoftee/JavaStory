@@ -27,8 +27,8 @@ import java.util.Iterator;
 
 import client.ISkill;
 import client.BuffStat;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.SkillFactory;
 import client.SummonSkillEntry;
 import client.status.MonsterStatusEffect;
@@ -51,7 +51,7 @@ public final class SummonHandler {
     private SummonHandler() {
     }
 
-    public static void handleMoveDragon(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleMoveDragon(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(8); //POS
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
         if (chr.getDragon() != null) {
@@ -64,7 +64,7 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonMove(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSummonMove(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int oid = reader.readInt();
         reader.skip(8);
         final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
@@ -79,7 +79,7 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSummonDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int unkByte = reader.readByte();
         final int damage = reader.readInt();
         final int monsterIdFrom = reader.readInt();
@@ -101,7 +101,7 @@ public final class SummonHandler {
         }
     }
 
-    public static void handleSummonAttack(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSummonAttack(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (!chr.isAlive()) {
             chr.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;

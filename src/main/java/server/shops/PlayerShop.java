@@ -21,8 +21,8 @@
 package server.shops;
 
 import java.util.List;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import handling.GamePacket;
 import tools.Pair;
 
@@ -33,16 +33,16 @@ public interface PlayerShop {
     public String getOwnerName();
     public String getDescription();
 
-    public List<Pair<Byte, GameCharacter>> getVisitors();
+    public List<Pair<Byte, ChannelCharacter>> getVisitors();
     public List<PlayerShopItem> getItems();
 
     public boolean isOpen();
     public boolean removeItem(int item);
-    public boolean isOwner(GameCharacter chr);
+    public boolean isOwner(ChannelCharacter chr);
 
     public byte getShopType();
 
-    public byte getVisitorSlot(GameCharacter visitor);
+    public byte getVisitorSlot(ChannelCharacter visitor);
     public byte getFreeSlot();
     public int getItemId();
     public int getMeso();
@@ -54,9 +54,9 @@ public interface PlayerShop {
     public void addItem(PlayerShopItem item);
     public void removeFromSlot(int slot);
     public void broadcastToVisitors(GamePacket packet);
-    public void addVisitor(GameCharacter visitor);
-    public void removeVisitor(GameCharacter visitor);
+    public void addVisitor(ChannelCharacter visitor);
+    public void removeVisitor(ChannelCharacter visitor);
     public void removeAllVisitors(int error, int type);
-    public void buy(GameClient c, int item, short quantity);
+    public void buy(ChannelClient c, int item, short quantity);
     public void closeShop(boolean saveItems, boolean remove);
 }

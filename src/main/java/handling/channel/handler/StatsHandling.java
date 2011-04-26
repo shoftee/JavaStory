@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import client.ISkill;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.Stat;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.SkillFactory;
 import org.javastory.io.PacketFormatException;
 import server.AutobanManager;
@@ -19,12 +19,12 @@ import org.javastory.io.PacketReader;
 
 public class StatsHandling {
 
-    public static final void handleDistributeAbilityPoints(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleDistributeAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final List<Pair<Stat, Integer>> statupdate = new ArrayList<Pair<Stat, Integer>>(2);
-        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
+        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         reader.skip(4);
 
-        final PlayerStats stat = chr.getStat();
+        final ActivePlayerStats stat = chr.getStats();
 
         if (chr.getRemainingAp() > 0) {
             switch (reader.readInt()) {
@@ -63,38 +63,38 @@ public class StatsHandling {
                     }
                     ISkill improvingMaxHP = null;
                     int improvingMaxHPLevel = 0;
-                    if (chr.getJob() == 0) { // Beginner
+                    if (chr.getJobId() == 0) { // Beginner
                         MaxHP += Randomizer.rand(8, 12);
-                    } else if (chr.getJob() >= 100 && chr.getJob() <= 132) { // Warrior
+                    } else if (chr.getJobId() >= 100 && chr.getJobId() <= 132) { // Warrior
                         improvingMaxHP = SkillFactory.getSkill(1000001);
                         improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
                         MaxHP += Randomizer.rand(20, 24);
                         if (improvingMaxHPLevel >= 1) {
                             MaxHP += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
                         }
-                    } else if (chr.getJob() >= 200 && chr.getJob() <= 232) { // Magician
+                    } else if (chr.getJobId() >= 200 && chr.getJobId() <= 232) { // Magician
                         MaxHP += Randomizer.rand(6, 10);
-                    } else if (chr.getJob() >= 300 && chr.getJob() <= 322) { // Bowman
+                    } else if (chr.getJobId() >= 300 && chr.getJobId() <= 322) { // Bowman
                         MaxHP += Randomizer.rand(16, 20);
-                    } else if (chr.getJob() >= 400 && chr.getJob() <= 422) { // Thief
+                    } else if (chr.getJobId() >= 400 && chr.getJobId() <= 422) { // Thief
                         MaxHP += Randomizer.rand(20, 24);
-                    } else if (chr.getJob() >= 500 && chr.getJob() <= 522) { // Pirate
+                    } else if (chr.getJobId() >= 500 && chr.getJobId() <= 522) { // Pirate
                         improvingMaxHP = SkillFactory.getSkill(5100000);
                         improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
                         MaxHP += Randomizer.rand(16, 20);
                         if (improvingMaxHPLevel >= 1) {
                             MaxHP += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
                         }
-                    } else if (chr.getJob() >= 1100 && chr.getJob() <= 1111) { // Soul Master
+                    } else if (chr.getJobId() >= 1100 && chr.getJobId() <= 1111) { // Soul Master
                         improvingMaxHP = SkillFactory.getSkill(11000000);
                         improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
                         MaxHP += Randomizer.rand(36, 42);
                         if (improvingMaxHPLevel >= 1) {
                             MaxHP += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
                         }
-                    } else if (chr.getJob() >= 1200 && chr.getJob() <= 1211) { // Flame Wizard
+                    } else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
                         MaxHP += Randomizer.rand(15, 21);
-                    } else if ((chr.getJob() >= 1300 && chr.getJob() <= 1311) || (chr.getJob() >= 1400 && chr.getJob() <= 1411)) { // Wind Breaker and Night Walker
+                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
                         MaxHP += Randomizer.rand(30, 36);
                     } else { // GameMaster
                         MaxHP += Randomizer.rand(50, 100);
@@ -109,11 +109,11 @@ public class StatsHandling {
                     if (chr.getMpApUsed() >= 10000 && stat.getMaxMp() >= 30000) {
                         return;
                     }
-                    if (chr.getJob() == 0) { // Beginner
+                    if (chr.getJobId() == 0) { // Beginner
                         MaxMP += Randomizer.rand(6, 8);
-                    } else if (chr.getJob() >= 100 && chr.getJob() <= 132) { // Warrior
+                    } else if (chr.getJobId() >= 100 && chr.getJobId() <= 132) { // Warrior
                         MaxMP += Randomizer.rand(2, 4);
-                    } else if (chr.getJob() >= 200 && chr.getJob() <= 232) { // Magician
+                    } else if (chr.getJobId() >= 200 && chr.getJobId() <= 232) { // Magician
                         ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
                         int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
                         if (improvingMaxMPLevel >= 1) {
@@ -121,22 +121,22 @@ public class StatsHandling {
                         } else {
                             MaxMP += Randomizer.rand(18, 20);
                         }
-                    } else if (chr.getJob() >= 300 && chr.getJob() <= 322) { // Bowman
+                    } else if (chr.getJobId() >= 300 && chr.getJobId() <= 322) { // Bowman
                         MaxMP += Randomizer.rand(10, 12);
-                    } else if (chr.getJob() >= 400 && chr.getJob() <= 422) { // Thief
+                    } else if (chr.getJobId() >= 400 && chr.getJobId() <= 422) { // Thief
                         MaxMP += Randomizer.rand(10, 12);
-                    } else if (chr.getJob() >= 500 && chr.getJob() <= 522) { // Pirate
+                    } else if (chr.getJobId() >= 500 && chr.getJobId() <= 522) { // Pirate
                         MaxMP += Randomizer.rand(10, 12);
-                    } else if (chr.getJob() >= 1100 && chr.getJob() <= 1111) { // Soul Master
+                    } else if (chr.getJobId() >= 1100 && chr.getJobId() <= 1111) { // Soul Master
                         MaxMP += Randomizer.rand(6, 9);
-                    } else if (chr.getJob() >= 1200 && chr.getJob() <= 1211) { // Flame Wizard
+                    } else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
                         ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
                         int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
                         MaxMP += Randomizer.rand(33, 36);
                         if (improvingMaxMPLevel >= 1) {
                             MaxMP += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
                         }
-                    } else if ((chr.getJob() >= 1300 && chr.getJob() <= 1311) || (chr.getJob() >= 1400 && chr.getJob() <= 1411)) { // Wind Breaker and Night Walker
+                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
                         MaxMP += Randomizer.rand(21, 24);
                     } else { // GameMaster
                         MaxMP += Randomizer.rand(50, 100);
@@ -147,16 +147,16 @@ public class StatsHandling {
                     statupdate.add(new Pair<Stat, Integer>(Stat.MAX_MP, MaxMP));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJob()));
+                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - 1);
             statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
-            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
+            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }
 
-    public static final void handleDistributeSkillPoints(final int skillid, final GameClient c, final GameCharacter chr) {
+    public static final void handleDistributeSkillPoints(final int skillid, final ChannelClient c, final ChannelCharacter chr) {
         boolean isBeginnerSkill = false;
         int remainingSp = 0;
 
@@ -224,27 +224,27 @@ public class StatsHandling {
             }
         }
 
-        if ((remainingSp > 0 && curLevel + 1 <= maxlevel) && skill.canBeLearnedBy(chr.getJob())) {
+        if ((remainingSp > 0 && curLevel + 1 <= maxlevel) && skill.canBeLearnedBy(chr.getJobId())) {
             if (!isBeginnerSkill) {
                 final int skillbook = GameConstants.getSkillBookForSkill(skillid);
                 chr.setRemainingSp(chr.getRemainingSp(skillbook) - 1, skillbook);
             }
             chr.updateSingleStat(Stat.AVAILABLE_SP, chr.getRemainingSp());
             chr.changeSkillLevel(skill, (byte) (curLevel + 1), chr.getMasterSkillLevel(skill));
-        } else if (!skill.canBeLearnedBy(chr.getJob())) {
+        } else if (!skill.canBeLearnedBy(chr.getJobId())) {
             AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" + skillid + ")");
         }
     }
 
-    public static final void handleAutoAssignAbilityPoints(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleAutoAssignAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(8);
         final int PrimaryStat = reader.readInt();
         final int amount = reader.readInt();
         final int SecondaryStat = reader.readInt();
         final int amount2 = reader.readInt();
-        final PlayerStats playerst = chr.getStat();
+        final ActivePlayerStats playerst = chr.getStats();
         List<Pair<Stat, Integer>> statupdate = new ArrayList<Pair<Stat, Integer>>(2);
-        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
+        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         if (chr.getRemainingAp() == amount + amount2) {
             switch (PrimaryStat) {
                 case 64: // Str
@@ -276,7 +276,7 @@ public class StatsHandling {
                     statupdate.add(new Pair<Stat, Integer>(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJob()));
+                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             switch (SecondaryStat) {
@@ -309,12 +309,12 @@ public class StatsHandling {
                     statupdate.add(new Pair<Stat, Integer>(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJob()));
+                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - (amount + amount2));
             statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
-            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJob()));
+            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }
 }

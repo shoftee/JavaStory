@@ -4,7 +4,7 @@
  */
 package org.javastory.server;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 
 /**
  *
@@ -14,7 +14,7 @@ public class PartyPlayer {
     
     private int id;
     
-    public PartyPlayer(GameCharacter character) {
+    public PartyPlayer(ChannelCharacter character) {
         // TODO: Observer pattern
         this.id = character.getId();
     }

@@ -8,9 +8,9 @@ import java.util.List;
 import client.ISkill;
 import client.GameConstants;
 import client.BuffStat;
-import client.GameCharacter;
-import client.GameClient;
-import client.PlayerStats;
+import client.ChannelCharacter;
+import client.ChannelClient;
+import client.ActivePlayerStats;
 import client.SkillFactory;
 import client.anticheat.CheatTracker;
 import client.anticheat.CheatingOffense;
@@ -34,19 +34,19 @@ import tools.AttackPair;
 public class DamageParse {
 
     //MapleClient instance start
-    public static GameClient c;
+    public static ChannelClient c;
 
-    public DamageParse(final GameClient c) {
+    public DamageParse(final ChannelClient c) {
         this.c = c;
     }
 
-    public final GameClient getClient() {
+    public final ChannelClient getClient() {
         return c;
     }
     //MapleClient isntance end
     private final static int[] charges = {1211005, 1211006};
 
-    public static void applyAttack(final AttackInfo attack, final ISkill theSkill, final GameCharacter player, int attackCount, final double maxDamagePerMonster, final StatEffect effect, final AttackType attack_type) {
+    public static void applyAttack(final AttackInfo attack, final ISkill theSkill, final ChannelCharacter player, int attackCount, final double maxDamagePerMonster, final StatEffect effect, final AttackType attack_type) {
         if (!player.isAlive()) {
             player.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
             return;
@@ -107,7 +107,7 @@ public class DamageParse {
             }
         }
         int fixeddmg, totDamageToOneMonster;
-        final PlayerStats stats = player.getStat();
+        final ActivePlayerStats stats = player.getStats();
 
         int CriticalDamage = stats.passive_sharpeye_percent();
 
@@ -125,7 +125,7 @@ public class DamageParse {
             if (attack_type == AttackType.NON_RANGED_WITH_MIRROR) {
                 SP = SkillFactory.getSkill(4331002);
             } else {
-                switch (player.getJob()) {
+                switch (player.getJobId()) {
                     case 1410: // NightWalker
                     case 1411:
                     case 1412:
@@ -234,7 +234,7 @@ public class DamageParse {
                         if (totDamageToOneMonster >= 199999) {
                             //HACK
                             //Damage formula
-                            totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalWatk() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                            totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStats().getTotalWatk() / 50) * (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                             if (player.isOnDMG()) {
                                 player.sendNotice(5, "Damage: " + totDamageToOneMonster);
                             }
@@ -354,7 +354,7 @@ public class DamageParse {
                             }
                             if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
                                 final ISkill skill = SkillFactory.getSkill(21100005);
-                                final PlayerStats stat = player.getStat();
+                                final ActivePlayerStats stat = player.getStats();
                                 stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getCurrentSkillLevel(skill)).getX()) / 100), true);
                             }
                             break;
@@ -378,7 +378,7 @@ public class DamageParse {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false);
                                         monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 1000, false);
                                     }
-                                } else if (player.getJob() == 121) { // WHITEKNIGHT
+                                } else if (player.getJobId() == 121) { // WHITEKNIGHT
                                     for (int charge : charges) {
                                         final ISkill skill = SkillFactory.getSkill(charge);
                                         if (player.isBuffFrom(BuffStat.WK_CHARGE, skill)) {
@@ -422,7 +422,7 @@ public class DamageParse {
         }
     }
 
-    public static final void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final GameCharacter player, final StatEffect effect) {
+    public static final void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final ChannelCharacter player, final StatEffect effect) {
         player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
 
         if (effect == null) {
@@ -436,7 +436,7 @@ public class DamageParse {
             player.getCheatTracker().registerOffense(CheatingOffense.MISMATCHING_BULLETCOUNT);
             return;
         }
-        final PlayerStats stats = player.getStat();
+        final ActivePlayerStats stats = player.getStats();
 //	double minDamagePerHit;
         double maxDamagePerHit;
         if (attack.skill == 2301002) {
@@ -469,7 +469,7 @@ public class DamageParse {
         if (SharpEye_ != null) {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
-        final ISkill eaterSkill = SkillFactory.getSkill(GameConstants.getMPEaterForJob(player.getJob()));
+        final ISkill eaterSkill = SkillFactory.getSkill(GameConstants.getMPEaterForJob(player.getJobId()));
         final int eaterLevel = player.getCurrentSkillLevel(eaterSkill);
 
         final GameMap map = player.getMap();
@@ -538,7 +538,7 @@ public class DamageParse {
                     if (totDamageToOneMonster >= 199999) {
                         //HACK
                         //Damage Formula
-                        totDamageToOneMonster = (int) Math.min(GameCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStat().getTotalMagic() / 50) * (player.haveItem(GameCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                        totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStats().getTotalMagic() / 50) * (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                         if (player.isOnDMG()) {
                             player.sendNotice(5, "Damage: " + totDamageToOneMonster);
                         }
@@ -578,7 +578,7 @@ public class DamageParse {
         }
     }
 
-    private static final double CalculateMaxMagicDamagePerHit(final GameCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final PlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
+    private static final double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
         final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
         final int Accuracy = (int) (Math.floor((double) (stats.getTotalInt() / 10)) + Math.floor((double) (stats.getTotalLuk() / 10)));
         final int MinAccuracy = mobstats.getEva() * (dLevel * 2 + 51) / 120;
@@ -629,15 +629,15 @@ public class DamageParse {
                 elemMaxDamagePerMob = 40;
                 break;
         }
-        if (elemMaxDamagePerMob > GameCharacter.getDamageCap()) {
-            elemMaxDamagePerMob = GameCharacter.getDamageCap();
+        if (elemMaxDamagePerMob > ChannelCharacter.getDamageCap()) {
+            elemMaxDamagePerMob = ChannelCharacter.getDamageCap();
         } else if (elemMaxDamagePerMob < 0) {
             elemMaxDamagePerMob = 1;
         }
         return elemMaxDamagePerMob;
     }
 
-    private static final double ElementalStaffAttackBonus(final Element elem, double elemMaxDamagePerMob, final PlayerStats stats) {
+    private static final double ElementalStaffAttackBonus(final Element elem, double elemMaxDamagePerMob, final ActivePlayerStats stats) {
         switch (elem) {
             case FIRE:
                 return (elemMaxDamagePerMob / 100) * stats.element_fire;
@@ -652,7 +652,7 @@ public class DamageParse {
         }
     }
 
-    private static void handlePickPocket(final GameCharacter player, final Monster mob, AttackPair oned) {
+    private static void handlePickPocket(final ChannelCharacter player, final Monster mob, AttackPair oned) {
         final int maxmeso = player.getBuffedValue(BuffStat.PICKPOCKET).intValue();
         final ISkill skill = SkillFactory.getSkill(4211003);
         final StatEffect s = skill.getEffect(player.getCurrentSkillLevel(skill));
@@ -671,7 +671,7 @@ public class DamageParse {
         }
     }
 
-    private static double CalculateMaxWeaponDamagePerHit(final GameCharacter player, final Monster monster, final AttackInfo attack, final ISkill theSkill, final StatEffect attackEffect, double maximumDamageToMonster, final Integer CriticalDamagePercent) {
+    private static double CalculateMaxWeaponDamagePerHit(final ChannelCharacter player, final Monster monster, final AttackInfo attack, final ISkill theSkill, final StatEffect attackEffect, double maximumDamageToMonster, final Integer CriticalDamagePercent) {
         if (player.getMapId() / 1000000 == 914) { //aran
             return 199999;
         }
@@ -687,10 +687,10 @@ public class DamageParse {
                     maximumDamageToMonster = 40;
                     break;
                 case 3221007: // Sniping
-                    maximumDamageToMonster = GameCharacter.getDamageCap();
+                    maximumDamageToMonster = ChannelCharacter.getDamageCap();
                     break;
                 case 4211006: // Meso Explosion
-                    maximumDamageToMonster = GameCharacter.getDamageCap();
+                    maximumDamageToMonster = ChannelCharacter.getDamageCap();
                     break;
                 /*		case 4221001: // Assasinate
                 maximumDamageToMonster = 400000;
@@ -787,8 +787,8 @@ public class DamageParse {
             return 0;
         }
 
-        if (elementalMaxDamagePerMonster > GameCharacter.getDamageCap()) {
-            elementalMaxDamagePerMonster = GameCharacter.getDamageCap();
+        if (elementalMaxDamagePerMonster > ChannelCharacter.getDamageCap()) {
+            elementalMaxDamagePerMonster = ChannelCharacter.getDamageCap();
         } else if (elementalMaxDamagePerMonster < 0) {
             elementalMaxDamagePerMonster = 1;
         }

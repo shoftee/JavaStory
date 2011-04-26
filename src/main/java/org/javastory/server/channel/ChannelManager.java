@@ -74,8 +74,8 @@ public class ChannelManager {
         channel.initialize();
     }
     
-    public static Collection<ChannelServer> getAllInstances() {
-        return Collections.unmodifiableCollection(instance.channels.values());
+    public static Iterable<ChannelServer> getAllInstances() {
+        return instance.channels.values();
     }
 
     public static ChannelServer getInstance(final int channel) {

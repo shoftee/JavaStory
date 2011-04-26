@@ -5,8 +5,8 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import client.IItem;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import tools.HexTool;
@@ -14,11 +14,11 @@ import org.javastory.io.PacketBuilder;
 
 public class MTSCSPacket {
 
-    public static GamePacket warpCS(GameClient c) {
+    public static GamePacket warpCS(ChannelClient c) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CS_OPEN.getValue());
-        final GameCharacter chr = c.getPlayer();
+        final ChannelCharacter chr = c.getPlayer();
         builder.writeLong(-1);
         builder.writeAsByte(0);
         PacketHelper.addCharStats(builder, chr);
@@ -80,7 +80,7 @@ public class MTSCSPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket changePetName(GameCharacter chr, String newname, int slot) {
+    public static GamePacket changePetName(ChannelCharacter chr, String newname, int slot) {
         PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.PET_NAMECHANGE.getValue());
 
@@ -125,7 +125,7 @@ public class MTSCSPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket getTrockRefresh(GameCharacter chr, boolean vip, boolean delete) {
+    public static GamePacket getTrockRefresh(ChannelCharacter chr, boolean vip, boolean delete) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.TROCK_LOCATIONS.getValue());
@@ -138,7 +138,7 @@ public class MTSCSPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket sendWishList(GameCharacter chr, boolean update) {
+    public static GamePacket sendWishList(ChannelCharacter chr, boolean update) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
@@ -150,7 +150,7 @@ public class MTSCSPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket showNXMapleTokens(GameCharacter chr) {
+    public static GamePacket showNXMapleTokens(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CS_UPDATE.getValue());

@@ -1,9 +1,9 @@
 package client.messages.commands;
 
 import client.GameCharacterUtil;
-import client.GameClient;
+import client.ChannelClient;
 import client.Stat;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -15,11 +15,11 @@ import tools.StringUtil;
 
 public class GM0Command implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		ChannelServer cserv = c.getChannelServer();
 		if (splitted[0].equals("@str")) {
 			int str = Integer.parseInt(splitted[1]);
-			final PlayerStats stat = c.getPlayer().getStat();
+			final ActivePlayerStats stat = c.getPlayer().getStats();
 			if (stat.getStr() + str > c.getPlayer().getMaxStats() || c.getPlayer().getRemainingAp() < str || c.getPlayer().getRemainingAp() < 0 || str < 0) {
 				c.getPlayer().sendNotice(5, "Sorry this cannot be done.");
 			} else {
@@ -30,7 +30,7 @@ public class GM0Command implements Command {
 			}
 		} else if (splitted[0].equals("@dex")) {
 			int dex = Integer.parseInt(splitted[1]);
-			final PlayerStats stat = c.getPlayer().getStat();
+			final ActivePlayerStats stat = c.getPlayer().getStats();
 			if (stat.getDex() + dex > c.getPlayer().getMaxStats() || c.getPlayer().getRemainingAp() < dex || c.getPlayer().getRemainingAp() < 0 || dex < 0) {
 				c.getPlayer().sendNotice(5, "Sorry this cannot be done.");
 			} else {
@@ -41,7 +41,7 @@ public class GM0Command implements Command {
 			}
 		} else if (splitted[0].equals("@int")) {
 			int int_ = Integer.parseInt(splitted[1]);
-			final PlayerStats stat = c.getPlayer().getStat();
+			final ActivePlayerStats stat = c.getPlayer().getStats();
 			if (stat.getInt() + int_ > c.getPlayer().getMaxStats() || c.getPlayer().getRemainingAp() < int_ || c.getPlayer().getRemainingAp() < 0 || int_ < 0) {
 				c.getPlayer().sendNotice(5, "Sorry this cannot be done.");
 			} else {
@@ -52,7 +52,7 @@ public class GM0Command implements Command {
 			}
 		} else if (splitted[0].equals("@luk")) {
 			int luk = Integer.parseInt(splitted[1]);
-			final PlayerStats stat = c.getPlayer().getStat();
+			final ActivePlayerStats stat = c.getPlayer().getStats();
 			if (stat.getLuk() + luk > c.getPlayer().getMaxStats() || c.getPlayer().getRemainingAp() < luk || c.getPlayer().getRemainingAp() < 0 || luk < 0) {
 				c.getPlayer().sendNotice(5, "Sorry this cannot be done.");
 			} else {

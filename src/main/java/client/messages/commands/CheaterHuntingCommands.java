@@ -3,9 +3,9 @@ package client.messages.commands;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.GameCharacterUtil;
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -13,10 +13,10 @@ import handling.world.remote.CheaterData;
 
 public class CheaterHuntingCommands implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		if (splitted[0].equals("-whosthere")) {
 			StringBuilder builder = new StringBuilder("Players on Map: ");
-			for (GameCharacter chr : c.getPlayer().getMap().getCharacters()) {
+			for (ChannelCharacter chr : c.getPlayer().getMap().getCharacters()) {
 				if (builder.length() > 150) { // wild guess :o
 					builder.setLength(builder.length() - 2);
 					c.getPlayer().sendNotice(6, builder.toString());

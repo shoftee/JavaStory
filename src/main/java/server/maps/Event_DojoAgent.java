@@ -2,7 +2,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import org.javastory.server.channel.ChannelServer;
 import org.javastory.tools.Randomizer;
 import server.TimerManager;
@@ -16,7 +16,7 @@ public class Event_DojoAgent {
 		point2 = new Point(-193, 0),
 		point3 = new Point(355, 0);
 
-	public static boolean warpStartAgent(final GameCharacter c, final boolean party) {
+	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;
 		final int mapid = baseAgentMapId + (stage * 100);
 		final ChannelServer ch = c.getClient().getChannelServer();
@@ -32,7 +32,7 @@ public class Event_DojoAgent {
 		return false;
 	}
 
-	public static boolean warpNextMap_Agent(final GameCharacter c, final boolean fromResting) {
+	public static boolean warpNextMap_Agent(final ChannelCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
 		final int thisStage = (currentmap - baseAgentMapId) / 100;
 		GameMap map = c.getMap();
@@ -69,7 +69,7 @@ public class Event_DojoAgent {
 		return false;
 	}
 
-	public static boolean warpStartDojo(final GameCharacter c, final boolean party) {
+	public static boolean warpStartDojo(final ChannelCharacter c, final boolean party) {
 		int stage = 1;
 		if (party || stage == -1 || stage > 38) {
 			stage = 1;
@@ -95,7 +95,7 @@ public class Event_DojoAgent {
 	// 925022400 ~ 925022409
 	// 925023000 ~ 925023009
 	// 925023600 ~ 925023609
-	public static boolean warpNextMap(final GameCharacter c, final boolean fromResting) {
+	public static boolean warpNextMap(final ChannelCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
 		final ChannelServer ch = c.getClient().getChannelServer();
 		if (!fromResting) {

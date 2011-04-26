@@ -20,7 +20,7 @@
 */
 package server.life;
 
-import client.GameClient;
+import client.ChannelClient;
 import server.ShopFactory;
 import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
@@ -39,12 +39,12 @@ public class Npc extends AbstractLoadedGameLife {
 	return ShopFactory.getInstance().getShopForNPC(getId()) != null;
     }
 
-    public final void sendShop(final GameClient c) {
+    public final void sendShop(final ChannelClient c) {
 	ShopFactory.getInstance().getShopForNPC(getId()).sendShop(c);
     }
 
     @Override
-    public final void sendSpawnData(final GameClient client) {
+    public final void sendSpawnData(final ChannelClient client) {
 
 	if (getId() >= 9901000 && getId() <= 9901551) {
 	    if (!stats.getName().equals("")) {
@@ -58,7 +58,7 @@ public class Npc extends AbstractLoadedGameLife {
     }
 
     @Override
-    public final void sendDestroyData(final GameClient client) {
+    public final void sendDestroyData(final ChannelClient client) {
 	client.write(MaplePacketCreator.removeNPC(getObjectId()));
     }
 

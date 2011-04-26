@@ -12,8 +12,8 @@ import client.Equip;
 import client.IItem;
 import client.Item;
 import client.InventoryType;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.GameConstants;
 import database.DatabaseConnection;
 import org.javastory.io.PacketFormatException;
@@ -27,7 +27,7 @@ public final class HiredMerchantHandler {
     private HiredMerchantHandler() {
     }
 
-    public static void handleUseHiredMerchant(final PacketReader reader, final GameClient c) {
+    public static void handleUseHiredMerchant(final PacketReader reader, final ChannelClient c) {
 //	reader.readInt(); // TimeStamp
 
         if (c.getPlayer().getMap().allowPersonalShop()) {
@@ -77,7 +77,7 @@ public final class HiredMerchantHandler {
         }
     }
 
-    public static void handleMerchantItemStore(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleMerchantItemStore(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final byte operation = reader.readByte();
 
         switch (operation) {
@@ -133,7 +133,7 @@ public final class HiredMerchantHandler {
         }
     }
 
-    private static boolean check(final GameCharacter chr, final MerchItemPackage pack) {
+    private static boolean check(final ChannelCharacter chr, final MerchItemPackage pack) {
         if (chr.getMeso() + pack.getMesos() < 0) {
             return false;
         }

@@ -1,6 +1,6 @@
 package client.messages.commands;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.CommandProcessor;
@@ -10,7 +10,7 @@ import org.javastory.server.channel.ShutdownChannelServer;
 public class ShutdownCommands implements Command {
 
     @Override
-    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         if (splitted[0].equals("-shutdown")) {
             int time = 60000;
             if (splitted.length > 1) {

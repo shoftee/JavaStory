@@ -175,7 +175,7 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public StatEffect getEffect(final GameCharacter chr, final int level) {
+    public StatEffect getEffect(final ChannelCharacter chr, final int level) {
         return effects.get(level - 1);
     }
 

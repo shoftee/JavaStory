@@ -5,26 +5,25 @@ import java.util.Calendar;
 
 import client.IItem;
 import client.LoginCrypto;
-import client.GameClient;
-import client.GameCharacter;
 import client.GameCharacterUtil;
 import client.Inventory;
-import client.InventoryType;
-import handling.login.LoginInformationProvider;
+import handling.login.LoginInfoProvider;
 import org.javastory.io.PacketFormatException;
 import org.javastory.server.login.LoginServer;
 import handling.login.LoginWorker;
+import org.javastory.client.LoginCharacter;
+import org.javastory.client.LoginClient;
 import org.javastory.io.PacketReader;
-import org.javastory.server.Bans;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
+import org.javastory.server.login.AuthReplyCode;
 import tools.MaplePacketCreator;
 import tools.packet.LoginPacket;
 import tools.FiletimeUtil;
 
 public class CharLoginHandler {
 
-    private static boolean loginFailCount(final GameClient c) {
+    private static boolean loginFailCount(final LoginClient c) {
         c.loginAttempt++;
         if (c.loginAttempt > 5) {
             return true;
@@ -32,28 +31,23 @@ public class CharLoginHandler {
         return false;
     }
 
-    public static void handleLogin(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleLogin(final PacketReader reader, final LoginClient c) throws PacketFormatException {
         final String login = reader.readLengthPrefixedString();
         final String pwd = LoginCrypto.decryptRSA(reader.readLengthPrefixedString());
         c.setAccountName(login);
         final boolean ipBan = c.hasBannedIP();
-        final boolean macBan = false; // MSEA doesn't sent mac
-        int loginok = c.login(login, pwd, ipBan || macBan);
+        AuthReplyCode code = c.authenticate(login, pwd, ipBan);
         final Calendar tempbannedTill = c.getTempBanCalendar();
-        if (loginok == 0 && (ipBan || macBan)) {
-            loginok = 3;
-            if (macBan) {
-                Bans.banBySessionIP(c.getSessionIP(), "Enforcing account ban, account " +
-                        login);
-            }
+        if (code == AuthReplyCode.SUCCESS && (ipBan)) {
+            code = AuthReplyCode.DELETED_OR_BLOCKED;
         }
-        if (loginok != 0) {
+        if (code != AuthReplyCode.SUCCESS) {
             if (!loginFailCount(c)) {
-                c.write(LoginPacket.getLoginFailed(loginok));
+                c.write(LoginPacket.getLoginFailed(code));
             }
         } else if (tempbannedTill.getTimeInMillis() != 0) {
             if (!loginFailCount(c)) {
-                c.write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), c.getBanReason()));
+                c.write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), c.getTempBanReason()));
             }
         } else {
             c.loginAttempt = 0;
@@ -61,13 +55,13 @@ public class CharLoginHandler {
         }
     }
 
-    public static void handleWorldListRequest(final GameClient c) {
+    public static void handleWorldListRequest(final LoginClient c) {
         final LoginServer ls = LoginServer.getInstance();
         c.write(LoginPacket.getWorldList(2, "Cassiopeia", ls.getChannels()));
         c.write(LoginPacket.getEndOfWorldList());
     }
 
-    public static void handleWorldStatusRequest(final GameClient c) {
+    public static void handleWorldStatusRequest(final LoginClient c) {
         int numPlayer = 0;
         for (ChannelServer cserv : ChannelManager.getAllInstances()) {
             numPlayer += cserv.getPlayerStorage().getConnectedClients();
@@ -82,52 +76,53 @@ public class CharLoginHandler {
         }
     }
 
-    public static void handleCharacterListRequest(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleCharacterListRequest(final PacketReader reader, final LoginClient c) throws PacketFormatException {
         final int server = reader.readByte();
         final int channel = reader.readByte() + 1;
-        c.setWorld(server);
+        c.setWorldId(server);
         System.out.println(":: Client is connecting to server " + server +
                 " channel " + channel + " ::");
-        c.setChannel(channel);
-        final List<GameCharacter> chars = c.loadCharacters(server);
+        c.setChannelId(channel);
+        final List<LoginCharacter> chars = c.loadCharacters(server);
         if (chars != null) {
             // TODO: max characters should be set in account, 
             // not in LoginServer config, wtf.
-            c.write(LoginPacket.getCharacterList(c.getSecondPassword() != null, chars, 3));
+            c.write(LoginPacket.getCharacterList(c.getCharacterPassword() !=
+                    null, chars, 3));
         } else {
             c.disconnect();
         }
     }
 
-    public static void handleCharacterNameCheck(final String name, final GameClient c) {
+    public static void handleCharacterNameCheck(final String name, final LoginClient c) {
         c.write(LoginPacket.charNameResponse(name,
                                              !GameCharacterUtil.canCreateChar(name) ||
-                LoginInformationProvider.getInstance().isForbiddenName(name)));
+                LoginInfoProvider.getInstance().isForbiddenName(name)));
     }
 
-    public static void handleCreateCharacter(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleCreateCharacter(final PacketReader reader, final LoginClient c) throws PacketFormatException {
         final String name = reader.readLengthPrefixedString();
-        final int JobType = reader.readInt();
+        final int jobCategory = reader.readInt();
         final short db = reader.readShort();
         final int face = reader.readInt();
         final int hair = reader.readInt();
         final int hairColor = reader.readInt();
-        final int skinColor = reader.readInt();
+        final int skinColorId = reader.readInt();
         final int top = reader.readInt();
         final int bottom = reader.readInt();
         final int shoes = reader.readInt();
         final int weapon = reader.readInt();
         final byte gender = c.getGender();
 
-        GameCharacter newchar = GameCharacter.getDefault(c, JobType);
-        newchar.setWorld(c.getWorld());
-        newchar.setFace(face);
-        newchar.setHair(hair + hairColor);
+        LoginCharacter newchar = LoginCharacter.getDefault(jobCategory);
+        newchar.setWorldId(c.getWorldId());
+        newchar.setFaceId(face);
+        newchar.setHairId(hair + hairColor);
         newchar.setGender(gender);
         newchar.setName(name);
-        newchar.setSkinColor(skinColor);
+        newchar.setSkinColorId(skinColorId);
         Inventory equip = newchar.getEquippedItemsInventory();
-        final LoginInformationProvider li = LoginInformationProvider.getInstance();
+        final LoginInfoProvider li = LoginInfoProvider.getInstance();
         IItem item = li.getEquipById(top);
         item.setPosition((byte) -5);
         equip.addFromDb(item);
@@ -142,64 +137,65 @@ public class CharLoginHandler {
         equip.addFromDb(item);
 
         if (GameCharacterUtil.canCreateChar(name) && !li.isForbiddenName(name)) {
-            GameCharacter.saveNewCharacterToDb(newchar, JobType, JobType == 1 &&
-                    db > 0);
-            c.write(LoginPacket.addNewCharEntry(newchar, true));
+            final boolean isDualBlader = jobCategory == 1 && db > 0;
+            LoginCharacter.saveNewCharacterToDb(newchar, jobCategory, isDualBlader);
             c.createdChar(newchar.getId());
+            c.write(LoginPacket.addNewCharEntry(newchar, true));
         } else {
             c.write(LoginPacket.addNewCharEntry(newchar, false));
         }
     }
 
-    public static void handleDeleteCharacter(final PacketReader reader, final GameClient c) throws PacketFormatException {
-        String Secondpw_Client = null;
+    public static void handleDeleteCharacter(final PacketReader reader, final LoginClient c) throws PacketFormatException {
+        String characterPassword = null;
         if (reader.readByte() > 0) {
-            Secondpw_Client = reader.readLengthPrefixedString();
+            characterPassword = reader.readLengthPrefixedString();
         }
-        final String AS13Digit = reader.readLengthPrefixedString();
-        final int Character_ID = reader.readInt();
-        if (!c.login_Auth(Character_ID)) {
+        final String passport = reader.readLengthPrefixedString();
+        final int characterId = reader.readInt();
+        if (!c.login_Auth(characterId)) {
             c.disconnect(true);
             return;
         }
         byte state = 0;
-        if (c.getSecondPassword() != null) {
-            if (Secondpw_Client == null) {
+        if (c.getCharacterPassword() != null) {
+            if (characterPassword == null) {
                 c.disconnect(true);
                 return;
             } else {
-                if (!c.CheckSecondPassword(Secondpw_Client)) {
+                if (!c.checkCharacterPassword(characterPassword)) {
                     state = 12;
                 }
             }
         }
         if (state == 0) {
-            if (!c.deleteCharacter(Character_ID)) {
+            if (!c.deleteCharacter(characterId)) {
                 state = 1;
             }
         }
-        c.write(LoginPacket.deleteCharResponse(Character_ID, state));
+        c.write(LoginPacket.deleteCharResponse(characterId, state));
     }
 
-    public static void handleWithoutSecondPassword(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleWithoutSecondPassword(final PacketReader reader, final LoginClient c) throws PacketFormatException {
         reader.skip(1);
         final int charId = reader.readInt();
-        final String currentpw = c.getSecondPassword();
+        final String currentpw = c.getCharacterPassword();
         if (reader.remaining() != 0) {
-            if (currentpw != null) { // Hack
+            if (currentpw != null) {
+                // Hack
                 c.disconnect(true);
                 return;
             }
-            final String setpassword = reader.readLengthPrefixedString();
-            if (setpassword.length() >= 4 && setpassword.length() <= 16) {
-                c.setSecondPassword(setpassword);
+            final String password = reader.readLengthPrefixedString();
+            if (password.length() >= 4 && password.length() <= 16) {
+                c.setCharacterPassword(password);
                 c.updateSecondPassword();
                 if (!c.login_Auth(charId)) {
                     c.disconnect(true);
                     return;
                 }
             } else {
-                c.write(LoginPacket.secondPwError((byte) 0x14));
+                c.write(LoginPacket.characterPasswordError((byte) 0x14));
                 return;
             }
         } else if (loginFailCount(c) || currentpw != null ||
@@ -210,26 +206,28 @@ public class CharLoginHandler {
         if (c.getIdleTask() != null) {
             c.getIdleTask().cancel(true);
         }
-        c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
-        c.write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
+        // TODO: transfer() method
+        //c.updateAccountLoginState(LoginClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
+        c.write(MaplePacketCreator.getServerIP(LoginServer.getInstance().getChannelServerPort(c.getChannelId()), charId));
     }
 
-    public static void handleWithSecondPassword(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleWithSecondPassword(final PacketReader reader, final LoginClient c) throws PacketFormatException {
         final String password = reader.readLengthPrefixedString();
         final int charId = reader.readInt();
-        if (loginFailCount(c) || c.getSecondPassword() == null ||
+        if (loginFailCount(c) || c.getCharacterPassword() == null ||
                 !c.login_Auth(charId)) {
             c.disconnect();
             return;
         }
-        if (c.CheckSecondPassword(password)) {
+        if (c.checkCharacterPassword(password)) {
             if (c.getIdleTask() != null) {
                 c.getIdleTask().cancel(true);
             }
-            c.updateLoginState(GameClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
-            c.write(MaplePacketCreator.getServerIP(Integer.parseInt(LoginServer.getInstance().getIP(c.getChannelId()).split(":")[1]), charId));
+            // TODO: transfer() method
+            //c.updateAccountLoginState(ChannelClient.LOGIN_SERVER_TRANSITION, c.getSessionIP());
+            c.write(MaplePacketCreator.getServerIP(LoginServer.getInstance().getChannelServerPort(c.getChannelId()), charId));
         } else {
-            c.write(LoginPacket.secondPwError((byte) 0x14));
+            c.write(LoginPacket.characterPasswordError((byte) 0x14));
         }
     }
 }

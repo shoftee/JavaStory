@@ -23,8 +23,8 @@ package server.shops;
 import java.util.ArrayList;
 import java.util.List;
 import client.IItem;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import server.InventoryManipulator;
 import server.maps.GameMapObjectType;
 import tools.packet.PlayerShopPacket;
@@ -32,18 +32,18 @@ import tools.packet.PlayerShopPacket;
 public class GenericPlayerStore extends AbstractPlayerShop {
 
     private boolean open;
-    private GameCharacter owner;
+    private ChannelCharacter owner;
     private int boughtnumber = 0;
     private List<String> bannedList = new ArrayList<String>();
 
-    public GenericPlayerStore(GameCharacter owner, int itemId, String desc) {
+    public GenericPlayerStore(ChannelCharacter owner, int itemId, String desc) {
 	super(owner, itemId, desc);
 	this.owner = owner;
 	open = false;
     }
 
     @Override
-    public void buy(GameClient c, int item, short quantity) {
+    public void buy(ChannelClient c, int item, short quantity) {
 	PlayerShopItem pItem = items.get(item);
 	if (pItem.bundles > 0) {
 /*	    synchronized (items) {
@@ -94,7 +94,7 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 	    bannedList.add(name);
 	}
 	for (int i = 0; i < 3; i++) {
-	    GameCharacter chr = getVisitor(i);
+	    ChannelCharacter chr = getVisitor(i);
 	    if (chr.getName().equals(name)) {
 		chr.getClient().write(PlayerShopPacket.shopErrorMessage(5, 1));
 		chr.setPlayerShop(null);
@@ -120,16 +120,16 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 	return false;
     }
 
-    public GameCharacter getMCOwner() {
+    public ChannelCharacter getMCOwner() {
 	return owner;
     }
 
     @Override
-    public void sendDestroyData(GameClient client) {
+    public void sendDestroyData(ChannelClient client) {
     }
 
     @Override
-    public void sendSpawnData(GameClient client) {
+    public void sendSpawnData(ChannelClient client) {
     }
 
     @Override

@@ -6,8 +6,8 @@ import java.util.Arrays;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import org.javastory.io.PacketFormatException;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
@@ -47,7 +47,7 @@ public class PlayerInteractionHandler {
             VIEW_MERCHANT_VISITOR = 0x2C,
             VIEW_MERCHANT_BLACKLIST = 0x2D;
 
-    public static void handlePlayerInteraction(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePlayerInteraction(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte action = reader.readByte();
 
         switch (action) { // Mode
@@ -77,7 +77,7 @@ public class PlayerInteractionHandler {
                 break;
             }
             case INVITE_TRADE: {
-                GameCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
+                ChannelCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
                 if (ochr.getWorldId() != chr.getWorldId()) {
                     chr.getClient().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
                     return;

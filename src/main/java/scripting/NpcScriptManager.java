@@ -25,27 +25,27 @@ import java.util.WeakHashMap;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import client.GameClient;
+import client.ChannelClient;
 import com.google.common.collect.MapMaker;
 import server.quest.Quest;
 
 public final class NpcScriptManager extends AbstractScriptManager {
 
-    private final Map<GameClient, NpcConversationManager> managers;
-    private final Map<GameClient, Invocable> scripts;
+    private final Map<ChannelClient, NpcConversationManager> managers;
+    private final Map<ChannelClient, Invocable> scripts;
     private static final NpcScriptManager instance = new NpcScriptManager();
 
     private NpcScriptManager() {
         MapMaker maker = new MapMaker();
-        this.managers = new WeakHashMap<GameClient, NpcConversationManager>();
-        this.scripts = new WeakHashMap<GameClient, Invocable>();
+        this.managers = new WeakHashMap<ChannelClient, NpcConversationManager>();
+        this.scripts = new WeakHashMap<ChannelClient, Invocable>();
     }
 
     public static NpcScriptManager getInstance() {
         return instance;
     }
 
-    public final void start(final GameClient c, final int npc) {
+    public final void start(final ChannelClient c, final int npc) {
         try {
             if (!(managers.containsKey(c) && scripts.containsKey(c))) {
                 final Invocable iv = getInvocable("npc/" + npc + ".js", c);
@@ -75,7 +75,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void action(final GameClient c, final byte mode, final byte type, final int selection) {
+    public final void action(final ChannelClient c, final byte mode, final byte type, final int selection) {
         if (mode != -1) {
             try {
                 if (managers.get(c).isPendingDisposal()) {
@@ -91,7 +91,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void startQuest(final GameClient c, final int npc, final int quest) {
+    public final void startQuest(final ChannelClient c, final int npc, final int quest) {
         if (!Quest.getInstance(quest).canStart(c.getPlayer(), null)) {
             return;
         }
@@ -119,7 +119,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void startQuest(final GameClient c, final byte mode, final byte type, final int selection) {
+    public final void startQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
         try {
             if (managers.get(c).isPendingDisposal()) {
                 dispose(c);
@@ -132,7 +132,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void endQuest(final GameClient c, final int npc, final int quest, final boolean customEnd) {
+    public final void endQuest(final ChannelClient c, final int npc, final int quest, final boolean customEnd) {
         if (!customEnd &&
                 !Quest.getInstance(quest).canComplete(c.getPlayer(), null)) {
             return;
@@ -162,7 +162,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void endQuest(final GameClient c, final byte mode, final byte type, final int selection) {
+    public final void endQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
         try {
             if (managers.get(c).isPendingDisposal()) {
                 dispose(c);
@@ -175,7 +175,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final void dispose(final GameClient c) {
+    public final void dispose(final ChannelClient c) {
         final NpcConversationManager manager = managers.get(c);
         if (manager != null) {
             managers.remove(manager.getClient());
@@ -192,7 +192,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
         }
     }
 
-    public final NpcConversationManager getConversationManager(final GameClient client) {
+    public final NpcConversationManager getConversationManager(final ChannelClient client) {
         return managers.get(client);
     }
 }

@@ -22,7 +22,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.GameClient;
+import client.ChannelClient;
 
 public interface GameMapObject {
 
@@ -36,7 +36,7 @@ public interface GameMapObject {
 
     public void setPosition(final Point position);
 
-    public void sendSpawnData(final GameClient client);
+    public void sendSpawnData(final ChannelClient client);
 
-    public void sendDestroyData(final GameClient client);
+    public void sendDestroyData(final ChannelClient client);
 }

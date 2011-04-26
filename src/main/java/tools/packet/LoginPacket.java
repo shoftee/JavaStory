@@ -2,16 +2,15 @@ package tools.packet;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import java.util.Map.Entry;
+import org.javastory.client.LoginCharacter;
+import org.javastory.client.LoginClient;
 import org.javastory.server.LoginChannelInfo;
-import org.javastory.server.login.LoginServer;
 import org.javastory.io.PacketBuilder;
+import org.javastory.server.login.AuthReplyCode;
 import tools.HexTool;
 
 public final class LoginPacket {
@@ -46,10 +45,10 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket getLoginFailed(final int reason) {
+    public static GamePacket getLoginFailed(final AuthReplyCode replyCode) {
         final PacketBuilder builder = new PacketBuilder(16);
 
-        /*	* 3: ID deleted or blocked
+        /* 3: ID deleted or blocked
          * 4: Incorrect password
          * 5: Not a registered id
          * 6: System error
@@ -66,10 +65,11 @@ public final class LoginPacket {
          * 21: Please verify your account through email...
          * 23: License agreement
          * 25: Maple Europe notice
-         * 27: Some weird full client notice, probably for trial versions*/
+         * 27: Some weird full client notice, probably for trial versions
+         */
 
         builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
-        builder.writeInt(reason);
+        builder.writeInt(replyCode.asNumber());
         builder.writeAsShort(0);
 
         return builder.getPacket();
@@ -99,7 +99,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket getAuthSuccessRequest(final GameClient client) {
+    public static GamePacket getAuthSuccessRequest(final LoginClient client) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.LOGIN_STATUS.getValue());
@@ -133,7 +133,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket secondPwError(final byte mode) {
+    public static GamePacket characterPasswordError(final byte mode) {
         final PacketBuilder builder = new PacketBuilder(3);
 
         builder.writeAsShort(ServerPacketOpcode.SECONDPW_ERROR.getValue());
@@ -193,13 +193,13 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static final GamePacket getCharacterList(final boolean secondpw, final List<GameCharacter> chars, int maxCharacters) {
+    public static GamePacket getCharacterList(final boolean secondpw, final List<LoginCharacter> chars, int maxCharacters) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CHARLIST.getValue());
         builder.writeAsByte(0);
         builder.writeAsByte(chars.size());
-        for (final GameCharacter chr : chars) {
+        for (final LoginCharacter chr : chars) {
             addCharEntry(builder, chr);
         }
         builder.writeAsByte(secondpw ? 1 : 0);
@@ -212,7 +212,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static final GamePacket addNewCharEntry(final GameCharacter chr, final boolean worked) {
+    public static GamePacket addNewCharEntry(final LoginCharacter chr, final boolean worked) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ADD_NEW_CHAR_ENTRY.getValue());
@@ -222,7 +222,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    public static final GamePacket charNameResponse(final String charname, final boolean nameUsed) {
+    public static GamePacket charNameResponse(final String charname, final boolean nameUsed) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CHAR_NAME_RESPONSE.getValue());
@@ -232,7 +232,7 @@ public final class LoginPacket {
         return builder.getPacket();
     }
 
-    private static final void addCharEntry(final PacketBuilder builder, final GameCharacter chr) {
+    private static void addCharEntry(final PacketBuilder builder, final LoginCharacter chr) {
         PacketHelper.addCharStats(builder, chr);
         PacketHelper.addCharLook(builder, chr, true);
         builder.writeAsByte(0);

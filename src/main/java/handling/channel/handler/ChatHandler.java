@@ -2,8 +2,8 @@ package handling.channel.handler;
 
 import java.rmi.RemoteException;
 
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.messages.CommandProcessor;
 import handling.world.Messenger;
 import handling.world.MessengerMember;
@@ -16,7 +16,7 @@ import org.javastory.io.PacketReader;
 
 public class ChatHandler {
 
-    public static final void handleGeneralChat(final String text, final byte unk, final GameClient c, final GameCharacter chr) {
+    public static final void handleGeneralChat(final String text, final byte unk, final ChannelClient c, final ChannelCharacter chr) {
         if (!CommandProcessor.getInstance().processCommand(c, text)) {
             if (!chr.isGM() && text.length() >= 80) {
                 return;
@@ -25,7 +25,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handlePartyChat(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handlePartyChat(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final int type = reader.readByte();
         final byte numRecipients = reader.readByte();
         int recipients[] = new int[numRecipients];
@@ -55,7 +55,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleMessenger(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         String input;
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         Messenger messenger = c.getPlayer().getMessenger();
@@ -106,7 +106,7 @@ public class ChatHandler {
             case 0x03: // invite
                 if (messenger.getMembers().size() < 3) {
                     input = reader.readLengthPrefixedString();
-                    final GameCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
+                    final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
 
                     if (target != null) {
                         if (target.getMessenger() == null) {
@@ -137,7 +137,7 @@ public class ChatHandler {
                 break;
             case 0x05: // decline
                 final String targeted = reader.readLengthPrefixedString();
-                final GameCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
+                final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
                         target.getClient().write(MaplePacketCreator.messengerNote(c.getPlayer().getName(), 5, 0));
@@ -166,13 +166,13 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleWhisper(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleWhisper(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final byte mode = reader.readByte();
         reader.readInt();
         switch (mode) {
             case 5: { // Find
                 final String recipient = reader.readLengthPrefixedString();
-                GameCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
+                ChannelCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {
                     if (!player.isGM() || c.getPlayer().isGM() && player.isGM()) {
                         if (player == null) { // cs? lol
@@ -204,7 +204,7 @@ public class ChatHandler {
                 final String recipient = reader.readLengthPrefixedString();
                 final String text = reader.readLengthPrefixedString();
 
-                GameCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
+                ChannelCharacter player = c.getChannelServer().getPlayerStorage().getCharacterByName(recipient);
                 if (player != null) {
                     player.getClient().write(MaplePacketCreator.getWhisper(c.getPlayer().getName(), c.getChannelId(), text));
                     if (player.isGM()) {

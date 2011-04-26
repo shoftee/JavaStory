@@ -2,8 +2,8 @@ package handling.channel.handler;
 
 import java.rmi.RemoteException;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import handling.world.Party;
 import handling.world.PartyMember;
 import handling.world.PartyOperation;
@@ -15,7 +15,7 @@ import org.javastory.io.PacketReader;
 
 public class PartyHandler {
 
-    public static final void handleDenyPartyInvitation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleDenyPartyInvitation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int action = reader.readByte();
         final int partyid = reader.readInt();
         if (c.getPlayer().getParty() == null) {
@@ -32,7 +32,7 @@ public class PartyHandler {
                             c.write(MaplePacketCreator.partyStatusMessage(17));
                         }
                     } else if (action != 0x16) {
-                        final GameCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterById(party.getLeader().getId());
+                        final ChannelCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterById(party.getLeader().getId());
                         if (cfrom != null) {
                             cfrom.getClient().write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
                         }
@@ -48,7 +48,7 @@ public class PartyHandler {
         }
     }
 
-    public static void handlePartyOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handlePartyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int operation = reader.readByte();
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
         Party party = c.getPlayer().getParty();
@@ -112,7 +112,7 @@ public class PartyHandler {
                 break;
             case 4: // invite
                 // TODO store pending invitations and check against them
-                final GameCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
+                final ChannelCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
                 if (invited != null && invited.getWorldId() == c.getWorldId()) {
                     if (invited.getParty() == null) {
                         if (party.getMembers().size() < 6) {

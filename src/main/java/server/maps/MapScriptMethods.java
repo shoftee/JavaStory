@@ -2,7 +2,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.SkillFactory;
 import handling.ServerPacketOpcode;
 import org.javastory.tools.Randomizer;
@@ -96,7 +96,7 @@ public class MapScriptMethods {
 		}
 	};
 
-	public static void startScript_FirstUser(GameClient c, String scriptName) {
+	public static void startScript_FirstUser(ChannelClient c, String scriptName) {
 		switch (onFirstUserEnter.fromString(scriptName)) {
 			case dojang_Eff: {
 				int temp = (c.getPlayer().getMapId() - 925000000) / 100;
@@ -124,7 +124,7 @@ public class MapScriptMethods {
 		}
 	}
 
-	public static void startScript_User(GameClient c, String scriptName) {
+	public static void startScript_User(ChannelClient c, String scriptName) {
 		String data = "";
 	switch (onUserEnter.fromString(scriptName)) {
 		case cygnusTest:
@@ -365,17 +365,17 @@ public class MapScriptMethods {
 	return 0;
 	}
 
-	private static void showIntro(final GameClient c, final String data) {
+	private static void showIntro(final ChannelClient c, final String data) {
 	c.write(UIPacket.IntroDisableUI(true));
 	c.write(UIPacket.IntroLock(true));
 	c.write(UIPacket.ShowWZEffect(data));
 	}
 
-	private static void sendDojoClock(GameClient c, int time) {
+	private static void sendDojoClock(ChannelClient c, int time) {
 	c.write(MaplePacketCreator.getClock(time));
 	}
 
-	private static void sendDojoStart(GameClient c, int stage) {
+	private static void sendDojoStart(ChannelClient c, int stage) {
 	c.write(MaplePacketCreator.environmentChange("Dojang/start", 4));
 	c.write(MaplePacketCreator.environmentChange("dojang/start/stage", 3));
 	c.write(MaplePacketCreator.environmentChange("dojang/start/number/" + stage, 3));
@@ -391,7 +391,7 @@ public class MapScriptMethods {
 	c.write(builder.getPacket());
 	}
 
-	private static void handlePinkBeanStart(GameClient c) {
+	private static void handlePinkBeanStart(ChannelClient c) {
 	final GameMap map = c.getPlayer().getMap();
 	map.killAllMonsters(true);
 	map.respawn(true);
@@ -401,7 +401,7 @@ public class MapScriptMethods {
 	}
 	}
 
-	private static void reloadWitchTower(GameClient c) {
+	private static void reloadWitchTower(ChannelClient c) {
 	final GameMap map = c.getPlayer().getMap();
 	map.killAllMonsters(false);
 

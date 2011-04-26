@@ -2,7 +2,7 @@ package handling.world;
 
 import java.io.Serializable;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 
 public class MessengerMember implements Serializable {
 	private static final long serialVersionUID = 6215463252132450750L;
@@ -12,7 +12,7 @@ public class MessengerMember implements Serializable {
 	private boolean online;
 	private int position;
 
-	public MessengerMember(GameCharacter maplechar) {
+	public MessengerMember(ChannelCharacter maplechar) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();
@@ -20,7 +20,7 @@ public class MessengerMember implements Serializable {
 		this.position = 0;
 	}
 
-	public MessengerMember(GameCharacter maplechar, int position) {
+	public MessengerMember(ChannelCharacter maplechar, int position) {
 		this.name = maplechar.getName();
 		this.channel = maplechar.getClient().getChannelId();
 		this.id = maplechar.getId();

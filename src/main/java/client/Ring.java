@@ -44,7 +44,7 @@ public class Ring implements Comparable<Ring> {
         }
     }
 
-    public static int createRing(int itemid, final GameCharacter partner1, final GameCharacter partner2) {
+    public static int createRing(int itemid, final ChannelCharacter partner1, final ChannelCharacter partner2) {
         try {
             if (partner1 == null) {
                 return -2; // Partner Number 1 is not on the same channel.
@@ -161,7 +161,7 @@ public class Ring implements Comparable<Ring> {
         }
     }
 
-    public static boolean checkRingDB(GameCharacter player) {
+    public static boolean checkRingDB(ChannelCharacter player) {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT id FROM rings WHERE partnerChrId = ?");
@@ -173,7 +173,7 @@ public class Ring implements Comparable<Ring> {
         }
     }
 
-    public static void removeRingFromDb(GameCharacter player) {
+    public static void removeRingFromDb(ChannelCharacter player) {
         try {
             Connection con = DatabaseConnection.getConnection();
             int otherId;

@@ -20,7 +20,7 @@
 */
 package tools.packet;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.CarnivalParty;
@@ -34,7 +34,7 @@ public class MonsterCarnivalPacket {
     MONSTER_CARNIVAL_SUMMON = 0xE5
     MONSTER_CARNIVAL_DIED = 0xE7*/
 
-    public static GamePacket startMonsterCarnival(final GameCharacter chr, final int enemyavailable, final int enemytotal) {
+    public static GamePacket startMonsterCarnival(final ChannelCharacter chr, final int enemyavailable, final int enemytotal) {
 	PacketBuilder builder = new PacketBuilder();
 
 	builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());

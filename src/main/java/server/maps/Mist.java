@@ -24,8 +24,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import client.ISkill;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.SkillFactory;
 import handling.GamePacket;
 import server.StatEffect;
@@ -36,7 +36,7 @@ import tools.MaplePacketCreator;
 public class Mist extends AbstractGameMapObject {
 
     private Rectangle mistPosition;
-    private GameCharacter owner = null; // Assume this is removed, else weakref will be required
+    private ChannelCharacter owner = null; // Assume this is removed, else weakref will be required
     private Monster mob = null;
     private StatEffect source;
     private MobSkill skill;
@@ -54,7 +54,7 @@ public class Mist extends AbstractGameMapObject {
 	skillDelay = 0;
     }
 
-    public Mist(Rectangle mistPosition, GameCharacter owner, StatEffect source) {
+    public Mist(Rectangle mistPosition, ChannelCharacter owner, StatEffect source) {
 	this.mistPosition = mistPosition;
 	this.owner = owner;
 	this.source = source;
@@ -109,7 +109,7 @@ public class Mist extends AbstractGameMapObject {
 	return mob;
     }
 
-    public GameCharacter getOwner() {
+    public ChannelCharacter getOwner() {
 	return owner;
     }
 
@@ -133,12 +133,12 @@ public class Mist extends AbstractGameMapObject {
     }
 
     @Override
-    public void sendSpawnData(final GameClient c) {
+    public void sendSpawnData(final ChannelClient c) {
 	c.write(MaplePacketCreator.spawnMist(this));
     }
 
     @Override
-    public void sendDestroyData(final GameClient c) {
+    public void sendDestroyData(final ChannelClient c) {
 	c.write(MaplePacketCreator.removeMist(getObjectId()));
     }
 

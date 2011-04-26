@@ -3,7 +3,7 @@ package server.maps;
 import java.awt.Point;
 import java.rmi.RemoteException;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import server.TimerManager;
 import server.life.LifeFactory;
 import tools.MaplePacketCreator;
@@ -26,7 +26,7 @@ public class AramiaFireWorks {
         return instance;
     }
     
-    public final void giveKegs(final GameCharacter c, final int kegs) {
+    public final void giveKegs(final ChannelCharacter c, final int kegs) {
         this.kegs += kegs;
         if (this.kegs >= 2000) {
             this.kegs = 0;
@@ -38,7 +38,7 @@ public class AramiaFireWorks {
         return (short) ((kegs / 2000) * 10000);
     }
     
-    private void broadcastEvent(final GameCharacter c) {
+    private void broadcastEvent(final ChannelCharacter c) {
         try {
             c.getClient().getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
         } catch (RemoteException e) {

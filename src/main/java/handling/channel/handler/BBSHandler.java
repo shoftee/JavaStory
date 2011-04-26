@@ -20,13 +20,13 @@
 */
 package handling.channel.handler;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import client.GameClient;
+import client.ChannelClient;
 import database.DatabaseConnection;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
@@ -41,7 +41,7 @@ public class BbsHandler {
 	return in;
     }
 
-    public static void handleBbsOperatopn(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleBbsOperatopn(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing bbs or hax
 	}
@@ -94,7 +94,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void listBBSThreads(GameClient c, int start) {
+    private static void listBBSThreads(ChannelClient c, int start) {
 	try {
 	    Connection con = DatabaseConnection.getConnection();
 	    PreparedStatement ps = con.prepareStatement("SELECT * FROM bbs_threads WHERE guildid = ? ORDER BY localthreadid DESC");
@@ -110,8 +110,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void newBbsReply(final GameClient c, final int localthreadid, final String text) {
-        final GameCharacter player = c.getPlayer();
+    private static void newBbsReply(final ChannelClient c, final int localthreadid, final String text) {
+        final ChannelCharacter player = c.getPlayer();
 	if (player.getGuildId() <= 0) {
 	    return;
 	}
@@ -150,7 +150,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void editBbsThread(final GameClient c, final String title, final String text, final int icon, final int localthreadid) {
+    private static void editBbsThread(final ChannelClient c, final String title, final String text, final int icon, final int localthreadid) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
@@ -174,8 +174,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void newBbsThread(final GameClient c, final String title, final String text, final int icon, final boolean bNotice) {
-        final GameCharacter player = c.getPlayer();
+    private static void newBbsThread(final ChannelClient c, final String title, final String text, final int icon, final boolean bNotice) {
+        final ChannelCharacter player = c.getPlayer();
 	if (player.getGuildId() <= 0) {
 	    return; // expelled while viewing?
 	}
@@ -212,8 +212,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void deleteBbsThread(final GameClient c, final int localthreadid) {
-        final GameCharacter player = c.getPlayer();
+    private static void deleteBbsThread(final ChannelClient c, final int localthreadid) {
+        final ChannelCharacter player = c.getPlayer();
 	if (player.getGuildId() <= 0) {
 	    return;
 	}
@@ -252,8 +252,8 @@ public class BbsHandler {
 	}
     }
 
-    private static void deleteBbsReply(final GameClient c, final int replyid) {
-        final GameCharacter player = c.getPlayer();
+    private static void deleteBbsReply(final ChannelClient c, final int replyid) {
+        final ChannelCharacter player = c.getPlayer();
 	if (player.getGuildId() <= 0) {
 	    return;
 	}
@@ -295,7 +295,7 @@ public class BbsHandler {
 	}
     }
 
-    private static void displayThread(final GameClient c, final int threadid, final boolean bIsThreadIdLocal) {
+    private static void displayThread(final ChannelClient c, final int threadid, final boolean bIsThreadIdLocal) {
 	if (c.getPlayer().getGuildId() <= 0) {
 	    return;
 	}

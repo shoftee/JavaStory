@@ -1,17 +1,17 @@
 package client.messages.commands;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
 
 public class CharInfoCommand implements Command {
 	@Override
-	public void execute(GameClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
 		final StringBuilder builder = new StringBuilder();
-		final GameCharacter other = c.getChannelServer().getPlayerStorage().getCharacterByName(splittedLine[1]);
-		builder.append(GameClient.getLogMessage(other, ""));
+		final ChannelCharacter other = c.getChannelServer().getPlayerStorage().getCharacterByName(splittedLine[1]);
+		builder.append(ChannelClient.getLogMessage(other, ""));
 		builder.append(" at ");
 		builder.append(" x : ");
 		builder.append(other.getPosition().x);
@@ -26,25 +26,23 @@ public class CharInfoCommand implements Command {
 		builder.append(" rx1 : ");
 		builder.append(other.getPosition().x - 50);
 		builder.append(" || HP : ");
-		builder.append(other.getStat().getHp());
+		builder.append(other.getStats().getHp());
 		builder.append(" /");
-		builder.append(other.getStat().getCurrentMaxHp());
+		builder.append(other.getStats().getCurrentMaxHp());
 		builder.append(" || MP : ");
-		builder.append(other.getStat().getMp());
+		builder.append(other.getStats().getMp());
 		builder.append(" /");
-		builder.append(other.getStat().getCurrentMaxMp());
+		builder.append(other.getStats().getCurrentMaxMp());
 		builder.append(" || WATK : ");
-		builder.append(other.getStat().getTotalWatk());
+		builder.append(other.getStats().getTotalWatk());
 		builder.append(" || MATK : ");
-		builder.append(other.getStat().getTotalMagic());
+		builder.append(other.getStats().getTotalMagic());
 		builder.append(" || EXP : ");
 		builder.append(other.getExp());
 		builder.append(" || hasParty : ");
 		builder.append(other.getParty() != null);
 		builder.append(" || hasTrade: ");
 		builder.append(other.getTrade() != null);
-		builder.append(" || MAC Address: [");
-		builder.append(other.getClient().getMacs().toArray());
 		builder.append("] || CASH: [");
 		builder.append(other.getClient().getPlayer().getNX());
 		builder.append("] || VOTING POINTS: [");

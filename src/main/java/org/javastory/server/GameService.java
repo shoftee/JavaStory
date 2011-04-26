@@ -11,7 +11,7 @@ import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import org.javastory.server.channel.ChannelServer;
 import org.javastory.server.channel.ChannelWorldInterfaceImpl;
-import org.javastory.server.mina.PacketHandler;
+import org.javastory.server.handling.PacketHandler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -26,7 +26,7 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-import org.javastory.server.mina.GameCodecFactory;
+import org.javastory.server.handling.GameCodecFactory;
 
 /**
  *

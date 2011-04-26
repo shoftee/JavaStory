@@ -29,7 +29,7 @@ import client.Equip;
 import client.IItem;
 import client.Item;
 import client.GameConstants;
-import client.GameClient;
+import client.ChannelClient;
 import client.InventoryType;
 import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
@@ -41,7 +41,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 
     private Reactor reactor;
 
-    public ReactorActionManager(GameClient c, Reactor reactor) {
+    public ReactorActionManager(ChannelClient c, Reactor reactor) {
 	super(c);
 	this.reactor = reactor;
     }

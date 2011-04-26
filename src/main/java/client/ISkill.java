@@ -29,7 +29,7 @@ public interface ISkill {
 
     StatEffect getEffect(int level);
 
-    StatEffect getEffect(GameCharacter chr, int level);
+    StatEffect getEffect(ChannelCharacter chr, int level);
 
     byte getMaxLevel();
 

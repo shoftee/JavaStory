@@ -21,7 +21,7 @@
 package handling.channel.handler;
 
 import java.awt.Point;
-import client.GameClient;
+import client.ChannelClient;
 //import net.sf.odinms.server.Randomizer;
 import org.javastory.io.PacketFormatException;
 import server.life.LifeFactory;
@@ -31,7 +31,7 @@ import org.javastory.io.PacketReader;
 
 public class MonsterCarnivalHandler  {
 
-    public static final void handleMonsterCarnival(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static final void handleMonsterCarnival(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int tab = reader.readByte();
         final int num = reader.readByte();
         c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, num));

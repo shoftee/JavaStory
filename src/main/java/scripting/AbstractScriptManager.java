@@ -28,7 +28,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import client.GameClient;
+import client.ChannelClient;
 
 /**
  *
@@ -38,7 +38,7 @@ public abstract class AbstractScriptManager {
 
     private static final ScriptEngineManager sem = new ScriptEngineManager();
 
-    protected Invocable getInvocable(String path, GameClient c) {
+    protected Invocable getInvocable(String path, ChannelClient c) {
 	FileReader fr = null;
 	try {
 	    path = "scripts/" + path;

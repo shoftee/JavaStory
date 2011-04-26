@@ -3,7 +3,7 @@ package client.messages.commands;
 import static client.messages.CommandProcessor.getNamedDoubleArg;
 import static client.messages.CommandProcessor.getNamedIntArg;
 import static client.messages.CommandProcessor.getOptionalIntArg;
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
@@ -13,7 +13,7 @@ import server.life.OverrideMonsterStats;
 
 public class SpawnMonsterCommand implements Command {
 	@Override
-	public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
 		final int mid = Integer.parseInt(splitted[1]);
 		final int num = Math.min(getOptionalIntArg(splitted, 2, 1), 50);
 		Integer hp = getNamedIntArg(splitted, 1, "hp");
@@ -41,7 +41,7 @@ public class SpawnMonsterCommand implements Command {
 			newhp = 1;
 		}
 		final double newExpRatio = ((double) newhp / newexp);
-		if (c.getPlayer().getGMLevel() <= 5) { // bad animal
+		if (c.getPlayer().getGmLevel() <= 5) { // bad animal
 			if (mid == 8810018 || mid == 5100001 || mid == 5130106 || mid == 8190001 || mid == 9001009 || mid == 9300256 || mid == 9300257 || mid == 9300280 || mid == 9300281 || mid == 9300282 || mid == 9300283 || mid == 9300284) {
 				c.getPlayer().sendNotice(6, "This monster is blocked.");
 				return;

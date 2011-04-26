@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 
 import static client.messages.CommandProcessor.getOptionalIntArg;
 import client.ISkill;
-import client.GameClient;
+import client.ChannelClient;
 import client.Stat;
 import client.SkillFactory;
 import client.messages.Command;
@@ -26,7 +26,7 @@ import tools.StringUtil;
 public class GM3Commands implements Command {
 
     @Override
-    public void execute(GameClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
         ChannelServer cserv = c.getChannelServer();
         if (splitted[0].equals("-online")) {
             c.getPlayer().sendNotice(6, "Characters connected to channel " + c.getChannelId() + ":");
@@ -80,10 +80,10 @@ public class GM3Commands implements Command {
             }
             c.getPlayer().changeSkillLevel(skill, level, masterlevel);
         } else if (splitted[0].equals("-heal")) {
-            c.getPlayer().getStat().setHp(c.getPlayer().getStat().getMaxHp());
-            c.getPlayer().getStat().setMp(c.getPlayer().getStat().getMaxMp());
-            c.getPlayer().updateSingleStat(Stat.HP, c.getPlayer().getStat().getMaxHp());
-            c.getPlayer().updateSingleStat(Stat.MP, c.getPlayer().getStat().getMaxMp());
+            c.getPlayer().getStats().setHp(c.getPlayer().getStats().getMaxHp());
+            c.getPlayer().getStats().setMp(c.getPlayer().getStats().getMaxMp());
+            c.getPlayer().updateSingleStat(Stat.HP, c.getPlayer().getStats().getMaxHp());
+            c.getPlayer().updateSingleStat(Stat.MP, c.getPlayer().getStats().getMaxMp());
         } else if (splitted[0].equals("-cleardrops")) {
             GameMap map = c.getPlayer().getMap();
             List<GameMapObject> items = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
@@ -93,7 +93,6 @@ public class GM3Commands implements Command {
             }
             c.getPlayer().sendNotice(6, "You have destroyed " + items.size() + " items on the ground.");
         } else if (splitted[0].equals("-servermessage")) {
-            Collection<ChannelServer> cservs = ChannelManager.getAllInstances();
             String outputMessage = StringUtil.joinStringFrom(splitted, 1);
             cserv.setServerMessage(outputMessage);
         }

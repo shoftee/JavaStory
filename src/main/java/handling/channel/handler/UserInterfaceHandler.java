@@ -20,14 +20,14 @@
 */
 package handling.channel.handler;
 
-import client.GameClient;
+import client.ChannelClient;
 import scripting.NpcScriptManager;
 import scripting.EventManager;
 import tools.MaplePacketCreator;
 
 public class UserInterfaceHandler {
 
-    public static final void handleNpcRequestCygnusSummon(final GameClient c) {
+    public static final void handleNpcRequestCygnusSummon(final ChannelClient c) {
 	NpcScriptManager.getInstance().start(c, 1101008);
     }
 
@@ -44,7 +44,7 @@ public class UserInterfaceHandler {
 	}
     }*/
 
-    public static final void handleShipObjectRequest(final int mapid, final GameClient c) {
+    public static final void handleShipObjectRequest(final int mapid, final ChannelClient c) {
 	// BB 00 6C 24 05 06 00 - Ellinia
         // BB 00 6E 1C 4E 0E 00 - Leafre
 

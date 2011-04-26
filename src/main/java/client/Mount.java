@@ -38,15 +38,15 @@ public class Mount implements Serializable {
     private int itemid, skillid, fatigue, exp, level;
     private transient boolean changed = false;
     private transient ScheduledFuture<?> tirednessSchedule = null;
-    private transient WeakReference<GameCharacter> owner;
+    private transient WeakReference<ChannelCharacter> owner;
 
-    public Mount(GameCharacter owner, int id, int skillid, int fatigue, int level, int exp) {
+    public Mount(ChannelCharacter owner, int id, int skillid, int fatigue, int level, int exp) {
 	this.itemid = id;
 	this.skillid = skillid;
 	this.fatigue = fatigue;
 	this.level = level;
 	this.exp = exp;
-	this.owner = new WeakReference<GameCharacter>(owner);
+	this.owner = new WeakReference<ChannelCharacter>(owner);
     }
 
     public void saveMount(final int charid) throws SQLException {
@@ -168,7 +168,7 @@ public class Mount implements Serializable {
     }
 
     public void update() {
-	final GameCharacter chr = owner.get();
+	final ChannelCharacter chr = owner.get();
 	if (chr != null && chr != null) {
 //	    cancelSchedule();
 	    chr.getMap().broadcastMessage(MaplePacketCreator.updateMount(chr, false));

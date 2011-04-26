@@ -12,6 +12,7 @@ import client.ISkill;
 import client.GameConstants;
 import client.Ring;
 import client.Pet;
+import client.ChannelCharacter;
 import client.GameCharacter;
 import client.Inventory;
 import client.QuestStatus;
@@ -40,7 +41,7 @@ public class PacketHelper {
         return ((time * 10000000) + FT_UT_OFFSET);
     }
 
-    public static void addQuestInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addQuestInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         final List<QuestStatus> started = chr.getStartedQuests();
         builder.writeAsShort(started.size());
         for (final QuestStatus q : started) {
@@ -57,7 +58,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addSkillInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addSkillInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         final Map<ISkill, SkillEntry> skills = chr.getSkills();
         builder.writeAsShort(skills.size());
         for (final Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
@@ -70,7 +71,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addCoolDownInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addCoolDownInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         builder.writeAsShort(chr.getAllCooldowns().size());
         for (final PlayerCooldownValueHolder cooling : chr.getAllCooldowns()) {
             builder.writeInt(cooling.skillId);
@@ -78,7 +79,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addRocksInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addRocksInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         builder.writeInt(999999999); // Teleport maps (TODO)
         builder.writeInt(999999999);
         builder.writeInt(999999999);
@@ -90,13 +91,13 @@ public class PacketHelper {
         }
     }
 
-    public static void addMonsterBookInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addMonsterBookInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         builder.writeInt(chr.getMonsterBookCover());
         builder.writeAsByte(0);
         chr.getMonsterBook().addCardPacket(builder);
     }
 
-    public static void addRingInfo(final PacketBuilder builder, final GameCharacter chr) {
+    public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
         List<Ring> rings = new ArrayList<Ring>();
         final Inventory equipped = chr.getEquippedItemsInventory();
         for (final IItem item : equipped) {
@@ -143,7 +144,7 @@ public class PacketHelper {
         }
     }
 
-    public static void addInventoryInfo(PacketBuilder builder, GameCharacter chr) {
+    public static void addInventoryInfo(PacketBuilder builder, ChannelCharacter chr) {
         builder.writeInt(chr.getMeso()); // mesos
         builder.writeByte(chr.getEquipInventory().getSlotLimit()); // equip slots
         builder.writeByte(chr.getUseInventory().getSlotLimit()); // use slots
@@ -200,15 +201,15 @@ public class PacketHelper {
         builder.writeInt(chr.getId()); // character id
         builder.writePaddedString(chr.getName(), 13);
         builder.writeAsByte(chr.getGender()); // gender (0 = male, 1 = female)
-        builder.writeAsByte(chr.getSkinColor()); // skin color
-        builder.writeInt(chr.getFace()); // face
-        builder.writeInt(chr.getHair()); // hair
+        builder.writeAsByte(chr.getSkinColorId()); // skin color
+        builder.writeInt(chr.getFaceId()); // face
+        builder.writeInt(chr.getHairId()); // hair
         builder.writeZeroBytes(24);
         builder.writeAsByte(chr.getLevel()); // level
-        builder.writeAsShort(chr.getJob()); // job
-        chr.getStat().connectData(builder);
+        builder.writeAsShort(chr.getJobId()); // job
+        chr.getStats().connectData(builder);
         builder.writeAsShort(chr.getRemainingAp()); // remaining ap
-        if (GameConstants.isEvan(chr.getJob())) {
+        if (GameConstants.isEvan(chr.getJobId())) {
             final int size = chr.getRemainingSpSize();
             builder.writeAsByte(size);
             for (int i = 0; i < chr.getRemainingSps().length; i++) {
@@ -225,21 +226,22 @@ public class PacketHelper {
         builder.writeInt(0); // Gachapon exp
         builder.writeLong(0); // This must be something, just leave it lol
         builder.writeInt(chr.getMapId()); // current map id
-        builder.writeAsByte(chr.getInitialSpawnpoint()); // spawnpoint
+        builder.writeAsByte(chr.getInitialSpawnPoint()); // spawnpoint
         builder.writeAsShort(chr.getSubcategory()); // 1 = Dual Blade
     }
 
     public static void addCharLook(final PacketBuilder builder, final GameCharacter chr, final boolean mega) {
         builder.writeAsByte(chr.getGender());
-        builder.writeAsByte(chr.getSkinColor());
-        builder.writeInt(chr.getFace());
+        builder.writeAsByte(chr.getSkinColorId());
+        builder.writeInt(chr.getFaceId());
         builder.writeAsByte(mega ? 0 : 1);
-        builder.writeInt(chr.getHair());
+        builder.writeInt(chr.getHairId());
 
         final Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
         final Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
         Inventory equip = chr.getEquippedItemsInventory();
 
+        // masking items
         for (final IItem item : equip) {
             byte pos = (byte) (item.getPosition() * -1);
             if (pos < 100 && myEquip.get(pos) == null) {
@@ -258,13 +260,16 @@ public class PacketHelper {
             builder.writeByte(entry.getKey());
             builder.writeInt(entry.getValue());
         }
-        builder.writeAsByte(0xFF); // end of visible itens
-        // masked itens
+        // end of masking items
+        builder.writeAsByte(0xFF); 
+        
+        // regular items
         for (final Entry<Byte, Integer> entry : maskedEquip.entrySet()) {
             builder.writeByte(entry.getKey());
             builder.writeInt(entry.getValue());
         }
-        builder.writeAsByte(0xFF); // ending markers
+        // ending regular items
+        builder.writeAsByte(0xFF); 
 
         final IItem cWeapon = equip.getItem((byte) -111);
         builder.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);

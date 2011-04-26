@@ -23,8 +23,8 @@ package handling.channel.handler;
 import java.awt.Point;
 import java.util.List;
 
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import org.javastory.io.PacketFormatException;
 import org.javastory.tools.Randomizer;
 import server.maps.GameMap;
@@ -38,7 +38,7 @@ import org.javastory.io.PacketReader;
 
 public class MobHandler {
 
-    public static final void handleMoveMonster(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleMoveMonster(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Monster monster = chr.getMap().getMonsterByOid(reader.readInt());
 
         if (monster == null) { // movin something which is not a monster
@@ -127,7 +127,7 @@ public class MobHandler {
         }
     }
 
-    public static final void handleFriendlyDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleFriendlyDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final GameMap map = chr.getMap();
         final Monster mobfrom = map.getMonsterByOid(reader.readInt());
         reader.skip(4); // Player ID
@@ -139,7 +139,7 @@ public class MobHandler {
         }
     }
 
-    public static final void handleMonsterBomb(final int oid, final GameCharacter chr) {
+    public static final void handleMonsterBomb(final int oid, final ChannelCharacter chr) {
         final Monster monster = chr.getMap().getMonsterByOid(oid);
 
         if (monster == null || !chr.isAlive() || chr.isHidden()) {
@@ -151,7 +151,7 @@ public class MobHandler {
         }
     }
 
-    public static final void handleAutoAggro(final int monsteroid, final GameCharacter chr) {
+    public static final void handleAutoAggro(final int monsteroid, final ChannelCharacter chr) {
         final Monster monster = chr.getMap().getMonsterByOid(monsteroid);
 
         if (monster != null && chr.getPosition().distance(monster.getPosition()) < 200000) {
@@ -167,7 +167,7 @@ public class MobHandler {
         }
     }
 
-    public static final void handleHypnotizeDamage(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static final void handleHypnotizeDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final Monster mob_from = chr.getMap().getMonsterByOid(reader.readInt()); // From
         reader.skip(4); // Player ID
         final int to = reader.readInt(); // mobto

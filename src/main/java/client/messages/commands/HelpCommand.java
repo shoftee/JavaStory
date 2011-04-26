@@ -1,6 +1,6 @@
 package client.messages.commands;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.CommandProcessor;
@@ -9,7 +9,7 @@ import client.messages.IllegalCommandSyntaxException;
 public class HelpCommand implements Command {
 
 	@Override
-	public void execute(GameClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
 		CommandProcessor.getInstance().dropHelp(c.getPlayer(), CommandProcessor.getOptionalIntArg(splittedLine, 1, 1));
 	}
 

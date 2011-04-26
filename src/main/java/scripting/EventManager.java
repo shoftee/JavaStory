@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledFuture;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import handling.world.Party;
 import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;
@@ -165,7 +165,7 @@ public class EventManager {
 	}
     }
 
-    public void startInstance(GameCharacter character) {
+    public void startInstance(ChannelCharacter character) {
 	try {
 	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
 	    eim.registerPlayer(character);
@@ -214,7 +214,7 @@ public class EventManager {
     public void warpAllPlayer(int from, int to) {
 	final GameMap tomap = cserv.getMapFactory(world).getMap(to);
 	for (GameMapObject mmo : cserv.getMapFactory(world).getMap(from).getAllPlayer()) {
-	    ((GameCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
+	    ((ChannelCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 	}
     }
 

@@ -158,7 +158,7 @@ public class BuddyList implements Serializable {
         return pendingRequests.pollLast();
     }
 
-    public void addBuddyRequest(GameClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
+    public void addBuddyRequest(ChannelClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
         put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
         if (pendingRequests.isEmpty()) {
             c.write(MaplePacketCreator.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));

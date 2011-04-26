@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import tools.MaplePacketCreator;
 
 public class Dragon extends AbstractAnimatedGameMapObject {
@@ -35,10 +35,10 @@ public class Dragon extends AbstractAnimatedGameMapObject {
     private int owner;
     private int jobid;
 
-    public Dragon(GameCharacter owner) {
+    public Dragon(ChannelCharacter owner) {
         super();
         this.owner = owner.getId();
-        this.jobid = owner.getJob();
+        this.jobid = owner.getJobId();
         if (jobid < 2200 || jobid > 2218) {
             throw new RuntimeException("Trying to create a dragon for a non-Evan");
         }
@@ -47,12 +47,12 @@ public class Dragon extends AbstractAnimatedGameMapObject {
     }
 
     @Override
-    public void sendSpawnData(GameClient client) {
+    public void sendSpawnData(ChannelClient client) {
         client.write(MaplePacketCreator.spawnDragon(this));
     }
 
     @Override
-    public void sendDestroyData(GameClient client) {
+    public void sendDestroyData(ChannelClient client) {
         client.write(MaplePacketCreator.removeDragon(this.owner));
     }
 

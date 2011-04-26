@@ -20,7 +20,7 @@
 */
 package server.maps;
 
-import client.GameClient;
+import client.ChannelClient;
 import tools.MaplePacketCreator;
 import handling.GamePacket;
 
@@ -47,7 +47,7 @@ public class GameMapEffect {
 	return MaplePacketCreator.startMapEffect(msg, itemId, active);
     }
 
-    public void sendStartData(GameClient c) {
+    public void sendStartData(ChannelClient c) {
 	c.write(MaplePacketCreator.startMapEffect(msg, itemId, active));
     }
 }

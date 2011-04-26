@@ -22,8 +22,8 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;
@@ -43,7 +43,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
     private byte Summon_tickResetCount;
     private long Server_ClientSummonTickDiff;
 
-    public Summon(final GameCharacter owner, final int skill, final Point pos, final SummonMovementType movementType) {
+    public Summon(final ChannelCharacter owner, final int skill, final Point pos, final SummonMovementType movementType) {
 	super();
 	this.ownerid = owner.getId();
 	this.skill = skill;
@@ -62,12 +62,12 @@ public class Summon extends AbstractAnimatedGameMapObject {
     }
 
     @Override
-    public final void sendSpawnData(final GameClient client) {
+    public final void sendSpawnData(final ChannelClient client) {
 	client.write(MaplePacketCreator.spawnSummon(this, skillLevel, false));
     }
 
     @Override
-    public final void sendDestroyData(final GameClient client) {
+    public final void sendDestroyData(final ChannelClient client) {
 	client.write(MaplePacketCreator.removeSummon(this, false));
     }
 
@@ -132,7 +132,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	return GameMapObjectType.SUMMON;
     }
 
-    public final void CheckSummonAttackFrequency(final GameCharacter chr, final int tickcount) {
+    public final void CheckSummonAttackFrequency(final ChannelCharacter chr, final int tickcount) {
 	final int tickdifference = (tickcount - lastSummonTickCount);
 	if (tickdifference < GameConstants.getSummonAttackDelay(skill)) {
 	    chr.getCheatTracker().registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);

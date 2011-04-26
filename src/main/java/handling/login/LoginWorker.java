@@ -9,7 +9,8 @@ import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import client.GameClient;
+import org.javastory.client.LoginClient;
+import org.javastory.server.login.AuthReplyCode;
 import server.TimerManager;
 import tools.packet.LoginPacket;
 import tools.Pair;
@@ -26,7 +27,7 @@ public class LoginWorker {
         persister = new PersistingTask();
         TimerManager.getInstance().register(persister, 1800000); // 30 min once
     }
-    
+
     private static class PersistingTask implements Runnable {
 
         @Override
@@ -52,29 +53,24 @@ public class LoginWorker {
         }
     }
 
-    public static void registerClient(final GameClient c) {
-        if (c.finishLogin() == 0) {
-            c.write(LoginPacket.getAuthSuccessRequest(c));
-            c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
+    public static void registerClient(final LoginClient c) {
+        c.write(LoginPacket.getAuthSuccessRequest(c));
+        c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
 
-                public void run() {
-                    c.disconnect();
-                }
-            }, 10 * 60 * 10000));
-        } else {
-            c.write(LoginPacket.getLoginFailed(7));
-            return;
-        }
+            public void run() {
+                c.disconnect();
+            }
+        }, 10 * 60 * 10000));
         final LoginServer LS = LoginServer.getInstance();
         if (System.currentTimeMillis() - lastUpdate > 300000) { // Update once every 5 minutes
             lastUpdate = System.currentTimeMillis();
             try {
-                final Map<Integer, Integer> channelLoad = 
+                final Map<Integer, Integer> channelLoad =
                         LS.getWorldInterface().getChannelLoad();
-                if (channelLoad == null) { 
+                if (channelLoad == null) {
                     // In an unfortunate event that client logged in before load
                     lastUpdate = 0;
-                    c.write(LoginPacket.getLoginFailed(7));
+                    c.write(LoginPacket.getLoginFailed(AuthReplyCode.TOO_MANY_CONNECTIONS));
                     return;
                 }
                 for (Entry<Integer, Integer> entry : channelLoad.entrySet()) {

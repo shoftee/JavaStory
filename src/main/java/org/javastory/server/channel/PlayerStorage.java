@@ -1,15 +1,17 @@
 package org.javastory.server.channel;
 
 import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import client.GameCharacterUtil;
-import client.GameCharacter;
+import client.ChannelCharacter;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import handling.GamePacket;
 import handling.world.CharacterTransfer;
 import handling.world.remote.CheaterData;
@@ -18,68 +20,105 @@ import server.TimerManager;
 
 public class PlayerStorage {
 
-    private final Lock mutex = new ReentrantLock();
-    private final Lock mutex2 = new ReentrantLock();
-    private final Map<String, GameCharacter> nameToChar = new HashMap<String, GameCharacter>();
-    private final Map<Integer, GameCharacter> idToChar = new HashMap<Integer, GameCharacter>();
-    private final Map<Integer, CharacterTransfer> PendingCharacter = new HashMap<Integer, CharacterTransfer>();
+    private final Lock activePlayerLock = new ReentrantLock();
+    private final Lock pendingPlayerLock = new ReentrantLock();
+    private final Lock sessionsLock = new ReentrantLock();
+    private final Map<String, ChannelCharacter> nameToChar = Maps.newHashMap();
+    private final Map<Integer, ChannelCharacter> idToChar = Maps.newHashMap();
+    private final Map<Integer, String> sessions = Maps.newHashMap();
+    private final Map<Integer, CharacterTransfer> pendingTransfers = Maps.newHashMap();
 
     public PlayerStorage() {
         // Prune once every 15 minutes
         TimerManager.getInstance().schedule(new PersistingTask(), 900000);
     }
 
-    public final void registerPlayer(final GameCharacter chr) {
-        mutex.lock();
+    public final boolean registerSession(final int characterId, final String sessionIP) {
+        Preconditions.checkNotNull(sessionIP);
+
+        sessionsLock.lock();
         try {
-            nameToChar.put(chr.getName().toLowerCase(), chr);
-            idToChar.put(chr.getId(), chr);
+            if (!sessions.get(characterId).equals(sessionIP)) {
+                return false;
+            }
+            sessions.put(characterId, sessionIP);
+            return true;
         } finally {
-            mutex.unlock();
+            sessionsLock.unlock();
         }
     }
 
-    public final void registerPendingPlayer(final CharacterTransfer chr, final int playerid) {
-        mutex2.lock();
+    public final void deregisterSession(final int characterId) {
+        sessionsLock.lock();
         try {
-            PendingCharacter.put(playerid, chr);
+            sessions.remove(characterId);
         } finally {
-            mutex2.unlock();
+            sessionsLock.unlock();
         }
     }
 
-    public final void deregisterPlayer(final GameCharacter chr) {
-        mutex.lock();
+    public final boolean checkSession(final int characterId, final String sessionIP) {
+        Preconditions.checkNotNull(sessionIP);
+
+        sessionsLock.lock();
+        try {
+            return sessions.get(characterId).equals(sessionIP);
+        } finally {
+            sessionsLock.unlock();
+        }
+    }
+
+    public final void registerTransfer(final CharacterTransfer chr, final int characterId) {
+        pendingPlayerLock.lock();
+        try {
+            pendingTransfers.put(characterId, chr);
+        } finally {
+            pendingPlayerLock.unlock();
+        }
+    }
+
+    public final void deregisterPlayer(final ChannelCharacter chr) {
+        activePlayerLock.lock();
         try {
             nameToChar.remove(chr.getName().toLowerCase());
             idToChar.remove(chr.getId());
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
     }
 
-    public final void deregisterPendingPlayer(final int charid) {
-        mutex2.lock();
+    public final void deregisterTransfer(final int characterId) {
+        pendingPlayerLock.lock();
         try {
-            PendingCharacter.remove(charid);
+            pendingTransfers.remove(characterId);
         } finally {
-            mutex2.unlock();
+            pendingPlayerLock.unlock();
         }
     }
 
-    public final CharacterTransfer getPendingCharacter(final int charid) {
-        final CharacterTransfer toreturn = PendingCharacter.get(charid);//.right;
-        if (toreturn != null) {
-            deregisterPendingPlayer(charid);
+    public final CharacterTransfer getPendingTransfer(final int characterId) {
+        final CharacterTransfer transfer = pendingTransfers.get(characterId);
+        if (transfer != null) {
+            deregisterTransfer(characterId);
         }
-        return toreturn;
+        return transfer;
     }
 
-    public final GameCharacter getCharacterByName(final String name) {
+    public final void registerPlayer(final ChannelCharacter chr) {
+        activePlayerLock.lock();
+        try {
+            nameToChar.put(chr.getName().toLowerCase(), chr);
+            idToChar.put(chr.getId(), chr);
+        } finally {
+            activePlayerLock.unlock();
+        }
+    }
+
+    public final ChannelCharacter getCharacterByName(final String name) {
         return nameToChar.get(name.toLowerCase());
     }
 
-    public final GameCharacter getCharacterById(final int id) {
+    public final ChannelCharacter getCharacterById(final int id) {
         return idToChar.get(id);
     }
 
@@ -90,28 +129,30 @@ public class PlayerStorage {
     public final List<CheaterData> getCheaters() {
         final List<CheaterData> cheaters = new ArrayList<CheaterData>();
 
-        mutex.lock();
+        activePlayerLock.lock();
         try {
-            final Iterator<GameCharacter> itr = nameToChar.values().iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+            ChannelCharacter chr;
             while (itr.hasNext()) {
                 chr = itr.next();
 
                 if (chr.getCheatTracker().getPoints() > 0) {
-                    cheaters.add(new CheaterData(chr.getCheatTracker().getPoints(), GameCharacterUtil.makeMapleReadable(chr.getName()) + " (" + chr.getCheatTracker().getPoints() + ") " + chr.getCheatTracker().getSummary()));
+                    cheaters.add(new CheaterData(chr.getCheatTracker().getPoints(), GameCharacterUtil.makeMapleReadable(chr.getName()) +
+                            " (" + chr.getCheatTracker().getPoints() + ") " +
+                            chr.getCheatTracker().getSummary()));
                 }
             }
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
         return cheaters;
     }
 
     public final void disconnectAll() {
-        mutex.lock();
+        activePlayerLock.lock();
         try {
-            final Iterator<GameCharacter> itr = nameToChar.values().iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+            ChannelCharacter chr;
             while (itr.hasNext()) {
                 chr = itr.next();
 
@@ -122,28 +163,28 @@ public class PlayerStorage {
                 }
             }
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
     }
 
     public final String getOnlinePlayers(final boolean byGM) {
         final StringBuilder sb = new StringBuilder();
         if (byGM) {
-            mutex.lock();
+            activePlayerLock.lock();
             try {
-                final Iterator<GameCharacter> itr = nameToChar.values().iterator();
+                final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
                 while (itr.hasNext()) {
                     sb.append(GameCharacterUtil.makeMapleReadable(itr.next().getWorldName()));
                     sb.append(", ");
                 }
             } finally {
-                mutex.unlock();
+                activePlayerLock.unlock();
             }
         } else {
-            mutex.lock();
+            activePlayerLock.lock();
             try {
-                final Iterator<GameCharacter> itr = nameToChar.values().iterator();
-                GameCharacter chr;
+                final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+                ChannelCharacter chr;
                 while (itr.hasNext()) {
                     chr = itr.next();
                     if (!chr.isGM()) {
@@ -152,29 +193,29 @@ public class PlayerStorage {
                     }
                 }
             } finally {
-                mutex.unlock();
+                activePlayerLock.unlock();
             }
         }
         return sb.toString();
     }
 
     public final void broadcastPacket(final GamePacket data) {
-        mutex.lock();
+        activePlayerLock.lock();
         try {
-            final Iterator<GameCharacter> itr = nameToChar.values().iterator();
+            final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
             while (itr.hasNext()) {
                 itr.next().getClient().write(data);
             }
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
     }
 
     public final void broadcastSmegaPacket(final GamePacket data) {
-        mutex.lock();
+        activePlayerLock.lock();
         try {
-            final Iterator<GameCharacter> itr = nameToChar.values().iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+            ChannelCharacter chr;
             while (itr.hasNext()) {
                 chr = itr.next();
 
@@ -183,15 +224,15 @@ public class PlayerStorage {
                 }
             }
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
     }
 
     public final void broadcastGMPacket(final GamePacket data) {
-        mutex.lock();
+        activePlayerLock.lock();
         try {
-            final Iterator<GameCharacter> itr = nameToChar.values().iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+            ChannelCharacter chr;
             while (itr.hasNext()) {
                 chr = itr.next();
 
@@ -200,7 +241,7 @@ public class PlayerStorage {
                 }
             }
         } finally {
-            mutex.unlock();
+            activePlayerLock.unlock();
         }
     }
 
@@ -208,24 +249,26 @@ public class PlayerStorage {
 
         @Override
         public void run() {
-            mutex2.lock();
+            pendingPlayerLock.lock();
             try {
                 final long currenttime = System.currentTimeMillis();
-                final Iterator<Map.Entry<Integer, CharacterTransfer>> itr = PendingCharacter.entrySet().iterator();
+                final Iterator<Map.Entry<Integer, CharacterTransfer>> itr = pendingTransfers.entrySet().iterator();
 
                 while (itr.hasNext()) {
-                    if (currenttime - itr.next().getValue().TranferTime > 40000) { // 40 sec
+                    final Entry<Integer, CharacterTransfer> current = itr.next();
+                    if (currenttime - current.getValue().TranferTime > 40000) { // 40 sec
                         itr.remove();
+                        deregisterSession(current.getKey());
                     }
                 }
                 TimerManager.getInstance().schedule(new PersistingTask(), 900000);
             } finally {
-                mutex2.unlock();
+                pendingPlayerLock.unlock();
             }
         }
     }
 
-    public Collection<GameCharacter> getAllCharacters() {
+    public Collection<ChannelCharacter> getAllCharacters() {
         return nameToChar.values();
     }
 }

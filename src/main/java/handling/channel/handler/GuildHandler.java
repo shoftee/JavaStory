@@ -23,8 +23,8 @@ package handling.channel.handler;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import handling.world.guild.*;
 import org.javastory.client.MemberRank;
 import org.javastory.io.PacketFormatException;
@@ -33,8 +33,8 @@ import org.javastory.io.PacketReader;
 
 public class GuildHandler {
 
-    public static void handleDenyGuildInvitation(final String from, final GameClient c) {
-        final GameCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
+    public static void handleDenyGuildInvitation(final String from, final ChannelClient c) {
+        final ChannelCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
         if (cfrom != null) {
             cfrom.getClient().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
         }
@@ -53,7 +53,7 @@ public class GuildHandler {
         return true;
     }
 
-    private static void respawnPlayer(final GameCharacter mc) {
+    private static void respawnPlayer(final ChannelCharacter mc) {
         mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(mc.getId()), false);
         mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
     }
@@ -83,7 +83,7 @@ public class GuildHandler {
     private static long nextPruneTime = System.currentTimeMillis() + 20 * 60 *
             1000;
 
-    public static void handleGuildOperation(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleGuildOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         if (System.currentTimeMillis() >= nextPruneTime) {
             Iterator<Invited> itr = invited.iterator();
             Invited inv;
@@ -95,7 +95,7 @@ public class GuildHandler {
             }
             nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
         }
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter player = c.getPlayer();
 
         switch (reader.readByte()) {
             case 0x02: // Create guild

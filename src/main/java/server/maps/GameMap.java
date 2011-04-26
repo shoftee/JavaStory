@@ -23,8 +23,8 @@ import client.IItem;
 import client.Item;
 import client.GameConstants;
 import client.BuffStat;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.InventoryType;
 import client.Pet;
 import client.OdinSEA;
@@ -58,7 +58,7 @@ public class GameMap {
     private final Map<Integer, GameMapObject> mapobjects = new HashMap<Integer, GameMapObject>();
     private final Collection<Spawns> monsterSpawn = new LinkedList<Spawns>();
     private final AtomicInteger spawnedMonstersOnMap = new AtomicInteger(0);
-    private final List<GameCharacter> characters = new ArrayList<GameCharacter>();
+    private final List<ChannelCharacter> characters = new ArrayList<ChannelCharacter>();
     private final Map<Integer, Portal> portals = new HashMap<Integer, Portal>();
     private final List<Rectangle> areas = new ArrayList<Rectangle>();
     private FootholdTree footholds = null;
@@ -212,8 +212,8 @@ public class GameMap {
     public final int getCurrentPartyId() {
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter chr;
             while (ltr.hasNext()) {
                 chr = ltr.next();
                 if (chr.getPartyId() != -1) {
@@ -246,8 +246,8 @@ public class GameMap {
             mapobject.setObjectId(runningOid);
             mapobjects.put(runningOid, mapobject);
 
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter chr;
             while (ltr.hasNext()) {
                 chr = ltr.next();
                 if (condition == null || condition.canSpawn(chr)) {
@@ -306,7 +306,7 @@ public class GameMap {
         return ret;
     }
 
-    private void dropFromMonster(final GameCharacter chr, final Monster mob) {
+    private void dropFromMonster(final ChannelCharacter chr, final Monster mob) {
         if (dropsDisabled || mob.dropsDisabled()) {
             return;
         }
@@ -384,7 +384,7 @@ public class GameMap {
         removeMapObject(monster);
     }
 
-    public final void killMonster(final Monster monster, final GameCharacter chr, final boolean withDrops, final boolean second, final byte animation) {
+    public final void killMonster(final Monster monster, final ChannelCharacter chr, final boolean withDrops, final boolean second, final byte animation) {
         if (monster.getId() == 8810018 && !second) {
             MapTimer.getInstance().schedule(new Runnable() {
 
@@ -398,13 +398,13 @@ public class GameMap {
         }
         spawnedMonstersOnMap.decrementAndGet();
         removeMapObject(monster);
-        GameCharacter dropOwner = monster.killBy(chr);
+        ChannelCharacter dropOwner = monster.killBy(chr);
         broadcastMessage(MobPacket.killMonster(monster.getObjectId(), animation));
         if (monster.getBuffToGive() > -1) {
             final int buffid = monster.getBuffToGive();
             final StatEffect buff = ItemInfoProvider.getInstance().getItemEffect(buffid);
             for (final GameMapObject mmo : getAllPlayer()) {
-                final GameCharacter c = (GameCharacter) mmo;
+                final ChannelCharacter c = (ChannelCharacter) mmo;
                 if (c.isAlive()) {
                     buff.applyTo(c);
                     switch (monster.getId()) {
@@ -493,7 +493,7 @@ public class GameMap {
         sb.append(" Users [").append(players.size()).append("] | ");
         final Iterator<GameMapObject> itr = players.iterator();
         while (itr.hasNext()) {
-            sb.append(((GameCharacter) itr.next()).getName()).append(", ");
+            sb.append(((ChannelCharacter) itr.next()).getName()).append(", ");
         }
         return sb.toString();
     }
@@ -568,13 +568,13 @@ public class GameMap {
             }
         }
         int mincontrolled = -1;
-        GameCharacter newController = null;
+        ChannelCharacter newController = null;
 
         mutex.lock();
 
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter chr;
             while (ltr.hasNext()) {
                 chr = ltr.next();
                 if (!chr.isHidden() && (chr.getControlledMonsters().size() < mincontrolled || mincontrolled == -1)) {
@@ -746,7 +746,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
             @Override
-            public final void sendPackets(GameClient c) {
+            public final void sendPackets(ChannelClient c) {
                 c.write(MobPacket.spawnMonster(monster, -2, 0, oid)); // TODO effect
             }
         }, null);
@@ -761,7 +761,7 @@ public class GameMap {
 
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
-            public final void sendPackets(GameClient c) {
+            public final void sendPackets(ChannelClient c) {
                 c.write(MobPacket.spawnMonster(monster, spawnType, 0, 0));
             }
         }, null);
@@ -778,7 +778,7 @@ public class GameMap {
             spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
                 @Override
-                public final void sendPackets(GameClient c) {
+                public final void sendPackets(ChannelClient c) {
                     c.write(MobPacket.spawnMonster(monster, -2, effect, 0));
                 }
             }, null);
@@ -796,7 +796,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
             @Override
-            public final void sendPackets(GameClient c) {
+            public final void sendPackets(ChannelClient c) {
                 c.write(MobPacket.spawnMonster(monster, -2, 0xfc, 0));
 //		c.write(MobPacket.spawnFakeMonster(monster, 0));
             }
@@ -812,7 +812,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(reactor, new DelayedPacketCreation() {
 
             @Override
-            public final void sendPackets(GameClient c) {
+            public final void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.spawnReactor(reactor));
             }
         }, null);
@@ -827,7 +827,7 @@ public class GameMap {
     public final void spawnDoor(final Door door) {
         spawnAndAddRangedMapObject(door, new DelayedPacketCreation() {
 
-            public final void sendPackets(GameClient c) {
+            public final void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.spawnDoor(door.getOwner().getId(), door.getTargetPosition(), false));
                 if (door.getOwner().getParty() != null && (door.getOwner() == c.getPlayer() || door.getOwner().getParty().containsMembers(new PartyMember(c.getPlayer())))) {
                     c.write(MaplePacketCreator.partyPortal(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
@@ -837,7 +837,7 @@ public class GameMap {
             }
         }, new SpawnCondition() {
 
-            public final boolean canSpawn(final GameCharacter chr) {
+            public final boolean canSpawn(final ChannelCharacter chr) {
                 return chr.getMapId() == door.getTarget().getId() || chr == door.getOwner() && chr.getParty() == null;
             }
         });
@@ -847,7 +847,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.spawnDragon(summon));
             }
         }, null);
@@ -857,7 +857,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.spawnSummon(summon, summon.getSkillLevel(), true));
             }
         }, null);
@@ -867,7 +867,7 @@ public class GameMap {
         spawnAndAddRangedMapObject(mist, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.spawnMist(mist));
             }
         }, null);
@@ -903,19 +903,19 @@ public class GameMap {
         }, duration);
     }
 
-    public final void disappearingItemDrop(final GameMapObject dropper, final GameCharacter owner, final IItem item, final Point pos) {
+    public final void disappearingItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, final Point pos) {
         final Point droppos = calcDropPos(pos, pos);
         final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 1, false);
         broadcastMessage(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
     }
 
-    public final void spawnMesoDrop(final int meso, final Point position, final GameMapObject dropper, final GameCharacter owner, final boolean playerDrop, final byte droptype) {
+    public final void spawnMesoDrop(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final boolean playerDrop, final byte droptype) {
         final Point droppos = calcDropPos(position, position);
         final GameMapItem mdrop = new GameMapItem(meso, droppos, dropper, owner, droptype, playerDrop);
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
             }
         }, null);
@@ -924,24 +924,24 @@ public class GameMap {
         }
     }
 
-    public final void spawnMobMesoDrop(final int meso, final Point position, final GameMapObject dropper, final GameCharacter owner, final boolean playerDrop, final byte droptype) {
+    public final void spawnMobMesoDrop(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final boolean playerDrop, final byte droptype) {
         final GameMapItem mdrop = new GameMapItem(meso, position, dropper, owner, droptype, playerDrop);
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
             }
         }, null);
         MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
     }
 
-    private void spawnMobDrop(final IItem idrop, final Point dropPos, final Monster mob, final GameCharacter chr, final byte droptype, final short questid) {
+    private void spawnMobDrop(final IItem idrop, final Point dropPos, final Monster mob, final ChannelCharacter chr, final byte droptype, final short questid) {
         final GameMapItem mdrop = new GameMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
         spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
                     c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
                 }
@@ -951,13 +951,13 @@ public class GameMap {
         activateItemReactors(mdrop, chr.getClient());
     }
 
-    public final void spawnItemDrop(final GameMapObject dropper, final GameCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean playerDrop) {
+    public final void spawnItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, Point pos, final boolean ffaDrop, final boolean playerDrop) {
         final Point droppos = calcDropPos(pos, pos);
         final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 0, playerDrop);
         spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
 
             @Override
-            public void sendPackets(GameClient c) {
+            public void sendPackets(ChannelClient c) {
                 c.write(MaplePacketCreator.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
             }
         }, null);
@@ -968,7 +968,7 @@ public class GameMap {
         }
     }
 
-    private void activateItemReactors(final GameMapItem drop, final GameClient c) {
+    private void activateItemReactors(final GameMapItem drop, final ChannelClient c) {
         final IItem item = drop.getItem();
 
         for (final GameMapObject o : getAllReactor()) {
@@ -995,8 +995,8 @@ public class GameMap {
         mutex.lock();
 
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter chars;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter chars;
             while (ltr.hasNext()) {
                 chars = ltr.next();
                 broadcastMessage(MaplePacketCreator.updateAriantPQRanking(chars.getName(), 0, false));
@@ -1012,7 +1012,7 @@ public class GameMap {
         }
     }
 
-    public final void returnEverLastItem(final GameCharacter chr) {
+    public final void returnEverLastItem(final ChannelCharacter chr) {
         for (final GameMapObject o : getAllItems()) {
             final GameMapItem item = ((GameMapItem) o);
             if (item.getOwner() == chr.getId()) {
@@ -1044,7 +1044,7 @@ public class GameMap {
         }, 30000);
     }
 
-    public final void addPlayer(final GameCharacter chr) {
+    public final void addPlayer(final ChannelCharacter chr) {
         mutex.lock();
         try {
             characters.add(chr);
@@ -1115,7 +1115,7 @@ public class GameMap {
         if (chr.getCarnivalParty() != null && chr.getEventInstance() != null) {
             chr.getEventInstance().onMapLoad(chr);
         }
-        if (GameConstants.isEvan(chr.getJob()) && chr.getJob() >= 2200 && chr.getBuffedValue(BuffStat.MONSTER_RIDING) == null) {
+        if (GameConstants.isEvan(chr.getJobId()) && chr.getJobId() >= 2200 && chr.getBuffedValue(BuffStat.MONSTER_RIDING) == null) {
             if (chr.getDragon() == null) {
                 chr.makeDragon();
             }
@@ -1124,7 +1124,7 @@ public class GameMap {
         }
     }
 
-    public final void removePlayer(final GameCharacter chr) {
+    public final void removePlayer(final ChannelCharacter chr) {
         //log.warn("[dc] [level2] Player {} leaves map {}", new Object[] { chr.getName(), mapid });
 
         if (everlast) {
@@ -1165,7 +1165,7 @@ public class GameMap {
         broadcastMessage(null, packet, Double.POSITIVE_INFINITY, null);
     }
 
-    public final void broadcastMessage(final GameCharacter source, final GamePacket packet, final boolean repeatToSource) {
+    public final void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final boolean repeatToSource) {
         broadcastMessage(repeatToSource ? null : source, packet, Double.POSITIVE_INFINITY, source.getPosition());
     }
 
@@ -1176,15 +1176,15 @@ public class GameMap {
         broadcastMessage(null, packet, GameConstants.maxViewRangeSq(), rangedFrom);
     }
 
-    public final void broadcastMessage(final GameCharacter source, final GamePacket packet, final Point rangedFrom) {
+    public final void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final Point rangedFrom) {
         broadcastMessage(source, packet, GameConstants.maxViewRangeSq(), rangedFrom);
     }
 
-    private void broadcastMessage(final GameCharacter source, final GamePacket packet, final double rangeSq, final Point rangedFrom) {
+    private void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final double rangeSq, final Point rangedFrom) {
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter chr;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter chr;
             while (ltr.hasNext()) {
                 chr = ltr.next();
                 if (chr != source) {
@@ -1202,7 +1202,7 @@ public class GameMap {
         }
     }
 
-    private void sendObjectPlacement(final GameCharacter c) {
+    private void sendObjectPlacement(final ChannelCharacter c) {
         if (c == null) {
             return;
         }
@@ -1281,13 +1281,13 @@ public class GameMap {
         return ret;
     }
 
-    public final List<GameCharacter> getPlayersInRect(final Rectangle box, final List<GameCharacter> CharacterList) {
-        final List<GameCharacter> character = new LinkedList<GameCharacter>();
+    public final List<ChannelCharacter> getPlayersInRect(final Rectangle box, final List<ChannelCharacter> CharacterList) {
+        final List<ChannelCharacter> character = new LinkedList<ChannelCharacter>();
 
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter a;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter a;
             while (ltr.hasNext()) {
                 a = ltr.next();
                 if (CharacterList.contains(a.getClient().getPlayer())) {
@@ -1420,12 +1420,12 @@ public class GameMap {
         monsterSpawn.add(new SpawnPointAreaBoss(monster, pos1, pos2, pos3, mobTime, msg));
     }
 
-    public final Collection<GameCharacter> getCharacters() {
-        final List<GameCharacter> chars = new ArrayList<GameCharacter>();
+    public final Collection<ChannelCharacter> getCharacters() {
+        final List<ChannelCharacter> chars = new ArrayList<ChannelCharacter>();
 
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
             while (ltr.hasNext()) {
                 chars.add(ltr.next());
             }
@@ -1435,11 +1435,11 @@ public class GameMap {
         return chars;
     }
 
-    public final GameCharacter getCharacterById_InMap(final int id) {
+    public final ChannelCharacter getCharacterById_InMap(final int id) {
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
-            GameCharacter c;
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
+            ChannelCharacter c;
             while (ltr.hasNext()) {
                 c = ltr.next();
                 if (c.getId() == id) {
@@ -1452,7 +1452,7 @@ public class GameMap {
         return null;
     }
 
-    private void updateMapObjectVisibility(final GameCharacter chr, final GameMapObject mo) {
+    private void updateMapObjectVisibility(final ChannelCharacter chr, final GameMapObject mo) {
         if (!chr.isMapObjectVisible(mo)) { // monster entered view range
             if (mo.getType() == GameMapObjectType.SUMMON || mo.getPosition().distanceSq(chr.getPosition()) <= GameConstants.maxViewRangeSq()) {
                 chr.addVisibleMapObject(mo);
@@ -1471,7 +1471,7 @@ public class GameMap {
 
         mutex.lock();
         try {
-            final Iterator<GameCharacter> ltr = characters.iterator();
+            final Iterator<ChannelCharacter> ltr = characters.iterator();
             while (ltr.hasNext()) {
                 updateMapObjectVisibility(ltr.next(), monster);
             }
@@ -1480,7 +1480,7 @@ public class GameMap {
         }
     }
 
-    public void movePlayer(final GameCharacter player, final Point newPosition) {
+    public void movePlayer(final ChannelCharacter player, final Point newPosition) {
         player.setPosition(newPosition);
 
         final Collection<GameMapObject> visibleObjects = player.getVisibleMapObjects();
@@ -1570,9 +1570,9 @@ public class GameMap {
 
         private GameMapItem mapitem;
         private Reactor reactor;
-        private GameClient c;
+        private ChannelClient c;
 
-        public ActivateItemReactor(GameMapItem mapitem, Reactor reactor, GameClient c) {
+        public ActivateItemReactor(GameMapItem mapitem, Reactor reactor, ChannelClient c) {
             this.mapitem = mapitem;
             this.reactor = reactor;
             this.c = c;
@@ -1641,11 +1641,11 @@ public class GameMap {
 
     private static interface DelayedPacketCreation {
 
-        void sendPackets(GameClient c);
+        void sendPackets(ChannelClient c);
     }
 
     private static interface SpawnCondition {
 
-        boolean canSpawn(GameCharacter chr);
+        boolean canSpawn(ChannelCharacter chr);
     }
 }

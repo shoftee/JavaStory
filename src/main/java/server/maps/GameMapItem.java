@@ -2,8 +2,8 @@ package server.maps;
 
 import java.awt.Point;
 import client.IItem;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import tools.MaplePacketCreator;
 
 public class GameMapItem extends AbstractGameMapObject {
@@ -14,7 +14,7 @@ public class GameMapItem extends AbstractGameMapObject {
 	protected byte type;
 	protected boolean pickedUp = false, playerDrop;
 
-	public GameMapItem(IItem item, Point position, GameMapObject dropper, GameCharacter owner, byte type, boolean playerDrop) {
+	public GameMapItem(IItem item, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop) {
 		setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
@@ -24,7 +24,7 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.playerDrop = playerDrop;
 	}
 
-	public GameMapItem(IItem item, Point position, GameMapObject dropper, GameCharacter owner, byte type, boolean playerDrop, int questid) {
+	public GameMapItem(IItem item, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop, int questid) {
 		setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
@@ -35,7 +35,7 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.questid = questid;
 	}
 
-	public GameMapItem(int meso, Point position, GameMapObject dropper, GameCharacter owner, byte type, boolean playerDrop) {
+	public GameMapItem(int meso, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop) {
 		setPosition(position);
 		this.item = null;
 		this.dropper = dropper;
@@ -94,14 +94,14 @@ public class GameMapItem extends AbstractGameMapObject {
 	}
 
 	@Override
-	public void sendSpawnData(final GameClient client) {
+	public void sendSpawnData(final ChannelClient client) {
 		if (questid <= 0 || client.getPlayer().getQuestStatus(questid) == 1) {
 			client.write(MaplePacketCreator.dropItemFromMapObject(this, null, getPosition(), (byte) 2));
 		}
 	}
 
 	@Override
-	public void sendDestroyData(final GameClient client) {
+	public void sendDestroyData(final ChannelClient client) {
 		client.write(MaplePacketCreator.removeItemFromMap(getObjectId(), 1, 0));
 	}
 }

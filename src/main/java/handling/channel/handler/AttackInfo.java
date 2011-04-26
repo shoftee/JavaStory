@@ -25,7 +25,7 @@ import java.awt.Point;
 
 import client.ISkill;
 import client.GameConstants;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.SkillFactory;
 import server.StatEffect;
 import server.AutobanManager;
@@ -38,7 +38,7 @@ public class AttackInfo {
     public Point position;
     public byte hits, targets, tbyte, display, animation, speed, csstar, AOE, slot;
 
-    public final StatEffect getAttackEffect(final GameCharacter chr, int skillLevel, final ISkill skill_) {
+    public final StatEffect getAttackEffect(final ChannelCharacter chr, int skillLevel, final ISkill skill_) {
 	if (GameConstants.isMulungSkill(skill)) {
 	    skillLevel = 1;
 	} else if (skillLevel == 0) {

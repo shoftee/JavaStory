@@ -4,7 +4,7 @@ import java.util.List;
 
 import client.Pet;
 import client.Stat;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.movement.LifeMovementFragment;
@@ -51,7 +51,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPet(final GameCharacter chr, final Pet pet, final boolean remove, final boolean hunger) {
+	public static final GamePacket showPet(final ChannelCharacter chr, final Pet pet, final boolean remove, final boolean hunger) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
@@ -129,7 +129,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPetLevelUp(final GameCharacter chr, final byte index) {
+	public static final GamePacket showPetLevelUp(final ChannelCharacter chr, final byte index) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
@@ -151,7 +151,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket petStatUpdate(final GameCharacter chr) {
+	public static final GamePacket petStatUpdate(final ChannelCharacter chr) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());

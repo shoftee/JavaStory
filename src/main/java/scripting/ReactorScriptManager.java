@@ -32,7 +32,7 @@ import java.util.Map;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import client.GameClient;
+import client.ChannelClient;
 import database.DatabaseConnection;
 import server.maps.ReactorDropEntry;
 import server.maps.Reactor;
@@ -46,7 +46,7 @@ public class ReactorScriptManager extends AbstractScriptManager {
 	return instance;
     }
 
-    public final void act(final GameClient c, final Reactor reactor) {
+    public final void act(final ChannelClient c, final Reactor reactor) {
 	try {
 	    final Invocable iv = getInvocable("reactor/" + reactor.getReactorId() + ".js", c);
 	    final ScriptEngine scriptengine = (ScriptEngine) iv;

@@ -22,7 +22,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.GameClient;
+import client.ChannelClient;
 import client.anticheat.CheatingOffense;
 import org.javastory.server.channel.ChannelManager;
 import scripting.PortalScriptManager;
@@ -100,7 +100,7 @@ public class GenericPortal implements Portal {
     }
 
     @Override
-    public final void enterPortal(final GameClient c) {
+    public final void enterPortal(final ChannelClient c) {
 	if (getPosition().distanceSq(c.getPlayer().getPosition()) > 22500) {
 	    c.getPlayer().getCheatTracker().registerOffense(CheatingOffense.USING_FARAWAY_PORTAL);
 	}

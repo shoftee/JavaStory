@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.Inventory;
 import java.util.Map;
 
 import client.IItem;
 import client.Equip;
 import client.SkillFactory;
-import client.GameClient;
+import client.ChannelClient;
 import client.InventoryType;
 import client.GameConstants;
 import org.javastory.io.PacketFormatException;
@@ -45,7 +45,7 @@ import org.javastory.server.maker.ItemRecipeEntry;
 
 public class ItemMakerHandler {
 
-    public static void handleItemMaker(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    public static void handleItemMaker(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int makerType = reader.readInt();
 
         switch (makerType) {
@@ -61,7 +61,7 @@ public class ItemMakerHandler {
         }
     }
 
-    private static boolean disassemble(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    private static boolean disassemble(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         // Disassembling EQ.
         final int itemId = reader.readInt();
         reader.skip(4);
@@ -83,10 +83,10 @@ public class ItemMakerHandler {
         return false;
     }
 
-    private static void makeCrystal(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    private static void makeCrystal(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         // Making Crystals
         final int etc = reader.readInt();
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter player = c.getPlayer();
         final Inventory etcInventory = player.getEtcInventory();
         if (player.haveItem(etc, 100, false, true)) {
             InventoryManipulator.addById(c, getCreateCrystal(etc), (short) 1);
@@ -97,10 +97,10 @@ public class ItemMakerHandler {
         }
     }
 
-    private static boolean makeGem(final PacketReader reader, final GameClient c) throws PacketFormatException {
+    private static boolean makeGem(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         // Gem
         final int toCreate = reader.readInt();
-        final GameCharacter player = c.getPlayer();
+        final ChannelCharacter player = c.getPlayer();
         if (GameConstants.isGem(toCreate)) {
             final GemInfo gem = ItemMakerFactory.getInstance().getGemInfo(toCreate);
             if (!hasSkill(c, gem.getRequiredSkillLevel())) {
@@ -307,7 +307,7 @@ public class ItemMakerHandler {
         }
     }
 
-    private static int checkRequiredNRemove(final GameClient c, final ItemRecipe recipe) {
+    private static int checkRequiredNRemove(final ChannelClient c, final ItemRecipe recipe) {
         int removed = 0;
         for (final ItemRecipeEntry p : recipe) {
             if (!c.getPlayer().haveItem(p.getItemId(), p.getQuantity(), false, true)) {
@@ -323,11 +323,11 @@ public class ItemMakerHandler {
         return removed;
     }
 
-    private static boolean hasSkill(final GameClient c, final int reqlvl) {
-        if (GameConstants.isKOC(c.getPlayer().getJob())) { // KoC Maker skill.
+    private static boolean hasSkill(final ChannelClient c, final int reqlvl) {
+        if (GameConstants.isKOC(c.getPlayer().getJobId())) { // KoC Maker skill.
             return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(10001007)) >=
                     reqlvl;
-        } else if (GameConstants.isAran(c.getPlayer().getJob())) { // KoC Maker skill.
+        } else if (GameConstants.isAran(c.getPlayer().getJobId())) { // KoC Maker skill.
             return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(20001007)) >=
                     reqlvl;
         } else {

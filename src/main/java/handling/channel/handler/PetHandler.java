@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import client.IItem;
-import client.GameClient;
-import client.GameCharacter;
+import client.ChannelClient;
+import client.ChannelCharacter;
 import client.InventoryType;
 import client.Pet;
 import client.Stat;
@@ -27,7 +27,7 @@ import tools.packet.PetPacket;
 
 public class PetHandler {
 
-    public static void handleSpawnPet(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handleSpawnPet(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final byte slot = reader.readByte();
         final Inventory cashInventory = chr.getCashInventory();
@@ -78,7 +78,7 @@ public class PetHandler {
         c.write(PetPacket.emptyStatUpdate());
     }
 
-    public static void handlePetAutoPotion(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetAutoPotion(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(13);
         final byte slot = reader.readByte();
         final Inventory useInventory = chr.getUseInventory();
@@ -92,11 +92,11 @@ public class PetHandler {
         ItemInfoProvider.getInstance().getItemEffect(toUse.getItemId()).applyTo(chr);
     }
 
-    public static void handlePetChat(final int petid, final short command, final String text, GameCharacter chr) {
+    public static void handlePetChat(final int petid, final short command, final String text, ChannelCharacter chr) {
         chr.getMap().broadcastMessage(chr, PetPacket.petChat(chr.getId(), command, text, chr.getPetIndex(petid)), true);
     }
 
-    public static void handlePetCommand(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetCommand(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final byte petIndex = chr.getPetIndex(reader.readInt());
         if (petIndex == -1) {
             return;
@@ -127,7 +127,7 @@ public class PetHandler {
         chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), command, petIndex, success, false), true);
     }
 
-    public static void handlePetFood(final PacketReader reader, final GameClient c, final GameCharacter chr) throws PacketFormatException {
+    public static void handlePetFood(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         int previousFullness = 100;
 
         for (final Pet pet : chr.getPets()) {
@@ -191,7 +191,7 @@ public class PetHandler {
         c.write(MaplePacketCreator.enableActions());
     }
 
-    public static void handleMovePet(final PacketReader reader, final GameCharacter chr) throws PacketFormatException {
+    public static void handleMovePet(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final int petId = reader.readInt();
         reader.skip(4);
         reader.skip(8); // Start POS

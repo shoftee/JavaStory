@@ -3,29 +3,22 @@ package org.javastory.server.login;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
 import database.DatabaseConnection;
-import handling.ServerType;
 import handling.login.LoginWorldInterfaceImpl;
-import org.javastory.server.mina.PacketHandler;
+import org.javastory.server.handling.PacketHandler;
 import handling.login.remote.LoginWorldInterface;
 import handling.world.remote.WorldLoginInterface;
-import handling.world.remote.WorldRegistry;
-import java.sql.ResultSet;
 import org.javastory.server.GameService;
 import org.javastory.server.ChannelInfo;
 import org.javastory.server.LoginChannelInfo;
-import org.javastory.tools.PropertyUtil;
+import org.javastory.server.handling.LoginPacketHandler;
 import server.TimerManager;
 
 public class LoginServer extends GameService {
@@ -57,8 +50,12 @@ public class LoginServer extends GameService {
         channels.remove(channelId);
     }
 
-    public final String getIP(final int channelId) {
+    public final String getChannelServerIP(final int channelId) {
         return channels.get(channelId).getHost();
+    }
+    
+    public final int getChannelServerPort(final int channelId) {
+        return channels.get(channelId).getPort();
     }
 
     public final Map<Integer, LoginChannelInfo> getChannels() {
@@ -105,7 +102,7 @@ public class LoginServer extends GameService {
             throw new RuntimeException("[EXCEPTION] Please check if the SQL server is active.");
         }
 
-        final PacketHandler packetHandler = new PacketHandler(ServerType.LOGIN);
+        final PacketHandler packetHandler = new LoginPacketHandler();
         super.bind(packetHandler);
     }
 

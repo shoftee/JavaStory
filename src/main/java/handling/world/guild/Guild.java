@@ -14,8 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import database.DatabaseConnection;
@@ -201,7 +201,7 @@ public class Guild implements java.io.Serializable {
         return leader;
     }
 
-    public final GameCharacter getLeader(final GameClient c) {
+    public final ChannelCharacter getLeader(final ChannelClient c) {
         return c.getChannelServer().getPlayerStorage().getCharacterById(leader);
     }
 
@@ -252,7 +252,7 @@ public class Guild implements java.io.Serializable {
         return allianceid;
     }
 
-    public final GuildUnion getUnion(final GameClient c) {
+    public final GuildUnion getUnion(final ChannelClient c) {
         if (ally != null) {
             return ally;
         } else if (allianceid > 0) {
@@ -348,7 +348,7 @@ public class Guild implements java.io.Serializable {
         for (final GuildMember mgc : members) {
             for (final ChannelServer cs : ChannelManager.getAllInstances()) {
                 if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
-                    final GameCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
+                    final ChannelCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
                     if (serverNotice != null) {
                         chr.getClient().write(serverNotice);
                     } else {
@@ -526,7 +526,7 @@ public class Guild implements java.io.Serializable {
         }
     }
 
-    public final void createAlliance(final GameClient c, final String name) {
+    public final void createAlliance(final ChannelClient c, final String name) {
         if (allianceid != 0) {
             c.getPlayer().sendNotice(1, "You are already in an Alliance!");
             return;
@@ -682,15 +682,15 @@ public class Guild implements java.io.Serializable {
     // keep in mind that this will be called by a handler most of the time
     // so this will be running mostly on a channel server, unlike the rest
     // of the class
-    public static GuildOperationResponse sendInvite(final GameClient c, final String targetName) {
-        final GameCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
+    public static GuildOperationResponse sendInvite(final ChannelClient c, final String targetName) {
+        final ChannelCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
         if (mc == null) {
             return GuildOperationResponse.NOT_IN_CHANNEL;
         }
         if (mc.getGuildId() > 0) {
             return GuildOperationResponse.ALREADY_IN_GUILD;
         }
-        mc.getClient().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob()));
+        mc.getClient().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJobId()));
         return null;
     }
 

@@ -8,8 +8,8 @@ import client.Equip;
 import client.IItem;
 import client.SkillFactory;
 import client.GameConstants;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.Pet;
@@ -35,17 +35,17 @@ import tools.packet.UIPacket;
 
 public class AbstractPlayerInteraction {
 
-    protected GameClient client;
+    protected ChannelClient client;
 
-    public AbstractPlayerInteraction(final GameClient client) {
+    public AbstractPlayerInteraction(final ChannelClient client) {
         this.client = client;
     }
 
-    public final GameClient getClient() {
+    public final ChannelClient getClient() {
         return client;
     }
 
-    public final GameCharacter getPlayer() {
+    public final ChannelCharacter getPlayer() {
         return client.getPlayer();
     }
 
@@ -74,7 +74,7 @@ public class AbstractPlayerInteraction {
 
     public final void warpMap(final int mapid, final int portal) {
         final GameMap map = getMap(mapid);
-        for (GameCharacter chr : client.getPlayer().getMap().getCharacters()) {
+        for (ChannelCharacter chr : client.getPlayer().getMap().getCharacters()) {
             chr.changeMap(map, map.getPortal(portal));
         }
     }
@@ -207,11 +207,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getJob() {
-        return client.getPlayer().getJob();
+        return client.getPlayer().getJobId();
     }
 
     public int getJobId() {
-        return getPlayer().getJob();
+        return getPlayer().getJobId();
     }
 
     public final void gainNX(final int amount) {
@@ -307,8 +307,8 @@ public class AbstractPlayerInteraction {
 
     public final boolean isAllPartyMembersAllowedJob(final int job) {
         boolean allow = true;
-        for (final GameCharacter mem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) {
-            if (mem.getJob() / 100 != job) {
+        for (final ChannelCharacter mem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) {
+            if (mem.getJobId() / 100 != job) {
                 allow = false;
                 break;
             }
@@ -318,7 +318,7 @@ public class AbstractPlayerInteraction {
 
     public final boolean allMembersHere() {
         boolean allHere = true;
-        for (final GameCharacter partymem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
+        for (final ChannelCharacter partymem : client.getChannelServer().getPartyMembers(client.getPlayer().getParty())) { // TODO, store info in MaplePartyCharacter instead
             if (partymem.getMapId() != client.getPlayer().getMapId()) {
                 allHere = false;
                 break;
@@ -331,15 +331,15 @@ public class AbstractPlayerInteraction {
         final int cMap = client.getPlayer().getMapId();
         final GameMap target = getMap(mapId);
         for (final PartyMember chr : getPlayer().getParty().getMembers()) {
-            final GameCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+            final ChannelCharacter curChar = getClient().getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if (curChar != null && curChar.getMapId() == cMap) {
                 curChar.changeMap(target, target.getPortal(0));
             }
         }
     }
 
-    public final void givePartyItems(final int id, final short quantity, final List<GameCharacter> party) {
-        for (GameCharacter chr : party) {
+    public final void givePartyItems(final int id, final short quantity, final List<ChannelCharacter> party) {
+        for (ChannelCharacter chr : party) {
             if (quantity >= 0) {
                 InventoryManipulator.addById(chr.getClient(), id, quantity);
             } else {
@@ -349,14 +349,14 @@ public class AbstractPlayerInteraction {
         }
     }
 
-    public final void givePartyExp(final int amount, final List<GameCharacter> party) {
-        for (final GameCharacter chr : party) {
+    public final void givePartyExp(final int amount, final List<ChannelCharacter> party) {
+        for (final ChannelCharacter chr : party) {
             chr.gainExp(amount * client.getChannelServer().getExpRate(), true, true, true);
         }
     }
 
-    public final void removeFromParty(final int id, final List<GameCharacter> party) {
-        for (final GameCharacter chr : party) {
+    public final void removeFromParty(final int id, final List<ChannelCharacter> party) {
+        for (final ChannelCharacter chr : party) {
             final Inventory inventory = chr.getInventoryForItem(id);
             final int possesed = inventory.countById(id);
             if (possesed > 0) {

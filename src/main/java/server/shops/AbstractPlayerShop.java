@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 import client.IItem;
 import client.Equip;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import org.javastory.client.ItemType;
 import database.DatabaseConnection;
 import handling.GamePacket;
@@ -26,12 +26,12 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     private String ownerName, des;
     private int ownerId, owneraccount, itemId;
     private AtomicInteger meso = new AtomicInteger(0);
-    protected WeakReference<GameCharacter> chr1 = new WeakReference<GameCharacter>(null);
-    protected WeakReference<GameCharacter> chr2 = new WeakReference<GameCharacter>(null);
-    protected WeakReference<GameCharacter> chr3 = new WeakReference<GameCharacter>(null);
+    protected WeakReference<ChannelCharacter> chr1 = new WeakReference<ChannelCharacter>(null);
+    protected WeakReference<ChannelCharacter> chr2 = new WeakReference<ChannelCharacter>(null);
+    protected WeakReference<ChannelCharacter> chr3 = new WeakReference<ChannelCharacter>(null);
     protected List<PlayerShopItem> items = new LinkedList<PlayerShopItem>();
 
-    public AbstractPlayerShop(GameCharacter owner, int itemId, String desc) {
+    public AbstractPlayerShop(ChannelCharacter owner, int itemId, String desc) {
 	this.setPosition(owner.getPosition());
 	this.ownerName = owner.getName();
 	this.ownerId = owner.getId();
@@ -47,7 +47,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     public void broadcastToVisitors(GamePacket packet, boolean owner) {
-	GameCharacter chr = chr1.get();
+	ChannelCharacter chr = chr1.get();
 	if (chr != null) {
 	    chr.getClient().write(packet);
 	}
@@ -75,7 +75,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     public void removeVisitors() {
-	GameCharacter chr = chr1.get();
+	ChannelCharacter chr = chr1.get();
 	if (chr != null) {
 	    removeVisitor(chr);
 	}
@@ -174,7 +174,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	return false;
     }
 
-    public GameCharacter getVisitor(int num) {
+    public ChannelCharacter getVisitor(int num) {
 	switch (num) {
 	    case 1:
 		return chr1.get();
@@ -187,7 +187,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     @Override
-    public void addVisitor(GameCharacter visitor) {
+    public void addVisitor(ChannelCharacter visitor) {
 	int i = getFreeSlot();
 	if (i > -1) {
 	    broadcastToVisitors(PlayerShopPacket.shopVisitorAdd(visitor, i));
@@ -214,7 +214,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     @Override
-    public void removeVisitor(GameCharacter visitor) {
+    public void removeVisitor(ChannelCharacter visitor) {
 	final byte slot = getVisitorSlot(visitor);
 	boolean shouldUpdate = getFreeSlot() == -1;
 	if (slot != -1) {
@@ -242,8 +242,8 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     @Override
-    public byte getVisitorSlot(GameCharacter visitor) {
-	GameCharacter chr = chr1.get();
+    public byte getVisitorSlot(ChannelCharacter visitor) {
+	ChannelCharacter chr = chr1.get();
 	if (chr == visitor) {
 	    return 1;
 	}
@@ -264,7 +264,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     @Override
     public void removeAllVisitors(int error, int type) {
 	for (int i = 1; i <= 3; i++) {
-	    GameCharacter visitor = getVisitor(i);
+	    ChannelCharacter visitor = getVisitor(i);
 	    if (visitor != null) {
 		if (type != -1) {
 		    visitor.getClient().write(PlayerShopPacket.shopErrorMessage(error, type));
@@ -310,19 +310,19 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     @Override
-    public List<Pair<Byte, GameCharacter>> getVisitors() {
-	List<Pair<Byte, GameCharacter>> chrs = new LinkedList<Pair<Byte, GameCharacter>>();
-	GameCharacter chr = chr1.get();
+    public List<Pair<Byte, ChannelCharacter>> getVisitors() {
+	List<Pair<Byte, ChannelCharacter>> chrs = new LinkedList<Pair<Byte, ChannelCharacter>>();
+	ChannelCharacter chr = chr1.get();
 	if (chr != null) {
-	    chrs.add(new Pair<Byte, GameCharacter>((byte) 1, chr));
+	    chrs.add(new Pair<Byte, ChannelCharacter>((byte) 1, chr));
 	}
 	chr = chr2.get();
 	if (chr != null) {
-	    chrs.add(new Pair<Byte, GameCharacter>((byte) 2, chr));
+	    chrs.add(new Pair<Byte, ChannelCharacter>((byte) 2, chr));
 	}
 	chr = chr3.get();
 	if (chr != null) {
-	    chrs.add(new Pair<Byte, GameCharacter>((byte) 3, chr));
+	    chrs.add(new Pair<Byte, ChannelCharacter>((byte) 3, chr));
 	}
 	return chrs;
     }
@@ -349,7 +349,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 
     @Override
     public byte getFreeSlot() {
-	GameCharacter chr = chr1.get();
+	ChannelCharacter chr = chr1.get();
 	if (chr == null) {
 	    return 1;
 	}
@@ -370,7 +370,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
     }
 
     @Override
-    public boolean isOwner(GameCharacter chr) {
+    public boolean isOwner(ChannelCharacter chr) {
 	return chr.getId() == ownerId && chr.getName().equals(ownerName);
     }
 }

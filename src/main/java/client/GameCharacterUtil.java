@@ -40,7 +40,7 @@ public class GameCharacterUtil {
     public static int getIdByName(final String name) {
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT id FROM characters WHERE name = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT `id` FROM `characters` WHERE `name` = ?");
             ps.setString(1, name);
             final ResultSet rs = ps.executeQuery();
 
@@ -68,7 +68,7 @@ public class GameCharacterUtil {
     public static int Change_SecondPassword(final int accid, final String password, final String newpassword) {
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT * from accounts where id = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM `accounts` WHERE `id` = ?");
             ps.setInt(1, accid);
             final ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
@@ -76,16 +76,16 @@ public class GameCharacterUtil {
                 ps.close();
                 return -1;
             }
-            String secondPassword = rs.getString("2ndpassword");
-            final String salt2 = rs.getString("salt2");
-            if (secondPassword != null && salt2 != null) {
-                secondPassword = LoginCrypto.rand_r(secondPassword);
-            } else if (secondPassword == null && salt2 == null) {
+            String secondPassword = rs.getString("char_password");
+            final String char_salt = rs.getString("char_salt");
+            if (secondPassword != null && char_salt != null) {
+                secondPassword = LoginCrypto.getPadding(secondPassword);
+            } else if (secondPassword == null && char_salt == null) {
                 rs.close();
                 ps.close();
                 return 0;
             }
-            if (!check_ifPasswordEquals(secondPassword, password, salt2)) {
+            if (!check_ifPasswordEquals(secondPassword, password, char_salt)) {
                 rs.close();
                 ps.close();
                 return 1;
@@ -98,7 +98,7 @@ public class GameCharacterUtil {
             } catch (Exception e) {
                 return -2;
             }
-            ps = con.prepareStatement("UPDATE accounts set 2ndpassword = ?, salt2 = ? where id = ?");
+            ps = con.prepareStatement("UPDATE `accounts` SET `char_password` = ?, `char_salt` = ? WHERE `id` = ?");
             ps.setString(1, SHA1hashedsecond);
             ps.setString(2, null);
             ps.setInt(3, accid);

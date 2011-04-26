@@ -14,9 +14,9 @@ import java.rmi.RemoteException;
 import client.Equip;
 import client.ISkill;
 import client.IItem;
-import client.GameCharacter;
+import client.ChannelCharacter;
 import client.GameConstants;
-import client.GameClient;
+import client.ChannelClient;
 import client.Inventory;
 import client.SkillFactory;
 import client.SkillEntry;
@@ -49,7 +49,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     private byte type; // -1 = NPC, 0 = start quest, 1 = end quest
     private boolean isPendingDisposal;
 
-    public NpcConversationManager(GameClient client, int npcId, int questId, byte type) {
+    public NpcConversationManager(ChannelClient client, int npcId, int questId, byte type) {
         super(client);
         this.npcId = npcId;
         this.questId = questId;
@@ -185,13 +185,13 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         gainItem(ticket, (short) -1);
         int args = args_all[Randomizer.nextInt(args_all.length)];
         if (args < 100) {
-            super.client.getPlayer().setSkinColor(args);
+            super.client.getPlayer().setSkinColorId(args);
             super.client.getPlayer().updateSingleStat(Stat.SKIN, args);
         } else if (args < 30000) {
-            super.client.getPlayer().setFace(args);
+            super.client.getPlayer().setFaceId(args);
             super.client.getPlayer().updateSingleStat(Stat.FACE, args);
         } else {
-            super.client.getPlayer().setHair(args);
+            super.client.getPlayer().setHairId(args);
             super.client.getPlayer().updateSingleStat(Stat.HAIR, args);
         }
         super.client.getPlayer().equipChanged();
@@ -204,13 +204,13 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         }
         gainItem(ticket, (short) -1);
         if (args < 100) {
-            super.client.getPlayer().setSkinColor(args);
+            super.client.getPlayer().setSkinColorId(args);
             super.client.getPlayer().updateSingleStat(Stat.SKIN, args);
         } else if (args < 30000) {
-            super.client.getPlayer().setFace(args);
+            super.client.getPlayer().setFaceId(args);
             super.client.getPlayer().updateSingleStat(Stat.FACE, args);
         } else {
-            super.client.getPlayer().setHair(args);
+            super.client.getPlayer().setHairId(args);
             super.client.getPlayer().updateSingleStat(Stat.HAIR, args);
         }
         super.client.getPlayer().equipChanged();
@@ -333,7 +333,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         return false;
     }
 
-    public GameCharacter getChar() {
+    public ChannelCharacter getChar() {
         return getPlayer();
     }
 
@@ -371,7 +371,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public int partyMembersInMap() {
         int inMap = 0;
-        for (GameCharacter char2 : getPlayer().getMap().getCharacters()) {
+        for (ChannelCharacter char2 : getPlayer().getMap().getCharacters()) {
             if (char2.getParty() == getPlayer().getParty()) {
                 inMap++;
             }
@@ -379,13 +379,13 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         return inMap;
     }
 
-    public List<GameCharacter> getPartyMembers() {
+    public List<ChannelCharacter> getPartyMembers() {
         if (getPlayer().getParty() == null) {
             return null;
         }
-        List<GameCharacter> chars = new LinkedList<GameCharacter>(); // creates an empty array full of shit..
+        List<ChannelCharacter> chars = new LinkedList<ChannelCharacter>(); // creates an empty array full of shit..
         for (ChannelServer channel : ChannelManager.getAllInstances()) {
-            for (GameCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
+            for (ChannelCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
                 if (chr != null) { // double check <3
                     chars.add(chr);
                 }
@@ -397,7 +397,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     public void warpPartyWithExp(int mapId, int exp) {
         GameMap target = getMap(mapId);
         for (PartyMember chr : getPlayer().getParty().getMembers()) {
-            GameCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+            ChannelCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if ((curChar.getEventInstance() == null &&
                     getPlayer().getEventInstance() == null) ||
                     curChar.getEventInstance() == getPlayer().getEventInstance()) {
@@ -410,7 +410,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
         GameMap target = getMap(mapId);
         for (PartyMember chr : getPlayer().getParty().getMembers()) {
-            GameCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
+            ChannelCharacter curChar = super.client.getChannelServer().getPlayerStorage().getCharacterByName(chr.getName());
             if ((curChar.getEventInstance() == null &&
                     getPlayer().getEventInstance() == null) ||
                     curChar.getEventInstance() == getPlayer().getEventInstance()) {
@@ -530,7 +530,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void disbandGuild() {
-        final GameCharacter player = super.client.getPlayer();
+        final ChannelCharacter player = super.client.getPlayer();
         final int gid = player.getGuildId();
         if (gid <= 0 || player.getGuildRank().equals(MemberRank.MASTER)) {
             return;
@@ -588,7 +588,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendUnionInvite(String charname) {
-        GameCharacter z = super.client.getChannelServer().getPlayerStorage().getCharacterByName(charname);
+        ChannelCharacter z = super.client.getChannelServer().getPlayerStorage().getCharacterByName(charname);
         if (z != null) {
             if (z.getGuild().getLeader(z.getClient()) == z) {
                 //                z.dropMessage(getPlayer().getName() + " invites your guild to join his alliance");
@@ -784,25 +784,25 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public void resetStats(final int str, final int dex, final int int_, final int luk) {
         List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(2);
-        final GameCharacter chr = super.client.getPlayer();
-        int total = chr.getStat().getStr() + chr.getStat().getDex() +
-                chr.getStat().getLuk() + chr.getStat().getInt() +
+        final ChannelCharacter chr = super.client.getPlayer();
+        int total = chr.getStats().getStr() + chr.getStats().getDex() +
+                chr.getStats().getLuk() + chr.getStats().getInt() +
                 chr.getRemainingAp();
         total -= str;
-        chr.getStat().setStr(str);
+        chr.getStats().setStr(str);
         total -= dex;
-        chr.getStat().setDex(dex);
+        chr.getStats().setDex(dex);
         total -= int_;
-        chr.getStat().setInt(int_);
+        chr.getStats().setInt(int_);
         total -= luk;
-        chr.getStat().setLuk(luk);
+        chr.getStats().setLuk(luk);
         chr.setRemainingAp(total);
         stats.add(new Pair<Stat, Integer>(Stat.STR, str));
         stats.add(new Pair<Stat, Integer>(Stat.DEX, dex));
         stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
         stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
         stats.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, total));
-        super.client.write(MaplePacketCreator.updatePlayerStats(stats, false, super.client.getPlayer().getJob()));
+        super.client.write(MaplePacketCreator.updatePlayerStats(stats, false, super.client.getPlayer().getJobId()));
     }
 
     public final boolean dropItem(int slot, int invType, int quantity) {
@@ -820,23 +820,23 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         statup.add(new Pair(Stat.AVAILABLE_AP, Integer.valueOf(0)));
         super.client.getPlayer().setRemainingSp(0);
         statup.add(new Pair(Stat.AVAILABLE_SP, Integer.valueOf(0)));
-        super.client.getPlayer().getStat().setStr(32767);
+        super.client.getPlayer().getStats().setStr(32767);
         statup.add(new Pair(Stat.STR, Integer.valueOf(32767)));
-        super.client.getPlayer().getStat().setDex(32767);
+        super.client.getPlayer().getStats().setDex(32767);
         statup.add(new Pair(Stat.DEX, Integer.valueOf(32767)));
-        super.client.getPlayer().getStat().setInt(32767);
+        super.client.getPlayer().getStats().setInt(32767);
         statup.add(new Pair(Stat.INT, Integer.valueOf(32767)));
-        super.client.getPlayer().getStat().setLuk(32767);
+        super.client.getPlayer().getStats().setLuk(32767);
         statup.add(new Pair(Stat.LUK, Integer.valueOf(32767)));
-        super.client.getPlayer().getStat().setHp(30000);
+        super.client.getPlayer().getStats().setHp(30000);
         statup.add(new Pair(Stat.HP, Integer.valueOf(30000)));
-        super.client.getPlayer().getStat().setMaxHp(30000);
+        super.client.getPlayer().getStats().setMaxHp(30000);
         statup.add(new Pair(Stat.MAX_HP, Integer.valueOf(30000)));
-        super.client.getPlayer().getStat().setMp(30000);
+        super.client.getPlayer().getStats().setMp(30000);
         statup.add(new Pair(Stat.MP, Integer.valueOf(30000)));
-        super.client.getPlayer().getStat().setMaxMp(30000);
+        super.client.getPlayer().getStats().setMaxMp(30000);
         statup.add(new Pair(Stat.MAX_MP, Integer.valueOf(30000)));
-        super.client.write(MaplePacketCreator.updatePlayerStats(statup, super.client.getPlayer().getJob()));
+        super.client.write(MaplePacketCreator.updatePlayerStats(statup, super.client.getPlayer().getJobId()));
     }
 
     public void gainFame(int fame) {

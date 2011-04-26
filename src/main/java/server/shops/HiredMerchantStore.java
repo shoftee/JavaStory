@@ -24,8 +24,8 @@ import java.util.concurrent.ScheduledFuture;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import org.javastory.server.channel.ChannelManager;
 import server.InventoryManipulator;
 import server.TimerManager;
@@ -40,7 +40,7 @@ public class HiredMerchantStore extends AbstractPlayerShop {
     private int channel, storeid;
     private long start;
 
-    public HiredMerchantStore(GameCharacter owner, int itemId, String desc) {
+    public HiredMerchantStore(ChannelCharacter owner, int itemId, String desc) {
 	super(owner, itemId, desc);
 	start = System.currentTimeMillis();
 	this.map = owner.getMap();
@@ -63,7 +63,7 @@ public class HiredMerchantStore extends AbstractPlayerShop {
     }
 
     @Override
-    public void buy(GameClient c, int item, short quantity) {
+    public void buy(ChannelClient c, int item, short quantity) {
 	final PlayerShopItem pItem = items.get(item);
 	final IItem shopItem = pItem.item;
 	final IItem newItem = shopItem.copy();
@@ -126,12 +126,12 @@ public class HiredMerchantStore extends AbstractPlayerShop {
     }
 
     @Override
-    public void sendDestroyData(GameClient client) {
+    public void sendDestroyData(ChannelClient client) {
 	client.write(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
     }
 
     @Override
-    public void sendSpawnData(GameClient client) {
+    public void sendSpawnData(ChannelClient client) {
 	client.write(PlayerShopPacket.spawnHiredMerchant(this));
     }
 }

@@ -11,18 +11,18 @@ import client.IItem;
 import client.InventoryException;
 import client.Item;
 import client.ItemFlag;
-import client.PlayerStats;
+import client.ActivePlayerStats;
 import client.BuffStat;
 import client.Pet;
-import client.GameCharacter;
-import client.GameClient;
+import client.ChannelCharacter;
+import client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import tools.MaplePacketCreator;
 
 public final class InventoryManipulator {
 
-    public static boolean addRing(final GameCharacter chr, final int itemId, final int ringId) {
+    public static boolean addRing(final ChannelCharacter chr, final int itemId, final int ringId) {
         ItemInfoProvider infoProvider = ItemInfoProvider.getInstance();
         Inventory inventory = chr.getInventoryForItem(itemId);
         IItem nEquip = infoProvider.getEquipById(itemId, ringId);
@@ -35,7 +35,7 @@ public final class InventoryManipulator {
         return true;
     }
 
-    public static boolean addbyItem(final GameClient c, final IItem item) {
+    public static boolean addbyItem(final ChannelClient c, final IItem item) {
         Inventory inventory = c.getPlayer().getInventoryForItem(item.getItemId());
         final short newSlot = inventory.addItem(item);
         if (newSlot == -1) {
@@ -47,19 +47,19 @@ public final class InventoryManipulator {
         return true;
     }
 
-    public static boolean addById(GameClient c, int itemId, short quantity) {
+    public static boolean addById(ChannelClient c, int itemId, short quantity) {
         return addById(c, itemId, quantity, null, null, 0);
     }
 
-    public static boolean addById(GameClient c, int itemId, short quantity, String owner) {
+    public static boolean addById(ChannelClient c, int itemId, short quantity, String owner) {
         return addById(c, itemId, quantity, owner, null, 0);
     }
 
-    public static boolean addById(GameClient c, int itemId, short quantity, String owner, Pet pet) {
+    public static boolean addById(ChannelClient c, int itemId, short quantity, String owner, Pet pet) {
         return addById(c, itemId, quantity, owner, pet, 0);
     }
 
-    public static boolean addById(GameClient c, int itemId, short quantity, String owner, Pet pet, long period) {
+    public static boolean addById(ChannelClient c, int itemId, short quantity, String owner, Pet pet, long period) {
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
         final Inventory inventory = c.getPlayer().getInventoryForItem(itemId);
@@ -166,8 +166,8 @@ public final class InventoryManipulator {
         return true;
     }
 
-    public static IItem addbyId_Gachapon(final GameClient c, final int itemId, short quantity) {
-        GameCharacter chr = c.getPlayer();
+    public static IItem addbyId_Gachapon(final ChannelClient c, final int itemId, short quantity) {
+        ChannelCharacter chr = c.getPlayer();
         if (chr.getEquipInventory().getNextFreeSlot() == -1 ||
                 chr.getUseInventory().getNextFreeSlot() == -1 ||
                 chr.getEtcInventory().getNextFreeSlot() == -1 ||
@@ -259,7 +259,7 @@ public final class InventoryManipulator {
         return null;
     }
 
-    public static boolean addFromDrop(final GameClient c, final IItem item, final boolean show) {
+    public static boolean addFromDrop(final ChannelClient c, final IItem item, final boolean show) {
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
         if (ii.isPickupRestricted(item.getItemId()) &&
@@ -350,7 +350,7 @@ public final class InventoryManipulator {
         return true;
     }
 
-    public static boolean checkSpace(final GameClient c, final int itemId, int quantity, final String owner) {
+    public static boolean checkSpace(final ChannelClient c, final int itemId, int quantity, final String owner) {
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
         final Inventory inventory = c.getPlayer().getInventoryForItem(itemId);
 
@@ -385,11 +385,11 @@ public final class InventoryManipulator {
         }
     }
 
-    public static void removeFromSlot(final GameClient c, final Inventory type, final short slot, final short quantity, final boolean fromDrop) {
+    public static void removeFromSlot(final ChannelClient c, final Inventory type, final short slot, final short quantity, final boolean fromDrop) {
         removeFromSlot(c, type, slot, quantity, fromDrop, false);
     }
 
-    public static void removeFromSlot(final GameClient c, final Inventory inventory, final short slot, short quantity, final boolean fromDrop, final boolean consume) {
+    public static void removeFromSlot(final ChannelClient c, final Inventory inventory, final short slot, short quantity, final boolean fromDrop, final boolean consume) {
         final IItem item = inventory.getItem(slot);
         final boolean allowZero = consume &&
                 (GameConstants.isThrowingStar(item.getItemId()) ||
@@ -403,7 +403,7 @@ public final class InventoryManipulator {
         }
     }
 
-    public static void removeById(final GameClient c, final Inventory inventory, final int itemId, final int quantity, final boolean fromDrop, final boolean consume) {
+    public static void removeById(final ChannelClient c, final Inventory inventory, final int itemId, final int quantity, final boolean fromDrop, final boolean consume) {
         int remremove = quantity;
         for (IItem item : inventory.listById(itemId)) {
             if (remremove <= item.getQuantity()) {
@@ -422,7 +422,7 @@ public final class InventoryManipulator {
         }
     }
 
-    public static void move(final GameClient c, final Inventory inventory, final byte src, final byte dst) {
+    public static void move(final ChannelClient c, final Inventory inventory, final byte src, final byte dst) {
         if (src < 0 || dst < 0) {
             return;
         }
@@ -456,10 +456,10 @@ public final class InventoryManipulator {
         }
     }
 
-    public static void equip(final GameClient c, final byte src, byte dst) {
+    public static void equip(final ChannelClient c, final byte src, byte dst) {
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-        final GameCharacter chr = c.getPlayer();
-        final PlayerStats statst = c.getPlayer().getStat();
+        final ChannelCharacter chr = c.getPlayer();
+        final ActivePlayerStats statst = c.getPlayer().getStats();
         Equip source = (Equip) chr.getEquipInventory().getItem(src);
         Equip target = (Equip) chr.getEquippedItemsInventory().getItem(dst);
 
@@ -473,7 +473,7 @@ public final class InventoryManipulator {
             c.write(MaplePacketCreator.enableActions());
             return;
         }
-        if (!ii.canEquip(stats, source.getItemId(), chr.getLevel(), chr.getJob(), chr.getFame(), statst.getTotalStr(), statst.getTotalDex(), statst.getTotalLuk(), statst.getTotalInt())) {
+        if (!ii.canEquip(stats, source.getItemId(), chr.getLevel(), chr.getJobId(), chr.getFame(), statst.getTotalStr(), statst.getTotalDex(), statst.getTotalLuk(), statst.getTotalInt())) {
             c.write(MaplePacketCreator.enableActions());
             return;
         }
@@ -485,8 +485,8 @@ public final class InventoryManipulator {
         if (GameConstants.isKatara(source.getItemId())) {
             dst = (byte) -10; //shield slot
         }
-        if (GameConstants.isEvanDragonItem(source.getItemId()) && (chr.getJob() <
-                2200 || chr.getJob() > 2218)) {
+        if (GameConstants.isEvanDragonItem(source.getItemId()) && (chr.getJobId() <
+                2200 || chr.getJobId() > 2218)) {
             c.write(MaplePacketCreator.enableActions());
             return;
         }
@@ -529,8 +529,8 @@ public final class InventoryManipulator {
             case -10: { // Weapon
                 IItem weapon = chr.getEquippedItemsInventory().getItem((byte) -11);
                 if (GameConstants.isKatara(source.getItemId())) {
-                    if ((chr.getJob() != 900 && (chr.getJob() < 430 ||
-                            chr.getJob() > 434)) || weapon == null ||
+                    if ((chr.getJobId() != 900 && (chr.getJobId() < 430 ||
+                            chr.getJobId() > 434)) || weapon == null ||
                             !GameConstants.isDagger(weapon.getItemId())) {
                         c.write(MaplePacketCreator.getInventoryFull());
                         c.write(MaplePacketCreator.getShowInventoryFull());
@@ -591,7 +591,7 @@ public final class InventoryManipulator {
         }
     }
 
-    public static void unequip(final GameClient c, final short src, final short dst) {
+    public static void unequip(final ChannelClient c, final short src, final short dst) {
         Equip source = (Equip) c.getPlayer().getEquippedItemsInventory().getItem(src);
         Equip target = (Equip) c.getPlayer().getEquipInventory().getItem(dst);
 
@@ -622,7 +622,7 @@ public final class InventoryManipulator {
         c.getPlayer().equipChanged();
     }
 
-    public static void drop(final GameClient c, Inventory inventory, final short src, final short quantity) {
+    public static void drop(final ChannelClient c, Inventory inventory, final short src, final short quantity) {
         final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
         final IItem source = inventory.getItem(src);

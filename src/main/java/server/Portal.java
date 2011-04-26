@@ -2,7 +2,7 @@ package server;
 
 import java.awt.Point;
 
-import client.GameClient;
+import client.ChannelClient;
 
 public interface Portal {
 	public static final int MAP_PORTAL = 2;
@@ -16,5 +16,5 @@ public interface Portal {
 	String getScriptName();
 	void setScriptName(String newName);
 	int getTargetMapId();
-	void enterPortal(GameClient c);
+	void enterPortal(ChannelClient c);
 }
