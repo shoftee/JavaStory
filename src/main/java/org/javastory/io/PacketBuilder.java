@@ -8,6 +8,7 @@ import handling.ByteArrayGamePacket;
 import handling.GamePacket;
 import java.nio.charset.Charset;
 import java.util.List;
+import tools.FiletimeUtil;
 
 /**
  * Provides methods to construct a game packet.
@@ -20,7 +21,6 @@ import java.util.List;
 public class PacketBuilder {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");
-    
     private final List<byte[]> buffers;
     private byte[] currentBuffer;
     private int currentCapacity;
@@ -104,8 +104,8 @@ public class PacketBuilder {
                 // current position in destination: this.currentPosition
                 // bytes to write: min(remaining, free)
                 int payload = Math.min(free, remaining);
-                System.arraycopy(bytes, written, 
-                                 currentBuffer, currentPosition, 
+                System.arraycopy(bytes, written,
+                                 currentBuffer, currentPosition,
                                  payload);
                 written += payload;
                 remaining -= payload;
@@ -144,7 +144,7 @@ public class PacketBuilder {
         }
         // Finally copy the current buffer separately (it may be incomplete)
         System.arraycopy(currentBuffer, 0, total, index, currentPosition);
-        
+
         return new ByteArrayGamePacket(total);
     }
 
@@ -180,6 +180,26 @@ public class PacketBuilder {
     }
 
     /**
+     * Writes a byte with the value 1 if <code>bool</code> is <code>true</code>
+     * or 0 if it's <code>false</code>.
+     * 
+     * @param bool The boolean value to write.
+     */
+    public void writeAsByte(boolean bool) {
+        writeAsByte(bool ? 1 : 0);
+    }
+
+    /**
+     * Writes a 16-bit integer with the value 1 if <code>bool</code> is <code>true</code>
+     * or 0 if it's <code>false</code>.
+     * 
+     * @param bool The boolean value to write.
+     */
+    public void writeAsShort(boolean bool) {
+        writeAsShort(bool ? 1 : 0);
+    }
+
+    /**
      * Writes a number as a byte.
      * The major bits will be truncated.
      * 
@@ -188,7 +208,7 @@ public class PacketBuilder {
     public void writeAsByte(int number) {
         writeByteInternal((byte) number);
     }
-    
+
     /**
      * Writes a number as a 16-bit integer.
      * The major bits will be truncated.
@@ -207,7 +227,7 @@ public class PacketBuilder {
     public void writeInt(int number) {
         writeReverse(number, 4);
     }
-    
+
     /**
      * Writes a 64-bit integer.
      * 
@@ -273,5 +293,9 @@ public class PacketBuilder {
     public void writeVector(Point point) {
         writeAsShort((short) point.x);
         writeAsShort((short) point.y);
+    }
+
+    public void writeAsFiletime(long unixtime) {
+        writeLong(FiletimeUtil.getFiletime(unixtime));
     }
 }

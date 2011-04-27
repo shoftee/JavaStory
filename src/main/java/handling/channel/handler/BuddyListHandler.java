@@ -31,9 +31,9 @@ import java.sql.SQLException;
 
 import client.BuddyList;
 import client.BuddyListEntry;
-import client.CharacterNameAndId;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import client.SimpleCharacterInfo;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
@@ -45,7 +45,7 @@ import tools.MaplePacketCreator;
 
 public class BuddyListHandler {
 
-    private static final class CharacterIdNameBuddyCapacity extends CharacterNameAndId {
+    private static final class CharacterIdNameBuddyCapacity extends SimpleCharacterInfo {
 
 	private int buddyCapacity;
 
@@ -60,7 +60,7 @@ public class BuddyListHandler {
     }
 
     private static void nextPendingRequest(final ChannelClient c) {
-	CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
+	SimpleCharacterInfo pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
 	if (pendingBuddyRequest != null) {
 	    c.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
 	}

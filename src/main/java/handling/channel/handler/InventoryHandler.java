@@ -15,13 +15,13 @@ import client.ISkill;
 import client.ItemFlag;
 import client.Pet;
 import client.Mount;
-import client.ChannelCharacter;
-import client.GameCharacterUtil;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.GameCharacterUtil;
+import org.javastory.client.ChannelClient;
 import client.InventoryType;
 import client.Inventory;
 import client.Stat;
-import client.ActivePlayerStats;
+import org.javastory.client.ActivePlayerStats;
 import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;
@@ -33,7 +33,6 @@ import server.ShopFactory;
 import server.ItemInfoProvider;
 import server.InventoryManipulator;
 import server.StructRewardItem;
-import server.quest.Quest;
 import server.maps.SavedLocationType;
 import server.maps.FieldLimitType;
 import server.maps.GameMap;
@@ -47,6 +46,9 @@ import tools.Pair;
 import tools.packet.MTSCSPacket;
 import tools.packet.PetPacket;
 import org.javastory.io.PacketReader;
+import org.javastory.quest.QuestInfoProvider;
+import org.javastory.quest.QuestInfoProvider.QuestInfo;
+import server.StatEffect.StatValue;
 import tools.MaplePacketCreator;
 
 public class InventoryHandler {
@@ -646,9 +648,8 @@ public class InventoryHandler {
             case 5043000: { // NPC Teleport Rock
                 final short questid = reader.readShort();
                 final int npcid = reader.readInt();
-                final Quest quest = Quest.getInstance(questid);
-
-                if (player.getQuest(quest).getStatus() == 1 &&
+                final QuestInfo quest = QuestInfoProvider.getInfo(questid);
+                if (player.getQuestStatus(questid).getState() == 1 &&
                         quest.canComplete(player, npcid)) {
                     final GameMap map = c.getChannelServer().getMapFactory(player.getWorldId()).getMap(LifeFactory.getNPCLocation(npcid));
                     if (map.containsNPC(npcid) != -1) {
@@ -684,7 +685,7 @@ public class InventoryHandler {
                 break;
             }
             case 5050000: { // AP Reset
-                List<Pair<Stat, Integer>> statupdate = new ArrayList<Pair<Stat, Integer>>(2);
+                List<StatValue> statupdate = new ArrayList<>(2);
                 final int apto = reader.readInt();
                 final int apfrom = reader.readInt();
 
@@ -762,25 +763,25 @@ public class InventoryHandler {
                         case 64: { // str
                             final int toSet = playerst.getStr() + 1;
                             playerst.setStr(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.STR, toSet));
+                            statupdate.add(new StatValue(Stat.STR, toSet));
                             break;
                         }
                         case 128: { // dex
                             final int toSet = playerst.getDex() + 1;
                             playerst.setDex(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.DEX, toSet));
+                            statupdate.add(new StatValue(Stat.DEX, toSet));
                             break;
                         }
                         case 256: { // int
                             final int toSet = playerst.getInt() + 1;
                             playerst.setInt(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.INT, toSet));
+                            statupdate.add(new StatValue(Stat.INT, toSet));
                             break;
                         }
                         case 512: { // luk
                             final int toSet = playerst.getLuk() + 1;
                             playerst.setLuk(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.LUK, toSet));
+                            statupdate.add(new StatValue(Stat.LUK, toSet));
                             break;
                         }
                         case 2048: // hp
@@ -829,7 +830,7 @@ public class InventoryHandler {
                             player.setHpApUsed(player.getHpApUsed() +
                                     1);
                             playerst.setMaxHp(maxhp);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.HP, maxhp));
+                            statupdate.add(new StatValue(Stat.HP, maxhp));
                             break;
 
                         case 8192: // mp
@@ -873,32 +874,32 @@ public class InventoryHandler {
                             player.setMpApUsed(player.getMpApUsed() +
                                     1);
                             playerst.setMaxMp(maxmp);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.MP, maxmp));
+                            statupdate.add(new StatValue(Stat.MP, maxmp));
                             break;
                     }
                     switch (apfrom) { // AP from
                         case 64: { // str
                             final int toSet = playerst.getStr() - 1;
                             playerst.setStr(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.STR, toSet));
+                            statupdate.add(new StatValue(Stat.STR, toSet));
                             break;
                         }
                         case 128: { // dex
                             final int toSet = playerst.getDex() - 1;
                             playerst.setDex(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.DEX, toSet));
+                            statupdate.add(new StatValue(Stat.DEX, toSet));
                             break;
                         }
                         case 256: { // int
                             final int toSet = playerst.getInt() - 1;
                             playerst.setInt(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.INT, toSet));
+                            statupdate.add(new StatValue(Stat.INT, toSet));
                             break;
                         }
                         case 512: { // luk
                             final int toSet = playerst.getLuk() - 1;
                             playerst.setLuk(toSet);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.LUK, toSet));
+                            statupdate.add(new StatValue(Stat.LUK, toSet));
                             break;
                         }
                         case 2048: // HP
@@ -945,7 +946,7 @@ public class InventoryHandler {
                                     1);
                             playerst.setHp(maxhp);
                             playerst.setMaxHp(maxhp);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.HP, maxhp));
+                            statupdate.add(new StatValue(Stat.HP, maxhp));
                             break;
                         case 8192: // MP
                             int maxmp = playerst.getMaxMp();
@@ -984,7 +985,7 @@ public class InventoryHandler {
                                     1);
                             playerst.setMp(maxmp);
                             playerst.setMaxMp(maxmp);
-                            statupdate.add(new Pair<Stat, Integer>(Stat.MP, maxmp));
+                            statupdate.add(new StatValue(Stat.MP, maxmp));
                             break;
                     }
                     c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, player.getJobId()));
@@ -1165,7 +1166,7 @@ public class InventoryHandler {
                     if (numLines > 3) {
                         return;
                     }
-                    final List<String> messages = new LinkedList<String>();
+                    final List<String> messages = new LinkedList<>();
                     String message;
                     for (int i = 0; i < numLines; i++) {
                         message = reader.readLengthPrefixedString();
@@ -1297,53 +1298,8 @@ public class InventoryHandler {
             }
             case 5075000: // MapleTV Messenger
             case 5075001: // MapleTV Star Messenger
-            case 5075002: { // MapleTV Heart Messenger
-/*		int tvType = itemId % 10;
-                boolean megassenger = false;
-                boolean ear = false;
-                GameCharacter victim = null;
-                
-                if (tvType != 1) { // 1 is the odd one out since it doesnt allow 2 players.
-                if (tvType >= 3) {
-                megassenger = true;
-                if (tvType == 3) {
-                reader.readByte();
-                }
-                ear = 1 == reader.readByte();
-                } else if (tvType != 2) {
-                reader.readByte();
-                }
-                if (tvType != 4) {
-                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
-                }
-                }
-                List<String> messages = new LinkedList<String>();
-                StringBuilder builder = new StringBuilder();
-                String message;
-                for (int i = 0; i < 5; i++) {
-                message = reader.readLengthPrefixedString();
-                if (megassenger) {
-                builder.append(" ");
-                builder.append(message);
-                }
-                messages.add(message);
-                }
-                reader.readInt(); // some random shit
-                if (megassenger) {
-                try {
-                c.getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(3, c.getChannelId(), c.getPlayer().getName() + " : " + builder.toString(), ear).getBytes());
-                } catch (RemoteException e) {
-                System.out.println("RemoteException occured, TV megaphone");
-                }
-                }
-                if (!MapleTVEffect.isActive()) {
-                new MapleTVEffect(c.getPlayer(), victim, messages, tvType);
-                used = true;
-                } else {
-                c.getPlayer().dropMessage(5, "MapleTV is already in use!");
-                }*/
+            case 5075002: // MapleTV Heart Messenger
                 break;
-            }
             case 5090100: // Wedding Invitation Card
             case 5090000: { // Note
                 final String sendTo = reader.readLengthPrefixedString();
@@ -1567,7 +1523,7 @@ public class InventoryHandler {
         }
         if (mapitem.getMeso() > 0) {
             if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
-                final List<ChannelCharacter> toGive = new LinkedList<ChannelCharacter>();
+                final List<ChannelCharacter> toGive = new LinkedList<>();
 
                 for (final ChannelCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
                     if (m != null) {
@@ -1626,7 +1582,7 @@ public class InventoryHandler {
                 return;
             }
             if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
-                final List<ChannelCharacter> toGive = new LinkedList<ChannelCharacter>();
+                final List<ChannelCharacter> toGive = new LinkedList<>();
 
                 for (final ChannelCharacter m : c.getChannelServer().getPartyMembers(chr.getParty())) { // TODO, store info in MaplePartyCharacter instead
                     if (m != null) {

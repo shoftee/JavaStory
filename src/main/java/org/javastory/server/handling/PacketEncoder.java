@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.javastory.server.handling;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import handling.GamePacket;
 import org.javastory.cryptography.AesTransform;
 import org.javastory.cryptography.CustomEncryption;

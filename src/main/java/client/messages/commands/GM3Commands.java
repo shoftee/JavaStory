@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 
 import static client.messages.CommandProcessor.getOptionalIntArg;
 import client.ISkill;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.Stat;
 import client.SkillFactory;
 import client.messages.Command;

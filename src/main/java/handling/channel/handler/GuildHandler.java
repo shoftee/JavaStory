@@ -20,12 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
+import handling.world.Guild;
+import handling.world.GuildOperationResponse;
 import java.rmi.RemoteException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import client.ChannelCharacter;
-import client.ChannelClient;
-import handling.world.guild.*;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import org.javastory.client.MemberRank;
 import org.javastory.io.PacketFormatException;
 import tools.MaplePacketCreator;
@@ -67,21 +70,36 @@ public class GuildHandler {
         public Invited(final String n, final int id) {
             name = n.toLowerCase();
             gid = id;
-            expiration = System.currentTimeMillis() + 60 * 60 * 1000; // 1 hr expiration
+            expiration = System.currentTimeMillis() + 3600000; 
         }
 
         @Override
-        public final boolean equals(Object other) {
-            if (!(other instanceof Invited)) {
+        public final boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
                 return false;
             }
-            Invited oth = (Invited) other;
-            return (gid == oth.gid && name.equals(oth));
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+
+            Invited other = (Invited) obj;
+            return (gid == other.gid && name.equals(other.name));
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 13 * hash + (this.name != null ? this.name.hashCode() : 0);
+            hash = 13 * hash + this.gid;
+            return hash;
         }
     }
-    private static final java.util.List<Invited> invited = new java.util.LinkedList<Invited>();
-    private static long nextPruneTime = System.currentTimeMillis() + 20 * 60 *
-            1000;
+    private static final List<Invited> invited = new LinkedList<>();
+    private static long nextPruneTime =
+            System.currentTimeMillis() + 20 * 60 * 1000;
 
     public static void handleGuildOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         if (System.currentTimeMillis() >= nextPruneTime) {

@@ -4,7 +4,7 @@
  */
 package org.javastory.server;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 
 /**
  *

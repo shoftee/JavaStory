@@ -2,7 +2,7 @@ package server;
 
 import java.awt.Point;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 
 public interface Portal {
 	public static final int MAP_PORTAL = 2;

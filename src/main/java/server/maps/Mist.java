@@ -24,8 +24,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import client.ISkill;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.SkillFactory;
 import handling.GamePacket;
 import server.StatEffect;

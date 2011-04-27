@@ -5,7 +5,7 @@
 
 package server;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import handling.world.Party;
 import handling.world.PartyMember;
 

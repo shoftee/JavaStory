@@ -14,7 +14,8 @@ public class GameConstants {
             GameMapObjectType.SUMMON,
             GameMapObjectType.NPC,
             GameMapObjectType.MIST);
-    private static final int[] exp = {0, 15, 34, 57, 92, 135, 372, 560, 840, 1242, 1144,
+    private static final int[] EXP_TABLE = {
+        0, 15, 34, 57, 92, 135, 372, 560, 840, 1242, 1144,
         1573, 2144, 2800, 3640, 4700, 5893, 7360, 9144, 11120, 13478,
         16268, 19320, 22881, 27009, 31478, 36601, 42446, 48722, 55816, 76560,
         86784, 98208, 110932, 124432, 139372, 155865, 173280, 192400, 213345, 235372,
@@ -35,24 +36,24 @@ public class GameConstants {
         615821621, 649568646, 685165008, 722712050, 762316670, 804091623, 848155844, 894634784, 943660769, 995373379,
         1049919840, 1107455447, 1168144005, 1232158296, 1299680571, 1370903066, 1446028554, 1525270918, 1608855764, 1767659560
     };
-    private static final int[] closeness = {0, 1, 3, 6, 14, 31, 60, 108, 181, 287, 434, 632, 891, 1224, 1642, 2161, 2793,
+    private static final int[] CLOSENESS_TABLE = {0, 1, 3, 6, 14, 31, 60, 108, 181, 287, 434, 632, 891, 1224, 1642, 2161, 2793,
         3557, 4467, 5542, 6801, 8263, 9950, 11882, 14084, 16578, 19391, 22547, 26074,
         30000
     };
-    private static final int[] mountexp = {0, 6, 25, 50, 105, 134, 196, 254, 263, 315, 367, 430, 543, 587, 679, 725, 897, 1146, 1394, 1701, 2247,
+    private static final int[] MOUNT_EXP_TABLE = {0, 6, 25, 50, 105, 134, 196, 254, 263, 315, 367, 430, 543, 587, 679, 725, 897, 1146, 1394, 1701, 2247,
         2543, 2898, 3156, 3313, 3584, 3923, 4150, 4305, 4550
     };
 
     public static int getExpNeededForLevel(final int level) {
-        return exp[level];
+        return EXP_TABLE[level];
     }
 
     public static int getClosenessNeededForLevel(final int level) {
-        return closeness[level - 1];
+        return CLOSENESS_TABLE[level - 1];
     }
 
     public static int getMountExpNeededForLevel(final int level) {
-        return mountexp[level - 1];
+        return MOUNT_EXP_TABLE[level - 1];
     }
 
     public static int getBookLevel(final int level) {
@@ -68,140 +69,8 @@ public class GameConstants {
     }
 
     public static int maxViewRangeSq() {
-        return 800000; // 800 * 800
-    }
-
-    public static boolean isJobFamily(final int baseJob, final int currentJob) {
-        return currentJob >= baseJob && currentJob / 100 == baseJob / 100;
-    }
-
-    public static boolean isAdventurer(final int job) {
-        return job >= 0 && job < 1000;
-    }
-
-    public static boolean isKOC(final int job) {
-        return job >= 1000 && job < 2000;
-    }
-
-    public static boolean isAran(final int job) {
-        return job >= 2000 && job <= 2112 && job != 2001;
-    }
-
-    public static boolean isEvan(final int job) {
-        return job == 2001 || (job >= 2200 && job <= 2218);
-    }
-
-    public static boolean isRecoveryIncSkill(final int id) {
-        switch (id) {
-            case 1110000:
-            case 2000000:
-            case 1210000:
-            case 11110000:
-            case 4100002:
-            case 4200001:
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean isLinkedAranSkill(final int id) {
-        switch (id) {
-            case 21110007:
-            case 21110008:
-            case 21120009:
-            case 21120010:
-            case 4321001:
-                return true;
-        }
-        return false;
-    }
-
-    public static int getLinkedAranSkill(final int id) {
-        switch (id) {
-            case 21110007:
-            case 21110008:
-                return 21110002;
-            case 21120009:
-            case 21120010:
-                return 21120002;
-            case 4321001:
-                return 4321000;
-        }
-        return id;
-    }
-
-    public static int getBOF_ForJob(final int job) {
-        if (isAdventurer(job)) {
-            return 12;
-        } else if (isKOC(job)) {
-            return 10000012;
-        } else if (isEvan(job)) {
-            return 20010012;
-        }
-        return 20000012;
-    }
-
-    public static boolean isElementAmp_Skill(final int skill) {
-        switch (skill) {
-            case 2110001:
-            case 2210001:
-            case 12110001:
-            case 22150000:
-                return true;
-        }
-        return false;
-    }
-
-    public static int getMPEaterForJob(final int job) {
-        switch (job) {
-            case 210:
-            case 211:
-            case 212:
-                return 2100000;
-            case 220:
-            case 221:
-            case 222:
-                return 2200000;
-            case 230:
-            case 231:
-            case 232:
-                return 2300000;
-        }
-        return 2100000; // Default, in case GM
-    }
-
-    public static int getJobShortValue(int job) {
-        if (job >= 1000) {
-            job -= (job / 1000) * 1000;
-        }
-        job /= 100;
-        if (job == 4) { // For some reason dagger/ claw is 8.. IDK
-            job *= 2;
-        } else if (job == 3) {
-            job += 1;
-        } else if (job == 5) {
-            job += 11; // 16
-        }
-        return job;
-    }
-
-    public static boolean isMulungSkill(final int skill) {
-        switch (skill) {
-            case 1009:
-            case 1010:
-            case 1011:
-            case 10001009:
-            case 10001010:
-            case 10001011:
-            case 20001009:
-            case 20001010:
-            case 20001011:
-            case 20011009:
-            case 20011010:
-            case 20011011:
-                return true;
-        }
-        return false;
+        // 800 * 800
+        return 800000;
     }
 
     public static boolean isThrowingStar(final int itemId) {
@@ -223,19 +92,9 @@ public class GameConstants {
             case 233:
             case 207:
                 return true;
+            default:
+                return false;
         }
-        return false;
-    }
-
-    public static int getMasterySkill(final int job) {
-        if (job >= 1410 && job <= 1412) {
-            return 14100000;
-        } else if (job >= 410 && job <= 412) {
-            return 4100000;
-        } else if (job >= 520 && job <= 522) {
-            return 5200000;
-        }
-        return 0;
     }
 
     public static boolean isOverall(final int itemId) {
@@ -309,8 +168,9 @@ public class GameConstants {
                 return WeaponType.KNUCKLE;
             case 49:
                 return WeaponType.GUN;
+            default:
+                return WeaponType.NOT_A_WEAPON;
         }
-        return WeaponType.NOT_A_WEAPON;
     }
 
     public static boolean isShield(final int itemId) {
@@ -882,16 +742,6 @@ public class GameConstants {
         4031629, 1 // Pot
     };
 
-    public static int getSkillBook(final int job) {
-        if (job >= 2210 && job <= 2218) {
-            return job - 2209;
-        }
-        return 0;
-    }
-
-    public static int getSkillBookForSkill(final int skillid) {
-        return getSkillBook(skillid / 10000);
-    }
 
     public static boolean isKatara(int itemId) {
         return itemId / 10000 == 134;

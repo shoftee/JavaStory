@@ -1,5 +1,6 @@
 package handling.world;
 
+import com.google.common.collect.ImmutableSet;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
@@ -8,8 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,8 +26,6 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
-import handling.world.guild.Guild;
-import handling.world.guild.GuildMember;
 import handling.world.remote.ServerStatus;
 import handling.world.remote.WorldChannelInterface;
 import handling.world.remote.WorldLoginInterface;
@@ -36,21 +33,26 @@ import handling.world.remote.WorldRegistry;
 import org.javastory.client.MemberRank;
 import org.javastory.server.ChannelInfo;
 
-public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
+class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
 
     private static final long serialVersionUID = -5170574938159280746L;
     private static WorldRegistryImpl instance = null;
     private ServerStatus csStatus, loginStatus;
+    //
+    private final List<LoginWorldInterface> logins = new LinkedList<>();
+    //
     private Map<Integer, ServerStatus> channelStatus;
-    private final Map<Integer, ChannelWorldInterface> channels = new LinkedHashMap<Integer, ChannelWorldInterface>();
-    private final List<LoginWorldInterface> logins = new LinkedList<LoginWorldInterface>();
-    private final Map<Integer, Party> parties = new HashMap<Integer, Party>();
-    private final AtomicInteger runningPartyId = new AtomicInteger();
-    private final Map<Integer, Messenger> messengers = new HashMap<Integer, Messenger>();
+    private final Map<Integer, ChannelWorldInterface> channels = new LinkedHashMap<>();
+    //
     private final AtomicInteger runningMessengerId = new AtomicInteger();
-    private final Map<Integer, Guild> guilds = new LinkedHashMap<Integer, Guild>();
+    private final Map<Integer, Messenger> messengers = new HashMap<>();
+    //
+    private final AtomicInteger runningPartyId = new AtomicInteger();
+    private final Map<Integer, Party> parties = new HashMap<>();
+    //
+    private final Map<Integer, Guild> guilds = new LinkedHashMap<>();
     private final PlayerBuffStorage buffStorage = new PlayerBuffStorage();
-    private final Lock Guild_Mutex = new ReentrantLock();
+    private final Lock guildMutex = new ReentrantLock();
 
     private WorldRegistryImpl() throws RemoteException {
         super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
@@ -64,7 +66,6 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
             rs.close();
             ps.close();
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         csStatus = ServerStatus.OFFLINE;
@@ -155,15 +156,15 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public List<LoginWorldInterface> getLoginServer() {
-        return new LinkedList<LoginWorldInterface>(logins);
+        return new LinkedList<>(logins);
     }
 
     public ChannelWorldInterface getChannel(final int channel) {
         return channels.get(channel);
     }
 
-    public Set<Integer> getChannelServer() {
-        return new HashSet<Integer>(channels.keySet());
+    public ImmutableSet<Integer> getActiveChannels() {
+        return ImmutableSet.copyOf(this.channels.keySet());
     }
 
     public Collection<ChannelWorldInterface> getAllChannelServers() {
@@ -197,14 +198,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
 
     public final String getStatus() throws RemoteException {
         StringBuilder ret = new StringBuilder();
-        List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<Entry<Integer, ChannelWorldInterface>>(channels.entrySet());
-        Collections.sort(channelServers, new Comparator<Entry<Integer, ChannelWorldInterface>>() {
-
-            @Override
-            public int compare(Entry<Integer, ChannelWorldInterface> o1, Entry<Integer, ChannelWorldInterface> o2) {
-                return o1.getKey().compareTo(o2.getKey());
-            }
-        });
+        List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(channels.entrySet());
         int totalUsers = 0;
         for (final Entry<Integer, ChannelWorldInterface> cs : channelServers) {
             ret.append("Channel ");
@@ -241,7 +235,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public final Guild getGuild(final int id, final GuildMember mgc) {
-        Guild_Mutex.lock();
+        guildMutex.lock();
         try {
             if (guilds.get(id) != null) {
                 return guilds.get(id);
@@ -256,7 +250,7 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
             guilds.put(id, g);
             return g;
         } finally {
-            Guild_Mutex.unlock();
+            guildMutex.unlock();
         }
     }
 
@@ -333,12 +327,12 @@ public class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegis
     }
 
     public void disbandGuild(final int gid) {
-        Guild_Mutex.lock();
+        guildMutex.lock();
         try {
             guilds.get(gid).disbandGuild();
             guilds.remove(gid);
         } finally {
-            Guild_Mutex.unlock();
+            guildMutex.unlock();
         }
     }
 

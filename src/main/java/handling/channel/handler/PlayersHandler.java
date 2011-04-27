@@ -21,9 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.IItem;
-import client.ChannelCharacter;
-import client.ChannelClient;
-import client.InventoryType;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.Stat;
 import client.anticheat.CheatingOffense;
 import org.javastory.io.PacketFormatException;
@@ -34,6 +33,7 @@ import server.ItemInfoProvider;
 import server.maps.Door;
 import server.maps.GameMapObject;
 import server.maps.Reactor;
+import tools.FameResponse;
 import tools.MaplePacketCreator;
 
 public final class PlayersHandler {
@@ -62,9 +62,10 @@ public final class PlayersHandler {
 
     public static void handleGiveFame(final PacketReader reader, final ChannelClient c, final ChannelCharacter famer) throws PacketFormatException {
         final int receiverId = reader.readInt();
-        final int isIncrease = reader.readByte();
+        final boolean isIncrease = reader.readBoolean();
 
-        final int change = (isIncrease != 0 ? 1 : -1);
+        final int change =
+                isIncrease ? 1 : -1;
         final ChannelCharacter receiver = (ChannelCharacter) famer.getMap().getMapObject(receiverId);
 
         if (receiver == famer) {
@@ -77,13 +78,15 @@ public final class PlayersHandler {
             return;
         }
 
+        FameResponse responseCode = FameResponse.SUCCESS;
         if (FameLog.hasFamedRecently(famer.getId(), receiverId)) {
-            c.write(MaplePacketCreator.giveFameErrorResponse(4));
-            return;
+            responseCode = FameResponse.ONCE_A_MONTH;
+        } else if (famer.hasFamedToday()) {
+            responseCode = FameResponse.ONCE_A_DAY;
         }
 
-        if (famer.hasFamedToday()) {
-            c.write(MaplePacketCreator.giveFameErrorResponse(3));
+        if (responseCode != FameResponse.SUCCESS) {
+            c.write(MaplePacketCreator.giveFameErrorResponse(responseCode));
             return;
         }
 

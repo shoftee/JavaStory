@@ -28,7 +28,6 @@ import java.util.Properties;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 import handling.channel.remote.ChannelWorldInterface;
-import handling.world.guild.GuildMember;
 import handling.world.remote.WorldLoginInterface;
 import org.javastory.client.MemberRank;
 
@@ -49,7 +48,7 @@ public class WorldLoginInterfaceImpl extends UnicastRemoteObject implements Worl
     }
 
     public Map<Integer, Integer> getChannelLoad() throws RemoteException {
-        Map<Integer, Integer> ret = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> ret = new HashMap<>();
         for (ChannelWorldInterface cwi : WorldRegistryImpl.getInstance().getAllChannelServers()) {
             ret.put(cwi.getChannelId(), cwi.getConnected());
         }

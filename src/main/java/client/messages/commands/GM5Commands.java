@@ -8,8 +8,8 @@ import java.text.DateFormat;
 import client.Equip;
 import client.GameConstants;
 import client.IItem;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.anticheat.CheatingOffense;
@@ -37,8 +37,6 @@ import server.maps.GameMapObjectType;
 import server.maps.Reactor;
 import server.maps.ReactorFactory;
 import server.maps.ReactorStats;
-import server.quest.Quest;
-import tools.ArrayMap;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.StringUtil;
@@ -50,16 +48,119 @@ public class GM5Commands implements Command {
         ChannelServer cserv = c.getChannelServer();
         final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
         final ChannelCharacter player = c.getPlayer();
-        if (splitted[0].equalsIgnoreCase("-proitem")) {
-            if (splitted.length == 3) {
-                int itemid;
-                short multiply;
-                try {
-                    itemid = Integer.parseInt(splitted[1]);
-                    multiply = Short.parseShort(splitted[2]);
-                } catch (NumberFormatException asd) {
-                    return;
+        final String parameter = splitted[0].toLowerCase();
+        switch (parameter) {
+            case "-proitem":
+                getProItem(splitted, c, player);
+                break;
+            case "-mutecall":
+                player.setCallGM(!player.isCallGM());
+                player.sendNotice(6, "GM Messages set to " + player.isCallGM());
+                break;
+            case "-clearinv":
+                clearInventory(splitted, player, c);
+                break;
+            case "-ban":
+                ban(splitted, player, chr);
+                break;
+            case "-tempban":
+                temporaryBan(cserv, splitted, player);
+                break;
+            case "-unban":
+                unban(splitted, player, c);
+                break;
+            case "-dc":
+                disconnect(splitted, cserv, player);
+                break;
+            case "-resetquest":
+                player.getQuestStatus(Integer.parseInt(splitted[1])).forfeit();
+                break;
+            case "-nearestPortal":
+                final Portal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
+                player.sendNotice(6, portal.getName() + " id: " +
+                        portal.getId() + " script: " + portal.getScriptName());
+                break;
+            case "-spawndebug":
+                player.sendNotice(6, player.getMap().spawnDebug());
+                break;
+            case "-threads":
+                listThreads(splitted, player);
+                break;
+            case "-showtrace":
+                showTrace(splitted, player);
+                break;
+            case "-fakerelog":
+                c.write(MaplePacketCreator.getCharInfo(chr));
+                chr.getMap().removePlayer(chr);
+                chr.getMap().addPlayer(chr);
+                break;
+            case "-toggleoffense":
+                toggleOffense(splitted, player);
+                break;
+            case "-tdrops":
+                chr.getMap().toggleDrops();
+                break;
+            case "-tmegaphone":
+                toggleMegaphone(c, player);
+                break;
+            case "!sreactor":
+                spawnReactor(splitted, player);
+                break;
+            case "-hreactor":
+                player.getMap().getReactorByOid(Integer.parseInt(splitted[1])).hitReactor(c);
+                break;
+            case "-lreactor":
+                listReactors(player);
+                break;
+            case "-dreactor":
+                destroyReactors(player, splitted);
+                break;
+            case "-resetreactor":
+                player.getMap().resetReactors();
+                break;
+            case "-setreactor":
+                player.getMap().setReactorState();
+                break;
+            case "-removedrops":
+                removeDrops(player);
+                break;
+            case "-exprate":
+                setExpRate(splitted, c, player);
+                break;
+            case "-droprate":
+                setDropRate(splitted, c, player);
+                break;
+            case "-dcall":
+                c.getChannelServer().getPlayerStorage().disconnectAll();
+                break;
+            case "-reloadops":
+                ServerPacketOpcode.reloadValues();
+                break;
+            case "-reloaddrops":
+                MonsterInfoProvider.getInstance().clearDrops();
+                ReactorScriptManager.getInstance().clearDrops();
+                break;
+            case "-reloadportal":
+                PortalScriptManager.getInstance().clearScripts();
+                break;
+            case "-clearshops":
+                ShopFactory.getInstance().clear();
+                break;
+            case "-clearevents":
+                for (ChannelServer instance : ChannelManager.getAllInstances()) {
+                    instance.reloadEvents();
                 }
+                break;
+        }
+    }
+
+    private static void getProItem(String[] splitted, ChannelClient c, final ChannelCharacter player) {
+        if (splitted.length == 3) {
+            int itemid;
+            short multiply;
+            try {
+                itemid = Integer.parseInt(splitted[1]);
+                multiply = Short.parseShort(splitted[2]);
                 ItemInfoProvider ii = ItemInfoProvider.getInstance();
                 IItem item = ii.getEquipById(itemid);
                 InventoryType type = GameConstants.getInventoryType(itemid);
@@ -68,239 +169,240 @@ public class GM5Commands implements Command {
                 } else {
                     player.sendNotice(6, "Make sure it's an equippable item.");
                 }
-            } else {
-                player.sendNotice(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
+            } catch (NumberFormatException asd) {
             }
-        } else if (splitted[0].equals("-mutecall")) {
-            player.setCallGM(!player.isCallGM());
-            player.sendNotice(6, "GM Messages set to " +
-                    player.isCallGM());
-        } else if (splitted[0].equals("-clearinv")) {
-            Map<Pair<Short, Short>, Inventory> items = Maps.newLinkedHashMap();
-            if (splitted[1].equals("all")) {
-                for (Inventory inventory : player.getInventories()) {
-                    for (IItem item : inventory) {
-                        items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inventory);
+        } else {
+            player.sendNotice(6, "Invalid syntax.(!proitem (Item ID) (Stat) Example: !proitem 9999999 32767");
+        }
+    }
+
+    private boolean clearInventory(String[] splitted, final ChannelCharacter player, ChannelClient c) {
+        Map<Pair<Short, Short>, Inventory> items = Maps.newLinkedHashMap();
+        Inventory inventory;
+        switch (splitted[1]) {
+            case "all":
+                for (Inventory inv : player.getInventories()) {
+                    for (IItem item : inv) {
+                        items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inv);
                     }
                 }
+            case "eqp":
+                inventory = player.getEquippedItemsInventory();
+                break;
+            case "eq":
+                inventory = player.getEquipInventory();
+                break;
+            case "u":
+                inventory = player.getUseInventory();
+                break;
+            case "s":
+                inventory = player.getSetupInventory();
+                break;
+            case "e":
+                inventory = player.getEtcInventory();
+                break;
+            case "c":
+                inventory = player.getCashInventory();
+                break;
+            default:
+                player.sendNotice(6, "[all/eqp/eq/u/s/e/c]");
+                return true;
+        }
+        for (IItem item : inventory) {
+            items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inventory);
+        }
+
+        for (Entry<Pair<Short, Short>, Inventory> eq : items.entrySet()) {
+            InventoryManipulator.removeFromSlot(c, eq.getValue(), eq.getKey().left, eq.getKey().right, false, false);
+        }
+        return false;
+    }
+
+    private boolean ban(String[] splitted, final ChannelCharacter player, final ChannelCharacter chr) {
+        if (splitted.length < 3) {
+            return true;
+        }
+        final StringBuilder sb = new StringBuilder(player.getName());
+        sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
+        if (chr != null) {
+            sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
+            if (chr.ban(sb.toString(), false)) {
+                player.sendNotice(6, "Successfully banned.");
             } else {
-                Inventory inventory;
-                if (splitted[1].equals("eqp")) {
-                    inventory = player.getEquippedItemsInventory();
-                } else if (splitted[1].equals("eq")) {
-                    inventory = player.getEquipInventory();
-                } else if (splitted[1].equals("u")) {
-                    inventory = player.getUseInventory();
-                } else if (splitted[1].equals("s")) {
-                    inventory = player.getSetupInventory();
-                } else if (splitted[1].equals("e")) {
-                    inventory = player.getEtcInventory();
-                } else if (splitted[1].equals("c")) {
-                    inventory = player.getCashInventory();
-                } else {
-                    player.sendNotice(6, "[all/eqp/eq/u/s/e/c]");
-                    return;
-                }
-                for (IItem item : inventory) {
-                    items.put(new Pair<Short, Short>(item.getPosition(), item.getQuantity()), inventory);
-                }
+                player.sendNotice(6, "Failed to ban.");
             }
-            for (Entry<Pair<Short, Short>, Inventory> eq : items.entrySet()) {
-                InventoryManipulator.removeFromSlot(c, eq.getValue(), eq.getKey().left, eq.getKey().right, false, false);
-            }
-        } else if (splitted[0].equals("-ban")) {
-            if (splitted.length < 3) {
-                return;
-            }
-            final StringBuilder sb = new StringBuilder(player.getName());
-            sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
-            if (chr != null) {
+        } else {
+            if (Bans.banBySessionIP(splitted[1], sb.toString())) {
                 sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
-                if (chr.ban(sb.toString(), false)) {
-                    player.sendNotice(6, "Successfully banned.");
-                } else {
-                    player.sendNotice(6, "Failed to ban.");
-                }
             } else {
-                if (Bans.banBySessionIP(splitted[1], sb.toString())) {
-                    sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
-                } else {
-                    player.sendNotice(6, "Failed to ban " + splitted[1]);
-                }
+                player.sendNotice(6, "Failed to ban " + splitted[1]);
             }
-        } else if (splitted[0].equals("-tempban")) {
-            final ChannelCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
-            final int reason = Integer.parseInt(splitted[2]);
-            final int numDay = Integer.parseInt(splitted[3]);
-            final Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE, numDay);
-            final DateFormat df = DateFormat.getInstance();
-            if (victim == null) {
-                player.sendNotice(6, "Unable to find character");
-                return;
-            }
-            victim.temporaryBan("Temp banned by : " + player.getName() +
-                    "", cal, reason);
-            player.sendNotice(6, "The character " + splitted[1] +
-                    " has been successfully tempbanned till " +
-                    df.format(cal.getTime()));
-        } else if (splitted[0].equals("-unban")) {
-            if (splitted.length < 1) {
-                player.sendNotice(6, "!unban <Character name>");
+        }
+        return false;
+    }
+
+    private boolean temporaryBan(ChannelServer cserv, String[] splitted, final ChannelCharacter player) throws NumberFormatException {
+        final ChannelCharacter victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+        final int reason = Integer.parseInt(splitted[2]);
+        final int numDay = Integer.parseInt(splitted[3]);
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, numDay);
+        final DateFormat df = DateFormat.getInstance();
+        if (victim == null) {
+            player.sendNotice(6, "Unable to find character");
+            return true;
+        }
+        victim.temporaryBan("Temp banned by : " + player.getName() +
+                "", cal, reason);
+        player.sendNotice(6, "The character " + splitted[1] +
+                " has been successfully tempbanned till " +
+                df.format(cal.getTime()));
+        return false;
+    }
+
+    private void unban(String[] splitted, final ChannelCharacter player, ChannelClient c) {
+        if (splitted.length < 1) {
+            player.sendNotice(6, "!unban <Character name>");
+        } else {
+            final byte result = c.unban(splitted[1]);
+            if (result == -1) {
+                player.sendNotice(6, "No character found with that name.");
+            } else if (result == -2) {
+                player.sendNotice(6, "Error occured while unbanning, please try again later.");
             } else {
-                final byte result = c.unban(splitted[1]);
-                if (result == -1) {
-                    player.sendNotice(6, "No character found with that name.");
-                } else if (result == -2) {
-                    player.sendNotice(6, "Error occured while unbanning, please try again later.");
-                } else {
-                    player.sendNotice(6, "Character successfully unbanned.");
-                }
+                player.sendNotice(6, "Character successfully unbanned.");
             }
-        } else if (splitted[0].equals("-dc")) {
-            int level = 0;
-            ChannelCharacter victim;
-            if (splitted[1].charAt(0) == '-') {
-                level = StringUtil.countCharacters(splitted[1], 'f');
-                victim = cserv.getPlayerStorage().getCharacterByName(splitted[2]);
-            } else {
-                victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
-            }
-            if (level < 2) {
+        }
+    }
+
+    private void disconnect(String[] splitted, ChannelServer cserv, final ChannelCharacter player) {
+        int level = 0;
+        ChannelCharacter victim;
+        if (splitted[1].charAt(0) == '-') {
+            level = StringUtil.countCharacters(splitted[1], 'f');
+            victim = cserv.getPlayerStorage().getCharacterByName(splitted[2]);
+        } else {
+            victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
+        }
+        if (level < 2) {
+            victim.getClient().disconnect();
+            if (level >= 1) {
                 victim.getClient().disconnect();
-                if (level >= 1) {
-                    victim.getClient().disconnect();
-                }
-            } else {
-                player.sendNotice(6, "Please use dc -f instead.");
             }
-        } else if (splitted[0].equals("-resetquest")) {
-            Quest.getInstance(Integer.parseInt(splitted[1])).forfeit(player);
-        } else if (splitted[0].equals("-nearestPortal")) {
-            final Portal portal = chr.getMap().findClosestSpawnpoint(chr.getPosition());
-            player.sendNotice(6, portal.getName() + " id: " +
-                    portal.getId() + " script: " + portal.getScriptName());
-        } else if (splitted[0].equals("-spawndebug")) {
-            player.sendNotice(6, player.getMap().spawnDebug());
-        } else if (splitted[0].equals("-threads")) {
-            Thread[] threads = new Thread[Thread.activeCount()];
-            Thread.enumerate(threads);
-            String filter = "";
-            if (splitted.length > 1) {
-                filter = splitted[1];
+        } else {
+            player.sendNotice(6, "Please use dc -f instead.");
+        }
+    }
+
+    private void listThreads(String[] splitted, final ChannelCharacter player) {
+        Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        String filter = "";
+        if (splitted.length > 1) {
+            filter = splitted[1];
+        }
+        for (int i = 0; i < threads.length; i++) {
+            String tstring = threads[i].toString();
+            if (tstring.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
+                player.sendNotice(6, i + ": " + tstring);
             }
-            for (int i = 0; i < threads.length; i++) {
-                String tstring = threads[i].toString();
-                if (tstring.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
-                    player.sendNotice(6, i + ": " + tstring);
-                }
-            }
-        } else if (splitted[0].equals("-showtrace")) {
-            if (splitted.length < 2) {
-                throw new IllegalCommandSyntaxException(2);
-            }
-            Thread[] threads = new Thread[Thread.activeCount()];
-            Thread.enumerate(threads);
-            Thread t = threads[Integer.parseInt(splitted[1])];
-            player.sendNotice(6, t.toString() + ":");
-            for (StackTraceElement elem : t.getStackTrace()) {
-                player.sendNotice(6, elem.toString());
-            }
-        } else if (splitted[0].equals("-fakerelog")) {
-            c.write(MaplePacketCreator.getCharInfo(chr));
-            chr.getMap().removePlayer(chr);
-            chr.getMap().addPlayer(chr);
-        } else if (splitted[0].equals("-toggleoffense")) {
-            try {
-                CheatingOffense co = CheatingOffense.valueOf(splitted[1]);
-                co.setEnabled(!co.isEnabled());
-            } catch (IllegalArgumentException iae) {
-                player.sendNotice(6, "Offense " + splitted[1] +
-                        " not found");
-            }
-        } else if (splitted[0].equals("-tdrops")) {
-            chr.getMap().toggleDrops();
-        } else if (splitted[0].equals("-tmegaphone")) {
-            try {
-                c.getChannelServer().getWorldInterface().toggleMegaphoneMuteState();
-            } catch (RemoteException e) {
-                c.getChannelServer().pingWorld();
-            }
-            player.sendNotice(6, "Megaphone state : " +
-                    (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
-        } else if (splitted[0].equalsIgnoreCase("!sreactor")) {
-            ReactorStats reactorSt = ReactorFactory.getReactor(Integer.parseInt(splitted[1]));
-            Reactor reactor = new Reactor(reactorSt, Integer.parseInt(splitted[1]));
-            reactor.setDelay(-1);
-            reactor.setPosition(player.getPosition());
-            player.getMap().spawnReactor(reactor);
-        } else if (splitted[0].equals("-hreactor")) {
-            player.getMap().getReactorByOid(Integer.parseInt(splitted[1])).hitReactor(c);
-        } else if (splitted[0].equals("-lreactor")) {
-            GameMap map = player.getMap();
-            List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+        }
+    }
+
+    private static void showTrace(String[] splitted, final ChannelCharacter player) throws NumberFormatException, IllegalCommandSyntaxException {
+        if (splitted.length < 2) {
+            throw new IllegalCommandSyntaxException(2);
+        }
+        Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        Thread t = threads[Integer.parseInt(splitted[1])];
+        player.sendNotice(6, t.toString() + ":");
+        for (StackTraceElement elem : t.getStackTrace()) {
+            player.sendNotice(6, elem.toString());
+        }
+    }
+
+    private static void toggleOffense(String[] splitted, final ChannelCharacter player) {
+        try {
+            CheatingOffense co = CheatingOffense.valueOf(splitted[1]);
+            co.setEnabled(!co.isEnabled());
+        } catch (IllegalArgumentException iae) {
+            player.sendNotice(6, "Offense " + splitted[1] +
+                    " not found");
+        }
+    }
+
+    private static void toggleMegaphone(ChannelClient c, final ChannelCharacter player) {
+        try {
+            c.getChannelServer().getWorldInterface().toggleMegaphoneMuteState();
+        } catch (RemoteException e) {
+            c.getChannelServer().pingWorld();
+        }
+        player.sendNotice(6, "Megaphone state : " +
+                (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
+    }
+
+    private static void spawnReactor(String[] splitted, final ChannelCharacter player) throws NumberFormatException {
+        ReactorStats reactorSt = ReactorFactory.getReactor(Integer.parseInt(splitted[1]));
+        Reactor reactor = new Reactor(reactorSt, Integer.parseInt(splitted[1]));
+        reactor.setDelay(-1);
+        reactor.setPosition(player.getPosition());
+        player.getMap().spawnReactor(reactor);
+    }
+
+    private static void listReactors(final ChannelCharacter player) {
+        GameMap map = player.getMap();
+        List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+        for (GameMapObject reactorL : reactors) {
+            Reactor reactor2l = (Reactor) reactorL;
+            player.sendNotice(6, "Reactor: oID: " +
+                    reactor2l.getObjectId() + " reactorID: " +
+                    reactor2l.getReactorId() + " Position: " +
+                    reactor2l.getPosition().toString() + " State: " +
+                    reactor2l.getState());
+        }
+    }
+
+    private static void destroyReactors(final ChannelCharacter player, String[] splitted) throws NumberFormatException {
+        GameMap map = player.getMap();
+        List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+        if (splitted[1].equals("all")) {
             for (GameMapObject reactorL : reactors) {
                 Reactor reactor2l = (Reactor) reactorL;
-                player.sendNotice(6, "Reactor: oID: " +
-                        reactor2l.getObjectId() + " reactorID: " +
-                        reactor2l.getReactorId() + " Position: " +
-                        reactor2l.getPosition().toString() + " State: " +
-                        reactor2l.getState());
+                player.getMap().destroyReactor(reactor2l.getObjectId());
             }
-        } else if (splitted[0].equals("-dreactor")) {
-            GameMap map = player.getMap();
-            List<GameMapObject> reactors = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
-            if (splitted[1].equals("all")) {
-                for (GameMapObject reactorL : reactors) {
-                    Reactor reactor2l = (Reactor) reactorL;
-                    player.getMap().destroyReactor(reactor2l.getObjectId());
-                }
-            } else {
-                player.getMap().destroyReactor(Integer.parseInt(splitted[1]));
-            }
-        } else if (splitted[0].equals("-resetreactor")) {
-            player.getMap().resetReactors();
-        } else if (splitted[0].equals("-setreactor")) {
-            player.getMap().setReactorState();
-        } else if (splitted[0].equals("-removedrops")) {
-            List<GameMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
-            for (GameMapObject i : items) {
-                player.getMap().removeMapObject(i);
-                player.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
-            }
-        } else if (splitted[0].equals("-exprate")) {
-            if (splitted.length > 1) {
-                final byte rate = Byte.parseByte(splitted[1]);
-                c.getChannelServer().setExpRate(rate);
-                player.sendNotice(6, "Exprate has been changed to " +
-                        rate + "x");
-            } else {
-                player.sendNotice(6, "Syntax: !exprate <number>");
-            }
-        } else if (splitted[0].equals("-droprate")) {
-            if (splitted.length > 1) {
-                final byte rate = Byte.parseByte(splitted[1]);
-                c.getChannelServer().setDropRate(rate);
-                player.sendNotice(6, "Drop Rate has been changed to " +
-                        rate + "x");
-            } else {
-                player.sendNotice(6, "Syntax: !droprate <number>");
-            }
-        } else if (splitted[0].equals("-dcall")) {
-            c.getChannelServer().getPlayerStorage().disconnectAll();
-        } else if (splitted[0].equals("-reloadops")) {
-            ServerPacketOpcode.reloadValues();
-        } else if (splitted[0].equals("-reloaddrops")) {
-            MonsterInfoProvider.getInstance().clearDrops();
-            ReactorScriptManager.getInstance().clearDrops();
-        } else if (splitted[0].equals("-reloadportal")) {
-            PortalScriptManager.getInstance().clearScripts();
-        } else if (splitted[0].equals("-clearshops")) {
-            ShopFactory.getInstance().clear();
-        } else if (splitted[0].equals("-clearevents")) {
-            for (ChannelServer instance : ChannelManager.getAllInstances()) {
-                instance.reloadEvents();
-            }
+        } else {
+            player.getMap().destroyReactor(Integer.parseInt(splitted[1]));
+        }
+    }
+
+    private static void removeDrops(final ChannelCharacter player) {
+        List<GameMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
+        for (GameMapObject i : items) {
+            player.getMap().removeMapObject(i);
+            player.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
+        }
+    }
+
+    private static void setExpRate(String[] splitted, ChannelClient c, final ChannelCharacter player) throws NumberFormatException {
+        if (splitted.length > 1) {
+            final byte rate = Byte.parseByte(splitted[1]);
+            c.getChannelServer().setExpRate(rate);
+            player.sendNotice(6, "Exprate has been changed to " +
+                    rate + "x");
+        } else {
+            player.sendNotice(6, "Syntax: !exprate <number>");
+        }
+    }
+
+    private static void setDropRate(String[] splitted, ChannelClient c, final ChannelCharacter player) throws NumberFormatException {
+        if (splitted.length > 1) {
+            final byte rate = Byte.parseByte(splitted[1]);
+            c.getChannelServer().setDropRate(rate);
+            player.sendNotice(6, "Drop Rate has been changed to " +
+                    rate + "x");
+        } else {
+            player.sendNotice(6, "Syntax: !droprate <number>");
         }
     }
 

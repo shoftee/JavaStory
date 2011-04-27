@@ -3,7 +3,7 @@ package client.messages.commands;
 import java.rmi.RemoteException;
 import java.util.Map;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;

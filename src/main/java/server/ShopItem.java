@@ -7,20 +7,20 @@ public class ShopItem {
     private int price;
 
     public ShopItem(short buyable, int itemId, int price) {
-	this.buyable = buyable;
-	this.itemId = itemId;
-	this.price = price;
+        this.buyable = buyable;
+        this.itemId = itemId;
+        this.price = price;
     }
 
     public short getBuyable() {
-	return buyable;
+        return buyable;
     }
 
     public int getItemId() {
-	return itemId;
+        return itemId;
     }
 
     public int getPrice() {
-	return price;
+        return price;
     }
 }

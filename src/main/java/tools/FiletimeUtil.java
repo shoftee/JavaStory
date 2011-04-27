@@ -22,7 +22,9 @@ public class FiletimeUtil {
     private static long getItemExpiration2() {
         return 94354848000000000L;
     }
-    private final static long FILETIME_UNIXTIME_OFFSET = 116444736000000000L; // 100 nsseconds from 1/1/1601 -> 1/1/1970
+    
+    // 100-ns intervals from 1/1/1601 -> 1/1/1970
+    private final static long FILETIME_UNIXTIME_OFFSET = 116444736000000000L; 
 
     /**
      * Converts a Unix Timestamp into File Time

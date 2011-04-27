@@ -3,15 +3,14 @@ package server;
 import java.util.LinkedList;
 import java.util.List;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import org.javastory.server.channel.ChannelManager;
-import org.javastory.server.channel.ChannelServer;
 
 public class Squad {
 
     private ChannelCharacter leader;
-    private List<ChannelCharacter> members = new LinkedList<ChannelCharacter>();
-    private List<ChannelCharacter> bannedMembers = new LinkedList<ChannelCharacter>();
+    private List<ChannelCharacter> members = new LinkedList<>();
+    private List<ChannelCharacter> bannedMembers = new LinkedList<>();
     private int ch;
     private String type;
     private byte status = 0;

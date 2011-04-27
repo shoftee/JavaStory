@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import org.javastory.client.ChannelCharacter;
 import server.StatEffect;
 import server.life.Element;
 

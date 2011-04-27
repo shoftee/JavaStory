@@ -23,16 +23,16 @@ import client.IItem;
 import client.Item;
 import client.GameConstants;
 import client.BuffStat;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.InventoryType;
 import client.Pet;
-import client.OdinSEA;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import handling.GamePacket;
 import handling.world.PartyOperation;
 import handling.world.PartyMember;
+import org.javastory.game.Jobs;
 import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
 import server.Portal;
@@ -55,12 +55,12 @@ import tools.packet.MobPacket;
 
 public class GameMap {
 
-    private final Map<Integer, GameMapObject> mapobjects = new HashMap<Integer, GameMapObject>();
-    private final Collection<Spawns> monsterSpawn = new LinkedList<Spawns>();
+    private final Map<Integer, GameMapObject> mapobjects = new HashMap<>();
+    private final Collection<Spawns> monsterSpawn = new LinkedList<>();
     private final AtomicInteger spawnedMonstersOnMap = new AtomicInteger(0);
-    private final List<ChannelCharacter> characters = new ArrayList<ChannelCharacter>();
-    private final Map<Integer, Portal> portals = new HashMap<Integer, Portal>();
-    private final List<Rectangle> areas = new ArrayList<Rectangle>();
+    private final List<ChannelCharacter> characters = new ArrayList<>();
+    private final Map<Integer, Portal> portals = new HashMap<>();
+    private final List<Rectangle> areas = new ArrayList<>();
     private FootholdTree footholds = null;
     private float monsterRate, recoveryRate;
     private GameMapEffect mapEffect;
@@ -317,7 +317,7 @@ public class GameMap {
         byte d = 1;
         Point pos = new Point(0, mob.getPosition().y);
         final MonsterInfoProvider mi = MonsterInfoProvider.getInstance();
-        final List<MonsterDropEntry> dropEntry = new ArrayList<MonsterDropEntry>(mi.retrieveDrop(mob.getId()));
+        final List<MonsterDropEntry> dropEntry = new ArrayList<>(mi.retrieveDrop(mob.getId()));
         Collections.shuffle(dropEntry);
         for (final MonsterDropEntry de : dropEntry) {
             if (Randomizer.nextInt(999999) < de.chance * chServerrate) {
@@ -540,7 +540,7 @@ public class GameMap {
      * command to shuffle the positions of all reactors in a map for PQ purposes (such as ZPQ/LMPQ)
      */
     public final void shuffleReactors() {
-        List<Point> points = new ArrayList<Point>();
+        List<Point> points = new ArrayList<>();
 
         for (final GameMapObject o : getAllReactor()) {
             points.add(((Reactor) o).getPosition());
@@ -666,10 +666,10 @@ public class GameMap {
         npc.setCy(pos.y);
         npc.setRx0(pos.x + 50);
         npc.setRx1(pos.x - 50);
-        npc.setFh(getFootholds().findBelow(pos).getId());
+        npc.setFoothold(getFootholds().findBelow(pos).getId());
         npc.setCustom(true);
         addMapObject(npc);
-        broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
+        broadcastMessage(MaplePacketCreator.spawnNpc(npc, true));
     }
 
     public final void removeNpc(final int id) {
@@ -677,7 +677,7 @@ public class GameMap {
         for (final GameMapObject npcmo : npcs) {
             final Npc npc = (Npc) npcmo;
             if (npc.isCustom() && npc.getId() == id) {
-                broadcastMessage(MaplePacketCreator.removeNPC(npc.getObjectId()));
+                broadcastMessage(MaplePacketCreator.removeNpc(npc.getObjectId()));
                 removeMapObject(npc.getObjectId());
             }
         }
@@ -942,7 +942,7 @@ public class GameMap {
 
             @Override
             public void sendPackets(ChannelClient c) {
-                if (questid <= 0 || c.getPlayer().getQuestStatus(questid) == 1) {
+                if (questid <= 0 || c.getPlayer().getQuestCompletionStatus(questid) == 1) {
                     c.write(MaplePacketCreator.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
                 }
             }
@@ -1115,7 +1115,7 @@ public class GameMap {
         if (chr.getCarnivalParty() != null && chr.getEventInstance() != null) {
             chr.getEventInstance().onMapLoad(chr);
         }
-        if (GameConstants.isEvan(chr.getJobId()) && chr.getJobId() >= 2200 && chr.getBuffedValue(BuffStat.MONSTER_RIDING) == null) {
+        if (Jobs.isEvan(chr.getJobId()) && chr.getJobId() >= 2200 && chr.getBuffedValue(BuffStat.MONSTER_RIDING) == null) {
             if (chr.getDragon() == null) {
                 chr.makeDragon();
             }
@@ -1221,7 +1221,7 @@ public class GameMap {
     }
 
     public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq) {
-        final List<GameMapObject> ret = new LinkedList<GameMapObject>();
+        final List<GameMapObject> ret = new LinkedList<>();
 
         mutex.lock();
         try {
@@ -1240,7 +1240,7 @@ public class GameMap {
     }
 
     public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq, final List<GameMapObjectType> MapObject_types) {
-        final List<GameMapObject> ret = new LinkedList<GameMapObject>();
+        final List<GameMapObject> ret = new LinkedList<>();
 
         mutex.lock();
         try {
@@ -1261,7 +1261,7 @@ public class GameMap {
     }
 
     public final List<GameMapObject> getMapObjectsInRect(final Rectangle box, final List<GameMapObjectType> MapObject_types) {
-        final List<GameMapObject> ret = new LinkedList<GameMapObject>();
+        final List<GameMapObject> ret = new LinkedList<>();
 
         mutex.lock();
         try {
@@ -1282,7 +1282,7 @@ public class GameMap {
     }
 
     public final List<ChannelCharacter> getPlayersInRect(final Rectangle box, final List<ChannelCharacter> CharacterList) {
-        final List<ChannelCharacter> character = new LinkedList<ChannelCharacter>();
+        final List<ChannelCharacter> character = new LinkedList<>();
 
         mutex.lock();
         try {
@@ -1348,7 +1348,7 @@ public class GameMap {
     }
 
     public final List<Rectangle> getAreas() {
-        return new ArrayList<Rectangle>(areas);
+        return new ArrayList<>(areas);
     }
 
     public final Rectangle getArea(final int index) {
@@ -1376,8 +1376,8 @@ public class GameMap {
         } else if (maxRegularSpawn > spawnSize) {
             maxRegularSpawn = spawnSize - (spawnSize / 15);
         }
-        Collection<Spawns> newSpawn = new LinkedList<Spawns>();
-        Collection<Spawns> newBossSpawn = new LinkedList<Spawns>();
+        Collection<Spawns> newSpawn = new LinkedList<>();
+        Collection<Spawns> newBossSpawn = new LinkedList<>();
         for (final Spawns s : monsterSpawn) {
             if (s.getCarnivalTeam() >= 2) {
                 continue; // Remove carnival spawned mobs
@@ -1421,7 +1421,7 @@ public class GameMap {
     }
 
     public final Collection<ChannelCharacter> getCharacters() {
-        final List<ChannelCharacter> chars = new ArrayList<ChannelCharacter>();
+        final List<ChannelCharacter> chars = new ArrayList<>();
 
         mutex.lock();
         try {
@@ -1624,7 +1624,7 @@ public class GameMap {
             final int numShouldSpawn = maxRegularSpawn - spawnedMonstersOnMap.get();
             if (numShouldSpawn > 0) {
                 int spawned = 0;
-                final List<Spawns> randomSpawn = new ArrayList<Spawns>(monsterSpawn);
+                final List<Spawns> randomSpawn = new ArrayList<>(monsterSpawn);
                 Collections.shuffle(randomSpawn);
                 for (Spawns spawnPoint : randomSpawn) {
                     if (spawnPoint.shouldSpawn()) {

@@ -7,7 +7,7 @@ import client.messages.Command;
 import client.messages.IllegalCommandSyntaxException;
 import server.Portal;
 import server.maps.GameMap;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 
 public class GoToCommands implements Command {
 	private static final HashMap<String, Integer> gotomaps = new HashMap<String, Integer>();

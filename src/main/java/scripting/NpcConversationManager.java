@@ -14,9 +14,9 @@ import java.rmi.RemoteException;
 import client.Equip;
 import client.ISkill;
 import client.IItem;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.GameConstants;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.Inventory;
 import client.SkillFactory;
 import client.SkillEntry;
@@ -29,18 +29,18 @@ import server.Squad;
 import server.maps.GameMap;
 import server.maps.Event_DojoAgent;
 import server.maps.AramiaFireWorks;
-import server.quest.Quest;
 import tools.MaplePacketCreator;
-import tools.Pair;
 import tools.packet.PlayerShopPacket;
 import org.javastory.server.channel.MapleGuildRanking;
 import database.DatabaseConnection;
 import handling.world.PartyMember;
 import org.javastory.client.MemberRank;
+import org.javastory.quest.QuestInfoProvider;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import server.CarnivalChallenge;
 import server.ItemInfoProvider;
+import server.StatEffect.StatValue;
 
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
@@ -247,39 +247,23 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void startQuest(int id) {
-        Quest.getInstance(id).start(getPlayer(), npcId);
+        QuestInfoProvider.getInfo(id).start(getPlayer(), npcId);
     }
 
     public void completeQuest(int id) {
-        Quest.getInstance(id).complete(getPlayer(), npcId);
+        QuestInfoProvider.getInfo(id).complete(getPlayer(), npcId);
     }
 
     public void forfeitQuest(int id) {
-        Quest.getInstance(id).forfeit(getPlayer());
-    }
-
-    public void forceStartQuest() {
-        Quest.getInstance(questId).forceStart(getPlayer(), getNpcId(), null);
-    }
-
-    public void forceStartQuest(int id) {
-        Quest.getInstance(id).forceStart(getPlayer(), getNpcId(), null);
-    }
-
-    public void forceStartQuest(String customData) {
-        Quest.getInstance(questId).forceStart(getPlayer(), getNpcId(), customData);
-    }
-
-    public void forceCompleteQuest() {
-        Quest.getInstance(questId).forceComplete(getPlayer(), getNpcId());
+        QuestInfoProvider.getInfo(id).forfeit(getPlayer());
     }
 
     public String getQuestCustomData() {
-        return super.client.getPlayer().getQuestNAdd(Quest.getInstance(questId)).getCustomData();
+        return super.client.getPlayer().getAddQuestStatus(questId).getCustomData();
     }
 
     public void setQuestCustomData(String customData) {
-        getPlayer().getQuestNAdd(Quest.getInstance(questId)).setCustomData(customData);
+        getPlayer().getAddQuestStatus(questId).setCustomData(customData);
     }
 
     public int getMeso() {
@@ -305,7 +289,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     public void unequipEverything() {
         Inventory equipped = getPlayer().getEquippedItemsInventory();
         Inventory equip = getPlayer().getEquipInventory();
-        List<Short> ids = new LinkedList<Short>();
+        List<Short> ids = new LinkedList<>();
         for (IItem item : equipped) {
             ids.add(item.getPosition());
         }
@@ -331,10 +315,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
             return super.client.getPlayer().getCurrentSkillLevel(theSkill) > 0;
         }
         return false;
-    }
-
-    public ChannelCharacter getChar() {
-        return getPlayer();
     }
 
     public void showEffect(boolean broadcast, String effect) {
@@ -383,7 +363,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         if (getPlayer().getParty() == null) {
             return null;
         }
-        List<ChannelCharacter> chars = new LinkedList<ChannelCharacter>(); // creates an empty array full of shit..
+        List<ChannelCharacter> chars = new LinkedList<>(); // creates an empty array full of shit..
         for (ChannelServer channel : ChannelManager.getAllInstances()) {
             for (ChannelCharacter chr : channel.getPartyMembers(getPlayer().getParty())) {
                 if (chr != null) { // double check <3
@@ -549,11 +529,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         if (getPlayer().getReborns() < MAX_REBORNS) {
             getPlayer().setReborns(getPlayer().getReborns() + 1);
             //unequipEverything();
-            List<Pair<Stat, Integer>> reborns = new ArrayList<Pair<Stat, Integer>>(4);
+            List<StatValue> reborns = new ArrayList<>(4);
             getPlayer().setLevel(1);
             getPlayer().setExp(0);
-            reborns.add(new Pair<Stat, Integer>(Stat.LEVEL, Integer.valueOf(1)));
-            reborns.add(new Pair<Stat, Integer>(Stat.EXP, Integer.valueOf(0)));
+            reborns.add(new StatValue(Stat.LEVEL, Integer.valueOf(1)));
+            reborns.add(new StatValue(Stat.EXP, Integer.valueOf(0)));
             //getPlayer().super.client.write(MaplePacketCreator.updatePlayerStats(reborns));
             //getPlayer().getMap().broadcastMessage(getPlayer(), MaplePacketCreator.showJobChange(getPlayer().getId()), false);
         } else {
@@ -584,7 +564,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public boolean hasUnion() {
-        return super.client.getPlayer().getGuild().getUnion(super.client) != null;
+        return super.client.getPlayer().getGuild().getUnion(super.client) !=
+                null;
     }
 
     public void sendUnionInvite(String charname) {
@@ -594,7 +575,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
                 //                z.dropMessage(getPlayer().getName() + " invites your guild to join his alliance");
                 //               z.dropMessage("If you want to accept that offer type @accept, else type @decline");
                 //               z.setAllianceInvited(getPlayer().getGuild().getAlliance(getPlayer().super.client));
-                super.client.getPlayer().getGuildUnion().addGuild( super.client, super.client.getPlayer().getGuildId());
+                super.client.getPlayer().getGuildUnion().addGuild(super.client, super.client.getPlayer().getGuildId());
             } else {
                 getPlayer().sendNotice(0, "That character is not the leader of the guild");
             }
@@ -783,7 +764,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void resetStats(final int str, final int dex, final int int_, final int luk) {
-        List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(2);
+        List<StatValue> stats = new ArrayList<>(2);
         final ChannelCharacter chr = super.client.getPlayer();
         int total = chr.getStats().getStr() + chr.getStats().getDex() +
                 chr.getStats().getLuk() + chr.getStats().getInt() +
@@ -797,11 +778,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         total -= luk;
         chr.getStats().setLuk(luk);
         chr.setRemainingAp(total);
-        stats.add(new Pair<Stat, Integer>(Stat.STR, str));
-        stats.add(new Pair<Stat, Integer>(Stat.DEX, dex));
-        stats.add(new Pair<Stat, Integer>(Stat.INT, int_));
-        stats.add(new Pair<Stat, Integer>(Stat.LUK, luk));
-        stats.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, total));
+        stats.add(new StatValue(Stat.STR, str));
+        stats.add(new StatValue(Stat.DEX, dex));
+        stats.add(new StatValue(Stat.INT, int_));
+        stats.add(new StatValue(Stat.LUK, luk));
+        stats.add(new StatValue(Stat.AVAILABLE_AP, total));
         super.client.write(MaplePacketCreator.updatePlayerStats(stats, false, super.client.getPlayer().getJobId()));
     }
 
@@ -815,34 +796,39 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     public void maxStats() {
-        List<Pair<Stat, Integer>> statup = new ArrayList<Pair<Stat, Integer>>(2);
+        List<StatValue> statup = new ArrayList<>(2);
+        
         super.client.getPlayer().setRemainingAp(0);
-        statup.add(new Pair(Stat.AVAILABLE_AP, Integer.valueOf(0)));
+        statup.add(new StatValue(Stat.AVAILABLE_AP, Integer.valueOf(0)));
         super.client.getPlayer().setRemainingSp(0);
-        statup.add(new Pair(Stat.AVAILABLE_SP, Integer.valueOf(0)));
+        statup.add(new StatValue(Stat.AVAILABLE_SP, Integer.valueOf(0)));
+        
         super.client.getPlayer().getStats().setStr(32767);
-        statup.add(new Pair(Stat.STR, Integer.valueOf(32767)));
+        statup.add(new StatValue(Stat.STR, Integer.valueOf(32767)));
         super.client.getPlayer().getStats().setDex(32767);
-        statup.add(new Pair(Stat.DEX, Integer.valueOf(32767)));
+        statup.add(new StatValue(Stat.DEX, Integer.valueOf(32767)));
         super.client.getPlayer().getStats().setInt(32767);
-        statup.add(new Pair(Stat.INT, Integer.valueOf(32767)));
+        statup.add(new StatValue(Stat.INT, Integer.valueOf(32767)));
         super.client.getPlayer().getStats().setLuk(32767);
-        statup.add(new Pair(Stat.LUK, Integer.valueOf(32767)));
+        statup.add(new StatValue(Stat.LUK, Integer.valueOf(32767)));
+        
         super.client.getPlayer().getStats().setHp(30000);
-        statup.add(new Pair(Stat.HP, Integer.valueOf(30000)));
+        statup.add(new StatValue(Stat.HP, Integer.valueOf(30000)));
         super.client.getPlayer().getStats().setMaxHp(30000);
-        statup.add(new Pair(Stat.MAX_HP, Integer.valueOf(30000)));
+        statup.add(new StatValue(Stat.MAX_HP, Integer.valueOf(30000)));
         super.client.getPlayer().getStats().setMp(30000);
-        statup.add(new Pair(Stat.MP, Integer.valueOf(30000)));
+        statup.add(new StatValue(Stat.MP, Integer.valueOf(30000)));
         super.client.getPlayer().getStats().setMaxMp(30000);
-        statup.add(new Pair(Stat.MAX_MP, Integer.valueOf(30000)));
+        statup.add(new StatValue(Stat.MAX_MP, Integer.valueOf(30000)));
+        
         super.client.write(MaplePacketCreator.updatePlayerStats(statup, super.client.getPlayer().getJobId()));
     }
 
     public void gainFame(int fame) {
         super.client.getPlayer().setFame(fame);
         super.client.getPlayer().updateSingleStat(Stat.FAME, Integer.valueOf(getPlayer().getFame()));
-        super.client.write(MaplePacketCreator.serverNotice(6, "You have gained (+" + fame +
+        super.client.write(MaplePacketCreator.serverNotice(6, "You have gained (+" +
+                fame +
                 ") fame."));
     }
 

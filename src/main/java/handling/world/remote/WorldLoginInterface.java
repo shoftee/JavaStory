@@ -25,7 +25,7 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Properties;
 
-import handling.world.guild.GuildMember;
+import handling.world.GuildMember;
 
 public interface WorldLoginInterface extends Remote {
 

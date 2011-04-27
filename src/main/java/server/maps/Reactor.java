@@ -21,7 +21,7 @@
 package server.maps;
 
 import java.awt.Rectangle;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import scripting.ReactorScriptManager;
 import tools.MaplePacketCreator;
 import tools.Pair;

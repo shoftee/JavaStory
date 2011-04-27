@@ -1,7 +1,7 @@
 package client.messages.commands;
 
 import static client.messages.CommandProcessor.getOptionalIntArg;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;

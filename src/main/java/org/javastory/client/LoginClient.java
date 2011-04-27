@@ -4,24 +4,32 @@
  */
 package org.javastory.client;
 
+import client.IItem;
+import client.Inventory;
 import client.LoginCrypto;
 import com.google.common.collect.Lists;
 import database.DatabaseConnection;
-import handling.world.guild.GuildMember;
+import handling.login.LoginInfoProvider;
+import handling.login.LoginWorker;
+import handling.world.GuildMember;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import org.apache.mina.core.session.IoSession;
 import org.javastory.cryptography.AesTransform;
+import org.javastory.io.PacketFormatException;
+import org.javastory.io.PacketReader;
 import org.javastory.server.channel.ChannelManager;
-import org.javastory.server.channel.PlayerStorage;
+import org.javastory.server.channel.ChannelServer;
 import org.javastory.server.login.AuthReplyCode;
 import org.javastory.server.login.LoginServer;
+import tools.FiletimeUtil;
+import tools.MaplePacketCreator;
+import tools.packet.LoginPacket;
 
 /**
  *
@@ -29,15 +37,19 @@ import org.javastory.server.login.LoginServer;
  */
 public final class LoginClient extends GameClient {
 
-    private transient List<Integer> allowedChar = Lists.newLinkedList();
-    private transient String characterPassword, characterPasswordSalt;
-    private transient Calendar birthday = null, tempban = null;
+    private static final int LOGIN_ATTEMPTS = 5;
+    //
+    private String loginPassword, loginPasswordSalt;
+    private String characterPassword, characterPasswordSalt;
+    private Calendar temporaryBan = null;
     private boolean isGm;
-    private byte tempBanReason = 1, gender = -1;
-    public transient short loginAttempt = 0;
+    private byte temporaryBanReason = 1, gender = -1;
+    private int characterSlots = 0;
+    //
+    private int loginAttempt = 0;
+    private List<Integer> allowedChar = Lists.newLinkedList();
 
-    public LoginClient(AesTransform clientCrypto, AesTransform serverCrypto,
-            IoSession session) {
+    public LoginClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
         super(clientCrypto, serverCrypto, session);
         loggedIn = false;
     }
@@ -62,26 +74,23 @@ public final class LoginClient extends GameClient {
     }
 
     public final boolean deleteCharacter(final int characterId) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
             final Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT id, guildid, guildrank, name FROM characters WHERE id = ? AND accountid = ?");
+            ps = con.prepareStatement("SELECT id, level, job, guildid, guildrank, name FROM characters WHERE id = ? AND accountid = ?");
             ps.setInt(1, characterId);
             ps.setInt(2, super.getAccountId());
-            ResultSet rs = ps.executeQuery();
-
+            rs = ps.executeQuery();
             if (!rs.next()) {
-                rs.close();
-                ps.close();
                 return false;
             }
             if (rs.getInt("guildid") > 0) {
                 // is in a guild when deleted
-                String characterName = rs.getString("name");
-                byte characterChannelId = -1;
-                int characterJobId = 0;
-                MemberRank characterRank = MemberRank.fromNumber(rs.getInt("guildrank"));
-                int characterGuildId = rs.getInt("guildid");
-                final GuildMember mgc = new GuildMember(characterId, (short) 0, characterName, characterChannelId, characterJobId, characterRank, characterGuildId, false);
+                final GuildMember mgc = new GuildMember(rs);
+                if (mgc.getRank() == MemberRank.MASTER) {
+                    return false;
+                }
                 try {
                     LoginServer.getInstance().getWorldInterface().deleteGuildCharacter(mgc);
                 } catch (RemoteException e) {
@@ -112,27 +121,21 @@ public final class LoginClient extends GameClient {
             ps.close();
 
             return true;
-        } catch (final SQLException e) {
-            System.err.println("DeleteChar error" + e);
+        } catch (final SQLException ex) {
+            System.err.println("DeleteChar error: " + ex);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException ex) {
+                System.err.println("Error while closing SQL connection: " + ex);
+            }
         }
         return false;
-    }
-
-    public final void updateSecondPassword() {
-        try {
-            final Connection con = DatabaseConnection.getConnection();
-
-            PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `char_password` = ?, `char_salt` = ? WHERE id = ?");
-            final String newSalt = LoginCrypto.makeSalt();
-            ps.setString(1, LoginCrypto.padWithRandom(LoginCrypto.makeSaltedSha512Hash(characterPassword, newSalt)));
-            ps.setString(2, newSalt);
-            ps.setInt(3, super.getAccountId());
-            ps.executeUpdate();
-            ps.close();
-
-        } catch (SQLException e) {
-            System.err.println("error updating login state" + e);
-        }
     }
 
     private Calendar getTempBanCalendar(ResultSet rs) throws SQLException {
@@ -152,19 +155,19 @@ public final class LoginClient extends GameClient {
     }
 
     public Calendar getTempBanCalendar() {
-        return tempban;
+        return temporaryBan;
     }
 
     public byte getTempBanReason() {
-        return tempBanReason;
+        return temporaryBanReason;
     }
 
-    public AuthReplyCode authenticate(String login, String pwd, boolean ipMacBanned) {
+    public AuthReplyCode authenticate(String username, String inputPassword) {
         AuthReplyCode replyCode = AuthReplyCode.NOT_REGISTERED;
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM `accounts` WHERE `name` = ?");
-            ps.setString(1, login);
+            ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -175,59 +178,50 @@ public final class LoginClient extends GameClient {
                 } else if (banned == -1) {
                     unban();
                 }
-                final String passhash = rs.getString("password");
-                final String salt = rs.getString("salt");
-
                 super.setAccountId(rs.getInt("id"));
                 super.setAccountName(rs.getString("name"));
+
+                loginPassword = rs.getString("password");
+                loginPasswordSalt = rs.getString("salt");
+
                 characterPassword = rs.getString("char_password");
                 characterPasswordSalt = rs.getString("char_salt");
+
                 isGm = rs.getInt("gm") > 0;
-                tempBanReason = rs.getByte("tempban_reason");
-                tempban = getTempBanCalendar(rs);
+                temporaryBanReason = rs.getByte("tempban_reason");
+                temporaryBan = getTempBanCalendar(rs);
                 gender = rs.getByte("gender");
-                birthday = Calendar.getInstance();
-                Date date = rs.getDate("birthday");
-                long timestamp = date.getTime();
-                if (timestamp > 0) {
-                    birthday.setTimeInMillis(timestamp);
-                }
 
-                if (characterPassword != null && characterPasswordSalt != null) {
-                    characterPassword = LoginCrypto.getPadding(characterPassword);
-                }
-
-                if (!LoginCrypto.checkSaltedSha512Hash(passhash, pwd, salt)) {
-                    replyCode = AuthReplyCode.WRONG_PASSWORD;
-                }
-
-                ps.close();
-                loggedIn = logOn();
-                if (loggedIn) {
-                    replyCode = AuthReplyCode.SUCCESS;
-                } else {
-                    replyCode = AuthReplyCode.ALREADY_LOGGED_IN;
-                }
+                characterSlots = rs.getInt("character_slots");
             }
             rs.close();
             ps.close();
         } catch (SQLException e) {
             System.err.println("ERROR" + e);
         }
+
+        if (characterPassword != null && characterPasswordSalt != null) {
+            characterPassword = LoginCrypto.getPadding(characterPassword);
+        }
+
+        if (!LoginCrypto.checkSaltedSha512Hash(loginPassword, inputPassword, loginPasswordSalt)) {
+            replyCode = AuthReplyCode.WRONG_PASSWORD;
+        }
+
+        loggedIn = logOn();
+        if (loggedIn) {
+            replyCode = AuthReplyCode.SUCCESS;
+        } else {
+            replyCode = AuthReplyCode.ALREADY_LOGGED_IN;
+        }
+
         return replyCode;
     }
 
-    public void initiateTransfer(int characterId, int targetChannelId) {
-        final PlayerStorage playerStorage = ChannelManager.getInstance(targetChannelId).getPlayerStorage();
-        playerStorage.registerSession(characterId, super.getSessionIP());
-    }
-
     private boolean logOn() {
-        int rows = 0;
+        boolean success = false;
         try {
             Connection con = DatabaseConnection.getConnection();
-            // Sets loggedin = true if loggedin = false.
-            // Query returns 0 (rows updated) if loggedin was already true.
             PreparedStatement ps = con.prepareStatement(
                     "UPDATE `accounts` " +
                     "SET `loggedin` = ?, `session_ip` = ?, `lastlogin` = CURRENT_TIMESTAMP() " +
@@ -236,22 +230,13 @@ public final class LoginClient extends GameClient {
             ps.setBoolean(4, false);
             ps.setString(2, super.getSessionIP());
             ps.setInt(3, getAccountId());
-            rows = ps.executeUpdate();
+            int updatedRows = ps.executeUpdate();
+            success = updatedRows == 1;
             ps.close();
         } catch (SQLException e) {
             System.err.println("error updating login state" + e);
         }
-        return rows == 1;
-    }
-
-    public final boolean checkBirthDate(final Calendar date) {
-        if (date.get(Calendar.YEAR) == birthday.get(Calendar.YEAR) &&
-                date.get(Calendar.MONTH) == birthday.get(Calendar.MONTH) &&
-                date.get(Calendar.DAY_OF_MONTH) ==
-                birthday.get(Calendar.DAY_OF_MONTH)) {
-            return true;
-        }
-        return false;
+        return success;
     }
 
     public final byte getGender() {
@@ -266,7 +251,7 @@ public final class LoginClient extends GameClient {
         return isGm;
     }
 
-    public boolean checkCharacterPassword(String password) {
+    private boolean checkCharacterPassword(String password) {
         boolean allow = false;
         if (LoginCrypto.checkSaltedSha512Hash(characterPassword, password, characterPasswordSalt)) {
             allow = true;
@@ -279,15 +264,15 @@ public final class LoginClient extends GameClient {
         super.getSession().close(immediately);
     }
 
-    public void createdChar(final int id) {
-        allowedChar.add(id);
+    private void allowNewCharacter(final int characterId) {
+        allowedChar.add(characterId);
     }
 
-    public final boolean login_Auth(final int id) {
-        return allowedChar.contains(id);
+    private boolean isCharacterAuthorized(final int characterId) {
+        return allowedChar.contains(characterId);
     }
 
-    public final List<LoginCharacter> loadCharacters(final int serverId) { // TODO make this less costly zZz
+    private List<LoginCharacter> loadCharacters(final int serverId) { // TODO make this less costly zZz
         final List<LoginCharacter> list = Lists.newArrayList(
                 LoginCharacter.loadCharacters(super.getAccountId(), serverId));
         for (final LoginCharacter character : list) {
@@ -300,7 +285,229 @@ public final class LoginClient extends GameClient {
         return characterPassword;
     }
 
-    public final void setCharacterPassword(final String password) {
-        this.characterPassword = password;
+    private boolean canAttemptAgain() {
+        return this.loginAttempt++ <= LOGIN_ATTEMPTS;
+    }
+
+    public void handleLogin(final PacketReader reader) throws PacketFormatException {
+        final String login = reader.readLengthPrefixedString();
+        final String password = LoginCrypto.decryptRSA(reader.readLengthPrefixedString());
+        final boolean ipBan = this.hasBannedIP();
+        AuthReplyCode code = this.authenticate(login, password);
+        final Calendar tempbannedTill = this.getTempBanCalendar();
+        if (code == AuthReplyCode.SUCCESS && (ipBan)) {
+            code = AuthReplyCode.DELETED_OR_BLOCKED;
+        }
+        if (code != AuthReplyCode.SUCCESS) {
+            if (canAttemptAgain()) {
+                this.write(LoginPacket.getLoginFailed(code));
+            }
+        } else if (tempbannedTill.getTimeInMillis() != 0) {
+            if (canAttemptAgain()) {
+                this.write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), this.getTempBanReason()));
+            }
+        } else {
+            this.loginAttempt = 0;
+            LoginWorker.registerClient(this);
+        }
+    }
+
+    public void handleWithoutSecondPassword(final PacketReader reader) throws PacketFormatException {
+        reader.skip(1);
+        final int characterId = reader.readInt();
+        if (!isCharacterAuthorized(characterId)) {
+            this.disconnect(true);
+            return;
+        }
+
+        final String password = this.characterPassword;
+        if (reader.remaining() > 0) {
+            if (password != null) {
+                // Hack
+                this.disconnect(true);
+                return;
+            }
+
+            final String input = reader.readLengthPrefixedString();
+            if (input.length() >= 4 && input.length() <= 16) {
+                this.updateCharacterPassword(input);
+            } else {
+                this.write(LoginPacket.characterPasswordError((byte) 0x14));
+                return;
+            }
+        } else if (!canAttemptAgain() || password != null) {
+            this.disconnect();
+            return;
+        }
+        // TODO: transfer() method
+        if (this.getIdleTask() != null) {
+            this.getIdleTask().cancel(true);
+        }
+        final int port = LoginServer.getInstance().getChannelServerPort(this.getChannelId());
+        this.write(MaplePacketCreator.getServerIP(port, characterId));
+    }
+
+    private void updateCharacterPassword(String newPassword) {
+        try {
+            final Connection con = DatabaseConnection.getConnection();
+
+            PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `char_password` = ?, `char_salt` = ? WHERE id = ?");
+            final String newSalt = LoginCrypto.makeSalt();
+            ps.setString(1, LoginCrypto.padWithRandom(LoginCrypto.makeSaltedSha512Hash(newPassword, newSalt)));
+            ps.setString(2, newSalt);
+            ps.setInt(3, super.getAccountId());
+            ps.executeUpdate();
+            this.characterPassword = newPassword;
+            this.characterPasswordSalt = newSalt;
+            ps.close();
+        } catch (SQLException e) {
+            System.err.println("error updating login state" + e);
+        }
+    }
+
+    public void handleWithSecondPassword(final PacketReader reader) throws PacketFormatException {
+        final String password = reader.readLengthPrefixedString();
+        final int characterId = reader.readInt();
+        if (!canAttemptAgain() || this.getCharacterPassword() == null ||
+                !isCharacterAuthorized(characterId)) {
+            this.disconnect();
+            return;
+        }
+        if (checkCharacterPassword(password)) {
+            // TODO: transfer() method
+            if (getIdleTask() != null) {
+                getIdleTask().cancel(true);
+            }
+            final int port = LoginServer.getInstance().getChannelServerPort(this.getChannelId());
+            this.write(MaplePacketCreator.getServerIP(port, characterId));
+        } else {
+            this.write(LoginPacket.characterPasswordError((byte) 0x14));
+        }
+    }
+
+    public void handleWorldListRequest() {
+        final LoginServer ls = LoginServer.getInstance();
+        this.write(LoginPacket.getWorldList(2, "Cassiopeia", ls.getChannels()));
+        this.write(LoginPacket.getEndOfWorldList());
+    }
+
+    public void handleServerStatusRequest() {
+        int numPlayer = 0;
+        for (ChannelServer cserv : ChannelManager.getAllInstances()) {
+            numPlayer += cserv.getPlayerStorage().getConnectedClients();
+        }
+        final int userLimit = LoginServer.USER_LIMIT;
+        if (numPlayer >= userLimit) {
+            this.write(LoginPacket.getWorldStatus(2));
+        } else if (numPlayer * 2 >= userLimit) {
+            this.write(LoginPacket.getWorldStatus(1));
+        } else {
+            this.write(LoginPacket.getWorldStatus(0));
+        }
+    }
+
+    public void handleCharacterListRequest(final PacketReader reader) throws PacketFormatException {
+        final int server = reader.readByte();
+        final int channel = reader.readByte() + 1;
+        this.setWorldId(server);
+        System.out.println(":: Client is connecting to server " + server +
+                " channel " + channel + " ::");
+        this.setChannelId(channel);
+        final List<LoginCharacter> chars = this.loadCharacters(server);
+        if (chars != null) {
+            this.write(LoginPacket.getCharacterList(getCharacterPassword() !=
+                    null, chars, characterSlots));
+        } else {
+            this.disconnect();
+        }
+    }
+
+    public void handleCharacterNameCheck(final PacketReader reader) throws PacketFormatException {
+        final String name = reader.readLengthPrefixedString();
+        final boolean isValid = GameCharacterUtil.isValidName(name);
+        final boolean isAvailable = GameCharacterUtil.isAvailable(name);
+        final boolean isAllowed = LoginInfoProvider.getInstance().isAllowedName(name);
+        final boolean conditions = isValid && isAvailable && isAllowed;
+        this.write(LoginPacket.charNameResponse(name, conditions));
+    }
+
+    public void handleCreateCharacter(final PacketReader reader) throws PacketFormatException {
+        final String name = reader.readLengthPrefixedString();
+        final int jobCategory = reader.readInt();
+        final short db = reader.readShort();
+        final int faceId = reader.readInt();
+        final int hairId = reader.readInt();
+        final int hairColor = reader.readInt();
+        final int skinColorId = reader.readInt();
+        final int top = reader.readInt();
+        final int bottom = reader.readInt();
+        final int shoes = reader.readInt();
+        final int weapon = reader.readInt();
+
+        LoginCharacter newchar = LoginCharacter.getDefault(jobCategory);
+        newchar.setName(name);
+        newchar.setWorldId(this.getWorldId());
+        newchar.setFaceId(faceId);
+        newchar.setHairId(hairId + hairColor);
+        newchar.setGender(gender);
+        newchar.setSkinColorId(skinColorId);
+        Inventory equip = newchar.getEquippedItemsInventory();
+        final LoginInfoProvider li = LoginInfoProvider.getInstance();
+        IItem item = li.getEquipById(top);
+        item.setPosition((byte) -5);
+        equip.addFromDb(item);
+        item = li.getEquipById(bottom);
+        item.setPosition((byte) -6);
+        equip.addFromDb(item);
+        item = li.getEquipById(shoes);
+        item.setPosition((byte) -7);
+        equip.addFromDb(item);
+        item = li.getEquipById(weapon);
+        item.setPosition((byte) -11);
+        equip.addFromDb(item);
+
+        final boolean isValid = GameCharacterUtil.isValidName(name);
+        final boolean isAvailable = GameCharacterUtil.isAvailable(name);
+        final boolean isAllowed = li.isAllowedName(name);
+
+        if (isValid && isAvailable && isAllowed) {
+            final boolean isDualBlader = jobCategory == 1 && db > 0;
+            LoginCharacter.saveNewCharacterToDb(newchar, jobCategory, isDualBlader);
+            this.allowNewCharacter(newchar.getId());
+            this.write(LoginPacket.addNewCharEntry(newchar, true));
+        } else {
+            this.write(LoginPacket.addNewCharEntry(newchar, false));
+        }
+    }
+
+    public void handleDeleteCharacter(final PacketReader reader) throws PacketFormatException {
+        String password = null;
+        final byte withPassword = reader.readByte();
+        if (withPassword > 0) {
+            password = reader.readLengthPrefixedString();
+        }
+        final String passport = reader.readLengthPrefixedString();
+        final int characterId = reader.readInt();
+        if (!isCharacterAuthorized(characterId)) {
+            disconnect(true);
+            return;
+        }
+        byte state = 0;
+        if (characterPassword != null) {
+            if (password == null) {
+                disconnect(true);
+                return;
+            } else {
+                if (!checkCharacterPassword(password)) {
+                    state = 12;
+                }
+            }
+        }
+        if (state == 0) {
+            if (!deleteCharacter(characterId)) {
+                state = 1;
+            }
+        }
+        this.write(LoginPacket.deleteCharResponse(characterId, state));
     }
 }

@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import tools.MaplePacketCreator;
 
-public class AutobanManager implements Runnable {
+public final class AutobanManager implements Runnable {
 
     private static class ExpirationEntry implements Comparable<ExpirationEntry> {
 
@@ -28,13 +28,13 @@ public class AutobanManager implements Runnable {
 	    return (int) (time - o.time);
 	}
     }
-    private Map<Integer, Integer> points = new HashMap<Integer, Integer>();
-    private Map<Integer, List<String>> reasons = new HashMap<Integer, List<String>>();
-    private Set<ExpirationEntry> expirations = new TreeSet<ExpirationEntry>();
+    private Map<Integer, Integer> points = new HashMap<>();
+    private Map<Integer, List<String>> reasons = new HashMap<>();
+    private Set<ExpirationEntry> expirations = new TreeSet<>();
     private static final int AUTOBAN_POINTS = 1000;
     private static AutobanManager instance = new AutobanManager();
 
-    public static final AutobanManager getInstance() {
+    public static AutobanManager getInstance() {
 	return instance;
     }
 
@@ -60,7 +60,7 @@ public class AutobanManager implements Runnable {
 	    reasonList.add(reason);
 	} else {
 	    this.points.put(acc, points);
-	    reasonList = new LinkedList<String>();
+	    reasonList = new LinkedList<>();
 	    reasonList.add(reason);
 	    this.reasons.put(acc, reasonList);
 	}

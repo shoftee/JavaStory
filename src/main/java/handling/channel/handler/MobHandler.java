@@ -23,8 +23,9 @@ package handling.channel.handler;
 import java.awt.Point;
 import java.util.List;
 
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.game.SkillLevelEntry;
 import org.javastory.io.PacketFormatException;
 import org.javastory.tools.Randomizer;
 import server.maps.GameMap;
@@ -32,13 +33,12 @@ import server.life.Monster;
 import server.life.MobSkill;
 import server.life.MobSkillFactory;
 import server.movement.LifeMovementFragment;
-import tools.Pair;
 import tools.packet.MobPacket;
 import org.javastory.io.PacketReader;
 
 public class MobHandler {
 
-    public static final void handleMoveMonster(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleMoveMonster(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Monster monster = chr.getMap().getMonsterByOid(reader.readInt());
 
         if (monster == null) { // movin something which is not a monster
@@ -59,9 +59,9 @@ public class MobHandler {
             boolean used = false;
 
             if (size > 0) {
-                final Pair<Integer, Integer> skillToUse = monster.getSkills().get((byte) Randomizer.nextInt(size));
-                realskill = skillToUse.getLeft();
-                level = skillToUse.getRight();
+                final SkillLevelEntry skillToUse = monster.getSkills().get((byte) Randomizer.nextInt(size));
+                realskill = skillToUse.skill;
+                level = skillToUse.level;
                 // Skill ID and Level
                 final MobSkill mobSkill = MobSkillFactory.getMobSkill(realskill, level);
 
@@ -72,22 +72,11 @@ public class MobHandler {
                     if (ls == 0 || ((now - ls) > mobSkill.getCoolTime())) {
                         monster.setLastSkillUsed(realskill, now, mobSkill.getCoolTime());
 
-                        final int reqHp = (int) (((float) monster.getHp() / monster.getMobMaxHp()) * 100); // In case this monster have 2.1b and above HP
+                        final int reqHp = (int) (((float) monster.getHp() /
+                                monster.getMobMaxHp()) * 100); // In case this monster have 2.1b and above HP
                         if (reqHp <= mobSkill.getHP()) {
                             used = true;
-//			    if (mobSkill.getCoolTime() == 0) {
                             mobSkill.applyEffect(chr, monster, true);
-                            /*			    } else {
-                            TimerManager.getInstance().schedule(new Runnable() {
-                            
-                            @Override
-                            public void run() {
-                            if (monster != null) {
-                            mobSkill.applyEffect(c.getPlayer(), monster, true);
-                            }
-                            }
-                            }, 1000); // TODO delay
-                            }*/
                         }
                     }
                 }
@@ -104,7 +93,7 @@ public class MobHandler {
         c.write(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
 
         if (res != null) {
-            if (reader.remaining() != 9 && reader.remaining() != 17) { 
+            if (reader.remaining() != 9 && reader.remaining() != 17) {
                 //9.. 0 -> endPos? -> endPos again? -> 0 -> 0
                 System.out.println("reader.available != 17 (movement parsing error)");
                 c.disconnect(true);
@@ -127,19 +116,20 @@ public class MobHandler {
         }
     }
 
-    public static final void handleFriendlyDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleFriendlyDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final GameMap map = chr.getMap();
         final Monster mobfrom = map.getMonsterByOid(reader.readInt());
         reader.skip(4); // Player ID
         final Monster mobto = map.getMonsterByOid(reader.readInt());
 
         if (mobfrom != null && mobto != null && mobto.getStats().isFriendly()) {
-            final int damage = (mobto.getStats().getLevel() * Randomizer.nextInt(99)) / 2; // Temp for now until I figure out something more effective
+            final int damage = (mobto.getStats().getLevel() *
+                    Randomizer.nextInt(99)) / 2; // Temp for now until I figure out something more effective
             mobto.damage(chr, damage, true);
         }
     }
 
-    public static final void handleMonsterBomb(final int oid, final ChannelCharacter chr) {
+    public static void handleMonsterBomb(final int oid, final ChannelCharacter chr) {
         final Monster monster = chr.getMap().getMonsterByOid(oid);
 
         if (monster == null || !chr.isAlive() || chr.isHidden()) {
@@ -151,12 +141,14 @@ public class MobHandler {
         }
     }
 
-    public static final void handleAutoAggro(final int monsteroid, final ChannelCharacter chr) {
+    public static void handleAutoAggro(final int monsteroid, final ChannelCharacter chr) {
         final Monster monster = chr.getMap().getMonsterByOid(monsteroid);
 
-        if (monster != null && chr.getPosition().distance(monster.getPosition()) < 200000) {
+        if (monster != null && chr.getPosition().distance(monster.getPosition()) <
+                200000) {
             if (monster.getController() != null) {
-                if (chr.getMap().getCharacterById_InMap(monster.getController().getId()) == null) {
+                if (chr.getMap().getCharacterById_InMap(monster.getController().getId()) ==
+                        null) {
                     monster.switchController(chr, true);
                 } else {
                     monster.switchController(monster.getController(), true);
@@ -167,7 +159,7 @@ public class MobHandler {
         }
     }
 
-    public static final void handleHypnotizeDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleHypnotizeDamage(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         final Monster mob_from = chr.getMap().getMonsterByOid(reader.readInt()); // From
         reader.skip(4); // Player ID
         final int to = reader.readInt(); // mobto

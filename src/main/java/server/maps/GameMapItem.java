@@ -2,8 +2,8 @@ package server.maps;
 
 import java.awt.Point;
 import client.IItem;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import tools.MaplePacketCreator;
 
 public class GameMapItem extends AbstractGameMapObject {
@@ -95,7 +95,7 @@ public class GameMapItem extends AbstractGameMapObject {
 
 	@Override
 	public void sendSpawnData(final ChannelClient client) {
-		if (questid <= 0 || client.getPlayer().getQuestStatus(questid) == 1) {
+		if (questid <= 0 || client.getPlayer().getQuestCompletionStatus(questid) == 1) {
 			client.write(MaplePacketCreator.dropItemFromMapObject(this, null, getPosition(), (byte) 2));
 		}
 	}

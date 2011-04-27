@@ -2,92 +2,80 @@ package handling.world;
 
 import java.io.Serializable;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 
 public class MessengerMember implements Serializable {
-	private static final long serialVersionUID = 6215463252132450750L;
-	private String name;
-	private int id;
-	private int channel;
-	private boolean online;
-	private int position;
 
-	public MessengerMember(ChannelCharacter maplechar) {
-		this.name = maplechar.getName();
-		this.channel = maplechar.getClient().getChannelId();
-		this.id = maplechar.getId();
-		this.online = true;
-		this.position = 0;
-	}
+    private static final long serialVersionUID = 6215463252132450750L;
+    private String name;
+    private int characterId;
+    private int channelId;
+    private boolean isOnline;
+    private int position;
 
-	public MessengerMember(ChannelCharacter maplechar, int position) {
-		this.name = maplechar.getName();
-		this.channel = maplechar.getClient().getChannelId();
-		this.id = maplechar.getId();
-		this.online = true;
-		this.position = position;
-	}
+    public MessengerMember(ChannelCharacter character) {
+        this.name = character.getName();
+        this.channelId = character.getClient().getChannelId();
+        this.characterId = character.getId();
+        this.isOnline = true;
+        this.position = 0;
+    }
 
-	public MessengerMember() {
-		this.name = "";
-		//default values for everything o.o
-	}
+    public MessengerMember(ChannelCharacter character, int position) {
+        this.name = character.getName();
+        this.channelId = character.getClient().getChannelId();
+        this.characterId = character.getId();
+        this.isOnline = true;
+        this.position = position;
+    }
 
-	public int getChannel() {
-		return channel;
-	}
+    public int getChannel() {
+        return channelId;
+    }
 
-	public boolean isOnline() {
-		return online;
-	}
+    public boolean isOnline() {
+        return isOnline;
+    }
 
-	public void setOnline(boolean online) {
-		this.online = online;
-	}
+    public void setOnline(boolean online) {
+        this.isOnline = online;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public int getId() {
-		return id;
-	}
+    public int getId() {
+        return characterId;
+    }
 
-	public int getPosition() {
-		return position;
-	}
+    public int getPosition() {
+        return position;
+    }
 
-	public void setPosition(int position) {
-		this.position = position;
-	}
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 19 * hash + this.characterId;
+        return hash;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final MessengerMember other = (MessengerMember) obj;
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MessengerMember other = (MessengerMember) obj;
+        return this.characterId == other.characterId;
+    }
 }

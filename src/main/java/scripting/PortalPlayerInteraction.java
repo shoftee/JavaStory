@@ -20,7 +20,7 @@
 */
 package scripting;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import server.Portal;
 
 public class PortalPlayerInteraction extends AbstractPlayerInteraction {

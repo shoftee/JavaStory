@@ -1,5 +1,6 @@
 package client;
 
+import org.javastory.client.ChannelCharacter;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;

@@ -3,14 +3,13 @@ package client.messages.commands;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
-import java.io.File;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;
+import org.javastory.game.IdNameEntry;
 import server.ItemInfoProvider;
-import tools.Pair;
 import tools.StringUtil;
 import provider.WzData;
 import provider.WzDataProvider;
@@ -18,122 +17,152 @@ import provider.WzDataProviderFactory;
 import provider.WzDataTool;
 
 public class SearchCommands implements Command {
-	@Override
-	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
-		if (splitted.length == 1) {
-			c.getPlayer().sendNotice(6, splitted[0] + ": <NPC> <MOB> <ITEM> <MAP> <SKILL>");
-		} else {
-			String type = splitted[1];
-			String search = StringUtil.joinStringFrom(splitted, 2);
-			WzData data = null;
-			WzDataProvider dataProvider = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/" + "String.wz"));
-			c.getPlayer().sendNotice(6, "<<Type: " + type + " | Search: " + search + ">>");
-			if (type.equalsIgnoreCase("NPC")) {
-				List<String> retNpcs = new ArrayList<String>();
-				data = dataProvider.getData("Npc.img");
-				List<Pair<Integer, String>> npcPairList = new LinkedList<Pair<Integer, String>>();
-				for (WzData npcIdData : data.getChildren()) {
-					npcPairList.add(new Pair<Integer, String>(Integer.parseInt(npcIdData.getName()), WzDataTool.getString(npcIdData.getChildByPath("name"), "NO-NAME")));
-				}
-				for (Pair<Integer, String> npcPair : npcPairList) {
-					if (npcPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-						retNpcs.add(npcPair.getLeft() + " - " + npcPair.getRight());
-					}
-				}
-				if (retNpcs != null && retNpcs.size() > 0) {
-					for (String singleRetNpc : retNpcs) {
-						c.getPlayer().sendNotice(6, singleRetNpc);
-					}
-				} else {
-					c.getPlayer().sendNotice(6, "No NPC's Found");
-				}
-			} else if (type.equalsIgnoreCase("MAP")) {
-				List<String> retMaps = new ArrayList<String>();
-				data = dataProvider.getData("Map.img");
-				List<Pair<Integer, String>> mapPairList = new LinkedList<Pair<Integer, String>>();
-				for (WzData mapAreaData : data.getChildren()) {
-					for (WzData mapIdData : mapAreaData.getChildren()) {
-						mapPairList.add(new Pair<Integer, String>(Integer.parseInt(mapIdData.getName()), WzDataTool.getString(mapIdData.getChildByPath("streetName"), "NO-NAME") + " - " + WzDataTool.getString(mapIdData.getChildByPath("mapName"), "NO-NAME")));
-					}
-				}
-				for (Pair<Integer, String> mapPair : mapPairList) {
-					if (mapPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-						retMaps.add(mapPair.getLeft() + " - " + mapPair.getRight());
-					}
-				}
-				if (retMaps != null && retMaps.size() > 0) {
-					for (String singleRetMap : retMaps) {
-						c.getPlayer().sendNotice(6, singleRetMap);
-					}
-				} else {
-					c.getPlayer().sendNotice(6, "No Maps Found");
-				}
-			} else if (type.equalsIgnoreCase("MOB")) {
-				List<String> retMobs = new ArrayList<String>();
-				data = dataProvider.getData("Mob.img");
-				List<Pair<Integer, String>> mobPairList = new LinkedList<Pair<Integer, String>>();
-				for (WzData mobIdData : data.getChildren()) {
-					mobPairList.add(new Pair<Integer, String>(Integer.parseInt(mobIdData.getName()), WzDataTool.getString(mobIdData.getChildByPath("name"), "NO-NAME")));
-				}
-				for (Pair<Integer, String> mobPair : mobPairList) {
-					if (mobPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-						retMobs.add(mobPair.getLeft() + " - " + mobPair.getRight());
-					}
-				}
-				if (retMobs != null && retMobs.size() > 0) {
-					for (String singleRetMob : retMobs) {
-						c.getPlayer().sendNotice(6, singleRetMob);
-					}
-				} else {
-					c.getPlayer().sendNotice(6, "No Mob's Found");
-				}
-			} else if (type.equalsIgnoreCase("REACTOR")) {
-				c.getPlayer().sendNotice(6, "Not available at this moment");
-			} else if (type.equalsIgnoreCase("ITEM")) {
-				List<String> retItems = new ArrayList<String>();
-				for (Pair<Integer, String> itemPair : ItemInfoProvider.getInstance().getAllItems()) {
-					if (itemPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-						retItems.add(itemPair.getLeft() + " - " + itemPair.getRight());
-					}
-				}
-				if (retItems != null && retItems.size() > 0) {
-					for (String singleRetItem : retItems) {
-						c.getPlayer().sendNotice(6, singleRetItem);
-					}
-				} else {
-					c.getPlayer().sendNotice(6, "No Item's Found");
-				}
-			} else if (type.equalsIgnoreCase("SKILL")) {
-				List<String> retSkills = new ArrayList<String>();
-				data = dataProvider.getData("Skill.img");
-				List<Pair<Integer, String>> skillPairList = new LinkedList<Pair<Integer, String>>();
-				for (WzData skillIdData : data.getChildren()) {
-					skillPairList.add(new Pair<Integer, String>(Integer.parseInt(skillIdData.getName()), WzDataTool.getString(skillIdData.getChildByPath("name"), "NO-NAME")));
-				}
-				for (Pair<Integer, String> skillPair : skillPairList) {
-					if (skillPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-						retSkills.add(skillPair.getLeft() + " - " + skillPair.getRight());
-					}
-				}
-				if (retSkills != null && retSkills.size() > 0) {
-					for (String singleRetSkill : retSkills) {
-						c.getPlayer().sendNotice(6, singleRetSkill);
-					}
-				} else {
-					c.getPlayer().sendNotice(6, "No Skills Found");
-				}
-			} else {
-				c.getPlayer().sendNotice(6, "Sorry, that search call is unavailable");
-			}
-		}
-	}
 
-	@Override
-	public CommandDefinition[] getDefinition() {
-		return new CommandDefinition[] {
-			new CommandDefinition("find", "", "", 3),
-			new CommandDefinition("lookup", "", "", 3),
-			new CommandDefinition("search", "", "", 3)
-		};
-	}
+    @Override
+    public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+        if (splitted.length == 1) {
+            c.getPlayer().sendNotice(6, splitted[0] +
+                    ": <NPC> <MOB> <ITEM> <MAP> <SKILL>");
+            return;
+        }
+        String commandType = splitted[1].toUpperCase();
+        String search = StringUtil.joinStringFrom(splitted, 2);
+        WzData data = null;
+        WzDataProvider dataProvider = WzDataProviderFactory.getDataProvider("String.wz");
+        c.getPlayer().sendNotice(6, "<<Type: " + commandType + " | Search: " +
+                search + ">>");
+        switch (commandType) {
+            case "NPC":
+                npcSearch(dataProvider, data, search, c);
+                break;
+            case "MAP":
+                mapSearch(dataProvider, data, search, c);
+                break;
+            case "MOB":
+                monsterSearch(dataProvider, data, search, c);
+                break;
+            case "ITEM":
+                itemSearch(search, c);
+                break;
+            case "SKILL":
+                skillSearch(dataProvider, data, search, c);
+                break;
+            default:
+                c.getPlayer().sendNotice(6, "Sorry, that search call is unavailable");
+                break;
+        }
+    }
+
+    private static void npcSearch(WzDataProvider dataProvider, WzData data, String search, ChannelClient c) throws NumberFormatException {
+        List<String> retNpcs = new ArrayList<>();
+        List<IdNameEntry> npcPairList = new LinkedList<>();
+        for (WzData npcIdData : dataProvider.getData("Npc.img").getChildren()) {
+            npcPairList.add(new IdNameEntry(Integer.parseInt(npcIdData.getName()), WzDataTool.getString(npcIdData.getChildByPath("name"), "NO-NAME")));
+        }
+        for (IdNameEntry npcPair : npcPairList) {
+            if (npcPair.name.toLowerCase().contains(search.toLowerCase())) {
+                retNpcs.add(npcPair.id + " - " + npcPair.name);
+            }
+        }
+        if (retNpcs != null && retNpcs.size() > 0) {
+            for (String singleRetNpc : retNpcs) {
+                c.getPlayer().sendNotice(6, singleRetNpc);
+            }
+        } else {
+            c.getPlayer().sendNotice(6, "No NPC's Found");
+        }
+    }
+
+    private static void mapSearch(WzDataProvider dataProvider, WzData data, String search, ChannelClient c) throws NumberFormatException {
+        List<String> retMaps = new ArrayList<>();
+        List<IdNameEntry> mapPairList = new LinkedList<>();
+        for (WzData mapAreaData : dataProvider.getData("Map.img").getChildren()) {
+            for (WzData mapIdData : mapAreaData.getChildren()) {
+                final String street = WzDataTool.getString(mapIdData.getChildByPath("streetName"), "NO-NAME");
+                final String map = WzDataTool.getString(mapIdData.getChildByPath("mapName"), "NO-NAME");
+                final IdNameEntry entry = new IdNameEntry(
+                        Integer.parseInt(mapIdData.getName()),
+                        street + " - " + map);
+                mapPairList.add(entry);
+            }
+        }
+        for (IdNameEntry mapPair : mapPairList) {
+            if (mapPair.name.toLowerCase().contains(search.toLowerCase())) {
+                retMaps.add(mapPair.id + " - " + mapPair.name);
+            }
+        }
+        if (retMaps != null && retMaps.size() > 0) {
+            for (String singleRetMap : retMaps) {
+                c.getPlayer().sendNotice(6, singleRetMap);
+            }
+        } else {
+            c.getPlayer().sendNotice(6, "No Maps Found");
+        }
+    }
+
+    private static void monsterSearch(WzDataProvider dataProvider, WzData data, String search, ChannelClient c) throws NumberFormatException {
+        List<String> retMobs = new ArrayList<>();
+        List<IdNameEntry> mobPairList = new LinkedList<>();
+        for (WzData mobIdData : dataProvider.getData("Mob.img").getChildren()) {
+            mobPairList.add(new IdNameEntry(Integer.parseInt(mobIdData.getName()), WzDataTool.getString(mobIdData.getChildByPath("name"), "NO-NAME")));
+        }
+        for (IdNameEntry mobPair : mobPairList) {
+            if (mobPair.name.toLowerCase().contains(search.toLowerCase())) {
+                retMobs.add(mobPair.id + " - " + mobPair.name);
+            }
+        }
+        if (retMobs != null && retMobs.size() > 0) {
+            for (String singleRetMob : retMobs) {
+                c.getPlayer().sendNotice(6, singleRetMob);
+            }
+        } else {
+            c.getPlayer().sendNotice(6, "No Mob's Found");
+        }
+    }
+
+    private static void itemSearch(String search, ChannelClient c) {
+        List<String> retItems = new ArrayList<>();
+        for (IdNameEntry entry : ItemInfoProvider.getInstance().getAllItems()) {
+            if (entry.name.toLowerCase().contains(search.toLowerCase())) {
+                retItems.add(entry.id + " - " + entry.name);
+            }
+        }
+        if (retItems != null && retItems.size() > 0) {
+            for (String singleRetItem : retItems) {
+                c.getPlayer().sendNotice(6, singleRetItem);
+            }
+        } else {
+            c.getPlayer().sendNotice(6, "No Item's Found");
+        }
+    }
+
+    private static void skillSearch(WzDataProvider dataProvider, WzData data, String search, ChannelClient c) throws NumberFormatException {
+        List<String> retSkills = new ArrayList<>();
+        data = dataProvider.getData("Skill.img");
+        List<IdNameEntry> skillPairList = new LinkedList<>();
+        for (WzData skillIdData : data.getChildren()) {
+            skillPairList.add(new IdNameEntry(Integer.parseInt(skillIdData.getName()), WzDataTool.getString(skillIdData.getChildByPath("name"), "NO-NAME")));
+        }
+        for (IdNameEntry skillPair : skillPairList) {
+            if (skillPair.name.toLowerCase().contains(search.toLowerCase())) {
+                retSkills.add(skillPair.id + " - " + skillPair.name);
+            }
+        }
+        if (retSkills != null && retSkills.size() > 0) {
+            for (String singleRetSkill : retSkills) {
+                c.getPlayer().sendNotice(6, singleRetSkill);
+            }
+        } else {
+            c.getPlayer().sendNotice(6, "No Skills Found");
+        }
+    }
+
+    @Override
+    public CommandDefinition[] getDefinition() {
+        return new CommandDefinition[]{
+                    new CommandDefinition("find", "", "", 3),
+                    new CommandDefinition("lookup", "", "", 3),
+                    new CommandDefinition("search", "", "", 3)
+                };
+    }
 }

@@ -8,15 +8,15 @@ import client.Equip;
 import client.IItem;
 import client.SkillFactory;
 import client.GameConstants;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.Pet;
 import client.QuestStatus;
 import handling.world.Party;
 import handling.world.PartyMember;
-import handling.world.guild.Guild;
+import handling.world.Guild;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
@@ -28,7 +28,6 @@ import server.maps.SavedLocationType;
 import server.maps.Event_DojoAgent;
 import server.life.Monster;
 import server.life.LifeFactory;
-import server.quest.Quest;
 import tools.MaplePacketCreator;
 import tools.packet.PetPacket;
 import tools.packet.UIPacket;
@@ -139,19 +138,20 @@ public class AbstractPlayerInteraction {
     }
 
     public final QuestStatus getQuestRecord(final int id) {
-        return client.getPlayer().getQuestNAdd(Quest.getInstance(id));
-    }
-
-    public final byte getQuestStatus(final int id) {
         return client.getPlayer().getQuestStatus(id);
     }
 
+    public final byte getQuestStatus(final int id) {
+        return client.getPlayer().getQuestCompletionStatus(id);
+    }
+
     public final void forceStartQuest(final int id, final String data) {
-        Quest.getInstance(id).forceStart(client.getPlayer(), 0, data);
+        client.getPlayer().getQuestStatus(id).start(0, data);
     }
 
     public final void forceCompleteQuest(final int id) {
-        Quest.getInstance(id).forceComplete(getPlayer(), 0);
+        client.getPlayer().getQuestStatus(id).complete(0);
+       
     }
 
     public void spawnNpc(final int npcId) {

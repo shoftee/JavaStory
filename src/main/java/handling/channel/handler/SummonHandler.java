@@ -27,8 +27,8 @@ import java.util.Iterator;
 
 import client.ISkill;
 import client.BuffStat;
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import client.SkillFactory;
 import client.SummonSkillEntry;
 import client.status.MonsterStatusEffect;

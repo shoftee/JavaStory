@@ -25,7 +25,6 @@ public class LoginServer extends GameService {
 
     // TODO: This should be a per-channel constant.
     public static final int USER_LIMIT = 1200;
-    
     private LoginWorldInterface lwi;
     private WorldLoginInterface wli;
     private final Properties subnetInfo = new Properties();
@@ -53,10 +52,13 @@ public class LoginServer extends GameService {
     public final String getChannelServerIP(final int channelId) {
         return channels.get(channelId).getHost();
     }
-    
+
+    // TODO: Use proper IP + port instead.
+    // This is only useful if the channel is on a well-known host (such as 127.0.0.1)
     public final int getChannelServerPort(final int channelId) {
         return channels.get(channelId).getPort();
     }
+    //
 
     public final Map<Integer, LoginChannelInfo> getChannels() {
         return ImmutableMap.copyOf(this.channels);

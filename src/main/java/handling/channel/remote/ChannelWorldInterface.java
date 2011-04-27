@@ -32,7 +32,7 @@ import handling.world.Messenger;
 import handling.world.Party;
 import handling.world.PartyMember;
 import handling.world.PartyOperation;
-import handling.world.guild.GuildSummary;
+import handling.world.GuildSummary;
 import handling.world.remote.WorldChannelCommonOperations;
 import org.javastory.client.MemberRank;
 import org.javastory.server.ChannelInfo;

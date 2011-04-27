@@ -22,8 +22,8 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.GameConstants;
 import client.SkillFactory;
 import client.anticheat.CheatingOffense;

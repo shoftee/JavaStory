@@ -1,6 +1,5 @@
 package server;
 
-import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +14,8 @@ import provider.WzDataTool;
 public class CashItemFactory {
 
     private static CashItemFactory instance = new CashItemFactory();
-    private Map<Integer, CashItemInfo> itemStats = new HashMap<Integer, CashItemInfo>();
-    private WzDataProvider data = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Etc.wz"));
+    private Map<Integer, CashItemInfo> itemStats = new HashMap<>();
+    private WzDataProvider data = WzDataProviderFactory.getDataProvider("Etc.wz");
 
     public static CashItemFactory getInstance() {
         return instance;
@@ -46,12 +45,13 @@ public class CashItemFactory {
     }
 
     public List<Integer> getPackageItems(int itemId) {
-        List<Integer> packageItems = new ArrayList<Integer>();
+        List<Integer> packageItems = new ArrayList<>();
         for (WzData b : data.getData("CashPackage.img").getChildren()) {
             if (itemId == Integer.parseInt(b.getName())) {
                 for (WzData c : b.getChildren()) {
                     for (WzData d : c.getChildren()) {
-                        packageItems.add(getItem(WzDataTool.getIntConvert("" + Integer.parseInt(d.getName()), c)).getId());
+                        packageItems.add(getItem(WzDataTool.getIntConvert("" +
+                                Integer.parseInt(d.getName()), c)).getId());
                     }
                 }
                 break;

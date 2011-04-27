@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import org.javastory.client.ChannelClient;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,9 +50,9 @@ public class BuddyList implements Serializable {
         OK
     }
     private static final long serialVersionUID = 1413738569L;
-    private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<Integer, BuddyListEntry>();
+    private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<>();
     private int capacity;
-    private Deque<CharacterNameAndId> pendingRequests = new LinkedList<CharacterNameAndId>();
+    private Deque<SimpleCharacterInfo> pendingRequests = new LinkedList<>();
 
     public BuddyList(int capacity) {
         super();
@@ -117,10 +118,10 @@ public class BuddyList implements Serializable {
         return buddyIds;
     }
 
-    public void loadFromTransfer(final Map<CharacterNameAndId, Boolean> data) {
-        CharacterNameAndId buddyid;
+    public void loadFromTransfer(final Map<SimpleCharacterInfo, Boolean> data) {
+        SimpleCharacterInfo buddyid;
         boolean pair;
-        for (final Map.Entry<CharacterNameAndId, Boolean> qs : data.entrySet()) {
+        for (final Map.Entry<SimpleCharacterInfo, Boolean> qs : data.entrySet()) {
             buddyid = qs.getKey();
             pair = qs.getValue();
             if (!pair) {
@@ -140,7 +141,7 @@ public class BuddyList implements Serializable {
             int buddyid = rs.getInt("buddyid");
             String buddyname = rs.getString("buddyname");
             if (rs.getInt("pending") == 1) {
-                pendingRequests.push(new CharacterNameAndId(buddyid, buddyname, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
+                pendingRequests.push(new SimpleCharacterInfo(buddyid, buddyname, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             } else {
                 put(new BuddyListEntry(buddyname, buddyid, rs.getString("groupname"), -1, true, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             }
@@ -154,7 +155,7 @@ public class BuddyList implements Serializable {
         ps.close();
     }
 
-    public CharacterNameAndId pollPendingRequest() {
+    public SimpleCharacterInfo pollPendingRequest() {
         return pendingRequests.pollLast();
     }
 
@@ -163,7 +164,7 @@ public class BuddyList implements Serializable {
         if (pendingRequests.isEmpty()) {
             c.write(MaplePacketCreator.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
         } else {
-            pendingRequests.push(new CharacterNameAndId(cidFrom, nameFrom, levelFrom, jobFrom));
+            pendingRequests.push(new SimpleCharacterInfo(cidFrom, nameFrom, levelFrom, jobFrom));
         }
     }
 }

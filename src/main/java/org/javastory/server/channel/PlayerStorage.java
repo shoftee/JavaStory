@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import client.GameCharacterUtil;
-import client.ChannelCharacter;
+import org.javastory.client.GameCharacterUtil;
+import org.javastory.client.ChannelCharacter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import handling.GamePacket;

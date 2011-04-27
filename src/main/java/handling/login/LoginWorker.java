@@ -1,11 +1,11 @@
 package handling.login;
 
+import com.google.common.collect.Lists;
 import org.javastory.server.login.LoginServer;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.List;
-import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,7 +19,7 @@ import tools.LogUtil;
 public class LoginWorker {
 
     private static Runnable persister;
-    private static final List<Pair<Integer, String>> IPLog = new LinkedList<Pair<Integer, String>>();
+    private static final List<Pair<Integer, String>> IPLog = Lists.newLinkedList();
     private static long lastUpdate = 0;
     private static final Lock mutex = new ReentrantLock();
 
@@ -61,12 +61,13 @@ public class LoginWorker {
                 c.disconnect();
             }
         }, 10 * 60 * 10000));
-        final LoginServer LS = LoginServer.getInstance();
-        if (System.currentTimeMillis() - lastUpdate > 300000) { // Update once every 5 minutes
+        final LoginServer loginServer = LoginServer.getInstance();
+        if (System.currentTimeMillis() - lastUpdate > 300000) { 
+            // Update once every 5 minutes
             lastUpdate = System.currentTimeMillis();
             try {
                 final Map<Integer, Integer> channelLoad =
-                        LS.getWorldInterface().getChannelLoad();
+                        loginServer.getWorldInterface().getChannelLoad();
                 if (channelLoad == null) {
                     // In an unfortunate event that client logged in before load
                     lastUpdate = 0;
@@ -75,13 +76,13 @@ public class LoginWorker {
                 }
                 for (Entry<Integer, Integer> entry : channelLoad.entrySet()) {
                     final int load = Math.min(1200, entry.getValue());
-                    LS.setLoad(entry.getKey(), load);
+                    loginServer.setLoad(entry.getKey(), load);
                 }
             } catch (RemoteException ex) {
                 LoginServer.getInstance().pingWorld();
             }
         }
-        c.write(LoginPacket.getWorldList(2, "Cassiopeia", LS.getChannels()));
+        c.write(LoginPacket.getWorldList(2, "Cassiopeia", loginServer.getChannels()));
         c.write(LoginPacket.getEndOfWorldList());
         mutex.lock();
         try {

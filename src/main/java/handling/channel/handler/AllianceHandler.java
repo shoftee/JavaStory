@@ -20,8 +20,8 @@
 */
 package handling.channel.handler;
 
-import client.ChannelClient;
-import handling.world.guild.GuildUnion;
+import org.javastory.client.ChannelClient;
+import handling.world.GuildUnion;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 

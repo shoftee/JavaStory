@@ -34,11 +34,11 @@ import java.util.Map.Entry;
 
 public class CPUSampler {
 
-    private List<String> included = new LinkedList<String>();
+    private List<String> included = new LinkedList<>();
     private static CPUSampler instance = new CPUSampler();
     private long interval = 5;
     private SamplerThread sampler = null;
-    private Map<StackTrace, Integer> recorded = new HashMap<StackTrace, Integer>();
+    private Map<StackTrace, Integer> recorded = new HashMap<>();
     private int totalSamples = 0;
 
     public static CPUSampler getInstance() {
@@ -78,7 +78,7 @@ public class CPUSampler {
     }
 
     public SampledStacktraces getTopConsumers() {
-	List<StacktraceWithCount> ret = new ArrayList<StacktraceWithCount>();
+	List<StacktraceWithCount> ret = new ArrayList<>();
 	Set<Entry<StackTrace, Integer>> entrySet = recorded.entrySet();
 	for (Entry<StackTrace, Integer> entry : entrySet) {
 	    ret.add(new StacktraceWithCount(entry.getValue(), entry.getKey()));
@@ -119,7 +119,7 @@ public class CPUSampler {
     private int findRelevantElement(StackTraceElement[] trace) {
 	if (trace.length == 0) {
 	    return -1;
-	} else if (included.size() == 0) {
+	} else if (included.isEmpty()) {
 	    return 0;
 	}
 	int firstIncluded = -1;

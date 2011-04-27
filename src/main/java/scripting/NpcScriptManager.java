@@ -24,10 +24,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import com.google.common.collect.MapMaker;
-import server.quest.Quest;
+import org.javastory.quest.QuestInfoProvider;
+import org.javastory.quest.QuestInfoProvider.QuestInfo;
 
 public final class NpcScriptManager extends AbstractScriptManager {
 
@@ -36,9 +38,8 @@ public final class NpcScriptManager extends AbstractScriptManager {
     private static final NpcScriptManager instance = new NpcScriptManager();
 
     private NpcScriptManager() {
-        MapMaker maker = new MapMaker();
-        this.managers = new WeakHashMap<ChannelClient, NpcConversationManager>();
-        this.scripts = new WeakHashMap<ChannelClient, Invocable>();
+        this.managers = new WeakHashMap<>();
+        this.scripts = new WeakHashMap<>();
     }
 
     public static NpcScriptManager getInstance() {
@@ -67,7 +68,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
                     iv.invokeFunction("action", (byte) 1, (byte) 0, 0);
                 }
             }
-        } catch (final Exception e) {
+        } catch (final ScriptException | NoSuchMethodException e) {
             e.printStackTrace();
             System.err.println("Error executing NPC script, NPC ID : " + npc +
                     "." + e);
@@ -83,7 +84,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
                 } else {
                     scripts.get(c).invokeFunction("action", mode, type, selection);
                 }
-            } catch (final Exception e) {
+            } catch (final ScriptException | NoSuchMethodException e) {
                 e.printStackTrace();
                 System.err.println("Error executing NPC script");
                 dispose(c);
@@ -92,7 +93,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
     }
 
     public final void startQuest(final ChannelClient c, final int npc, final int quest) {
-        if (!Quest.getInstance(quest).canStart(c.getPlayer(), null)) {
+        if (!QuestInfoProvider.getInfo(quest).canStart(c.getPlayer(), npc)) {
             return;
         }
         try {
@@ -126,15 +127,15 @@ public final class NpcScriptManager extends AbstractScriptManager {
             } else {
                 scripts.get(c).invokeFunction("start", mode, type, selection);
             }
-        } catch (Exception e) {
-//		System.err.println("Error executing Quest script. (" + c.getQM().getQuestId() + ")" + e);
+        } catch (ScriptException | NoSuchMethodException e) {
             dispose(c);
         }
     }
 
     public final void endQuest(final ChannelClient c, final int npc, final int quest, final boolean customEnd) {
-        if (!customEnd &&
-                !Quest.getInstance(quest).canComplete(c.getPlayer(), null)) {
+        QuestInfo info = QuestInfoProvider.getInfo(quest);
+        boolean canComplete = info.canComplete(c.getPlayer(), npc);
+        if (!customEnd && canComplete) {
             return;
         }
         try {
@@ -142,7 +143,6 @@ public final class NpcScriptManager extends AbstractScriptManager {
                 final Invocable iv = getInvocable("quest/" + quest + ".js", c);
                 final ScriptEngine scriptengine = (ScriptEngine) iv;
                 if (iv == null) {
-                    dispose(c);
                     return;
                 }
                 final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 1);
@@ -155,9 +155,10 @@ public final class NpcScriptManager extends AbstractScriptManager {
 
                 iv.invokeFunction("end", (byte) 1, (byte) 0, 0); // start it off as something
             }
-        } catch (Exception e) {
+        } catch (ScriptException | NoSuchMethodException e) {
             System.err.println("Error executing Quest script. (" + quest + ")" +
                     e);
+        } finally {
             dispose(c);
         }
     }
@@ -169,7 +170,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
             } else {
                 scripts.get(c).invokeFunction("end", mode, type, selection);
             }
-        } catch (Exception e) {
+        } catch (ScriptException | NoSuchMethodException e) {
 //		System.err.println("Error executing Quest script. (" + c.getQM().getQuestId() + ")" + e);
             dispose(c);
         }
@@ -184,7 +185,8 @@ public final class NpcScriptManager extends AbstractScriptManager {
             if (manager.getType() == -1) {
                 c.removeScriptEngine("scripts/npc/" + manager.getNpcId() + ".js");
             } else {
-                c.removeScriptEngine("scripts/quest/" + manager.getQuest() + ".js");
+                c.removeScriptEngine("scripts/quest/" + manager.getQuest() +
+                        ".js");
             }
         }
         if (c.getPlayer().getConversationState() == 1) {

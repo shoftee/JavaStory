@@ -31,7 +31,7 @@ public class FootholdTree {
     private FootholdTree ne = null;
     private FootholdTree sw = null;
     private FootholdTree se = null;
-    private List<Foothold> footholds = new LinkedList<Foothold>();
+    private List<Foothold> footholds = new LinkedList<>();
     private Point p1;
     private Point p2;
     private Point center;
@@ -68,15 +68,16 @@ public class FootholdTree {
                 minDropX = f.getX2();
             }
         }
-        if (/*footholds.size() == 0 || */depth == maxDepth
-                || (f.getX1() >= p1.x && f.getX2() <= p2.x
-                && f.getY1() >= p1.y && f.getY2() <= p2.y)) {
+        if (depth == maxDepth || (f.getX1() >= p1.x &&
+                f.getX2() <= p2.x && f.getY1() >= p1.y && f.getY2() <= p2.y)) {
             footholds.add(f);
         } else {
             if (nw == null) {
                 nw = new FootholdTree(p1, center, depth + 1);
-                ne = new FootholdTree(new Point(center.x, p1.y), new Point(p2.x, center.y), depth + 1);
-                sw = new FootholdTree(new Point(p1.x, center.y), new Point(center.x, p2.y), depth + 1);
+                ne = new FootholdTree(new Point(center.x, p1.y), new Point(p2.x, center.y), depth +
+                        1);
+                sw = new FootholdTree(new Point(p1.x, center.y), new Point(center.x, p2.y), depth +
+                        1);
                 se = new FootholdTree(center, p2, depth + 1);
             }
             if (f.getX2() <= center.x && f.getY2() <= center.y) {
@@ -115,8 +116,8 @@ public class FootholdTree {
         Foothold ret;
         for (final Foothold f : footholds) {
             //if (f.isWall()) System.out.println(f.getX1() + " " + f.getX2());
-            if (f.isWall() && f.getX1() >= p1.x && f.getX1() <= p2.x
-                    && f.getY1() >= p1.y && f.getY2() <= p1.y) {
+            if (f.isWall() && f.getX1() >= p1.x && f.getX1() <= p2.x &&
+                    f.getY1() >= p1.y && f.getY2() <= p1.y) {
                 return f;
             }
         }
@@ -160,14 +161,17 @@ public class FootholdTree {
     public final boolean checkRelevantFH(final short fromx, final short fromy, final short tox, final short toy) {
         Foothold fhdata = null;
         for (final Foothold fh : footholds) { // From
-            if (fh.getX1() <= fromx && fh.getX2() >= fromx && fh.getY1() <= fromy && fh.getY2() >= fromy) { // monster pos is within
+            if (fh.getX1() <= fromx && fh.getX2() >= fromx && fh.getY1() <=
+                    fromy && fh.getY2() >= fromy) { // monster pos is within
                 fhdata = fh;
                 break;
             }
         }
         for (final Foothold fh2 : footholds) { // To
-            if (fh2.getX1() <= tox && fh2.getX2() >= tox && fh2.getY1() <= toy && fh2.getY2() >= toy) { // monster pos is within
-                if (!(fhdata.getId() == fh2.getId() || fh2.getId() == fhdata.getNext() || fh2.getId() == fhdata.getPrev())) {
+            if (fh2.getX1() <= tox && fh2.getX2() >= tox && fh2.getY1() <= toy &&
+                    fh2.getY2() >= toy) { // monster pos is within
+                if (!(fhdata.getId() == fh2.getId() || fh2.getId() ==
+                        fhdata.getNext() || fh2.getId() == fhdata.getPrev())) {
                     System.out.println("Couldn't find the correct pos for next/prev");
                     return false;
                 }
@@ -180,7 +184,7 @@ public class FootholdTree {
     public final Foothold findBelow(final Point p) {
         final List<Foothold> relevants = getRelevants(p);
         // find fhs with matching x coordinates
-        final List<Foothold> xMatches = new LinkedList<Foothold>();
+        final List<Foothold> xMatches = new LinkedList<>();
         for (final Foothold fh : relevants) {
             if (fh.getX1() <= p.x && fh.getX2() >= p.x) {
                 xMatches.add(fh);

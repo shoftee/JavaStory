@@ -21,10 +21,9 @@
 package server.shops;
 
 import java.util.List;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import handling.GamePacket;
-import tools.Pair;
 
 public interface PlayerShop {
     public final static byte HIRED_MERCHANT = 1;
@@ -33,7 +32,7 @@ public interface PlayerShop {
     public String getOwnerName();
     public String getDescription();
 
-    public List<Pair<Byte, ChannelCharacter>> getVisitors();
+    public List<ChannelCharacter> getVisitors();
     public List<PlayerShopItem> getItems();
 
     public boolean isOpen();

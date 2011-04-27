@@ -4,7 +4,7 @@
  */
 package org.javastory.server;
 
-import client.ChannelCharacter.FameStatus;
+import org.javastory.client.ChannelCharacter.FameStatus;
 import database.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

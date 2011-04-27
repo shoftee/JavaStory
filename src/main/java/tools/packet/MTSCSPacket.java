@@ -1,16 +1,16 @@
 package tools.packet;
 
 import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.util.List;
 
 import client.IItem;
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
+import java.util.List;
 import tools.HexTool;
 import org.javastory.io.PacketBuilder;
+import org.javastory.server.Notes.Note;
 
 public class MTSCSPacket {
 
@@ -92,19 +92,17 @@ public class MTSCSPacket {
         return builder.getPacket();
     }
 
-    public static GamePacket showNotes(ResultSet notes, int count) throws SQLException {
+    public static GamePacket showNotes(List<Note> notes) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_NOTES.getValue());
         builder.writeAsByte(3);
-        builder.writeAsByte(count);
-        for (int i = 0; i < count; i++) {
-            builder.writeInt(notes.getInt("id"));
-            builder.writeLengthPrefixedString(notes.getString("from"));
-            builder.writeLengthPrefixedString(notes.getString("message"));
-            builder.writeLong(PacketHelper.getKoreanTimestamp(notes.getLong("timestamp")));
-            builder.writeAsByte(0);
-            notes.next();
+        builder.writeAsByte(notes.size());
+        for (final Note note : notes) {
+            builder.writeInt(note.getId());
+            builder.writeLengthPrefixedString(note.getSender());
+            builder.writeLengthPrefixedString(note.getMessage());
+            builder.writeAsFiletime(note.getTimestamp());
         }
 
         return builder.getPacket();

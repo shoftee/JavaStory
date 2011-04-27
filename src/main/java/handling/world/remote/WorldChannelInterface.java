@@ -17,8 +17,9 @@ import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
-import handling.world.guild.Guild;
-import handling.world.guild.GuildMember;
+import handling.world.Guild;
+import handling.world.GuildMember;
+import java.util.Collection;
 import org.javastory.client.MemberRank;
 
 public interface WorldChannelInterface extends Remote, WorldChannelCommonOperations {
@@ -111,13 +112,13 @@ public interface WorldChannelInterface extends Remote, WorldChannelCommonOperati
 
     public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) throws RemoteException;
 
-    public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException;
 
     public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException;
 
-    public List<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException;
 
     public void addDiseaseToStorage(int chrid, List<PlayerDiseaseValueHolder> toStore) throws RemoteException;
 
-    public List<PlayerDiseaseValueHolder> getDiseaseFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(int chrid) throws RemoteException;
 }

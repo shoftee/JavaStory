@@ -26,9 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import client.ISkill;
 import com.google.common.collect.Maps;
-import java.util.EnumMap;
 import server.life.MobSkill;
-import tools.ArrayMap;
 
 public final class MonsterStatusEffect {
 

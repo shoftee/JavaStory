@@ -28,14 +28,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.LinkedList;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.Disease;
 import client.status.MonsterStatus;
 import com.google.common.collect.Maps;
 import server.maps.GameMapObject;
 import server.maps.GameMapObjectType;
 import server.maps.Mist;
-import tools.ArrayMap;
 
 public class MobSkill {
 
@@ -44,7 +43,7 @@ public class MobSkill {
     private float prop;
 //    private short effect_delay;
     private short limit;
-    private List<Integer> toSummon = new ArrayList<Integer>();
+    private List<Integer> toSummon = new ArrayList<>();
     private Point lt, rb;
 
     public MobSkill(int skillId, int level) {
@@ -142,7 +141,7 @@ public class MobSkill {
     public void applyEffect(ChannelCharacter player, Monster monster, boolean skill) {
 	Disease disease = null;
 	Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
-	List<Integer> reflection = new LinkedList<Integer>();
+	List<Integer> reflection = new LinkedList<>();
 
 	switch (skillId) {
 	    case 100:
@@ -260,7 +259,7 @@ public class MobSkill {
 
 		    switch (mobId) {
 			case 8500003: // Pap bomb high
-			    toSpawn.setFh((int) Math.ceil(Math.random() * 19.0));
+			    toSpawn.setFoothold((int) Math.ceil(Math.random() * 19.0));
 			    ypos = -590;
 			    break;
 			case 8500004: // Pap bomb
@@ -395,14 +394,14 @@ public class MobSkill {
 
     private List<ChannelCharacter> getPlayersInRange(Monster monster, ChannelCharacter player) {
 	final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-	List<ChannelCharacter> players = new ArrayList<ChannelCharacter>();
+	List<ChannelCharacter> players = new ArrayList<>();
 	players.add(player);
 	return monster.getMap().getPlayersInRect(bounds, players);
     }
 
     private List<GameMapObject> getObjectsInRange(Monster monster, GameMapObjectType objectType) {
 	final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-	List<GameMapObjectType> objectTypes = new ArrayList<GameMapObjectType>();
+	List<GameMapObjectType> objectTypes = new ArrayList<>();
 	objectTypes.add(objectType);
 	return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
     }

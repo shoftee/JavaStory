@@ -28,7 +28,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 
 /**
  *

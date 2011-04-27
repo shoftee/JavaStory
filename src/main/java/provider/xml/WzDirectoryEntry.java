@@ -32,9 +32,9 @@ import provider.WzDataFileEntry;
 
 public class WzDirectoryEntry extends WzEntry implements WzDataDirectoryEntry {
 
-    private List<WzDataDirectoryEntry> subdirs = new ArrayList<WzDataDirectoryEntry>();
-    private List<WzDataFileEntry> files = new ArrayList<WzDataFileEntry>();
-    private Map<String, WzDataEntry> entries = new HashMap<String, WzDataEntry>();
+    private List<WzDataDirectoryEntry> subdirs = new ArrayList<>();
+    private List<WzDataFileEntry> files = new ArrayList<>();
+    private Map<String, WzDataEntry> entries = new HashMap<>();
 
     public WzDirectoryEntry(String name, int size, int checksum, WzDataEntity parent) {
 	super(name, size, checksum, parent);

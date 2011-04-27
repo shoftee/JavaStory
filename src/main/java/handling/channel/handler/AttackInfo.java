@@ -25,10 +25,10 @@ import java.awt.Point;
 
 import client.ISkill;
 import client.GameConstants;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.SkillFactory;
+import org.javastory.game.Skills;
 import server.StatEffect;
-import server.AutobanManager;
 import tools.AttackPair;
 
 public class AttackInfo {
@@ -39,12 +39,12 @@ public class AttackInfo {
     public byte hits, targets, tbyte, display, animation, speed, csstar, AOE, slot;
 
     public final StatEffect getAttackEffect(final ChannelCharacter chr, int skillLevel, final ISkill skill_) {
-	if (GameConstants.isMulungSkill(skill)) {
+	if (Skills.isMulungSkill(skill)) {
 	    skillLevel = 1;
 	} else if (skillLevel == 0) {
 	    return null;
 	}
-	if (GameConstants.isLinkedAranSkill(skill)) {
+	if (Skills.isLinkedAranSkill(skill)) {
 	    final ISkill skillLink = SkillFactory.getSkill(skill);
 	    if (display > 80) {
 		if (!skillLink.getAction()) {

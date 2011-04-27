@@ -1,6 +1,6 @@
 package client.messages;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 
 public interface Command {
 	CommandDefinition[] getDefinition();

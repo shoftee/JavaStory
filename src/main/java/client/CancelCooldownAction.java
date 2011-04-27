@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import org.javastory.client.ChannelCharacter;
 import java.lang.ref.WeakReference;
 import tools.MaplePacketCreator;
 
@@ -29,7 +30,7 @@ public class CancelCooldownAction implements Runnable {
     private WeakReference<ChannelCharacter> target;
 
     public CancelCooldownAction(ChannelCharacter target, int skillId) {
-        this.target = new WeakReference<ChannelCharacter>(target);
+        this.target = new WeakReference<>(target);
         this.skillId = skillId;
     }
 

@@ -23,8 +23,8 @@ package client;
 public class BuddyListEntry {
 
     private String name, group;
-    private int cid, channel, level, job;
-    private boolean visible;
+    private int characterId, channelId, level, job;
+    private boolean isVisible;
 
     /**
      *
@@ -36,10 +36,10 @@ public class BuddyListEntry {
     public BuddyListEntry(String name, int characterId, String group, int channel, boolean visible, int level, int job) {
         super();
         this.name = name;
-        this.cid = characterId;
+        this.characterId = characterId;
         this.group = group;
-        this.channel = channel;
-        this.visible = visible;
+        this.channelId = channel;
+        this.isVisible = visible;
         this.level = level;
         this.job = job;
     }
@@ -48,19 +48,19 @@ public class BuddyListEntry {
      * @return the channel the character is on. If the character is offline returns -1.
      */
     public int getChannel() {
-        return channel;
+        return channelId;
     }
 
     public void setChannel(int channel) {
-        this.channel = channel;
+        this.channelId = channel;
     }
 
     public boolean isOnline() {
-        return channel >= 0;
+        return channelId >= 0;
     }
 
     public void setOffline() {
-        channel = -1;
+        channelId = -1;
     }
 
     public String getName() {
@@ -68,15 +68,15 @@ public class BuddyListEntry {
     }
 
     public int getCharacterId() {
-        return cid;
+        return characterId;
     }
 
     public void setVisible(boolean visible) {
-        this.visible = visible;
+        this.isVisible = visible;
     }
 
     public boolean isVisible() {
-        return visible;
+        return isVisible;
     }
 
     public String getGroup() {
@@ -95,7 +95,7 @@ public class BuddyListEntry {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + cid;
+        result = prime * result + characterId;
         return result;
     }
 
@@ -111,7 +111,7 @@ public class BuddyListEntry {
             return false;
         }
         final BuddyListEntry other = (BuddyListEntry) obj;
-        if (cid != other.cid) {
+        if (characterId != other.characterId) {
             return false;
         }
         return true;

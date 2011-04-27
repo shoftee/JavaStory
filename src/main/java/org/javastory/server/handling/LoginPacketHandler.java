@@ -4,10 +4,7 @@
  */
 package org.javastory.server.handling;
 
-import client.ChannelClient;
 import handling.ClientPacketOpcode;
-import handling.ServerType;
-import handling.login.handler.CharLoginHandler;
 import org.apache.mina.core.session.IoSession;
 import org.javastory.client.GameClient;
 import org.javastory.client.LoginClient;
@@ -36,31 +33,31 @@ public class LoginPacketHandler extends PacketHandler {
                 // Does nothing for now, HackShield's heartbeat
                 break;
             case LOGIN_PASSWORD:
-                CharLoginHandler.handleLogin(reader, loginClient);
+                loginClient.handleLogin(reader);
                 break;
             case SERVERLIST_REQUEST:
-                CharLoginHandler.handleWorldListRequest(loginClient);
+                loginClient.handleWorldListRequest();
                 break;
             case CHARLIST_REQUEST:
-                CharLoginHandler.handleCharacterListRequest(reader, loginClient);
+                loginClient.handleCharacterListRequest(reader);
                 break;
             case SERVERSTATUS_REQUEST:
-                CharLoginHandler.handleWorldStatusRequest(loginClient);
+                loginClient.handleServerStatusRequest();
                 break;
             case CHECK_CHAR_NAME:
-                CharLoginHandler.handleCharacterNameCheck(reader.readLengthPrefixedString(), loginClient);
+                loginClient.handleCharacterNameCheck(reader);
                 break;
             case CREATE_CHAR:
-                CharLoginHandler.handleCreateCharacter(reader, loginClient);
+                loginClient.handleCreateCharacter(reader);
                 break;
             case DELETE_CHAR:
-                CharLoginHandler.handleDeleteCharacter(reader, loginClient);
+                loginClient.handleDeleteCharacter(reader);
                 break;
             case CHAR_SELECT:
-                CharLoginHandler.handleWithoutSecondPassword(reader, loginClient);
+                loginClient.handleWithoutSecondPassword(reader);
                 break;
             case AUTH_SECOND_PASSWORD:
-                CharLoginHandler.handleWithSecondPassword(reader, loginClient);
+                loginClient.handleWithSecondPassword(reader);
                 break;
             case RSA_KEY: // Fix this somehow
                 client.write(LoginPacket.StrangeDATA());

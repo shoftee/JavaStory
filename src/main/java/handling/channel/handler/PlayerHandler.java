@@ -10,16 +10,16 @@ import client.SkillFactory;
 import client.SkillMacro;
 import client.GameConstants;
 import client.CancelCooldownAction;
-import client.InventoryType;
 import client.BuffStat;
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import client.Inventory;
 import client.KeyBinding;
-import client.ActivePlayerStats;
+import org.javastory.client.ActivePlayerStats;
 import client.anticheat.CheatingOffense;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.javastory.game.Skills;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 import org.javastory.server.channel.ChannelManager;
@@ -316,7 +316,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleAranCombo(final ChannelClient c, final ChannelCharacter chr) {
+    public static void handleAranCombo(final ChannelClient c, final ChannelCharacter chr) {
         if (chr.getJobId() >= 2000 && chr.getJobId() <= 2112) {
             short combo = chr.getCombo();
             final long curr = System.currentTimeMillis();
@@ -400,7 +400,7 @@ public class PlayerHandler {
         final ISkill skill = SkillFactory.getSkill(skillid);
 
         if (chr.getCurrentSkillLevel(skill) == 0 || chr.getCurrentSkillLevel(skill) != skillLevel) {
-            if (!GameConstants.isMulungSkill(skillid)) {
+            if (!Skills.isMulungSkill(skillid)) {
                 c.disconnect(true);
                 return;
             }
@@ -485,7 +485,7 @@ public class PlayerHandler {
         ISkill skill = null;
 
         if (attack.skill != 0) {
-            skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
+            skill = SkillFactory.getSkill(Skills.getLinkedAranSkill(attack.skill));
             skillLevel = chr.getCurrentSkillLevel(skill);
             if (skillLevel == 0) {
                 c.disconnect(true);
@@ -748,7 +748,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleHealthRegeneration(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleHealthRegeneration(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(4);
         final int healHP = reader.readShort();
         final int healMP = reader.readShort();
@@ -770,7 +770,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleMovePlayer(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleMovePlayer(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
 //	reader.skip(5); // unknown
         final Point Original_Pos = chr.getPosition(); // 4 bytes Added on v.80 MSEA
         reader.skip(37);
@@ -807,7 +807,7 @@ public class PlayerHandler {
         }
     }
 
-    private static final void speedCheck(final List<LifeMovementFragment> res, final ChannelClient c) {
+    private static void speedCheck(final List<LifeMovementFragment> res, final ChannelClient c) {
         double speedMod, playerSpeedMod = c.getPlayer().getStats().getSpeedMod() + 0.005;
         for (LifeMovementFragment lmf : res) {
             if (lmf.getClass() == AbsoluteLifeMovement.class) {
@@ -825,7 +825,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleChangeMapSpecial(final String portal_name, final ChannelClient c, final ChannelCharacter chr) {
+    public static void handleChangeMapSpecial(final String portal_name, final ChannelClient c, final ChannelCharacter chr) {
         final Portal portal = chr.getMap().getPortal(portal_name);
 //	reader.skip(2);
 
@@ -834,7 +834,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleChangeMap(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleChangeMap(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         if (reader.remaining() != 0) {
             reader.skip(7); // 1 = from dying 2 = regular portals
             final int targetid = reader.readInt(); // FF FF FF FF
@@ -953,7 +953,7 @@ public class PlayerHandler {
         }
     }
 
-    public static final void handleUseInnerPortal(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleUseInnerPortal(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final Portal portal = c.getPlayer().getMap().getPortal(reader.readLengthPrefixedString());
         final int toX = reader.readShort();
         final int toY = reader.readShort();

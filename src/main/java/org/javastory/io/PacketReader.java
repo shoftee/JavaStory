@@ -41,9 +41,20 @@ public final class PacketReader {
         }
         return oldPosition;
     }
+    
+    /**
+     * Reads a byte as a boolean value.
+     * 
+     * @return whether the byte was equal to 1.
+     * @throws PacketFormatException 
+     *      if the advance put the current position past the end of the buffer.
+     */
+    public boolean readBoolean() throws PacketFormatException {
+        return buffer[checkedAdvance(1)] == 1;
+    }
 
     /**
-     * Reads a byte from.
+     * Reads a byte.
      * 
      * @return the byte that was readBytes.
      * 

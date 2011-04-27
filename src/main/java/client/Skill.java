@@ -20,8 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import org.javastory.client.ChannelCharacter;
 import java.util.ArrayList;
 import java.util.List;
+import org.javastory.game.Jobs;
 
 import provider.WzData;
 import provider.WzDataTool;
@@ -30,17 +32,26 @@ import server.life.Element;
 
 public class Skill implements ISkill {
 
-    public static final int[] skills = new int[]{4311003, 4321000, 4331002, 4331005, 4341004, 4341007};
+    public static final int[] DUALBLADE_SKILLS = new int[]{
+        4311003, 4321000, 4331002, 4331005, 4341004, 4341007
+    };
+    //
+    public static final int[] EVAN_SKILLS_1 = new int[]{
+        22171000, 22171002, 22171003, 22171004
+    };
+    //
+    public static final int[] EVAN_SKILLS_2 = new int[]{
+        22181000, 22181001, 22181002, 22181003
+    };
+    //
     private int id;
-    private final List<StatEffect> effects = new ArrayList<StatEffect>();
+    private final List<StatEffect> effects = new ArrayList<>();
     private Element element;
     private byte level;
     private int animationTime, requiredSkill, masterLevel;
     private boolean action;
     private boolean invisible;
     private boolean chargeskill;
-    public static final int[] evanskills1 = new int[]{22171000, 22171002, 22171003, 22171004};
-    public static final int[] evanskills2 = new int[]{22181000, 22181001, 22181002, 22181003};
 
     private Skill(final int id) {
         super();
@@ -217,35 +228,32 @@ public class Skill implements ISkill {
     @Override
     public boolean canBeLearnedBy(int job) {
         int jid = job;
-        int skillForJob = id / 10000;
-        if (skillForJob == 2001 && GameConstants.isEvan(job)) {
+        int skillJob = id / 10000;
+        if (skillJob == 2001 && Jobs.isEvan(job)) {
             return true; //special exception for evan -.-
         }
         if (job < 1000) {
-            if (jid / 100 != skillForJob / 100 && skillForJob / 100 != 0) { // wrong job
+            if (jid / 100 != skillJob / 100 && skillJob / 100 != 0) { // wrong job
                 return false;
             }
         } else {
-            if (jid / 1000 != skillForJob / 1000 && skillForJob / 1000 != 0) { // wrong job
+            if (jid / 1000 != skillJob / 1000 && skillJob / 1000 != 0) { // wrong job
                 return false;
             }
         }
-        if (GameConstants.isAdventurer(skillForJob) &&
-                !GameConstants.isAdventurer(job)) {
+        if (Jobs.isAdventurer(skillJob) && !Jobs.isAdventurer(job)) {
             return false;
-        } else if (GameConstants.isKOC(skillForJob) && !GameConstants.isKOC(job)) {
+        } else if (Jobs.isCygnus(skillJob) && !Jobs.isCygnus(job)) {
             return false;
-        } else if (GameConstants.isAran(skillForJob) &&
-                !GameConstants.isAran(job)) {
+        } else if (Jobs.isAran(skillJob) && !Jobs.isAran(job)) {
             return false;
-        } else if (GameConstants.isEvan(skillForJob) &&
-                !GameConstants.isEvan(job)) {
+        } else if (Jobs.isEvan(skillJob) && !Jobs.isEvan(job)) {
             return false;
         }
-        if ((skillForJob / 10) % 10 > (jid / 10) % 10) { // wrong 2nd job
+        if ((skillJob / 10) % 10 > (jid / 10) % 10) { // wrong 2nd job
             return false;
         }
-        if (skillForJob % 10 > jid % 10) { // wrong 3rd/4th job
+        if (skillJob % 10 > jid % 10) { // wrong 3rd/4th job
             return false;
         }
         return true;
@@ -253,13 +261,16 @@ public class Skill implements ISkill {
 
     @Override
     public boolean isFourthJob() {
-        if (id / 10000 >= 2212 && id / 10000 < 3000) { //evan skill
-            return ((id / 10000) % 10) >= 7;
+        final int jobFamily = id / 10000;
+        if (jobFamily >= 2212 && jobFamily < 3000) {
+            //evan skill
+            return (jobFamily % 10) >= 7;
         }
-        if (id / 10000 >= 430 && id / 10000 <= 434) { //db skill
-            return ((id / 10000) % 10) == 4 || isMasterSkill(id);
+        if (jobFamily >= 430 && jobFamily <= 434) {
+            //db skill
+            return (jobFamily % 10) == 4 || isMasterSkill(id);
         }
-        return ((id / 10000) % 10) == 2;
+        return (jobFamily % 10) == 2;
     }
 
     @Override
@@ -278,7 +289,7 @@ public class Skill implements ISkill {
     }
 
     public static boolean isMasterSkill(final int skill) {
-        for (int i : skills) {
+        for (int i : DUALBLADE_SKILLS) {
             if (i == skill) {
                 return true;
             }

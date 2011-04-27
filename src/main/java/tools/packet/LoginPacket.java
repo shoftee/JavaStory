@@ -3,7 +3,7 @@ package tools.packet;
 import java.util.List;
 import java.util.Map;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import org.javastory.client.LoginCharacter;

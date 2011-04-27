@@ -1,13 +1,10 @@
 package org.javastory.client;
 
 import client.Equip;
-import client.GameCharacter;
-import client.GameConstants;
 import client.IEquip;
 import client.IItem;
 import client.Inventory;
 import client.InventoryType;
-import client.PlayerStats;
 import com.google.common.collect.Lists;
 import database.DatabaseConnection;
 import database.DatabaseException;
@@ -19,6 +16,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.javastory.game.Skills;
 
 /**
  *
@@ -353,7 +351,7 @@ public class LoginCharacter implements GameCharacter {
     }
 
     public int getRemainingSp() {
-        return remainingSp[GameConstants.getSkillBook(jobId)]; //default
+        return remainingSp[Skills.getSkillbook(jobId)]; //default
     }
 
     public int getRemainingSp(final int skillbook) {

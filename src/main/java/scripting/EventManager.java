@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledFuture;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import handling.world.Party;
 import org.javastory.server.channel.ChannelServer;
 import server.TimerManager;
@@ -44,15 +44,15 @@ import tools.MaplePacketCreator;
 
 public class EventManager {
 
-    private Invocable iv;
+    private Invocable invocable;
     private ChannelServer cserv;
     private WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<String, EventInstanceManager>();
     private Properties props = new Properties();
     private String name;
 	private int world;
 
-    public EventManager(ChannelServer cserv, Invocable iv, String name, int world) {
-	this.iv = iv;
+    public EventManager(ChannelServer cserv, Invocable invocable, String name, int world) {
+	this.invocable = invocable;
 	this.cserv = cserv;
 	this.name = name;
 	this.world = world;
@@ -60,7 +60,7 @@ public class EventManager {
 
     public void cancel() {
 	try {
-	    iv.invokeFunction("cancelSchedule", (Object) null);
+	    invocable.invokeFunction("cancelSchedule", (Object) null);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();
 	} catch (NoSuchMethodException ex) {
@@ -73,7 +73,7 @@ public class EventManager {
 
 	    public void run() {
 		try {
-		    iv.invokeFunction(methodName, (Object) null);
+		    invocable.invokeFunction(methodName, (Object) null);
 		} catch (ScriptException ex) {
 		    ex.printStackTrace();
 		    System.out.println("method Name : " + methodName + "");
@@ -90,7 +90,7 @@ public class EventManager {
 
 	    public void run() {
 		try {
-		    iv.invokeFunction(methodName, eim);
+		    invocable.invokeFunction(methodName, eim);
 		} catch (ScriptException ex) {
 		    ex.printStackTrace();
 		    System.out.println("method Name : " + methodName + "");
@@ -107,7 +107,7 @@ public class EventManager {
 
 	    public void run() {
 		try {
-		    iv.invokeFunction(methodName, (Object) null);
+		    invocable.invokeFunction(methodName, (Object) null);
 		} catch (ScriptException ex) {
 		    ex.printStackTrace();
 		} catch (NoSuchMethodException ex) {
@@ -139,8 +139,8 @@ public class EventManager {
 	instances.remove(name);
     }
 
-    public Invocable getIv() {
-	return iv;
+    public Invocable getInvocable() {
+	return invocable;
     }
 
     public void setProperty(String key, String value) {
@@ -157,7 +157,7 @@ public class EventManager {
 
     public void startInstance() {
 	try {
-	    iv.invokeFunction("setup", (Object) null);
+	    invocable.invokeFunction("setup", (Object) null);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();
 	} catch (NoSuchMethodException ex) {
@@ -167,7 +167,7 @@ public class EventManager {
 
     public void startInstance(ChannelCharacter character) {
 	try {
-	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
+	    EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
 	    eim.registerPlayer(character);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();
@@ -179,7 +179,7 @@ public class EventManager {
     //PQ method: starts a PQ
     public void startInstance(Party party, GameMap map) {
 	try {
-	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", (Object) null));
+	    EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
 	    eim.registerParty(party, map);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();
@@ -191,7 +191,7 @@ public class EventManager {
     //non-PQ method for starting instance
     public void startInstance(EventInstanceManager eim, String leader) {
 	try {
-	    iv.invokeFunction("setup", eim);
+	    invocable.invokeFunction("setup", eim);
 	    eim.setProperty("leader", leader);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();
@@ -202,7 +202,7 @@ public class EventManager {
 
     public void startInstance(Squad squad, GameMap map) {
 	try {
-	    EventInstanceManager eim = (EventInstanceManager) (iv.invokeFunction("setup", squad.getLeader().getId()));
+	    EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", squad.getLeader().getId()));
 	    eim.registerSquad(squad, map);
 	} catch (ScriptException ex) {
 	    ex.printStackTrace();

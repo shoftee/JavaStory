@@ -32,17 +32,17 @@ import java.util.Map;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import database.DatabaseConnection;
 import server.maps.ReactorDropEntry;
 import server.maps.Reactor;
 
-public class ReactorScriptManager extends AbstractScriptManager {
+public final class ReactorScriptManager extends AbstractScriptManager {
 
     private static final ReactorScriptManager instance = new ReactorScriptManager();
-    private final Map<Integer, List<ReactorDropEntry>> drops = new HashMap<Integer, List<ReactorDropEntry>>();
+    private final Map<Integer, List<ReactorDropEntry>> drops = new HashMap<>();
 
-    public static final ReactorScriptManager getInstance() {
+    public static ReactorScriptManager getInstance() {
 	return instance;
     }
 
@@ -68,7 +68,7 @@ public class ReactorScriptManager extends AbstractScriptManager {
 	if (ret != null) {
 	    return ret;
 	}
-	ret = new LinkedList<ReactorDropEntry>();
+	ret = new LinkedList<>();
 
 	PreparedStatement ps = null;
 	ResultSet rs = null;

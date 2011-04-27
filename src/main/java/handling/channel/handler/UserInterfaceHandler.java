@@ -20,7 +20,7 @@
 */
 package handling.channel.handler;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import scripting.NpcScriptManager;
 import scripting.EventManager;
 import tools.MaplePacketCreator;

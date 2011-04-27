@@ -4,33 +4,33 @@ import java.awt.Point;
 import java.util.List;
 import java.io.Serializable;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import server.maps.Door;
 
 public class PartyMember implements Serializable {
 
     private static final long serialVersionUID = 6215463252132450750L;
+    private int characterId;
     private String name;
-    private int id;
     private int level;
-    private int channel;
-    private int jobid;
-    private int mapid;
+    private int channelId;
+    private int jobId;
+    private int mapId;
     private int doorTown = 999999999;
     private int doorTarget = 999999999;
     private Point doorPosition = new Point(0, 0);
-    private boolean online;
+    private boolean isOnline;
 
-    public PartyMember(ChannelCharacter maplechar) {
-        this.name = maplechar.getName();
-        this.level = maplechar.getLevel();
-        this.channel = maplechar.getClient().getChannelId();
-        this.id = maplechar.getId();
-        this.jobid = maplechar.getJobId();
-        this.mapid = maplechar.getMapId();
-        this.online = true;
-        final List<Door> doors = maplechar.getDoors();
-        if (doors.size() > 0) {
+    public PartyMember(ChannelCharacter character) {
+        this.characterId = character.getId();
+        this.name = character.getName();
+        this.channelId = character.getClient().getChannelId();
+        this.mapId = character.getMapId();
+        this.level = character.getLevel();
+        this.jobId = character.getJobId();
+        this.isOnline = true;
+        final List<Door> doors = character.getDoors();
+        if (!doors.isEmpty()) {
             final Door door = doors.get(0);
             this.doorTown = door.getTown().getId();
             this.doorTarget = door.getTarget().getId();
@@ -48,19 +48,19 @@ public class PartyMember implements Serializable {
     }
 
     public int getChannel() {
-        return channel;
+        return channelId;
     }
 
     public boolean isOnline() {
-        return online;
+        return isOnline;
     }
 
     public void setOnline(boolean online) {
-        this.online = online;
+        this.isOnline = online;
     }
 
     public int getMapid() {
-        return mapid;
+        return mapId;
     }
 
     public String getName() {
@@ -68,11 +68,11 @@ public class PartyMember implements Serializable {
     }
 
     public int getId() {
-        return id;
+        return characterId;
     }
 
     public int getJobId() {
-        return jobid;
+        return jobId;
     }
 
     public int getDoorTown() {
@@ -89,10 +89,9 @@ public class PartyMember implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        int hash = 7;
+        hash = 59 * hash + this.characterId;
+        return hash;
     }
 
     @Override
@@ -107,13 +106,6 @@ public class PartyMember implements Serializable {
             return false;
         }
         final PartyMember other = (PartyMember) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        return this.characterId == other.characterId;
     }
 }

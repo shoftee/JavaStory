@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import client.IItem;
-import client.ChannelClient;
-import client.ChannelCharacter;
-import client.InventoryType;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import client.Pet;
 import client.Stat;
 import client.GameConstants;
@@ -20,8 +19,8 @@ import org.javastory.io.PacketReader;
 import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
+import server.StatEffect.StatValue;
 import server.movement.LifeMovementFragment;
-import tools.Pair;
 import tools.MaplePacketCreator;
 import tools.packet.PetPacket;
 
@@ -65,8 +64,8 @@ public class PetHandler {
                         chr.addPet(pet);
                         chr.getMap().broadcastMessage(chr, PetPacket.showPet(chr, pet, false, false), true);
 
-                        final List<Pair<Stat, Integer>> stats = new ArrayList<Pair<Stat, Integer>>(1);
-                        stats.add(new Pair<Stat, Integer>(Stat.PET, Integer.valueOf(pet.getUniqueId())));
+                        final List<StatValue> stats = new ArrayList<>(1);
+                        stats.add(new StatValue(Stat.PET, Integer.valueOf(pet.getUniqueId())));
 
                         c.write(PetPacket.petStatUpdate(chr));
                         chr.startFullnessSchedule(PetDataFactory.getHunger(pet.getPetItemId()), pet, chr.getPetIndex(pet));

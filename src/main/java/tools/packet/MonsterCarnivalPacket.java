@@ -20,7 +20,7 @@
 */
 package tools.packet;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
 import server.CarnivalParty;

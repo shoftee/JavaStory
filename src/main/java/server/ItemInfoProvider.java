@@ -1,7 +1,6 @@
 package server;
 
 import org.javastory.tools.Randomizer;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,10 +12,11 @@ import client.Equip;
 import client.IItem;
 import client.ItemFlag;
 import client.GameConstants;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.InventoryType;
 import org.javastory.client.ItemType;
+import org.javastory.game.IdNameEntry;
 import provider.WzData;
 import provider.WzDataDirectoryEntry;
 import provider.WzDataFileEntry;
@@ -27,45 +27,44 @@ import tools.Pair;
 
 public final class ItemInfoProvider {
 
+    //
     private final static ItemInfoProvider instance = new ItemInfoProvider();
-    protected final WzDataProvider itemData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
-            "/Item.wz"));
-    protected final WzDataProvider equipData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
-            "/Character.wz"));
-    protected final WzDataProvider stringData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
-            "/String.wz"));
-    protected final WzData cashStringData = stringData.getData("Cash.img");
-    protected final WzData consumeStringData = stringData.getData("Consume.img");
-    protected final WzData eqpStringData = stringData.getData("Eqp.img");
-    protected final WzData etcStringData = stringData.getData("Etc.img");
-    protected final WzData insStringData = stringData.getData("Ins.img");
-    protected final WzData petStringData = stringData.getData("Pet.img");
-    protected final Map<Integer, Short> slotMaxCache = new HashMap<Integer, Short>();
-    protected final Map<Integer, StatEffect> itemEffects = new HashMap<Integer, StatEffect>();
-    protected final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<Integer, Map<String, Integer>>();
-    protected final Map<Integer, Map<String, Byte>> itemMakeStatsCache = new HashMap<Integer, Map<String, Byte>>();
-    protected final Map<Integer, List<StructEquipLevel>> equipLevelCache = new HashMap<Integer, List<StructEquipLevel>>();
-    protected final Map<Integer, Short> itemMakeLevel = new HashMap<Integer, Short>();
-    protected final Map<Integer, Equip> equipCache = new HashMap<Integer, Equip>();
-    protected final Map<Integer, Double> priceCache = new HashMap<Integer, Double>();
-    protected final Map<Integer, Integer> wholePriceCache = new HashMap<Integer, Integer>();
-    protected final Map<Integer, Integer> projectileWatkCache = new HashMap<Integer, Integer>();
-    protected final Map<Integer, Integer> monsterBookID = new HashMap<Integer, Integer>();
-    protected final Map<Integer, String> nameCache = new HashMap<Integer, String>();
-    protected final Map<Integer, String> descCache = new HashMap<Integer, String>();
-    protected final Map<Integer, String> msgCache = new HashMap<Integer, String>();
-    protected final Map<Integer, Map<String, Integer>> SkillStatsCache = new HashMap<Integer, Map<String, Integer>>();
-    protected final Map<Integer, Byte> consumeOnPickupCache = new HashMap<Integer, Byte>();
-    protected final Map<Integer, Boolean> dropRestrictionCache = new HashMap<Integer, Boolean>();
-    protected final Map<Integer, Boolean> pickupRestrictionCache = new HashMap<Integer, Boolean>();
-    protected final Map<Integer, Integer> stateChangeCache = new HashMap<Integer, Integer>(40);
-    protected final Map<Integer, Integer> karmaEnabledCache = new HashMap<Integer, Integer>();
-    protected final Map<Integer, Boolean> isQuestItemCache = new HashMap<Integer, Boolean>();
-    protected final Map<Integer, List<Pair<Integer, Integer>>> summonMobCache = new HashMap<Integer, List<Pair<Integer, Integer>>>();
-    protected final List<Pair<Integer, String>> itemNameCache = new ArrayList<Pair<Integer, String>>();
-    protected final Map<Integer, Pair<Integer, List<StructRewardItem>>> RewardItem = new HashMap<Integer, Pair<Integer, List<StructRewardItem>>>();
+    private final WzDataProvider itemData = WzDataProviderFactory.getDataProvider("Item.wz");
+    private final WzDataProvider equipData = WzDataProviderFactory.getDataProvider("Character.wz");
+    private final WzDataProvider stringData = WzDataProviderFactory.getDataProvider("String.wz");
+    private final WzData cashStringData = stringData.getData("Cash.img");
+    private final WzData consumeStringData = stringData.getData("Consume.img");
+    private final WzData eqpStringData = stringData.getData("Eqp.img");
+    private final WzData etcStringData = stringData.getData("Etc.img");
+    private final WzData insStringData = stringData.getData("Ins.img");
+    private final WzData petStringData = stringData.getData("Pet.img");
+    //
+    private final Map<Integer, Short> slotMaxCache = new HashMap<>();
+    private final Map<Integer, StatEffect> itemEffects = new HashMap<>();
+    private final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<>();
+    private final Map<Integer, Map<String, Byte>> itemMakeStatsCache = new HashMap<>();
+    private final Map<Integer, List<StructEquipLevel>> equipLevelCache = new HashMap<>();
+    private final Map<Integer, Short> itemMakeLevel = new HashMap<>();
+    private final Map<Integer, Equip> equipCache = new HashMap<>();
+    private final Map<Integer, Double> priceCache = new HashMap<>();
+    private final Map<Integer, Integer> wholePriceCache = new HashMap<>();
+    private final Map<Integer, Integer> projectileWatkCache = new HashMap<>();
+    private final Map<Integer, Integer> monsterBookID = new HashMap<>();
+    private final Map<Integer, String> nameCache = new HashMap<>();
+    private final Map<Integer, String> descCache = new HashMap<>();
+    private final Map<Integer, String> msgCache = new HashMap<>();
+    private final Map<Integer, Map<String, Integer>> SkillStatsCache = new HashMap<>();
+    private final Map<Integer, Byte> consumeOnPickupCache = new HashMap<>();
+    private final Map<Integer, Boolean> dropRestrictionCache = new HashMap<>();
+    private final Map<Integer, Boolean> pickupRestrictionCache = new HashMap<>();
+    private final Map<Integer, Integer> stateChangeCache = new HashMap<>(40);
+    private final Map<Integer, Integer> karmaEnabledCache = new HashMap<>();
+    private final Map<Integer, Boolean> isQuestItemCache = new HashMap<>();
+    private final Map<Integer, List<Pair<Integer, Integer>>> summonMobCache = new HashMap<>();
+    private final List<IdNameEntry> itemNameCache = new ArrayList<>();
+    private final Map<Integer, Pair<Integer, List<StructRewardItem>>> RewardItem = new HashMap<>();
 
-    protected ItemInfoProvider() {
+    private ItemInfoProvider() {
         System.out.println(":: Loading MapleItemInformationProvider ::");
     }
 
@@ -73,48 +72,69 @@ public final class ItemInfoProvider {
         return instance;
     }
 
-    public final List<Pair<Integer, String>> getAllItems() {
+    public final List<IdNameEntry> getAllItems() {
         if (!itemNameCache.isEmpty()) {
             return itemNameCache;
         }
-        final List<Pair<Integer, String>> itemPairs = new ArrayList<Pair<Integer, String>>();
+        final List<IdNameEntry> itemPairs = new ArrayList<>();
         WzData itemsData;
 
         itemsData = stringData.getData("Cash.img");
         for (final WzData itemFolder : itemsData.getChildren()) {
-            itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+            final IdNameEntry entry = new IdNameEntry(
+                    Integer.parseInt(itemFolder.getName()),
+                    WzDataTool.getString("name", itemFolder, "NO-NAME"));
+
+            itemPairs.add(entry);
         }
 
         itemsData = stringData.getData("Consume.img");
         for (final WzData itemFolder : itemsData.getChildren()) {
-            itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+            final IdNameEntry entry = new IdNameEntry(
+                    Integer.parseInt(itemFolder.getName()),
+                    WzDataTool.getString("name", itemFolder, "NO-NAME"));
+
+            itemPairs.add(entry);
         }
 
         itemsData = stringData.getData("Eqp.img").getChildByPath("Eqp");
         for (final WzData eqpType : itemsData.getChildren()) {
             for (final WzData itemFolder : eqpType.getChildren()) {
-                itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+                final IdNameEntry entry = new IdNameEntry(
+                        Integer.parseInt(itemFolder.getName()),
+                        WzDataTool.getString("name", itemFolder, "NO-NAME"));
+
+                itemPairs.add(entry);
             }
         }
 
         itemsData = stringData.getData("Etc.img").getChildByPath("Etc");
         for (final WzData itemFolder : itemsData.getChildren()) {
-            itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+            final IdNameEntry entry = new IdNameEntry(
+                    Integer.parseInt(itemFolder.getName()),
+                    WzDataTool.getString("name", itemFolder, "NO-NAME"));
+            itemPairs.add(entry);
         }
 
         itemsData = stringData.getData("Ins.img");
         for (final WzData itemFolder : itemsData.getChildren()) {
-            itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+            final IdNameEntry entry = new IdNameEntry(
+                    Integer.parseInt(itemFolder.getName()),
+                    WzDataTool.getString("name", itemFolder, "NO-NAME"));
+            itemPairs.add(entry);
         }
 
         itemsData = stringData.getData("Pet.img");
         for (final WzData itemFolder : itemsData.getChildren()) {
-            itemPairs.add(new Pair<Integer, String>(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME")));
+            final IdNameEntry entry = new IdNameEntry(
+                    Integer.parseInt(itemFolder.getName()),
+                    WzDataTool.getString("name", itemFolder, "NO-NAME"));
+            itemPairs.add(entry);
         }
         return itemPairs;
     }
 
-    protected final WzData getStringData(final int itemId) {
+    private WzData getStringData(final int itemId) {
         String cat = null;
         WzData data;
 
@@ -184,7 +204,7 @@ public final class ItemInfoProvider {
         }
     }
 
-    protected final WzData getItemData(final int itemId) {
+    private WzData getItemData(final int itemId) {
         WzData ret = null;
         final String idStr = "0" + String.valueOf(itemId);
         WzDataDirectoryEntry root = itemData.getRoot();
@@ -302,7 +322,7 @@ public final class ItemInfoProvider {
         if (info == null) {
             return null;
         }
-        final List<StructEquipLevel> el = new ArrayList<StructEquipLevel>();
+        final List<StructEquipLevel> el = new ArrayList<>();
         StructEquipLevel sel;
 
         for (final WzData data : info.getChildByPath("info")) {
@@ -338,7 +358,7 @@ public final class ItemInfoProvider {
         if (itemId / 10000 != 425) {
             return null;
         }
-        final Map<String, Byte> ret = new LinkedHashMap<String, Byte>();
+        final Map<String, Byte> ret = new LinkedHashMap<>();
         final WzData item = getItemData(itemId);
         if (item == null) {
             return null;
@@ -371,7 +391,7 @@ public final class ItemInfoProvider {
         if (equipStatsCache.containsKey(itemId)) {
             return equipStatsCache.get(itemId);
         }
-        final Map<String, Integer> ret = new LinkedHashMap<String, Integer>();
+        final Map<String, Integer> ret = new LinkedHashMap<>();
         final WzData item = getItemData(itemId);
         if (item == null) {
             return null;
@@ -429,7 +449,7 @@ public final class ItemInfoProvider {
     }
 
     public final List<Integer> getScrollReqs(final int itemId) {
-        final List<Integer> ret = new ArrayList<Integer>();
+        final List<Integer> ret = new ArrayList<>();
         final WzData data = getItemData(itemId).getChildByPath("req");
 
         if (data == null) {
@@ -441,9 +461,9 @@ public final class ItemInfoProvider {
         return ret;
     }
 
-    public final IItem scrollEquipWithId(final IItem equip, final int scrollId, final boolean ws) {
-        if (equip.getType() == ItemType.EQUIP) { // See IItem.java
-            final Equip nEquip = (Equip) equip;
+    public final IItem scrollEquipWithId(final IItem equipItem, final int scrollId, final boolean ws) {
+        if (equipItem.getType() == ItemType.EQUIP) {
+            final Equip equip = (Equip) equipItem;
             final Map<String, Integer> stats = getEquipStats(scrollId);
             final Map<String, Integer> eqstats = getEquipStats(equip.getItemId());
 
@@ -453,168 +473,189 @@ public final class ItemInfoProvider {
                     case 2049001:
                     case 2049002:
                     case 2049003: {
-                        if (nEquip.getLevel() + nEquip.getUpgradeSlots() <
+                        if (equip.getLevel() + equip.getUpgradeSlots() <
                                 eqstats.get("tuc")) {
-                            nEquip.setUpgradeSlots((byte) (nEquip.getUpgradeSlots() +
+                            equip.setUpgradeSlots((byte) (equip.getUpgradeSlots() +
                                     1));
                         }
                         break;
                     }
                     case 2040727: // Spikes on shoe, prevents slip
                     {
-                        byte flag = nEquip.getFlag();
+                        byte flag = equip.getFlag();
                         flag |= ItemFlag.SPIKES.getValue();
-                        nEquip.setFlag(flag);
+                        equip.setFlag(flag);
                         break;
                     }
                     case 2041058: // Cape for Cold protection
                     {
-                        byte flag = nEquip.getFlag();
+                        byte flag = equip.getFlag();
                         flag |= ItemFlag.COLD.getValue();
-                        nEquip.setFlag(flag);
+                        equip.setFlag(flag);
                         break;
                     }
                     case 2049100: // Chaos Scroll
                     case 2049101: // Liar's Wood Liquid
                     case 2049102: // Maple Syrup
                     case 2049104: // Angent Equipmenet scroll
-                    case 2049103: { // Beach Sandals Scroll
-                        final int increase = Randomizer.nextBoolean() ? 1 : -1;
-
-                        if (nEquip.getStr() > 0) {
-                            nEquip.setStr((short) (nEquip.getStr() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getDex() > 0) {
-                            nEquip.setDex((short) (nEquip.getDex() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getInt() > 0) {
-                            nEquip.setInt((short) (nEquip.getInt() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getLuk() > 0) {
-                            nEquip.setLuk((short) (nEquip.getLuk() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getWatk() > 0) {
-                            nEquip.setWatk((short) (nEquip.getWatk() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getWdef() > 0) {
-                            nEquip.setWdef((short) (nEquip.getWdef() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getMatk() > 0) {
-                            nEquip.setMatk((short) (nEquip.getMatk() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getMdef() > 0) {
-                            nEquip.setMdef((short) (nEquip.getMdef() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getAcc() > 0) {
-                            nEquip.setAcc((short) (nEquip.getAcc() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getAvoid() > 0) {
-                            nEquip.setAvoid((short) (nEquip.getAvoid() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getSpeed() > 0) {
-                            nEquip.setSpeed((short) (nEquip.getSpeed() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getJump() > 0) {
-                            nEquip.setJump((short) (nEquip.getJump() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getHp() > 0) {
-                            nEquip.setHp((short) (nEquip.getHp() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
-                        if (nEquip.getMp() > 0) {
-                            nEquip.setMp((short) (nEquip.getMp() +
-                                    Randomizer.nextInt(5) * increase));
-                        }
+                    case 2049103:
+                        setRandomStats(equip);
                         break;
-                    }
-                    default: {
-                        for (Entry<String, Integer> stat : stats.entrySet()) {
-                            final String key = stat.getKey();
-
-                            if (key.equals("STR")) {
-                                nEquip.setStr((short) (nEquip.getStr() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("DEX")) {
-                                nEquip.setDex((short) (nEquip.getDex() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("INT")) {
-                                nEquip.setInt((short) (nEquip.getInt() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("LUK")) {
-                                nEquip.setLuk((short) (nEquip.getLuk() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("PAD")) {
-                                nEquip.setWatk((short) (nEquip.getWatk() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("PDD")) {
-                                nEquip.setWdef((short) (nEquip.getWdef() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("MAD")) {
-                                nEquip.setMatk((short) (nEquip.getMatk() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("MDD")) {
-                                nEquip.setMdef((short) (nEquip.getMdef() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("ACC")) {
-                                nEquip.setAcc((short) (nEquip.getAcc() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("EVA")) {
-                                nEquip.setAvoid((short) (nEquip.getAvoid() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("Speed")) {
-                                nEquip.setSpeed((short) (nEquip.getSpeed() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("Jump")) {
-                                nEquip.setJump((short) (nEquip.getJump() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("MHP")) {
-                                nEquip.setHp((short) (nEquip.getHp() +
-                                        stat.getValue().intValue()));
-                            } else if (key.equals("MMP")) {
-                                nEquip.setMp((short) (nEquip.getMp() +
-                                        stat.getValue().intValue()));
-//			    } else if (stat.getKey().equals("afterImage")) {
-                            }
-                        }
+                    default:
+                        setDefaultStats(stats, equip);
                         break;
-                    }
                 }
                 if (!GameConstants.isCleanSlate(scrollId) &&
                         !GameConstants.isSpecialScroll(scrollId)) {
-                    if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
-                        nEquip.setUpgradeSlots((byte) (nEquip.getUpgradeSlots() -
+                    if (equip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
+                        equip.setUpgradeSlots((byte) (equip.getUpgradeSlots() -
                                 1));
                     }
-                    nEquip.setLevel((byte) (nEquip.getLevel() + 1));
+                    equip.setLevel((byte) (equip.getLevel() + 1));
                 }
             } else {
                 if (!ws && !GameConstants.isCleanSlate(scrollId) &&
                         !GameConstants.isSpecialScroll(scrollId)) {
-                    if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
-                        nEquip.setUpgradeSlots((byte) (nEquip.getUpgradeSlots() -
+                    if (equip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
+                        equip.setUpgradeSlots((byte) (equip.getUpgradeSlots() -
                                 1));
                     }
                 }
-                if (nEquip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
+                if (equip.getItemId() != ChannelCharacter.unlimitedSlotItem) { // unlimited slot item check
                     if (Randomizer.nextInt(99) < stats.get("cursed")) {
                         return null;
                     }
                 }
             }
         }
-        return equip;
+        return equipItem;
+    }
+
+    private void setDefaultStats(final Map<String, Integer> stats, final Equip equip) {
+        for (Entry<String, Integer> stat : stats.entrySet()) {
+            final String key = stat.getKey();
+            switch (key) {
+                case "STR":
+                    equip.setStr((short) (equip.getStr() +
+                            stat.getValue().intValue()));
+                    break;
+                case "DEX":
+                    equip.setDex((short) (equip.getDex() +
+                            stat.getValue().intValue()));
+                    break;
+                case "INT":
+                    equip.setInt((short) (equip.getInt() +
+                            stat.getValue().intValue()));
+                    break;
+                case "LUK":
+                    equip.setLuk((short) (equip.getLuk() +
+                            stat.getValue().intValue()));
+                    break;
+                case "PAD":
+                    equip.setWatk((short) (equip.getWatk() +
+                            stat.getValue().intValue()));
+                    break;
+                case "PDD":
+                    equip.setWdef((short) (equip.getWdef() +
+                            stat.getValue().intValue()));
+                    break;
+                case "MAD":
+                    equip.setMatk((short) (equip.getMatk() +
+                            stat.getValue().intValue()));
+                    break;
+                case "MDD":
+                    equip.setMdef((short) (equip.getMdef() +
+                            stat.getValue().intValue()));
+                    break;
+                case "ACC":
+                    equip.setAcc((short) (equip.getAcc() +
+                            stat.getValue().intValue()));
+                    break;
+                case "EVA":
+                    equip.setAvoid((short) (equip.getAvoid() +
+                            stat.getValue().intValue()));
+                    break;
+                case "Speed":
+                    equip.setSpeed((short) (equip.getSpeed() +
+                            stat.getValue().intValue()));
+                    break;
+                case "Jump":
+                    equip.setJump((short) (equip.getJump() +
+                            stat.getValue().intValue()));
+                    break;
+                case "MHP":
+                    equip.setHp((short) (equip.getHp() +
+                            stat.getValue().intValue()));
+                    break;
+                case "MMP":
+                    equip.setMp((short) (equip.getMp() +
+                            stat.getValue().intValue()));
+                    break;
+            }
+        }
+        return;
+    }
+
+    private void setRandomStats(final Equip equip) {
+        // Beach Sandals Scroll
+        final int increase = Randomizer.nextBoolean() ? 1 : -1;
+
+        if (equip.getStr() > 0) {
+            equip.setStr((short) (equip.getStr() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getDex() > 0) {
+            equip.setDex((short) (equip.getDex() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getInt() > 0) {
+            equip.setInt((short) (equip.getInt() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getLuk() > 0) {
+            equip.setLuk((short) (equip.getLuk() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getWatk() > 0) {
+            equip.setWatk((short) (equip.getWatk() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getWdef() > 0) {
+            equip.setWdef((short) (equip.getWdef() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getMatk() > 0) {
+            equip.setMatk((short) (equip.getMatk() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getMdef() > 0) {
+            equip.setMdef((short) (equip.getMdef() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getAcc() > 0) {
+            equip.setAcc((short) (equip.getAcc() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getAvoid() > 0) {
+            equip.setAvoid((short) (equip.getAvoid() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getSpeed() > 0) {
+            equip.setSpeed((short) (equip.getSpeed() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getJump() > 0) {
+            equip.setJump((short) (equip.getJump() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getHp() > 0) {
+            equip.setHp((short) (equip.getHp() +
+                    Randomizer.nextInt(5) * increase));
+        }
+        if (equip.getMp() > 0) {
+            equip.setMp((short) (equip.getMp() +
+                    Randomizer.nextInt(5) * increase));
+        }
     }
 
     public final IItem getEquipById(final int equipId) {
@@ -628,40 +669,55 @@ public final class ItemInfoProvider {
         if (stats != null) {
             for (Entry<String, Integer> stat : stats.entrySet()) {
                 final String key = stat.getKey();
-
-                if (key.equals("STR")) {
-                    nEquip.setStr((short) stat.getValue().intValue());
-                } else if (key.equals("DEX")) {
-                    nEquip.setDex((short) stat.getValue().intValue());
-                } else if (key.equals("INT")) {
-                    nEquip.setInt((short) stat.getValue().intValue());
-                } else if (key.equals("LUK")) {
-                    nEquip.setLuk((short) stat.getValue().intValue());
-                } else if (key.equals("PAD")) {
-                    nEquip.setWatk((short) stat.getValue().intValue());
-                } else if (key.equals("PDD")) {
-                    nEquip.setWdef((short) stat.getValue().intValue());
-                } else if (key.equals("MAD")) {
-                    nEquip.setMatk((short) stat.getValue().intValue());
-                } else if (key.equals("MDD")) {
-                    nEquip.setMdef((short) stat.getValue().intValue());
-                } else if (key.equals("ACC")) {
-                    nEquip.setAcc((short) stat.getValue().intValue());
-                } else if (key.equals("EVA")) {
-                    nEquip.setAvoid((short) stat.getValue().intValue());
-                } else if (key.equals("Speed")) {
-                    nEquip.setSpeed((short) stat.getValue().intValue());
-                } else if (key.equals("Jump")) {
-                    nEquip.setJump((short) stat.getValue().intValue());
-                } else if (key.equals("MHP")) {
-                    nEquip.setHp((short) stat.getValue().intValue());
-                } else if (key.equals("MMP")) {
-                    nEquip.setMp((short) stat.getValue().intValue());
-                } else if (key.equals("tuc")) {
-                    nEquip.setUpgradeSlots((byte) stat.getValue().intValue());
-                } else if (key.equals("Craft")) {
-                    nEquip.setHands((short) stat.getValue().intValue());
-//                } else if (key.equals("afterImage")) {
+                switch (key) {
+                    case "STR":
+                        nEquip.setStr((short) stat.getValue().intValue());
+                        break;
+                    case "DEX":
+                        nEquip.setDex((short) stat.getValue().intValue());
+                        break;
+                    case "INT":
+                        nEquip.setInt((short) stat.getValue().intValue());
+                        break;
+                    case "LUK":
+                        nEquip.setLuk((short) stat.getValue().intValue());
+                        break;
+                    case "PAD":
+                        nEquip.setWatk((short) stat.getValue().intValue());
+                        break;
+                    case "PDD":
+                        nEquip.setWdef((short) stat.getValue().intValue());
+                        break;
+                    case "MAD":
+                        nEquip.setMatk((short) stat.getValue().intValue());
+                        break;
+                    case "MDD":
+                        nEquip.setMdef((short) stat.getValue().intValue());
+                        break;
+                    case "ACC":
+                        nEquip.setAcc((short) stat.getValue().intValue());
+                        break;
+                    case "EVA":
+                        nEquip.setAvoid((short) stat.getValue().intValue());
+                        break;
+                    case "Speed":
+                        nEquip.setSpeed((short) stat.getValue().intValue());
+                        break;
+                    case "Jump":
+                        nEquip.setJump((short) stat.getValue().intValue());
+                        break;
+                    case "MHP":
+                        nEquip.setHp((short) stat.getValue().intValue());
+                        break;
+                    case "MMP":
+                        nEquip.setMp((short) stat.getValue().intValue());
+                        break;
+                    case "tuc":
+                        nEquip.setUpgradeSlots((byte) stat.getValue().intValue());
+                        break;
+                    case "Craft":
+                        nEquip.setHands((short) stat.getValue().intValue());
+                        break;
                 }
             }
         }
@@ -723,7 +779,7 @@ public final class ItemInfoProvider {
         if (data == null) {
             return null;
         }
-        final List<Pair<Integer, Integer>> mobPairs = new ArrayList<Pair<Integer, Integer>>();
+        final List<Pair<Integer, Integer>> mobPairs = new ArrayList<>();
 
         for (final WzData child : data.getChildren()) {
             mobPairs.add(new Pair(
@@ -931,7 +987,7 @@ public final class ItemInfoProvider {
         if (info == null) {
             return null;
         }
-        final Map<String, Integer> ret = new LinkedHashMap<String, Integer>();
+        final Map<String, Integer> ret = new LinkedHashMap<>();
         for (final WzData data : info.getChildren()) {
             if (data.getName().startsWith("inc")) {
                 ret.put(data.getName().substring(3), WzDataTool.getIntConvert(data));
@@ -951,7 +1007,7 @@ public final class ItemInfoProvider {
     }
 
     public final List<Integer> petsCanConsume(final int itemId) {
-        final List<Integer> ret = new ArrayList<Integer>();
+        final List<Integer> ret = new ArrayList<>();
         final WzData data = getItemData(itemId);
         int curPetId = 0;
         int size = data.getChildren().size();

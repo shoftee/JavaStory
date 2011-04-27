@@ -6,16 +6,15 @@ import java.util.Collections;
 import java.util.List;
 
 import client.ISkill;
-import client.GameConstants;
 import client.BuffStat;
-import client.ChannelCharacter;
-import client.ChannelClient;
-import client.ActivePlayerStats;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ActivePlayerStats;
 import client.SkillFactory;
 import client.anticheat.CheatTracker;
 import client.anticheat.CheatingOffense;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
+import org.javastory.game.Skills;
 import org.javastory.io.PacketFormatException;
 import org.javastory.io.PacketReader;
 import server.StatEffect;
@@ -31,20 +30,12 @@ import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
 import tools.AttackPair;
 
-public class DamageParse {
+public final class DamageParse {
 
-    //MapleClient instance start
-    public static ChannelClient c;
-
-    public DamageParse(final ChannelClient c) {
-        this.c = c;
-    }
-
-    public final ChannelClient getClient() {
-        return c;
-    }
-    //MapleClient isntance end
     private final static int[] charges = {1211005, 1211006};
+
+    private DamageParse() {
+    }
 
     public static void applyAttack(final AttackInfo attack, final ISkill theSkill, final ChannelCharacter player, int attackCount, final double maxDamagePerMonster, final StatEffect effect, final AttackType attack_type) {
         if (!player.isAlive()) {
@@ -58,7 +49,7 @@ public class DamageParse {
                 player.getClient().write(MaplePacketCreator.enableActions());
                 return;
             }
-            if (GameConstants.isMulungSkill(attack.skill)) {
+            if (Skills.isMulungSkill(attack.skill)) {
                 if (player.getMapId() / 10000 != 92502) {
                     //AutobanManager.getInstance().autoban(player.getClient(), "Using Mu Lung dojo skill out of dojo maps.");
                 } else {
@@ -86,7 +77,8 @@ public class DamageParse {
                 }
                 final GameMapObject mapobject = map.getMapObject(oned.objectid);
 
-                if (mapobject != null && mapobject.getType() == GameMapObjectType.ITEM) {
+                if (mapobject != null && mapobject.getType() ==
+                        GameMapObjectType.ITEM) {
                     final GameMapItem mapitem = (GameMapItem) mapobject;
 
                     if (mapitem.getMeso() > 0) {
@@ -120,7 +112,8 @@ public class DamageParse {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
         byte ShdowPartnerAttackPercentage = 0;
-        if (attack_type == AttackType.RANGED_WITH_SHADOWPARTNER || attack_type == AttackType.NON_RANGED_WITH_MIRROR) {
+        if (attack_type == AttackType.RANGED_WITH_SHADOWPARTNER || attack_type ==
+                AttackType.NON_RANGED_WITH_MIRROR) {
             final ISkill SP;
             if (attack_type == AttackType.NON_RANGED_WITH_MIRROR) {
                 SP = SkillFactory.getSkill(4331002);
@@ -158,7 +151,8 @@ public class DamageParse {
                 totDamageToOneMonster = 0;
                 monsterstats = monster.getStats();
                 fixeddmg = monsterstats.getFixedDamage();
-                Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) == 21120006;
+                Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) ==
+                        21120006;
 
                 if (!Tempest) {
                     if (!monster.isBuffed(MonsterStatus.WEAPON_IMMUNITY)) {
@@ -173,7 +167,8 @@ public class DamageParse {
                     overallAttackCount++;
 
                     if (overallAttackCount - 1 == attackCount) { // Is a Shadow partner hit so let's divide it once
-                        maxDamagePerHit = (maxDamagePerHit / 100) * ShdowPartnerAttackPercentage;
+                        maxDamagePerHit = (maxDamagePerHit / 100) *
+                                ShdowPartnerAttackPercentage;
                     }
                     // System.out.println("Client damage : " + eachd + " Server : " + maxDamagePerHit);
                     if (fixeddmg != -1) {
@@ -207,7 +202,8 @@ public class DamageParse {
                 totDamage += totDamageToOneMonster;
                 player.checkMonsterAggro(monster);
 
-                if (player.getPosition().distanceSq(monster.getPosition()) > 400000.0) { // 600^2, 550 is approximatly the range of ultis
+                if (player.getPosition().distanceSq(monster.getPosition()) >
+                        400000.0) { // 600^2, 550 is approximatly the range of ultis
                     player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER); // , Double.toString(Math.sqrt(distance))
                 }
                 // pickpocket
@@ -227,16 +223,20 @@ public class DamageParse {
                 if (totDamageToOneMonster > 0) {
                     if (attack.skill == 3221007) {
                         if (player.isOnDMG()) {
-                            player.sendNotice(5, "Damage: " + player.getSnipeDamage());
+                            player.sendNotice(5, "Damage: " +
+                                    player.getSnipeDamage());
                         }
                         monster.damage(player, player.getSnipeDamage(), true);
                     } else {
                         if (totDamageToOneMonster >= 199999) {
                             //HACK
                             //Damage formula
-                            totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStats().getTotalWatk() / 50) * (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                            totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster *
+                                    (player.getStats().getTotalWatk() / 50) *
+                                    (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                             if (player.isOnDMG()) {
-                                player.sendNotice(5, "Damage: " + totDamageToOneMonster);
+                                player.sendNotice(5, "Damage: " +
+                                        totDamageToOneMonster);
                             }
                         }
                         monster.damage(player, totDamageToOneMonster, true);
@@ -248,11 +248,15 @@ public class DamageParse {
                     switch (attack.skill) {
                         case 4101005: //drain
                         case 5111004: { // Energy Drain
-                            stats.setHp(stats.getHp() + (Math.min(monster.getMobMaxHp(), Math.min(((int) ((double) totDamage * (double) theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getX() / 100.0)), stats.getMaxHp() / 2))), true);
+                            stats.setHp(stats.getHp() +
+                                    (Math.min(monster.getMobMaxHp(), Math.min(((int) ((double) totDamage *
+                                    (double) theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getX() /
+                                    100.0)), stats.getMaxHp() / 2))), true);
                             break;
                         }
                         case 1311005: { // Sacrifice
-                            final int remainingHP = stats.getHp() - totDamage * effect.getX() / 100;
+                            final int remainingHP = stats.getHp() - totDamage *
+                                    effect.getX() / 100;
                             stats.setHp(remainingHP > 1 ? (int) 1 : remainingHP);
                             break;
                         }
@@ -289,7 +293,8 @@ public class DamageParse {
                                 for (int i = 0; i < attackCount; i++) {
                                     if (venomEffect.makeChanceResult()) {
                                         if (monster.getVenomMulti() < 3) {
-                                            monster.setVenomMulti((byte) (monster.getVenomMulti() + 1));
+                                            monster.setVenomMulti((byte) (monster.getVenomMulti() +
+                                                    1));
                                             monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), skill, null, false);
                                             monster.applyStatus(player, monsterStatusEffect, false, venomEffect.getDuration(), true);
                                         }
@@ -302,7 +307,8 @@ public class DamageParse {
                                 for (int i = 0; i < attackCount; i++) {
                                     if (venomEffect.makeChanceResult()) {
                                         if (monster.getVenomMulti() < 3) {
-                                            monster.setVenomMulti((byte) (monster.getVenomMulti() + 1));
+                                            monster.setVenomMulti((byte) (monster.getVenomMulti() +
+                                                    1));
                                             monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), skill2, null, false);
                                             monster.applyStatus(player, monsterStatusEffect, false, venomEffect.getDuration(), true);
                                         }
@@ -315,7 +321,8 @@ public class DamageParse {
                                 for (int i = 0; i < attackCount; i++) {
                                     if (venomEffect.makeChanceResult()) {
                                         if (monster.getVenomMulti() < 3) {
-                                            monster.setVenomMulti((byte) (monster.getVenomMulti() + 1));
+                                            monster.setVenomMulti((byte) (monster.getVenomMulti() +
+                                                    1));
                                             monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), skill3, null, false);
                                             monster.applyStatus(player, monsterStatusEffect, false, venomEffect.getDuration(), true);
                                         }
@@ -339,51 +346,63 @@ public class DamageParse {
                         case 21120006: // Tempest
                         case 21120009: // (hidden) Overswing - Double Attack
                         case 21120010: { // (hidden) Overswing - Triple Attack
-                            if (player.getBuffedValue(BuffStat.WK_CHARGE) != null) {
+                            if (player.getBuffedValue(BuffStat.WK_CHARGE) !=
+                                    null) {
                                 final ISkill skill = SkillFactory.getSkill(21111005);
                                 final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
-                                monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false), false, eff.getY() * 1000, false);
+                                monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false), false, eff.getY() *
+                                        1000, false);
                             }
-                            if (player.getBuffedValue(BuffStat.BODY_PRESSURE) != null) {
+                            if (player.getBuffedValue(BuffStat.BODY_PRESSURE) !=
+                                    null) {
                                 final ISkill skill = SkillFactory.getSkill(21101003);
                                 final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                 if (eff.makeChanceResult()) {
-                                    monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() * 1000, false);
+                                    monster.applyStatus(player, new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.NEUTRALISE, 1), skill, null, false), false, eff.getX() *
+                                            1000, false);
                                 }
                             }
-                            if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
+                            if (player.getBuffedValue(BuffStat.COMBO_DRAIN) !=
+                                    null) {
                                 final ISkill skill = SkillFactory.getSkill(21100005);
                                 final ActivePlayerStats stat = player.getStats();
-                                stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getCurrentSkillLevel(skill)).getX()) / 100), true);
+                                stat.setHp(stat.getHp() + ((totDamage *
+                                        skill.getEffect(player.getCurrentSkillLevel(skill)).getX()) /
+                                        100), true);
                             }
                             break;
                         }
                         default: //passives attack bonuses
                             if (totDamageToOneMonster > 0) {
-                                if (player.getBuffedValue(BuffStat.BLIND) != null) {
+                                if (player.getBuffedValue(BuffStat.BLIND) !=
+                                        null) {
                                     final ISkill skill = SkillFactory.getSkill(3221006);
                                     final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.ACC, eff.getX()), skill, null, false);
-                                        monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 1000, false);
+                                        monster.applyStatus(player, monsterStatusEffect, false, eff.getY() *
+                                                1000, false);
                                     }
 
-                                } else if (player.getBuffedValue(BuffStat.HAMSTRING) != null) {
+                                } else if (player.getBuffedValue(BuffStat.HAMSTRING) !=
+                                        null) {
                                     final ISkill skill = SkillFactory.getSkill(3121007);
                                     final StatEffect eff = skill.getEffect(player.getCurrentSkillLevel(skill));
 
                                     if (eff.makeChanceResult()) {
                                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.SPEED, eff.getX()), skill, null, false);
-                                        monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 1000, false);
+                                        monster.applyStatus(player, monsterStatusEffect, false, eff.getY() *
+                                                1000, false);
                                     }
                                 } else if (player.getJobId() == 121) { // WHITEKNIGHT
                                     for (int charge : charges) {
                                         final ISkill skill = SkillFactory.getSkill(charge);
                                         if (player.isBuffFrom(BuffStat.WK_CHARGE, skill)) {
                                             final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.FREEZE, 1), skill, null, false);
-                                            monster.applyStatus(player, monsterStatusEffect, false, skill.getEffect(player.getCurrentSkillLevel(skill)).getY() * 2000, false);
+                                            monster.applyStatus(player, monsterStatusEffect, false, skill.getEffect(player.getCurrentSkillLevel(skill)).getY() *
+                                                    2000, false);
                                             break;
                                         }
                                     }
@@ -399,7 +418,8 @@ public class DamageParse {
                 }
             }
         }
-        if (attack.skill != 0 && (attack.targets > 0 || (attack.skill != 4331003 && attack.skill != 4341002))) {
+        if (attack.skill != 0 && (attack.targets > 0 || (attack.skill != 4331003 &&
+                attack.skill != 4341002))) {
             effect.applyTo(player, attack.position);
         }
         if (totDamage > 1) {
@@ -422,7 +442,7 @@ public class DamageParse {
         }
     }
 
-    public static final void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final ChannelCharacter player, final StatEffect effect) {
+    public static void applyAttackMagic(final AttackInfo attack, final ISkill theSkill, final ChannelCharacter player, final StatEffect effect) {
         player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
 
         if (effect == null) {
@@ -432,7 +452,8 @@ public class DamageParse {
 //	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
 //	    effect.applyTo(player);
 //	}
-        if (attack.hits > effect.getAttackCount() || attack.targets > effect.getMobCount()) {
+        if (attack.hits > effect.getAttackCount() || attack.targets >
+                effect.getMobCount()) {
             player.getCheatTracker().registerOffense(CheatingOffense.MISMATCHING_BULLETCOUNT);
             return;
         }
@@ -441,18 +462,22 @@ public class DamageParse {
         double maxDamagePerHit;
         if (attack.skill == 2301002) {
             maxDamagePerHit = 30000;
-        } else if (attack.skill == 1000 || attack.skill == 10001000 || attack.skill == 20001000 || attack.skill == 20011000) {
+        } else if (attack.skill == 1000 || attack.skill == 10001000 ||
+                attack.skill == 20001000 || attack.skill == 20011000) {
             maxDamagePerHit = 40;
         } else {
             // Minimum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + MATK * 3.3) /100
             // Maximum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + (Mastery * 0.9 * MATK) * 3.3) /100
             final double v75 = (effect.getMatk() * 0.058);
 //	    minDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + effect.getMatk() * 3.3) / 100;
-            maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + (effect.getMastery() * 0.9 * effect.getMatk()) * 3.3) / 100;
+            maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 +
+                    (v75 * v75) + (effect.getMastery() * 0.9 * effect.getMatk()) *
+                    3.3) / 100;
         }
         maxDamagePerHit *= 1.04; // Avoid any errors for now
 
-        final Element element = player.getBuffedValue(BuffStat.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
+        final Element element = player.getBuffedValue(BuffStat.ELEMENT_RESET) !=
+                null ? Element.NEUTRAL : theSkill.getElement();
 
         double MaxDamagePerHit = 0;
         int totDamageToOneMonster, totDamage = 0, fixeddmg;
@@ -469,7 +494,7 @@ public class DamageParse {
         if (SharpEye_ != null) {
             CriticalDamage += SharpEye_ - 100; // Additional damage in percentage
         }
-        final ISkill eaterSkill = SkillFactory.getSkill(GameConstants.getMPEaterForJob(player.getJobId()));
+        final ISkill eaterSkill = SkillFactory.getSkill(Skills.getMpEaterForJob(player.getJobId()));
         final int eaterLevel = player.getCurrentSkillLevel(eaterSkill);
 
         final GameMap map = player.getMap();
@@ -478,7 +503,8 @@ public class DamageParse {
             final Monster monster = map.getMonsterByOid(oned.objectid);
 
             if (monster != null) {
-                Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) == 21120006;
+                Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) ==
+                        21120006;
                 totDamageToOneMonster = 0;
                 monsterstats = monster.getStats();
                 fixeddmg = monsterstats.getFixedDamage();
@@ -526,7 +552,8 @@ public class DamageParse {
                 totDamage += totDamageToOneMonster;
                 player.checkMonsterAggro(monster);
 
-                if (player.getPosition().distanceSq(monster.getPosition()) > 400000.0) { // 600^2, 550 is approximatly the range of ultis
+                if (player.getPosition().distanceSq(monster.getPosition()) >
+                        400000.0) { // 600^2, 550 is approximatly the range of ultis
                     player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER);
                 }
                 if (attack.skill == 2301002 && !monsterstats.getUndead()) {
@@ -538,9 +565,12 @@ public class DamageParse {
                     if (totDamageToOneMonster >= 199999) {
                         //HACK
                         //Damage Formula
-                        totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster * (player.getStats().getTotalMagic() / 50) * (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
+                        totDamageToOneMonster = (int) Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster *
+                                (player.getStats().getTotalMagic() / 50) *
+                                (player.haveItem(ChannelCharacter.unlimitedSlotItem, 1, true, true) ? 2 : 1)));
                         if (player.isOnDMG()) {
-                            player.sendNotice(5, "Damage: " + totDamageToOneMonster);
+                            player.sendNotice(5, "Damage: " +
+                                    totDamageToOneMonster);
                         }
                     }
                     monster.damage(player, totDamageToOneMonster, true);
@@ -578,13 +608,16 @@ public class DamageParse {
         }
     }
 
-    private static final double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
+    private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
         final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
-        final int Accuracy = (int) (Math.floor((double) (stats.getTotalInt() / 10)) + Math.floor((double) (stats.getTotalLuk() / 10)));
+        final int Accuracy = (int) (Math.floor((double) (stats.getTotalInt() /
+                10)) + Math.floor((double) (stats.getTotalLuk() / 10)));
         final int MinAccuracy = mobstats.getEva() * (dLevel * 2 + 51) / 120;
         // FullAccuracy = Avoid * (dLevel * 2 + 51) / 50
 
-        if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() != 10001000 && skill.getId() != 20001000 && skill.getId() != 20011000) { // miss :P or HACK :O
+        if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() !=
+                10001000 && skill.getId() != 20001000 && skill.getId() !=
+                20011000) { // miss :P or HACK :O
             return 0;
         }
         double elemMaxDamagePerMob;
@@ -594,13 +627,16 @@ public class DamageParse {
                 elemMaxDamagePerMob = 1;
                 break;
             case NORMAL:
-                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster / 100) * stats.element_amp_percent), stats);
+                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster /
+                        100) * stats.element_amp_percent), stats);
                 break;
             case WEAK:
-                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster * 1.5 / 100) * stats.element_amp_percent), stats);
+                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster *
+                        1.5 / 100) * stats.element_amp_percent), stats);
                 break;
             case STRONG:
-                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster * 0.5 / 100) * stats.element_amp_percent), stats);
+                elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster *
+                        0.5 / 100) * stats.element_amp_percent), stats);
                 break;
             default:
                 throw new RuntimeException("Unknown enum constant");
@@ -612,7 +648,8 @@ public class DamageParse {
 
         // Calculate Sharp eye bonus
         if (sharpEye != null) {
-            elemMaxDamagePerMob += ((double) elemMaxDamagePerMob / 100) * sharpEye;
+            elemMaxDamagePerMob += ((double) elemMaxDamagePerMob / 100) *
+                    sharpEye;
         }
 
 //	if (skill.isChargeSkill()) {
@@ -637,7 +674,7 @@ public class DamageParse {
         return elemMaxDamagePerMob;
     }
 
-    private static final double ElementalStaffAttackBonus(final Element elem, double elemMaxDamagePerMob, final ActivePlayerStats stats) {
+    private static double ElementalStaffAttackBonus(final Element elem, double elemMaxDamagePerMob, final ActivePlayerStats stats) {
         switch (elem) {
             case FIRE:
                 return (elemMaxDamagePerMob / 100) * stats.element_fire;
@@ -664,7 +701,9 @@ public class DamageParse {
 
                     @Override
                     public void run() {
-                        player.getMap().spawnMesoDrop(Math.min((int) Math.max(((double) eachd / (double) 20000) * (double) maxmeso, (double) 1), maxmeso), new Point((int) (mob.getPosition().getX() + Randomizer.nextInt(100) - 50), (int) (mob.getPosition().getY())), mob, player, true, (byte) 0);
+                        player.getMap().spawnMesoDrop(Math.min((int) Math.max(((double) eachd /
+                                (double) 20000) * (double) maxmeso, (double) 1), maxmeso), new Point((int) (mob.getPosition().getX() +
+                                Randomizer.nextInt(100) - 50), (int) (mob.getPosition().getY())), mob, player, true, (byte) 0);
                     }
                 }, 100);
             }
@@ -699,10 +738,12 @@ public class DamageParse {
                 case 10001009:
                 case 20001009:
                 case 20011009:
-                    maximumDamageToMonster = (monster.getStats().isBoss() ? monster.getMobMaxHp() / 30 * 100 : monster.getMobMaxHp());
+                    maximumDamageToMonster = (monster.getStats().isBoss() ? monster.getMobMaxHp() /
+                            30 * 100 : monster.getMobMaxHp());
                     break;
                 case 3211006: //Sniper Strafe
-                    if (monster.getStatusSourceID(MonsterStatus.FREEZE) == 3211003) { //blizzard in effect
+                    if (monster.getStatusSourceID(MonsterStatus.FREEZE) ==
+                            3211003) { //blizzard in effect
                         maximumDamageToMonster = monster.getHp();
                     }
                     break;
@@ -738,7 +779,8 @@ public class DamageParse {
                     throw new RuntimeException("Unknown enum constant");
             }
             final ISkill skill = SkillFactory.getSkill(chargeSkillId);
-            maximumDamageToMonster *= skill.getEffect(player.getCurrentSkillLevel(skill)).getDamage() / 100.0;
+            maximumDamageToMonster *= skill.getEffect(player.getCurrentSkillLevel(skill)).getDamage() /
+                    100.0;
         }
         double elementalMaxDamagePerMonster;
         if (element != Element.NEUTRAL) {
@@ -761,10 +803,12 @@ public class DamageParse {
                     elementalMaxDamagePerMonster = maximumDamageToMonster;
                     break;
                 case WEAK:
-                    elementalMaxDamagePerMonster = (maximumDamageToMonster * (1.0 + elementalEffect));
+                    elementalMaxDamagePerMonster = (maximumDamageToMonster *
+                            (1.0 + elementalEffect));
                     break;
                 case STRONG:
-                    elementalMaxDamagePerMonster = (maximumDamageToMonster * (1.0 - elementalEffect));
+                    elementalMaxDamagePerMonster = (maximumDamageToMonster *
+                            (1.0 - elementalEffect));
                     break;
                 default:
                     throw new RuntimeException("Unknown enum constant");
@@ -774,16 +818,20 @@ public class DamageParse {
         }
         // Calculate mob def
         final short moblevel = monster.getStats().getLevel();
-        final short d = moblevel > player.getLevel() ? (short) (moblevel - player.getLevel()) : 0;
-        elementalMaxDamagePerMonster = elementalMaxDamagePerMonster * (1 - 0.01 * d) - monster.getStats().getPhysicalDefense() * 0.5;
+        final short d = moblevel > player.getLevel() ? (short) (moblevel -
+                player.getLevel()) : 0;
+        elementalMaxDamagePerMonster = elementalMaxDamagePerMonster * (1 - 0.01 *
+                d) - monster.getStats().getPhysicalDefense() * 0.5;
 
         // Calculate passive bonuses + Sharp Eye
-        elementalMaxDamagePerMonster += ((double) elementalMaxDamagePerMonster / 100) * CriticalDamagePercent;
+        elementalMaxDamagePerMonster += ((double) elementalMaxDamagePerMonster /
+                100) * CriticalDamagePercent;
 
 //	if (theSkill.isChargeSkill()) {
 //	    elementalMaxDamagePerMonster = (double) (90 * (System.currentTimeMillis() - player.getKeyDownSkill_Time()) / 2000 + 10) * elementalMaxDamagePerMonster * 0.01;
 //	}
-        if (theSkill != null && theSkill.isChargeSkill() && player.getKeyDownSkill_Time() == 0) {
+        if (theSkill != null && theSkill.isChargeSkill() &&
+                player.getKeyDownSkill_Time() == 0) {
             return 0;
         }
 
@@ -833,13 +881,13 @@ public class DamageParse {
 
         int oid, damage;
         List<Integer> allDamageNumbers;
-        ret.allDamage = new ArrayList<AttackPair>();
+        ret.allDamage = new ArrayList<>();
 
         for (int i = 0; i < ret.targets; i++) {
             oid = lea.readInt();
             lea.skip(14); // [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change randomly for some attack
 
-            allDamageNumbers = new ArrayList<Integer>();
+            allDamageNumbers = new ArrayList<>();
 
             for (int j = 0; j < ret.hits; j++) {
                 damage = lea.readInt();
@@ -852,7 +900,7 @@ public class DamageParse {
         return ret;
     }
 
-    public static final AttackInfo parseDmgM(final PacketReader lea) throws PacketFormatException {
+    public static AttackInfo parseDmgM(final PacketReader lea) throws PacketFormatException {
         final AttackInfo ret = new AttackInfo();
 
         lea.skip(1);
@@ -886,7 +934,7 @@ public class DamageParse {
         ret.lastAttackTickCount = lea.readInt(); // Ticks
         lea.skip(4);
 
-        ret.allDamage = new ArrayList<AttackPair>();
+        ret.allDamage = new ArrayList<>();
 
         if (ret.skill == 4211006) { // Meso Explosion
             return parseMesoExplosion(lea, ret);
@@ -899,7 +947,7 @@ public class DamageParse {
 //	    System.out.println(tools.HexTool.toString(lea.readBytes(14)));
             lea.skip(14); // [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change randomly for some attack
 
-            allDamageNumbers = new ArrayList<Integer>();
+            allDamageNumbers = new ArrayList<>();
 
             for (int j = 0; j < ret.hits; j++) {
                 damage = lea.readInt();
@@ -947,14 +995,14 @@ public class DamageParse {
 
         int damage, oid;
         List<Integer> allDamageNumbers;
-        ret.allDamage = new ArrayList<AttackPair>();
+        ret.allDamage = new ArrayList<>();
 
         for (int i = 0; i < ret.targets; i++) {
             oid = lea.readInt();
 //	    System.out.println(tools.HexTool.toString(lea.readBytes(14)));
             lea.skip(14); // [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change randomly for some attack
 
-            allDamageNumbers = new ArrayList<Integer>();
+            allDamageNumbers = new ArrayList<>();
             for (int j = 0; j < ret.hits; j++) {
                 damage = lea.readInt();
                 allDamageNumbers.add(Integer.valueOf(damage));
@@ -990,7 +1038,7 @@ public class DamageParse {
             oid = lea.readInt();
             lea.skip(12);
             bullets = lea.readByte();
-            allDamageNumbers = new ArrayList<Integer>();
+            allDamageNumbers = new ArrayList<>();
             for (int j = 0; j < bullets; j++) {
                 allDamageNumbers.add(Integer.valueOf(lea.readInt()));
             }

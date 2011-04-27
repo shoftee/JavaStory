@@ -18,19 +18,19 @@ import client.IEquip;
 import client.IItem;
 import client.GameConstants;
 import client.BuffStat;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.KeyLayout;
 import client.Pet;
 import client.QuestStatus;
-import client.Stat;
 import client.IEquip.ScrollResult;
 import client.Disease;
 import org.javastory.client.ItemType;
 import client.Ring;
 import client.SkillMacro;
+import client.Stat;
 import com.google.common.collect.Lists;
 import handling.ByteArrayGamePacket;
 import handling.GamePacket;
@@ -39,11 +39,13 @@ import handling.ServerConstants;
 import handling.world.Party;
 import handling.world.PartyMember;
 import handling.world.PartyOperation;
-import handling.world.guild.Guild;
-import handling.world.guild.GuildSummary;
-import handling.world.guild.GuildMember;
-import handling.world.guild.GuildUnion;
+import handling.world.Guild;
+import handling.world.GuildSummary;
+import handling.world.GuildMember;
+import handling.world.GuildUnion;
+import java.util.EnumSet;
 import org.javastory.client.MemberRank;
+import org.javastory.game.Jobs;
 import org.javastory.server.channel.GuildRankingInfo;
 import server.ItemInfoProvider;
 import server.ShopItem;
@@ -63,12 +65,14 @@ import server.maps.Mist;
 import server.maps.GameMapItem;
 import server.movement.LifeMovementFragment;
 import org.javastory.io.PacketBuilder;
+import server.StatEffect.BuffStatValue;
+import server.StatEffect.StatValue;
 import tools.packet.PacketHelper;
 
 public final class MaplePacketCreator {
 
     private final static byte[] CHAR_INFO_MAGIC = new byte[]{(byte) 0xFF, (byte) 0xC9, (byte) 0x9A, 0x3B};
-    public final static List<Pair<Stat, Integer>> EMPTY_STATUPDATE = Collections.emptyList();
+    public final static List<StatValue> EMPTY_STATUPDATE = Collections.emptyList();
 
     private MaplePacketCreator() {
     }
@@ -134,52 +138,53 @@ public final class MaplePacketCreator {
         return updatePlayerStats(EMPTY_STATUPDATE, true, 0);
     }
 
-    public static GamePacket updatePlayerStats(final List<Pair<Stat, Integer>> stats, final int evan) {
+    public static GamePacket updatePlayerStats(final List<StatValue> stats, final int evan) {
         return updatePlayerStats(stats, false, evan);
     }
 
-    public static GamePacket updatePlayerStats(final List<Pair<Stat, Integer>> stats, final boolean itemReaction, final int evan) {
+    public static GamePacket updatePlayerStats(final List<StatValue> stats, final boolean itemReaction, final int evan) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
-        builder.writeAsByte(itemReaction ? 1 : 0);
+        builder.writeAsByte(itemReaction);
         int updateMask = 0;
-        for (final Pair<Stat, Integer> statupdate : stats) {
-            updateMask |= statupdate.getLeft().getValue();
+        final EnumSet<Stat> mask = EnumSet.noneOf(Stat.class);
+        for (final StatValue newValue : stats) {
+            mask.add(newValue.stat);
         }
-        List<Pair<Stat, Integer>> mystats = stats;
+        List<StatValue> mystats = stats;
         if (mystats.size() > 1) {
-            Collections.sort(mystats, new Comparator<Pair<Stat, Integer>>() {
+            Collections.sort(mystats, new Comparator<StatValue>() {
 
                 @Override
-                public int compare(final Pair<Stat, Integer> o1, final Pair<Stat, Integer> o2) {
-                    int val1 = o1.getLeft().getValue();
-                    int val2 = o2.getLeft().getValue();
+                public int compare(final StatValue o1, final StatValue o2) {
+                    int val1 = o1.stat.getValue();
+                    int val2 = o2.stat.getValue();
                     return (val1 < val2 ? -1 : (val1 == val2 ? 0 : 1));
                 }
             });
         }
         builder.writeInt(updateMask);
-        Integer value;
-        for (final Pair<Stat, Integer> statupdate : mystats) {
-            value = statupdate.getLeft().getValue();
+        int value;
+        for (final StatValue newStatValue : mystats) {
+            value = newStatValue.value;
             if (value >= 1) {
                 if (value == 0x1) {
-                    builder.writeAsShort(statupdate.getRight().shortValue());
+                    builder.writeAsShort(value);
                 } else if (value <= 0x4) {
-                    builder.writeInt(statupdate.getRight());
+                    builder.writeInt(value);
                 } else if (value < 0x20) {
-                    builder.writeByte(statupdate.getRight().byteValue());
+                    builder.writeAsByte(value);
                 } else if (value == 0x8000) { //availablesp
                     if (evan == 2001 || (evan >= 2200 && evan <= 2218)) {
                         throw new UnsupportedOperationException("Evan wrong updating");
                     } else {
-                        builder.writeAsShort(statupdate.getRight().shortValue());
+                        builder.writeAsShort(value);
                     }
                 } else if (value < 0xFFFF) {
-                    builder.writeAsShort(statupdate.getRight().shortValue());
+                    builder.writeAsShort(value);
                 } else {
-                    builder.writeInt(statupdate.getRight().intValue());
+                    builder.writeInt(value);
                 }
             }
         }
@@ -193,9 +198,9 @@ public final class MaplePacketCreator {
     public static GamePacket updateSp(ChannelCharacter chr, final boolean itemReaction, final boolean overrideJob) { //this will do..
         final PacketBuilder builder = new PacketBuilder();
         builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
-        builder.writeAsByte(itemReaction ? 1 : 0);
+        builder.writeAsByte(itemReaction);
         builder.writeInt(0x8000);
-        if (overrideJob || GameConstants.isEvan(chr.getJobId())) {
+        if (overrideJob || Jobs.isEvan(chr.getJobId())) {
             builder.writeAsByte(chr.getRemainingSpSize());
             for (int i = 0; i < chr.getRemainingSps().length; i++) {
                 if (chr.getRemainingSp(i) > 0) {
@@ -254,8 +259,8 @@ public final class MaplePacketCreator {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_DOOR.getValue());
-        builder.writeAsByte(/*town ? 1 :*/0);
-        builder.writeAsByte(town ? 1 : 0);
+        builder.writeAsByte(0);
+        builder.writeAsByte(town);
         builder.writeInt(oid);
         builder.writeVector(pos);
 
@@ -271,7 +276,7 @@ public final class MaplePacketCreator {
             builder.writeLong(999999999);
         } else {
             builder.writeAsShort(ServerPacketOpcode.REMOVE_DOOR.getValue());
-            builder.writeAsByte(/*town ? 1 : */0);
+            builder.writeAsByte(0);
             builder.writeInt(oid);
         }
 
@@ -290,9 +295,11 @@ public final class MaplePacketCreator {
         builder.writeVector(summon.getPosition());
         builder.writeAsByte(4);
         builder.writeAsShort(summon.isPuppet() ? 179 : 14);
-        builder.writeAsByte(summon.getMovementType().getValue()); // 0 = don't move, 1 = follow (4th mage summons?), 2/4 = only tele follow, 3 = bird follow
-        builder.writeAsByte(summon.isPuppet() ? 0 : 1); // 0 = Summon can't attack - but puppets don't attack with 1 either =.=
-        builder.writeAsShort(animated ? 0 : 1);
+        // 0 = don't move, 1 = follow (4th mage summons?), 2/4 = only tele follow, 3 = bird follow
+        builder.writeAsByte(summon.getMovementType().getValue()); 
+        // 0 = Summon can't attack - but puppets don't attack with 1 either =.=
+        builder.writeAsByte(!summon.isPuppet()); 
+        builder.writeAsShort(!animated);
 
         return builder.getPacket();
     }
@@ -353,25 +360,13 @@ public final class MaplePacketCreator {
         return serverMessage(type, channel, message, false, smegaEar);
     }
 
-    private static GamePacket serverMessage(int type, int channel, String message, boolean servermessage, boolean megaEar) {
+    private static GamePacket serverMessage(int type, int channel, String message, boolean servermessage, boolean whisperEnabled) {
         PacketBuilder builder = new PacketBuilder();
-        /*	* 0: [Notice]<br>
-         * 1: Popup<br>
-         * 2: Megaphone<br>
-         * 3: Super Megaphone<br>
-         * 4: Scrolling message at top<br>
-         * 5: Pink Text<br>
-         * 6: Lightblue Text
-         * 8: Item megaphone
-         * 9: Heart megaphone
-         * 10: Skull Super megaphone
-         * 11: Green megaphone message?
-         * 12: Three line of megaphone text
-         * 13: End of file =.="
-         * 14: Green Gachapon box
-         * 15: Red Gachapon box*/
+        
         builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
+        // See ServerMessageType enum
         builder.writeAsByte(type);
+        
         if (servermessage) {
             builder.writeAsByte(1);
         }
@@ -381,7 +376,7 @@ public final class MaplePacketCreator {
             case 9:
             case 10:
                 builder.writeAsByte(channel - 1); // channel
-                builder.writeAsByte(megaEar ? 1 : 0);
+                builder.writeAsByte(whisperEnabled);
                 break;
             case 6:
                 builder.writeInt(0);
@@ -403,7 +398,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket tripleSmega(List<String> message, boolean ear, int channel) {
+    public static GamePacket tripleSmega(List<String> message, boolean whisperEnabled, int channel) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
@@ -419,12 +414,12 @@ public final class MaplePacketCreator {
             }
         }
         builder.writeAsByte(channel - 1);
-        builder.writeAsByte(ear ? 1 : 0);
+        builder.writeAsByte(whisperEnabled);
 
         return builder.getPacket();
     }
 
-    public static GamePacket getAvatarMega(ChannelCharacter chr, int channel, int itemId, String message, boolean ear) {
+    public static GamePacket getAvatarMega(ChannelCharacter chr, int channel, int itemId, String message, boolean whisperEnabled) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.AVATAR_MEGA.getValue());
@@ -432,20 +427,20 @@ public final class MaplePacketCreator {
         builder.writeLengthPrefixedString(chr.getName());
         builder.writeLengthPrefixedString(message);
         builder.writeInt(channel - 1); // channel
-        builder.writeAsByte(ear ? 1 : 0);
+        builder.writeAsByte(whisperEnabled);
         PacketHelper.addCharLook(builder, chr, true);
 
         return builder.getPacket();
     }
 
-    public static GamePacket itemMegaphone(String msg, boolean whisper, int channel, IItem item) {
+    public static GamePacket itemMegaphone(String msg, boolean whisperEnabled, int channel, IItem item) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
         builder.writeAsByte(8);
         builder.writeLengthPrefixedString(msg);
         builder.writeAsByte(channel - 1);
-        builder.writeAsByte(whisper ? 1 : 0);
+        builder.writeAsByte(whisperEnabled);
 
         if (item == null) {
             builder.writeAsByte(0);
@@ -455,7 +450,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket spawnNPC(Npc life, boolean show) {
+    public static GamePacket spawnNpc(Npc life, boolean show) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_NPC.getValue());
@@ -463,16 +458,16 @@ public final class MaplePacketCreator {
         builder.writeInt(life.getId());
         builder.writeAsShort(life.getPosition().x);
         builder.writeAsShort(life.getCy());
-        builder.writeAsByte(life.getF() == 1 ? 0 : 1);
-        builder.writeAsShort(life.getFh());
+        builder.writeAsByte(life.isFlipped());
+        builder.writeAsShort(life.getFoothold());
         builder.writeAsShort(life.getRx0());
         builder.writeAsShort(life.getRx1());
-        builder.writeAsByte(show ? 1 : 0);
+        builder.writeAsByte(show);
 
         return builder.getPacket();
     }
 
-    public static GamePacket removeNPC(final int objectid) {
+    public static GamePacket removeNpc(final int objectid) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.REMOVE_NPC.getValue());
@@ -481,7 +476,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket spawnNPCRequestController(Npc life, boolean MiniMap) {
+    public static GamePacket spawnNpcRequestController(Npc life, boolean miniMap) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
@@ -490,16 +485,16 @@ public final class MaplePacketCreator {
         builder.writeInt(life.getId());
         builder.writeAsShort(life.getPosition().x);
         builder.writeAsShort(life.getCy());
-        builder.writeAsByte(life.getF() == 1 ? 0 : 1);
-        builder.writeAsShort(life.getFh());
+        builder.writeAsByte(life.isFlipped());
+        builder.writeAsShort(life.getFoothold());
         builder.writeAsShort(life.getRx0());
         builder.writeAsShort(life.getRx1());
-        builder.writeAsByte(MiniMap ? 1 : 0);
+        builder.writeAsByte(miniMap);
 
         return builder.getPacket();
     }
 
-    public static GamePacket spawnPlayerNPC(NpcStats npc, int id) {
+    public static GamePacket spawnPlayerNpc(NpcStats npc, int id) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_NPC.getValue());
@@ -512,8 +507,8 @@ public final class MaplePacketCreator {
         builder.writeAsByte(0);
         builder.writeInt(npc.getHair());
         Map<Byte, Integer> equip = npc.getEquips();
-        Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
-        Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
+        Map<Byte, Integer> myEquip = new LinkedHashMap<>();
+        Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
         for (byte position : equip.keySet()) {
             byte pos = (byte) (position * -1);
             if (pos < 100 && myEquip.get(pos) == null) {
@@ -556,7 +551,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.CHATTEXT.getValue());
         builder.writeInt(cidfrom);
-        builder.writeAsByte(whiteBG ? 1 : 0);
+        builder.writeAsByte(whiteBG);
         builder.writeLengthPrefixedString(text);
         builder.writeAsByte(show);
 
@@ -591,7 +586,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(3); // 3 = exp, 4 = fame, 5 = mesos, 6 = guildpoints
-        builder.writeAsByte(white ? 1 : 0);
+        builder.writeAsByte(white);
         builder.writeInt(gain);
         builder.writeAsByte(0); // 0 = no show in chat 1 = show in chat
         builder.writeInt(Event_EXP); // Event Experience Bonus
@@ -613,9 +608,9 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(3); // 3 = exp, 4 = fame, 5 = mesos, 6 = guildpoints
-        builder.writeAsByte(white ? 1 : 0);
+        builder.writeAsByte(white);
         builder.writeInt(gain);
-        builder.writeAsByte(inChat ? 1 : 0);
+        builder.writeAsByte(inChat);
         builder.writeInt(0); // monster book bonus
         builder.writeAsByte(0); // Party percentage
         builder.writeAsShort(0); // Party bouns
@@ -1055,7 +1050,8 @@ public final class MaplePacketCreator {
             builder.writeInt(item.getItemId());
             builder.writeInt(item.getPrice());
             builder.writeZeroBytes(16);
-            if (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId())) {
+            if (!GameConstants.isThrowingStar(item.getItemId()) &&
+                    !GameConstants.isBullet(item.getItemId())) {
                 builder.writeAsShort(1);
                 builder.writeAsShort(item.getBuyable());
             } else {
@@ -1086,7 +1082,7 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        builder.writeAsByte(fromDrop ? 1 : 0);
+        builder.writeAsByte(fromDrop);
         builder.writeAsShort(1); // add mode
         builder.writeByte(type.asByte()); // iv type
         builder.writeAsByte(item.getPosition()); // slot id
@@ -1099,7 +1095,7 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        builder.writeAsByte(fromDrop ? 1 : 0);
+        builder.writeAsByte(fromDrop);
         //	builder.writeAsByte((slot2 > 0 ? 1 : 0) + 1);
         builder.writeAsByte(1);
         builder.writeAsByte(1);
@@ -1168,7 +1164,7 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
-        builder.writeAsByte(fromDrop ? 1 : 0);
+        builder.writeAsByte(fromDrop);
         builder.writeBytes(HexTool.getByteArrayFromHexString("01 03"));
         builder.writeByte(type.asByte());
         builder.writeAsShort(slot);
@@ -1231,7 +1227,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getScrollEffect(int chr, ScrollResult scrollSuccess, boolean legendarySpirit) {
+    public static GamePacket getScrollEffect(int chr, ScrollResult scrollSuccess, boolean isLegendarySpirit) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_SCROLL_EFFECT.getValue());
@@ -1240,16 +1236,16 @@ public final class MaplePacketCreator {
         switch (scrollSuccess) {
             case SUCCESS:
                 builder.writeAsShort(1);
-                builder.writeAsShort(legendarySpirit ? 1 : 0);
+                builder.writeAsShort(isLegendarySpirit);
                 break;
             case FAIL:
                 builder.writeAsShort(0);
-                builder.writeAsShort(legendarySpirit ? 1 : 0);
+                builder.writeAsShort(isLegendarySpirit);
                 break;
             case CURSE:
                 builder.writeAsByte(0);
                 builder.writeAsByte(1);
-                builder.writeAsShort(legendarySpirit ? 1 : 0);
+                builder.writeAsShort(isLegendarySpirit);
                 break;
         }
         builder.writeAsByte(0);
@@ -1314,12 +1310,12 @@ public final class MaplePacketCreator {
         builder.writeInt(chr.getId());
         builder.writeAsByte(1);
         PacketHelper.addCharLook(builder, chr, false);
-        
+
         Inventory iv = chr.getEquippedItemsInventory();
         List<IItem> equipped = Lists.newLinkedList(iv);
         Collections.sort(equipped);
-        
-        List<Ring> rings = new ArrayList<Ring>();
+
+        List<Ring> rings = new ArrayList<>();
         for (IItem item : equipped) {
             final IEquip equip = (IEquip) item;
             if (equip.getRingId() > -1) {
@@ -1371,7 +1367,9 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket damagePlayer(int skill, int monsteridfrom, int cid, int damage, int fake, byte direction, int reflect, boolean is_pg, int oid, int pos_x, int pos_y) {
+    public static GamePacket damagePlayer(int skill, int monsteridfrom, int cid, 
+            int damage, int fake, byte direction, int reflect, boolean isPowerGuard, 
+            int oid, int pos_x, int pos_y) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.DAMAGE_PLAYER.getValue());
@@ -1382,7 +1380,7 @@ public final class MaplePacketCreator {
         builder.writeByte(direction);
         if (reflect > 0) {
             builder.writeAsByte(reflect);
-            builder.writeAsByte(is_pg ? 1 : 0);
+            builder.writeAsByte(isPowerGuard);
             builder.writeInt(oid);
             builder.writeAsByte(6);
             builder.writeAsShort(pos_x);
@@ -1399,12 +1397,12 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket startQuest(final ChannelCharacter c, final short quest, final String data) {
+    public static GamePacket startQuest(final ChannelCharacter c, final int questId, final String data) {
         final PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(1);
-        builder.writeAsShort(quest);
+        builder.writeAsShort(questId);
         builder.writeAsByte(1);
 
         builder.writeLengthPrefixedString(data != null ? data : "");
@@ -1412,12 +1410,12 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket forfeitQuest(ChannelCharacter c, short quest) {
+    public static GamePacket forfeitQuest(ChannelCharacter c, int questId) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(1);
-        builder.writeAsShort(quest);
+        builder.writeAsShort(questId);
         builder.writeAsShort(0);
         builder.writeAsByte(0);
         builder.writeInt(0);
@@ -1426,12 +1424,12 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket completeQuest(final short quest) {
+    public static GamePacket completeQuest(final int questId) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(1);
-        builder.writeAsShort(quest);
+        builder.writeAsShort(questId);
         builder.writeAsByte(2);
         builder.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
 
@@ -1449,13 +1447,13 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateQuestInfo(ChannelCharacter c, short quest, int npc, byte progress) {
+    public static GamePacket updateQuestInfo(ChannelCharacter c, int questId, int npcId, byte progress) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.UPDATE_QUEST_INFO.getValue());
         builder.writeByte(progress);
-        builder.writeAsShort(quest);
-        builder.writeInt(npc);
+        builder.writeAsShort(questId);
+        builder.writeInt(npcId);
         builder.writeInt(0);
 
         return builder.getPacket();
@@ -1525,14 +1523,14 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    private static void writeLongMask(PacketBuilder builder, List<Pair<BuffStat, Integer>> statups) {
+    private static void writeLongMask(PacketBuilder builder, List<BuffStatValue> statups) {
         long firstmask = 0;
         long secondmask = 0;
-        for (Pair<BuffStat, Integer> statup : statups) {
-            if (statup.getLeft().isFirst()) {
-                firstmask |= statup.getLeft().getValue();
+        for (BuffStatValue statup : statups) {
+            if (statup.stat.isFirst()) {
+                firstmask |= statup.stat.getValue();
             } else {
-                secondmask |= statup.getLeft().getValue();
+                secondmask |= statup.stat.getValue();
             }
         }
         builder.writeLong(firstmask);
@@ -1568,7 +1566,7 @@ public final class MaplePacketCreator {
         builder.writeLong(secondmask);
     }
 
-    public static GamePacket giveMount(int buffid, int skillid, List<Pair<BuffStat, Integer>> statups) {
+    public static GamePacket giveMount(int buffid, int skillid, List<BuffStatValue> statups) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
@@ -1586,7 +1584,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket givePirate(List<Pair<BuffStat, Integer>> statups, int duration, int skillid) {
+    public static GamePacket givePirate(List<BuffStatValue> statups, int duration, int skillid) {
         final boolean infusion = skillid == 5121009 || skillid == 15111005;
         PacketBuilder builder = new PacketBuilder();
 
@@ -1594,8 +1592,8 @@ public final class MaplePacketCreator {
         writeLongMask(builder, statups);
 
         builder.writeAsShort(0);
-        for (Pair<BuffStat, Integer> stat : statups) {
-            builder.writeInt(stat.getRight().intValue());
+        for (BuffStatValue stat : statups) {
+            builder.writeInt(stat.value);
             builder.writeLong(skillid);
             builder.writeZeroBytes(infusion ? 6 : 1);
             builder.writeAsShort(duration);
@@ -1607,7 +1605,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket giveForeignPirate(List<Pair<BuffStat, Integer>> statups, int duration, int cid, int skillid) {
+    public static GamePacket giveForeignPirate(List<BuffStatValue> statups, int duration, int cid, int skillid) {
         final boolean infusion = skillid == 5121009 || skillid == 15111005;
         PacketBuilder builder = new PacketBuilder();
 
@@ -1615,8 +1613,8 @@ public final class MaplePacketCreator {
         builder.writeInt(cid);
         writeLongMask(builder, statups);
         builder.writeAsShort(0);
-        for (Pair<BuffStat, Integer> stat : statups) {
-            builder.writeInt(stat.getRight().intValue());
+        for (BuffStatValue stat : statups) {
+            builder.writeInt(stat.value);
             builder.writeLong(skillid);
             builder.writeZeroBytes(infusion ? 7 : 1);
             builder.writeAsShort(duration);//duration... seconds 
@@ -1644,7 +1642,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket giveInfusion(List<Pair<BuffStat, Integer>> statups, int buffid, int bufflength) {
+    public static GamePacket giveInfusion(List<BuffStatValue> statups, int buffid, int bufflength) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
@@ -1690,13 +1688,13 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket giveBuff(int buffid, int bufflength, List<Pair<BuffStat, Integer>> statups, StatEffect effect) {
+    public static GamePacket giveBuff(int buffid, int bufflength, List<BuffStatValue> statups, StatEffect effect) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
         writeLongMask(builder, statups);
-        for (Pair<BuffStat, Integer> statup : statups) {
-            builder.writeAsShort(statup.getRight().shortValue());
+        for (BuffStatValue statup : statups) {
+            builder.writeAsShort(statup.value);
             builder.writeInt(buffid);
             builder.writeInt(bufflength);
         }
@@ -1755,7 +1753,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showMonsterRiding(int cid, List<Pair<BuffStat, Integer>> statups, int itemId, int skillId) {
+    public static GamePacket showMonsterRiding(int cid, List<BuffStatValue> statups, int itemId, int skillId) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
@@ -1772,17 +1770,17 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket giveForeignBuff(int cid, List<Pair<BuffStat, Integer>> statups, StatEffect effect) {
+    public static GamePacket giveForeignBuff(int cid, List<BuffStatValue> statups, StatEffect effect) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
         builder.writeInt(cid);
         writeLongMask(builder, statups);
-        for (Pair<BuffStat, Integer> statup : statups) {
+        for (BuffStatValue statup : statups) {
             if (effect.isMorph() && !effect.isPirateMorph()) {
-                builder.writeByte(statup.getRight().byteValue());
+                builder.writeAsByte(statup.value);
             } else {
-                builder.writeAsShort(statup.getRight().shortValue());
+                builder.writeAsShort(statup.value);
             }
         }
         builder.writeAsShort(0); // same as give_buff
@@ -1845,7 +1843,7 @@ public final class MaplePacketCreator {
         builder.writeInt(chr.getMount().getLevel());
         builder.writeInt(chr.getMount().getExp());
         builder.writeInt(chr.getMount().getFatigue());
-        builder.writeAsByte(levelup ? 1 : 0);
+        builder.writeAsByte(levelup);
 
         return builder.getPacket();
     }
@@ -1863,12 +1861,12 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getPlayerShopChat(ChannelCharacter c, String chat, boolean owner) {
+    public static GamePacket getPlayerShopChat(ChannelCharacter c, String chat, boolean isOwner) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
         builder.writeBytes(HexTool.getByteArrayFromHexString("06 08"));
-        builder.writeAsByte(owner ? 0 : 1);
+        builder.writeAsByte(!isOwner);
         builder.writeLengthPrefixedString(c.getName() + " : " + chat);
 
         return builder.getPacket();
@@ -2117,27 +2115,27 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showOwnBerserk(int skilllevel, boolean Berserk) {
+    public static GamePacket showOwnBerserk(int skillLevel, boolean berserk) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         builder.writeAsByte(1);
         builder.writeInt(1320006);
-        builder.writeAsByte(skilllevel);
-        builder.writeAsByte(Berserk ? 1 : 0);
+        builder.writeAsByte(skillLevel);
+        builder.writeAsByte(berserk);
 
         return builder.getPacket();
     }
 
-    public static GamePacket showBerserk(int cid, int skilllevel, boolean Berserk) {
+    public static GamePacket showBerserk(int characterId, int skillLevel, boolean berserk) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
-        builder.writeInt(cid);
+        builder.writeInt(characterId);
         builder.writeAsByte(1);
         builder.writeInt(1320006);
-        builder.writeAsByte(skilllevel);
-        builder.writeAsByte(Berserk ? 1 : 0);
+        builder.writeAsByte(skillLevel);
+        builder.writeAsByte(berserk);
 
         return builder.getPacket();
     }
@@ -2181,7 +2179,7 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(1);
-        builder.writeAsShort(status.getQuest().getId());
+        builder.writeAsShort(status.getQuestId());
         builder.writeAsByte(1);
 
         final StringBuilder sb = new StringBuilder();
@@ -2381,43 +2379,34 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket giveFameResponse(int mode, String charname, int newfame) {
+    public static GamePacket giveFameResponse(boolean isIncrease, String name, int newFame) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
-        builder.writeAsByte(0);
-        builder.writeLengthPrefixedString(charname);
-        builder.writeAsByte(mode);
-        builder.writeAsShort(newfame);
-        builder.writeAsShort(0);
+        builder.writeAsByte(FameResponse.SUCCESS.asNumber());
+        builder.writeLengthPrefixedString(name);
+        builder.writeAsByte(isIncrease);
+        builder.writeInt(newFame);
 
         return builder.getPacket();
     }
 
-    public static GamePacket giveFameErrorResponse(int status) {
+    public static GamePacket giveFameErrorResponse(FameResponse status) {
         PacketBuilder builder = new PacketBuilder();
 
-        /*	* 0: ok, use giveFameResponse<br>
-         * 1: the username is incorrectly entered<br>
-         * 2: users under level 15 are unable to toggle with fame.<br>
-         * 3: can't raise or drop fame anymore today.<br>
-         * 4: can't raise or drop fame for this character for this month anymore.<br>
-         * 5: received fame, use receiveFame()<br>
-         * 6: level of fame neither has been raised nor dropped due to an unexpected error*/
-
         builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
-        builder.writeAsByte(status);
+        builder.writeAsByte(status.asNumber());
 
         return builder.getPacket();
     }
 
-    public static GamePacket receiveFame(int mode, String charnameFrom) {
+    public static GamePacket receiveFame(boolean isIncrease, String famerName) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
-        builder.writeAsByte(5);
-        builder.writeLengthPrefixedString(charnameFrom);
-        builder.writeAsByte(mode);
+        builder.writeAsByte(FameResponse.RECEIVED_FAME.asNumber());
+        builder.writeLengthPrefixedString(famerName);
+        builder.writeAsByte(isIncrease);
 
         return builder.getPacket();
     }
@@ -2455,7 +2444,7 @@ public final class MaplePacketCreator {
     public static GamePacket partyStatusMessage(int message) {
         PacketBuilder builder = new PacketBuilder();
 
-        /*	* 10: A beginner can't create a party.
+        /* 10: A beginner can't create a party.
          * 1/11/14/19: Your request for a party didn't work due to an unexpected error.
          * 13: You have yet to join a party.
          * 16: Already have joined a party.
@@ -2477,76 +2466,79 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    private static void addPartyStatus(int forchannel, Party party, PacketBuilder lew, boolean leaving) {
-        List<PartyMember> partymembers = new ArrayList<PartyMember>(party.getMembers());
+    private static void addPartyStatus(int forchannel, Party party, PacketBuilder builder, boolean leaving) {
+        List<PartyMember> partymembers = new ArrayList<>(party.getMembers());
         while (partymembers.size() < 6) {
             partymembers.add(new PartyMember());
         }
         for (PartyMember partychar : partymembers) {
-            lew.writeInt(partychar.getId());
+            builder.writeInt(partychar.getId());
         }
         for (PartyMember partychar : partymembers) {
-            lew.writePaddedString(partychar.getName(), 13);
+            builder.writePaddedString(partychar.getName(), 13);
         }
         for (PartyMember partychar : partymembers) {
-            lew.writeInt(partychar.getJobId());
+            builder.writeInt(partychar.getJobId());
         }
         for (PartyMember partychar : partymembers) {
-            lew.writeInt(partychar.getLevel());
+            builder.writeInt(partychar.getLevel());
         }
         for (PartyMember partychar : partymembers) {
             if (partychar.isOnline()) {
-                lew.writeInt(partychar.getChannel() - 1);
+                builder.writeInt(partychar.getChannel() - 1);
             } else {
-                lew.writeInt(-2);
+                builder.writeInt(-2);
             }
         }
-        lew.writeInt(party.getLeader().getId());
+        builder.writeInt(party.getLeader().getId());
         for (PartyMember partychar : partymembers) {
             if (partychar.getChannel() == forchannel) {
-                lew.writeInt(partychar.getMapid());
+                builder.writeInt(partychar.getMapid());
             } else {
-                lew.writeInt(0);
+                builder.writeInt(0);
             }
         }
         for (PartyMember partychar : partymembers) {
             if (partychar.getChannel() == forchannel && !leaving) {
-                lew.writeInt(partychar.getDoorTown());
-                lew.writeInt(partychar.getDoorTarget());
-                lew.writeInt(2311002);
-                lew.writeInt(partychar.getDoorPosition().x);
-                lew.writeInt(partychar.getDoorPosition().y);
+                builder.writeInt(partychar.getDoorTown());
+                builder.writeInt(partychar.getDoorTarget());
+                builder.writeInt(2311002);
+                builder.writeInt(partychar.getDoorPosition().x);
+                builder.writeInt(partychar.getDoorPosition().y);
             } else {
-                lew.writeInt(leaving ? 999999999 : 0);
-                lew.writeLong(leaving ? 999999999 : 0);
-                lew.writeLong(leaving ? -1 : 0);
+                builder.writeInt(leaving ? 999999999 : 0);
+                builder.writeLong(leaving ? 999999999 : 0);
+                builder.writeLong(leaving ? -1 : 0);
             }
         }
     }
 
-    public static GamePacket updateParty(int forChannel, Party party, PartyOperation op, PartyMember target) {
+    public static GamePacket updateParty(int forChannel, Party party, PartyOperation operation, PartyMember target) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
-        switch (op) {
+        final boolean leave =
+                operation == PartyOperation.LEAVE ||
+                operation == PartyOperation.LOG_ONOFF;
+        switch (operation) {
+            case LEAVE:
             case DISBAND:
             case EXPEL:
-            case LEAVE:
                 builder.writeAsByte(0xC);
                 builder.writeInt(party.getId());
                 builder.writeInt(target.getId());
-                if (op == PartyOperation.DISBAND) {
+                if (operation == PartyOperation.DISBAND) {
                     builder.writeAsByte(0);
                     builder.writeInt(target.getId());
                 } else {
                     builder.writeAsByte(1);
-                    if (op == PartyOperation.EXPEL) {
+                    if (operation == PartyOperation.EXPEL) {
                         builder.writeAsByte(1);
                     } else {
                         builder.writeAsByte(0);
                     }
                     builder.writeLengthPrefixedString(target.getName());
-                    addPartyStatus(forChannel, party, builder, op == PartyOperation.LEAVE);
+                    addPartyStatus(forChannel, party, builder, leave);
                 }
                 break;
             case JOIN:
@@ -2559,7 +2551,7 @@ public final class MaplePacketCreator {
             case LOG_ONOFF:
                 builder.writeAsByte(0x7);
                 builder.writeInt(party.getId());
-                addPartyStatus(forChannel, party, builder, op == PartyOperation.LOG_ONOFF);
+                addPartyStatus(forChannel, party, builder, leave);
                 break;
             case CHANGE_LEADER:
                 builder.writeAsByte(0x1F);
@@ -2697,7 +2689,8 @@ public final class MaplePacketCreator {
                 builder.writeInt(buddy.getCharacterId());
                 builder.writePaddedString(buddy.getName(), 13);
                 builder.writeAsByte(0);
-                builder.writeInt(buddy.getChannel() == -1 ? -1 : buddy.getChannel() - 1);
+                builder.writeInt(buddy.getChannel() == -1 ? -1 : buddy.getChannel() -
+                        1);
                 builder.writePaddedString(buddy.getGroup(), 17);
             }
         }
@@ -3122,7 +3115,7 @@ public final class MaplePacketCreator {
                 builder.writeInt(g.getId());
                 builder.writeLengthPrefixedString(g.getName());
                 for (int ordinal = 1; ordinal <= 5; ordinal++) {
-                    final MemberRank rank = MemberRank.fromNumber(ordinal); 
+                    final MemberRank rank = MemberRank.fromNumber(ordinal);
                     builder.writeLengthPrefixedString(g.getRankTitle(rank));
                 }
                 g.addMemberData(builder);
@@ -3664,7 +3657,9 @@ public final class MaplePacketCreator {
 
         builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
         builder.writeAsByte(10);
-        builder.writeLengthPrefixedString("You have received " + recv + " training points, for the accumulated total of " + total + " training points.");
+        builder.writeLengthPrefixedString("You have received " + recv +
+                " training points, for the accumulated total of " + total +
+                " training points.");
 
         return builder.getPacket();
     }
@@ -3683,7 +3678,8 @@ public final class MaplePacketCreator {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ENERGY.getValue());
-        builder.writeLengthPrefixedString("massacre_" + (type == 0 ? "cool" : type == 1 ? "kill" : "miss"));
+        builder.writeLengthPrefixedString("massacre_" + (type == 0 ? "cool" : type ==
+                1 ? "kill" : "miss"));
         builder.writeLengthPrefixedString(Integer.toString(amount));
 //mc.getClient().getSession().writeAsByte(MaplePacketCreator.updatePyramidInfo(1, mc.getInstance(PartyQuest.NETT_PYRAMID).gainReturnKills());  
         return builder.getPacket();

@@ -14,15 +14,16 @@ import client.IItem;
 import client.Item;
 import client.SkillFactory;
 import client.GameConstants;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.Inventory;
 import client.InventoryType;
 import client.Pet;
 import database.DatabaseConnection;
+import org.javastory.game.Skills;
 import tools.MaplePacketCreator;
 
 public class Shop {
-    private static final Set<Integer> rechargeableItems = new LinkedHashSet<Integer>();
+    private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
     private int id;
     private int npcId;
     private List<ShopItem> items;
@@ -66,7 +67,7 @@ public class Shop {
     private Shop(int id, int npcId) {
 	this.id = id;
 	this.npcId = npcId;
-	items = new LinkedList<ShopItem>();
+	items = new LinkedList<>();
     }
 
     public void addItem(ShopItem item) {
@@ -151,7 +152,7 @@ public class Shop {
 	}
 	final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 	short slotMax = ii.getSlotMax(c, item.getItemId());
-	final int skill = GameConstants.getMasterySkill(c.getPlayer().getJobId());
+	final int skill = Skills.getMasterySkillId(c.getPlayer().getJobId());
 
 	if (skill != 0) {
 	    slotMax += c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(skill)) * 10;
@@ -198,7 +199,7 @@ public class Shop {
 	    ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
 	    ps.setInt(1, shopId);
 	    rs = ps.executeQuery();
-	    List<Integer> recharges = new ArrayList<Integer>(rechargeableItems);
+	    List<Integer> recharges = new ArrayList<>(rechargeableItems);
 	    while (rs.next()) {
 		if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
 		    ShopItem starItem = new ShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"));

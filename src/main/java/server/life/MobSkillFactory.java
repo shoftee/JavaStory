@@ -1,27 +1,27 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-                       Matthias Butz <matze@odinms.de>
-                       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License version 3
-    as published by the Free Software Foundation. You may not use, modify
-    or distribute this program under any other version of the
-    GNU Affero General Public License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation. You may not use, modify
+or distribute this program under any other version of the
+GNU Affero General Public License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package server.life;
 
+import org.javastory.game.SkillLevelEntry;
 import java.awt.Point;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,21 +32,26 @@ import provider.WzDataProviderFactory;
 import provider.WzDataTool;
 import tools.Pair;
 
-public class MobSkillFactory {
+public final class MobSkillFactory {
 
-    private static Map<Pair<Integer, Integer>, MobSkill> mobSkills = new HashMap<Pair<Integer, Integer>, MobSkill>();
-    private static WzDataProvider dataSource = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Skill.wz"));
+    private static final Map<SkillLevelEntry, MobSkill> mobSkills = new HashMap<>();
+    private static final WzDataProvider dataSource = WzDataProviderFactory.getDataProvider("Skill.wz");
     private static final WzData skillRoot = dataSource.getData("MobSkill.img");
 
+    private MobSkillFactory() {
+    }
+
     public static MobSkill getMobSkill(int skillId, int level) {
-        MobSkill ret = mobSkills.get(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)));
+        final SkillLevelEntry entry = new SkillLevelEntry(skillId, level);
+        MobSkill ret = mobSkills.get(entry);
         if (ret != null) {
             return ret;
         }
 
-        final WzData skillData = skillRoot.getChildByPath(skillId + "/level/" + level);
+        final WzData skillData = skillRoot.getChildByPath(skillId + "/level/" +
+                level);
         if (skillData != null) {
-            List<Integer> toSummon = new ArrayList<Integer>();
+            List<Integer> toSummon = new ArrayList<>();
             for (int i = 0; i > -1; i++) {
                 if (skillData.getChildByPath(String.valueOf(i)) == null) {
                     break;
@@ -73,7 +78,7 @@ public class MobSkillFactory {
             ret.setLimit((short) WzDataTool.getInt("limit", skillData, 0));
             ret.setLtRb(lt, rb);
 
-            mobSkills.put(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)), ret);
+            mobSkills.put(entry, ret);
         }
         return ret;
     }

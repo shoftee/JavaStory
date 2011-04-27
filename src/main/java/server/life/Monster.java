@@ -1,5 +1,6 @@
 package server.life;
 
+import org.javastory.game.SkillLevelEntry;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,8 +15,8 @@ import java.util.concurrent.ScheduledFuture;
 
 import client.Disease;
 import client.BuffStat;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
@@ -44,7 +45,7 @@ public class Monster extends AbstractLoadedGameLife {
     private Monster sponge;
     // Just a reference for monster EXP distribution after death
     private ChannelCharacter highestDamageChar; 
-    private WeakReference<ChannelCharacter> controller = new WeakReference<ChannelCharacter>(null);
+    private WeakReference<ChannelCharacter> controller = new WeakReference<>(null);
     private boolean isFake, dropsDisabled, controllerHasAggro, controllerKnowsAboutAggro;
     private final Collection<AttackerEntry> attackers = Lists.newLinkedList();
     private EventInstanceManager eventInstance;
@@ -76,7 +77,7 @@ public class Monster extends AbstractLoadedGameLife {
         dropsDisabled = false;
 
         if (stats.getNoSkills() > 0) {
-            usedSkills = new HashMap<Integer, Long>();
+            usedSkills = new HashMap<>();
         }
     }
 
@@ -352,7 +353,7 @@ public class Monster extends AbstractLoadedGameLife {
             case 8820011:
             case 8820012:
             case 8820013: {
-                final List<Monster> mobs = new ArrayList<Monster>();
+                final List<Monster> mobs = new ArrayList<>();
                 Monster spongy = null;
 
                 for (final int i : toSpawn) {
@@ -423,7 +424,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final void setController(final ChannelCharacter controller) {
-        this.controller = new WeakReference<ChannelCharacter>(controller);
+        this.controller = new WeakReference<>(controller);
     }
 
     public final void switchController(final ChannelCharacter newController, final boolean immediateAggro) {
@@ -746,7 +747,7 @@ public class Monster extends AbstractLoadedGameLife {
         return map;
     }
 
-    public final List<Pair<Integer, Integer>> getSkills() {
+    public final List<SkillLevelEntry> getSkills() {
         return stats.getSkills();
     }
 
@@ -965,7 +966,7 @@ public class Monster extends AbstractLoadedGameLife {
     private class PartyAttackerEntry implements AttackerEntry {
 
         private int totDamage;
-        private final Map<Integer, OnePartyAttacker> attackers = new HashMap<Integer, OnePartyAttacker>(6);
+        private final Map<Integer, OnePartyAttacker> attackers = new HashMap<>(6);
         private int partyid;
         private ChannelServer cserv;
 
@@ -975,7 +976,7 @@ public class Monster extends AbstractLoadedGameLife {
         }
 
         public List<AttackingMapleCharacter> getAttackers() {
-            final List<AttackingMapleCharacter> ret = new ArrayList<AttackingMapleCharacter>(attackers.size());
+            final List<AttackingMapleCharacter> ret = new ArrayList<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> entry : attackers.entrySet()) {
                 final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(entry.getKey());
                 if (chr != null) {
@@ -985,8 +986,8 @@ public class Monster extends AbstractLoadedGameLife {
             return ret;
         }
 
-        private final Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
-            final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<ChannelCharacter, OnePartyAttacker>(attackers.size());
+        private Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
+            final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> aentry : attackers.entrySet()) {
                 final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(aentry.getKey());
                 if (chr != null) {
@@ -1035,7 +1036,7 @@ public class Monster extends AbstractLoadedGameLife {
             Party party;
             double averagePartyLevel, expWeight, levelMod, innerBaseExp, expFraction;
             List<ChannelCharacter> expApplicable;
-            final Map<ChannelCharacter, ExpMap> expMap = new HashMap<ChannelCharacter, ExpMap>(6);
+            final Map<ChannelCharacter, ExpMap> expMap = new HashMap<>(6);
             byte CLASS_EXP;
 
             for (final Entry<ChannelCharacter, OnePartyAttacker> attacker : resolveAttackers().entrySet()) {
@@ -1043,7 +1044,7 @@ public class Monster extends AbstractLoadedGameLife {
                 averagePartyLevel = 0;
 
                 CLASS_EXP = 0;
-                expApplicable = new ArrayList<ChannelCharacter>();
+                expApplicable = new ArrayList<>();
                 for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
                         pchr = cserv.getPlayerStorage().getCharacterByName(partychar.getName());

@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import handling.world.PartyMember;
 import server.Portal;
 import tools.MaplePacketCreator;
@@ -61,7 +61,7 @@ public class Door extends AbstractGameMapObject {
     }
 
     private Portal getFreePortal() {
-        final List<Portal> freePortals = new ArrayList<Portal>();
+        final List<Portal> freePortals = new ArrayList<>();
 
         for (final Portal port : town.getPortals()) {
             if (port.getType() == 6) {

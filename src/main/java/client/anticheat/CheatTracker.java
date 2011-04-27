@@ -11,14 +11,16 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import client.GameConstants;
-import client.ChannelCharacter;
-import server.AutobanManager;
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
+import org.javastory.client.ChannelCharacter;
 import server.TimerManager;
 import tools.StringUtil;
 
 public class CheatTracker {
 
-    private Map<CheatingOffense, CheatingOffenseEntry> offenses = Collections.synchronizedMap(new LinkedHashMap<CheatingOffense, CheatingOffenseEntry>());
+    private final Map<CheatingOffense, CheatingOffenseEntry> offenses =
+            Maps.newConcurrentMap();
     private final WeakReference<ChannelCharacter> chr;
     // For keeping track of speed attack hack.
     private int lastAttackTickCount = 0;
@@ -38,7 +40,7 @@ public class CheatTracker {
     private ScheduledFuture<?> invalidationTask;
 
     public CheatTracker(final ChannelCharacter chr) {
-        this.chr = new WeakReference<ChannelCharacter>(chr);
+        this.chr = new WeakReference<>(chr);
         invalidationTask = TimerManager.getInstance().register(new InvalidationTask(), 60000);
         takingDamageSince = System.currentTimeMillis();
     }
@@ -103,7 +105,8 @@ public class CheatTracker {
 
             if (numSameDamage > 5) {
                 numSameDamage = 0;
-                registerOffense(CheatingOffense.SAME_DAMAGE, numSameDamage + " times: " + dmg);
+                registerOffense(CheatingOffense.SAME_DAMAGE, numSameDamage +
+                        " times: " + dmg);
             }
         } else {
             lastDamage = dmg;
@@ -132,7 +135,8 @@ public class CheatTracker {
         numSequentialSummonAttack++;
         //estimated
         // System.out.println(numMPRegens + "/" + allowedRegens);
-        if ((System.currentTimeMillis() - summonSummonTime) / (2000 + 1) < numSequentialSummonAttack) {
+        if ((System.currentTimeMillis() - summonSummonTime) / (2000 + 1) <
+                numSequentialSummonAttack) {
             registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);
             return false;
         }
@@ -180,7 +184,8 @@ public class CheatTracker {
                 if (!chrhardref.isGM()) {
                     //chrhardref.getClient().disconnect();
                 } else {
-                    chrhardref.sendNotice(5, "[WARNING] D/c triggled : " + offense.toString());
+                    chrhardref.sendNotice(5, "[WARNING] D/c triggled : " +
+                            offense.toString());
                 }
             }
             return;
@@ -215,7 +220,7 @@ public class CheatTracker {
 
     public final String getSummary() {
         final StringBuilder ret = new StringBuilder();
-        final List<CheatingOffenseEntry> offenseList = new ArrayList<CheatingOffenseEntry>();
+        final List<CheatingOffenseEntry> offenseList = new ArrayList<>();
         synchronized (offenses) {
             for (final CheatingOffenseEntry entry : offenses.values()) {
                 if (!entry.isExpired()) {

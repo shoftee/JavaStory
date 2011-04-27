@@ -1,9 +1,9 @@
 package client.messages.commands;
 
-import client.GameCharacterUtil;
-import client.ChannelClient;
+import org.javastory.client.GameCharacterUtil;
+import org.javastory.client.ChannelClient;
 import client.Stat;
-import client.ActivePlayerStats;
+import org.javastory.client.ActivePlayerStats;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;

@@ -4,7 +4,7 @@
  */
 package org.javastory.server.handling;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import handling.ClientPacketOpcode;
 import handling.channel.handler.AllianceHandler;
 import handling.channel.handler.BbsHandler;

@@ -1,5 +1,6 @@
 package client;
 
+import org.javastory.client.ChannelCharacter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

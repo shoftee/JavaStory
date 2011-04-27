@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import org.javastory.client.ChannelClient;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Map.Entry;

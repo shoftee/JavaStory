@@ -25,9 +25,9 @@ import server.maps.AbstractAnimatedGameMapObject;
 public abstract class AbstractLoadedGameLife extends AbstractAnimatedGameMapObject {
 
     private final int id;
-    private int f;
-    private boolean hide;
-    private int fh, originFh;
+    private boolean isFlipped;
+    private boolean isHidden;
+    private int foothold, originFoothold;
     private int cy;
     private int rx0;
     private int rx1;
@@ -38,41 +38,41 @@ public abstract class AbstractLoadedGameLife extends AbstractAnimatedGameMapObje
 
     public AbstractLoadedGameLife(AbstractLoadedGameLife life) {
 	this(life.getId());
-	this.f = life.f;
-	this.hide = life.hide;
-	this.fh = life.fh;
-	this.originFh = life.fh;
+	this.isFlipped = life.isFlipped;
+	this.isHidden = life.isHidden;
+	this.foothold = life.foothold;
+	this.originFoothold = life.foothold;
 	this.cy = life.cy;
 	this.rx0 = life.rx0;
 	this.rx1 = life.rx1;
     }
 
-    public int getF() {
-	return f;
+    public boolean isFlipped() {
+	return isFlipped;
     }
 
-    public void setF(int f) {
-	this.f = f;
+    public void setFlipped(boolean flipped) {
+	this.isFlipped = flipped;
     }
 
     public boolean isHidden() {
-	return hide;
+	return isHidden;
     }
 
-    public void setHide(boolean hide) {
-	this.hide = hide;
+    public void setHidden(boolean hide) {
+	this.isHidden = hide;
     }
 
-    public int originFh() {
-	return originFh;
+    public int getOriginFoothold() {
+	return originFoothold;
     }
 
-    public int getFh() {
-	return fh;
+    public int getFoothold() {
+	return foothold;
     }
 
-    public void setFh(int fh) {
-	this.fh = fh;
+    public void setFoothold(int fh) {
+	this.foothold = fh;
     }
 
     public int getCy() {

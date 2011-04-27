@@ -17,7 +17,7 @@ import client.Equip;
 import client.IEquip;
 import client.IItem;
 import client.Item;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.InventoryType;
 import org.javastory.client.ItemType;
 import com.google.common.collect.Maps;
@@ -39,7 +39,7 @@ public class Storage implements Serializable {
     private Storage(int id, byte slots, int meso) {
         this.id = id;
         this.slots = slots;
-        this.items = new LinkedList<IItem>();
+        this.items = new LinkedList<>();
         this.meso = meso;
     }
 
@@ -214,7 +214,7 @@ public class Storage implements Serializable {
         hasChanged = true;
         IItem ret = items.remove(slot);
         InventoryType type = GameConstants.getInventoryType(ret.getItemId());
-        typeItems.put(type, new ArrayList<IItem>(filterItems(type)));
+        typeItems.put(type, new ArrayList<>(filterItems(type)));
         return ret;
     }
 
@@ -222,7 +222,7 @@ public class Storage implements Serializable {
         hasChanged = true;
         items.add(item);
         InventoryType type = GameConstants.getInventoryType(item.getItemId());
-        typeItems.put(type, new ArrayList<IItem>(filterItems(type)));
+        typeItems.put(type, new ArrayList<>(filterItems(type)));
     }
 
     public List<IItem> getItems() {
@@ -230,7 +230,7 @@ public class Storage implements Serializable {
     }
 
     private List<IItem> filterItems(InventoryType type) {
-        List<IItem> ret = new LinkedList<IItem>();
+        List<IItem> ret = new LinkedList<>();
 
         for (IItem item : items) {
             if (GameConstants.getInventoryType(item.getItemId()) == type) {
@@ -269,7 +269,7 @@ public class Storage implements Serializable {
             }
         });
         for (InventoryType type : InventoryType.values()) {
-            typeItems.put(type, new ArrayList<IItem>(items));
+            typeItems.put(type, new ArrayList<>(items));
         }
         c.write(MaplePacketCreator.getStorage(npcId, slots, items, meso));
     }

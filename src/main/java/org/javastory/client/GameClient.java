@@ -1,8 +1,5 @@
 package org.javastory.client;
 
-import client.ChannelClient;
-import client.ChannelCharacter;
-import client.GameCharacterUtil;
 import database.DatabaseConnection;
 import handling.GamePacket;
 import java.io.Serializable;
@@ -19,27 +16,28 @@ import tools.packet.LoginPacket;
  *
  * @author Tosho
  */
-public abstract class GameClient implements Serializable {
+public abstract class GameClient {
 
     public static final String CLIENT_KEY = "CLIENT";
     private static final long serialVersionUID = 9179541993413738569L;
-    private int accountId = 1;
+    private int accountId = -1;
     private String accountName;
-    private transient AesTransform clientCrypto;
-    private transient AesTransform serverCrypto;
-    private transient IoSession session;
     private transient long lastPong;
     private transient ScheduledFuture<?> idleTask = null;
-    private int channelId = 1;
-    private int worldId;
-    private int characterId;
+    private int channelId, worldId;
     protected boolean loggedIn;
+    //
+    private final transient AesTransform clientCrypto;
+    private final transient AesTransform serverCrypto;
+    private final transient IoSession session;
+    private final transient String ip;
 
     public GameClient(AesTransform clientCrypto, AesTransform serverCrypto,
             IoSession session) {
         this.clientCrypto = clientCrypto;
         this.serverCrypto = serverCrypto;
         this.session = session;
+        ip = session.getRemoteAddress().toString().split(":")[0];
     }
 
     public void disconnect() {
@@ -65,7 +63,7 @@ public abstract class GameClient implements Serializable {
     }
 
     public final String getSessionIP() {
-        return session.getRemoteAddress().toString().split(":")[0];
+        return ip;
     }
 
     public void setAccountId(int id) {
@@ -82,10 +80,6 @@ public abstract class GameClient implements Serializable {
 
     protected IoSession getSession() {
         return session;
-    }
-
-    protected void setSession(IoSession session) {
-        this.session = session;
     }
 
     public final long getLastPong() {

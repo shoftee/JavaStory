@@ -1,23 +1,23 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-                       Matthias Butz <matze@odinms.de>
-                       Jan Christian Meyer <vimes@odinms.de>
+This file is part of the OdinMS Maple Story Server
+Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
+Matthias Butz <matze@odinms.de>
+Jan Christian Meyer <vimes@odinms.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License version 3
-    as published by the Free Software Foundation. You may not use, modify
-    or distribute this program under any other version of the
-    GNU Affero General Public License.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation. You may not use, modify
+or distribute this program under any other version of the
+GNU Affero General Public License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package handling.world;
 
 import java.io.Externalizable;
@@ -27,324 +27,330 @@ import java.io.ObjectOutput;
 import java.util.Map;
 
 import client.Mount;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.QuestStatus;
 import client.ISkill;
 import client.SkillEntry;
 import client.BuddyListEntry;
-import client.CharacterNameAndId;
+import client.KeyLayout;
+import client.MonsterBook;
+import client.SimpleCharacterInfo;
+import client.SkillMacro;
 import com.google.common.collect.Maps;
 import org.javastory.client.MemberRank;
-import server.quest.Quest;
+import org.javastory.client.MultiInventory;
+import server.Storage;
 
 public class CharacterTransfer implements Externalizable {
 
-    public int characterid, accountid, fame, str, dex, int_, luk, maxhp, maxmp, hp, mp, exp, hpApUsed, mpApUsed,
-	    remainingAp, meso, skinColor, job, hair, face, mapId,
-	    initialSpawnPoint, worldId, rank, rankMove, jobRank, jobRankMove, guildId,
-	    buddyListCapacity, partyId, messengerId, messengerPosition, monsterBookCover, dojo, ACash, vpoints, MaplePoints,
-	    mount_level, mount_itemid, mount_Fatigue, mount_exp, reborns, subcategory;
-    public byte channel, dojoRecord, gender, gmLevel;
-    public MemberRank guildRank, unionRank;
-	public boolean ondmg, callgm;
-    public long lastFameTime, TranferTime;
-    public String name, accountname, blessOfFairy;
-    public short level;
-    public Object monsterbook, inventorys, skillmacro, keyLayout, savedlocation, storage, rocks, wishlist, questInfo, remainingSp;
-    public final Map<CharacterNameAndId, Boolean> buddies = Maps.newLinkedHashMap();
-    public final Map<Integer, Object> quest = Maps.newLinkedHashMap(); // Questid instead of MapleQuest, as it's huge. Cant be transporting MapleQuest.java
-    public final Map<Integer, Object> skills = Maps.newLinkedHashMap(); // Skillid instead of Skill.java, as it's huge. Cant be transporting Skill.java and MapleStatEffect.java
-  
+    public int CharacterId, AccountId, Fame, STR, DEX, INT, LUK, MaxHP, MaxMP, HP, MP, Exp, hpApUsed, mpApUsed,
+            RemainingAP, Meso, SkinColorId, JobId, HairId, FaceId, MapId,
+            InitialSpawnPoint, WorldId, Rank, RankMove, JobRank, JobRankMove, GuildId,
+            BuddyListCapacity, PartyId, MessengerId, MessengerPosition, MonsterBookCover, Dojo, RebornCount, Subcategory;
+    public int ACash, vpoints, MaplePoints;
+    public int MountLevel, MountItemId, MountFatigue, MountExp;
+    public byte ChannelId, DojoRecord, Gender, GmLevel;
+    public MemberRank GuildRank, GuildUnionRank;
+    public boolean ondmg, callgm;
+    public long LastFameTime, TranferTime;
+    public String CharacterName, AccountName, BlessOfFairy;
+    public short Level;
+    public MonsterBook MonsterBook;
+    public MultiInventory Inventories;
+    public SkillMacro[] SkillMacros;
+    public KeyLayout KeyLayout;
+    public int[] SavedLocations;
+    public Storage Storage;
+    public int[] TeleportRocks;
+    public int[] Wishlist;
+    public int[] RemainingSP;
+    public Map<Integer, String> QuestInfoEntries;
+    public final Map<SimpleCharacterInfo, Boolean> BuddyListEntries = Maps.newLinkedHashMap();
+    public final Map<Integer, QuestStatus> Quests = Maps.newLinkedHashMap();
+    public final Map<Integer, SkillEntry> Skills = Maps.newLinkedHashMap();
 
     public CharacterTransfer() {
     }
 
     public CharacterTransfer(final ChannelCharacter chr) {
-	this.characterid = chr.getId();
-	this.accountid = chr.getAccountId();
-	this.accountname = chr.getClient().getAccountName();
-	this.channel = (byte) chr.getClient().getChannelId();
-	this.ACash = chr.getCSPoints(1);
+        this.CharacterId = chr.getId();
+        this.AccountId = chr.getAccountId();
+        this.AccountName = chr.getClient().getAccountName();
+        this.ChannelId = (byte) chr.getClient().getChannelId();
+        this.ACash = chr.getCSPoints(1);
         this.vpoints = chr.getVPoints();
-        this.vpoints = chr.getVPoints();
-	this.MaplePoints = chr.getCSPoints(2);
-	this.name = chr.getName();
-	this.fame = chr.getFame();
-	this.gender = (byte) chr.getGender();
-	this.level = chr.getLevel();
-	this.str = chr.getStats().getStr();
-	this.dex = chr.getStats().getDex();
-	this.int_ = chr.getStats().getInt();
-	this.luk = chr.getStats().getLuk();
-	this.hp = chr.getStats().getHp();
-	this.mp = chr.getStats().getMp();
-	this.maxhp = chr.getStats().getMaxHp();
-	this.maxmp = chr.getStats().getMaxMp();
-	this.exp = chr.getExp();
-	this.hpApUsed = chr.getHpApUsed();
-	this.mpApUsed = chr.getMpApUsed();
-	this.remainingAp = chr.getRemainingAp();
-	this.remainingSp = chr.getRemainingSps();
-	this.meso = chr.getMeso();
-	this.skinColor = chr.getSkinColorId();
-	this.job = chr.getJobId();
-	this.hair = chr.getHairId();
-	this.face = chr.getFaceId();
-	this.mapId = chr.getMapId();
-	this.initialSpawnPoint = chr.getInitialSpawnPoint();
-	this.worldId = chr.getWorldId();
-	this.rank = chr.getRank();
-	this.rankMove = chr.getRankMove();
-	this.jobRank = (byte) chr.getJobRank();
-	this.jobRankMove = chr.getJobRankMove();
-	this.guildId = chr.getGuildId();
-	this.guildRank = chr.getGuildRank();
-	this.unionRank = chr.getGuildUnionRank();
-	this.gmLevel = (byte) chr.getGmLevel();
-	this.subcategory = chr.getSubcategory();
-	this.ondmg = chr.isOnDMG();
-	this.callgm = chr.isCallGM();
-        
-	for (final BuddyListEntry qs : chr.getBuddylist().getBuddies()) {
-	    this.buddies.put(new CharacterNameAndId(qs.getCharacterId(), qs.getName(), qs.getLevel(), qs.getJob()), qs.isVisible());
-	}
-	this.buddyListCapacity = chr.getBuddyCapacity();
+        this.MaplePoints = chr.getCSPoints(2);
+        this.CharacterName = chr.getName();
+        this.Fame = chr.getFame();
+        this.Gender = (byte) chr.getGender();
+        this.Level = chr.getLevel();
+        this.STR = chr.getStats().getStr();
+        this.DEX = chr.getStats().getDex();
+        this.INT = chr.getStats().getInt();
+        this.LUK = chr.getStats().getLuk();
+        this.HP = chr.getStats().getHp();
+        this.MP = chr.getStats().getMp();
+        this.MaxHP = chr.getStats().getMaxHp();
+        this.MaxMP = chr.getStats().getMaxMp();
+        this.Exp = chr.getExp();
+        this.hpApUsed = chr.getHpApUsed();
+        this.mpApUsed = chr.getMpApUsed();
+        this.RemainingAP = chr.getRemainingAp();
+        this.RemainingSP = chr.getRemainingSps();
+        this.Meso = chr.getMeso();
+        this.SkinColorId = chr.getSkinColorId();
+        this.JobId = chr.getJobId();
+        this.HairId = chr.getHairId();
+        this.FaceId = chr.getFaceId();
+        this.MapId = chr.getMapId();
+        this.InitialSpawnPoint = chr.getInitialSpawnPoint();
+        this.WorldId = chr.getWorldId();
+        this.Rank = chr.getRank();
+        this.RankMove = chr.getRankMove();
+        this.JobRank = (byte) chr.getJobRank();
+        this.JobRankMove = chr.getJobRankMove();
+        this.GuildId = chr.getGuildId();
+        this.GuildRank = chr.getGuildRank();
+        this.GuildUnionRank = chr.getGuildUnionRank();
+        this.GmLevel = (byte) chr.getGmLevel();
+        this.Subcategory = chr.getSubcategory();
+        this.ondmg = chr.isOnDMG();
+        this.callgm = chr.isCallGM();
 
-	this.partyId = chr.getPartyId();
+        for (final BuddyListEntry qs : chr.getBuddylist().getBuddies()) {
+            this.BuddyListEntries.put(new SimpleCharacterInfo(qs.getCharacterId(), qs.getName(), qs.getLevel(), qs.getJob()), qs.isVisible());
+        }
+        this.BuddyListCapacity = chr.getBuddyCapacity();
 
-	if (chr.getMessenger() != null) {
-	    this.messengerId = chr.getMessenger().getId();
-	    this.messengerPosition = chr.getMessengerPosition();
-	} else {
-	    this.messengerId = 0;
-	    this.messengerPosition = 4;
-	}
+        this.PartyId = chr.getPartyId();
 
-	this.monsterBookCover = chr.getMonsterBookCover();
-	this.dojo = chr.getDojo();
-	this.dojoRecord = (byte) chr.getDojoRecord();
-        this.reborns = chr.getReborns();
-	this.questInfo = chr.getInfoQuest_Map();
+        if (chr.getMessenger() != null) {
+            this.MessengerId = chr.getMessenger().getId();
+            this.MessengerPosition = chr.getMessengerPosition();
+        } else {
+            this.MessengerId = 0;
+            this.MessengerPosition = 4;
+        }
 
-	for (final Map.Entry<Quest, QuestStatus> qs : chr.getQuest_Map().entrySet()) {
-	    this.quest.put(qs.getKey().getId(), qs.getValue());
-	}
+        this.MonsterBookCover = chr.getMonsterBookCover();
+        this.MonsterBook = chr.getMonsterBook();
+        this.Dojo = chr.getDojo();
+        this.DojoRecord = (byte) chr.getDojoRecord();
+        this.RebornCount = chr.getReborns();
+        this.QuestInfoEntries = chr.getQuestInfoMap();
 
-	this.monsterbook = chr.getMonsterBook();
-	this.inventorys = chr.getInventories();
+        for (final Map.Entry<Integer, QuestStatus> qs : chr.getQuestStatusMap().entrySet()) {
+            this.Quests.put(qs.getKey(), qs.getValue());
+        }
 
-	for (final Map.Entry<ISkill, SkillEntry> qs : chr.getSkills().entrySet()) {
-	    this.skills.put(qs.getKey().getId(), qs.getValue());
-	}
+        this.Inventories = chr.getInventories();
 
-	this.blessOfFairy = chr.getBlessOfFairyOrigin();
-	this.skillmacro = chr.getMacros();
-	this.keyLayout = chr.getKeyLayout();
-	this.savedlocation = chr.getSavedLocations();
-	this.lastFameTime = chr.getLastFameTime();
-	this.storage = chr.getStorage();
-	this.rocks = chr.getRocks();
-	this.wishlist = chr.getWishlist();
+        for (final Map.Entry<ISkill, SkillEntry> qs : chr.getSkills().entrySet()) {
+            this.Skills.put(qs.getKey().getId(), qs.getValue());
+        }
 
-	final Mount mount = chr.getMount();
-	this.mount_itemid = mount.getItemId();
-	this.mount_Fatigue = mount.getFatigue();
-	this.mount_level = mount.getLevel();
-	this.mount_exp = mount.getExp();
+        this.BlessOfFairy = chr.getBlessOfFairyOrigin();
+        this.SkillMacros = chr.getMacros();
+        this.KeyLayout = chr.getKeyLayout();
+        this.SavedLocations = chr.getSavedLocations();
+        this.LastFameTime = chr.getLastFameTime();
+        this.Storage = chr.getStorage();
+        this.TeleportRocks = chr.getRocks();
+        this.Wishlist = chr.getWishlist();
+
+        final Mount mount = chr.getMount();
+        this.MountItemId = mount.getItemId();
+        this.MountFatigue = mount.getFatigue();
+        this.MountLevel = mount.getLevel();
+        this.MountExp = mount.getExp();
     }
 
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
-	this.characterid = in.readInt();
-	this.accountid = in.readInt();
-	this.accountname = (String) in.readObject();
-	this.channel = in.readByte();
-	this.ACash = in.readInt();
+        this.CharacterId = in.readInt();
+        this.AccountId = in.readInt();
+        this.AccountName = (String) in.readObject();
+        this.ChannelId = in.readByte();
+        this.ACash = in.readInt();
         this.vpoints = in.readInt();
-	this.MaplePoints = in.readInt();
-	this.name = (String) in.readObject();
-	this.fame = in.readInt();
-	this.gender = in.readByte();
-	this.level = in.readShort();
-	this.str = in.readInt();
-	this.dex = in.readInt();
-	this.int_ = in.readInt();
-	this.luk = in.readInt();
-	this.hp = in.readInt();
-	this.mp = in.readInt();
-	this.maxhp = in.readInt();
-	this.maxmp = in.readInt();
-	this.exp = in.readInt();
-	this.hpApUsed = in.readInt();
-	this.mpApUsed = in.readInt();
-	this.remainingAp = in.readInt();
-	this.remainingSp = in.readObject();
-	this.meso = in.readInt();
-	this.skinColor = in.readInt();
-	this.job = in.readInt();
-	this.hair = in.readInt();
-	this.face = in.readInt();
-	this.mapId = in.readInt();
-	this.initialSpawnPoint = in.readByte();
-	this.worldId = in.readByte();
-	this.rank = in.readInt();
-	this.rankMove = in.readInt();
-	this.jobRank = in.readInt();
-	this.jobRankMove = in.readInt();
-	this.guildId = in.readInt();
-	this.guildRank = MemberRank.fromNumber(in.readByte());
-	this.unionRank = MemberRank.fromNumber(in.readByte());
-	this.gmLevel = in.readByte();
-        
+        this.MaplePoints = in.readInt();
+        this.CharacterName = (String) in.readObject();
+        this.Fame = in.readInt();
+        this.Gender = in.readByte();
+        this.Level = in.readShort();
+        this.STR = in.readInt();
+        this.DEX = in.readInt();
+        this.INT = in.readInt();
+        this.LUK = in.readInt();
+        this.HP = in.readInt();
+        this.MP = in.readInt();
+        this.MaxHP = in.readInt();
+        this.MaxMP = in.readInt();
+        this.Exp = in.readInt();
+        this.hpApUsed = in.readInt();
+        this.mpApUsed = in.readInt();
+        this.RemainingAP = in.readInt();
+        this.RemainingSP = (int[]) in.readObject();
+        this.Meso = in.readInt();
+        this.SkinColorId = in.readInt();
+        this.JobId = in.readInt();
+        this.HairId = in.readInt();
+        this.FaceId = in.readInt();
+        this.MapId = in.readInt();
+        this.InitialSpawnPoint = in.readByte();
+        this.WorldId = in.readByte();
+        this.Rank = in.readInt();
+        this.RankMove = in.readInt();
+        this.JobRank = in.readInt();
+        this.JobRankMove = in.readInt();
+        this.GuildId = in.readInt();
+        this.GuildRank = MemberRank.fromNumber(in.readByte());
+        this.GuildUnionRank = MemberRank.fromNumber(in.readByte());
+        this.GmLevel = in.readByte();
 
-	this.blessOfFairy = (String) in.readObject();
+        this.BlessOfFairy = (String) in.readObject();
 
-	this.skillmacro = in.readObject();
-	this.keyLayout = in.readObject();
-	this.savedlocation = in.readObject();
-	this.lastFameTime = in.readLong();
-	this.storage = in.readObject();
-	this.rocks = in.readObject();
-	this.wishlist = in.readObject();
-	this.mount_itemid = in.readInt();
-	this.mount_Fatigue = in.readInt();
-	this.mount_level = in.readInt();
-	this.mount_exp = in.readInt();
-	this.partyId = in.readInt();
-	this.messengerId = in.readInt();
-	this.messengerPosition = in.readInt();
-	this.monsterBookCover = in.readInt();
-	this.dojo = in.readInt();
-	this.dojoRecord = in.readByte();
-        this.reborns = in.readInt();
-	this.monsterbook = in.readObject();
-	this.inventorys = in.readObject();
-	this.questInfo = in.readObject();
+        this.SkillMacros = (SkillMacro[]) in.readObject();
+        this.KeyLayout = (KeyLayout) in.readObject();
+        this.SavedLocations = (int[]) in.readObject();
+        this.LastFameTime = in.readLong();
+        this.Storage = (Storage) in.readObject();
+        this.TeleportRocks = (int[]) in.readObject();
+        this.Wishlist = (int[]) in.readObject();
+        this.MountItemId = in.readInt();
+        this.MountFatigue = in.readInt();
+        this.MountLevel = in.readInt();
+        this.MountExp = in.readInt();
+        this.PartyId = in.readInt();
+        this.MessengerId = in.readInt();
+        this.MessengerPosition = in.readInt();
+        this.MonsterBookCover = in.readInt();
+        this.Dojo = in.readInt();
+        this.DojoRecord = in.readByte();
+        this.RebornCount = in.readInt();
+        this.MonsterBook = (MonsterBook) in.readObject();
+        this.Inventories = (MultiInventory) in.readObject();
+        this.QuestInfoEntries = (Map<Integer, String>) in.readObject();
 
-	final int skillsize = in.readShort();
-	int skillid;
-	Object skill; // SkillEntry
-	for (int i = 0; i < skillsize; i++) {
-	    skillid = in.readInt();
-	    skill = in.readObject();
-	    this.skills.put(skillid, skill);
-	}
+        final int skillEntryCount = in.readShort();
+        int skillId;
+        SkillEntry entry; // SkillEntry
+        for (int i = 0; i < skillEntryCount; i++) {
+            skillId = in.readInt();
+            entry = (SkillEntry) in.readObject();
+            this.Skills.put(skillId, entry);
+        }
 
-	this.buddyListCapacity = in.readShort();
-	final short addedbuddysize = in.readShort();
-	for (int i = 0; i < addedbuddysize; i++) {
-	    buddies.put(new CharacterNameAndId(in.readInt(), in.readUTF(), in.readInt(), in.readInt()), in.readBoolean());
-	}
+        this.BuddyListCapacity = in.readShort();
+        final short buddyEntrySize = in.readShort();
+        for (int i = 0; i < buddyEntrySize; i++) {
+            BuddyListEntries.put(new SimpleCharacterInfo(in.readInt(), in.readUTF(), in.readInt(), in.readInt()), in.readBoolean());
+        }
 
-	final int questsize = in.readShort();
-	int quest;
-	Object queststatus;
-	for (int i = 0; i < questsize; i++) {
-	    quest = in.readInt();
-	    queststatus = in.readObject();
-	    this.quest.put(quest, queststatus);
-	}
-	this.ondmg = in.readByte() == 1;
-	this.callgm = in.readByte() == 1;
-	TranferTime = System.currentTimeMillis();
+        final int questStatusEntryCount = in.readShort();
+        int questId;
+        QuestStatus questStatus;
+        for (int i = 0; i < questStatusEntryCount; i++) {
+            questId = in.readInt();
+            questStatus = (QuestStatus) in.readObject();
+            this.Quests.put(questId, questStatus);
+        }
+        this.ondmg = in.readByte() == 1;
+        this.callgm = in.readByte() == 1;
+        TranferTime = System.currentTimeMillis();
     }
 
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
-	out.writeInt(this.characterid);
-	out.writeInt(this.accountid);
-	out.writeObject(this.accountname);
-	out.write(this.channel);
-	out.writeInt(this.ACash);
+        out.writeInt(this.CharacterId);
+        out.writeInt(this.AccountId);
+        out.writeObject(this.AccountName);
+        out.write(this.ChannelId);
+        out.writeInt(this.ACash);
         out.writeInt(this.vpoints);
-	out.writeInt(this.MaplePoints);
-	out.writeObject(this.name);
-	out.writeInt(this.fame);
-	out.write(this.gender);
-	out.writeShort(this.level);
-	out.writeInt(this.str);
-	out.writeInt(this.dex);
-	out.writeInt(this.int_);
-	out.writeInt(this.luk);
-	out.writeInt(this.hp);
-	out.writeInt(this.mp);
-	out.writeInt(this.maxhp);
-	out.writeInt(this.maxmp);
-	out.writeInt(this.exp);
-	out.writeInt(this.hpApUsed);
-	out.writeInt(this.mpApUsed);
-	out.writeInt(this.remainingAp);
-	out.writeObject(this.remainingSp);
-	out.writeInt(this.meso);
-	out.writeInt(this.skinColor);
-	out.writeInt(this.job);
-	out.writeInt(this.hair);
-	out.writeInt(this.face);
-	out.writeInt(this.mapId);
-	out.write(this.initialSpawnPoint);
-	out.write(this.worldId);
-	out.writeInt(this.rank);
-	out.writeInt(this.rankMove);
-	out.writeInt(this.jobRank);
-	out.writeInt(this.jobRankMove);
-	out.writeInt(this.guildId);
-	out.write(this.guildRank.asNumber());
-	out.write(this.unionRank.asNumber());
-	out.write(this.gmLevel);
-        
-	out.writeObject(this.blessOfFairy);
+        out.writeInt(this.MaplePoints);
+        out.writeObject(this.CharacterName);
+        out.writeInt(this.Fame);
+        out.write(this.Gender);
+        out.writeShort(this.Level);
+        out.writeInt(this.STR);
+        out.writeInt(this.DEX);
+        out.writeInt(this.INT);
+        out.writeInt(this.LUK);
+        out.writeInt(this.HP);
+        out.writeInt(this.MP);
+        out.writeInt(this.MaxHP);
+        out.writeInt(this.MaxMP);
+        out.writeInt(this.Exp);
+        out.writeInt(this.hpApUsed);
+        out.writeInt(this.mpApUsed);
+        out.writeInt(this.RemainingAP);
+        out.writeObject(this.RemainingSP);
+        out.writeInt(this.Meso);
+        out.writeInt(this.SkinColorId);
+        out.writeInt(this.JobId);
+        out.writeInt(this.HairId);
+        out.writeInt(this.FaceId);
+        out.writeInt(this.MapId);
+        out.write(this.InitialSpawnPoint);
+        out.write(this.WorldId);
+        out.writeInt(this.Rank);
+        out.writeInt(this.RankMove);
+        out.writeInt(this.JobRank);
+        out.writeInt(this.JobRankMove);
+        out.writeInt(this.GuildId);
+        out.write(this.GuildRank.asNumber());
+        out.write(this.GuildUnionRank.asNumber());
+        out.write(this.GmLevel);
 
-	out.writeObject(this.skillmacro);
-	out.writeObject(this.keyLayout);
-	out.writeObject(this.savedlocation);
-	out.writeLong(this.lastFameTime);
-	out.writeObject(this.storage);
-	out.writeObject(this.rocks);
-	out.writeObject(this.wishlist);
-	out.writeInt(this.mount_itemid);
-	out.writeInt(this.mount_Fatigue);
-	out.writeInt(this.mount_level);
-	out.writeInt(this.mount_exp);
-	out.writeInt(this.partyId);
-	out.writeInt(this.messengerId);
-	out.writeInt(this.messengerPosition);
-	out.writeInt(this.monsterBookCover);
-	out.writeInt(this.dojo);
-	out.write(this.dojoRecord);
-        out.writeInt(this.reborns);
-	out.writeObject(this.monsterbook);
-	out.writeObject(this.inventorys);
-	out.writeObject(this.questInfo);
+        out.writeObject(this.BlessOfFairy);
 
-	out.writeShort(this.skills.size());
-	for (final Map.Entry<Integer, Object> qs : this.skills.entrySet()) {
-	    out.writeInt(qs.getKey()); // Questid instead of Skill, as it's huge :(
-	    out.writeObject(qs.getValue());
-	    // Bless of fairy is transported here too.
-	}
+        out.writeObject(this.SkillMacros);
+        out.writeObject(this.KeyLayout);
+        out.writeObject(this.SavedLocations);
+        out.writeLong(this.LastFameTime);
+        out.writeObject(this.Storage);
+        out.writeObject(this.TeleportRocks);
+        out.writeObject(this.Wishlist);
+        out.writeInt(this.MountItemId);
+        out.writeInt(this.MountFatigue);
+        out.writeInt(this.MountLevel);
+        out.writeInt(this.MountExp);
+        out.writeInt(this.PartyId);
+        out.writeInt(this.MessengerId);
+        out.writeInt(this.MessengerPosition);
+        out.writeInt(this.MonsterBookCover);
+        out.writeInt(this.Dojo);
+        out.write(this.DojoRecord);
+        out.writeInt(this.RebornCount);
+        out.writeObject(this.MonsterBook);
+        out.writeObject(this.Inventories);
+        out.writeObject(this.QuestInfoEntries);
 
-	out.writeShort(this.buddyListCapacity);
-	out.writeShort(this.buddies.size());
-	for (final Map.Entry<CharacterNameAndId, Boolean> qs : this.buddies.entrySet()) {
+        out.writeShort(this.Skills.size());
+        for (final Map.Entry<Integer, SkillEntry> qs : this.Skills.entrySet()) {
+            // Bless of fairy is transported here too.
+            out.writeInt(qs.getKey());
+            out.writeObject(qs.getValue());
+        }
 
-	    out.writeInt(qs.getKey().getId());
-
-	    out.writeUTF(qs.getKey().getName());
-
+        out.writeShort(this.BuddyListCapacity);
+        out.writeShort(this.BuddyListEntries.size());
+        for (final Map.Entry<SimpleCharacterInfo, Boolean> qs : this.BuddyListEntries.entrySet()) {
+            out.writeInt(qs.getKey().getId());
+            out.writeUTF(qs.getKey().getName());
             out.writeInt(qs.getKey().getLevel());
-
             out.writeInt(qs.getKey().getJob());
+            out.writeBoolean(qs.getValue());
+        }
 
-	    out.writeBoolean(qs.getValue());
-	}
-	
-	out.writeShort(this.quest.size());
-	for (final Map.Entry<Integer, Object> qs : this.quest.entrySet()) {
-	    out.writeInt(qs.getKey()); // Questid instead of MapleQuest, as it's huge :(
-	    out.writeObject(qs.getValue());
-	}
+        out.writeShort(this.Quests.size());
+        for (final Map.Entry<Integer, QuestStatus> qs : this.Quests.entrySet()) {
+            out.writeInt(qs.getKey());
+            out.writeObject(qs.getValue());
+        }
 
-	out.writeByte(this.ondmg ? 1 : 0);
-	out.writeByte(this.callgm ? 1 : 0);
+        out.writeByte(this.ondmg ? 1 : 0);
+        out.writeByte(this.callgm ? 1 : 0);
     }
 }

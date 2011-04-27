@@ -12,8 +12,8 @@ import client.ISkill;
 import client.GameConstants;
 import client.Ring;
 import client.Pet;
-import client.ChannelCharacter;
-import client.GameCharacter;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.GameCharacter;
 import client.Inventory;
 import client.QuestStatus;
 import client.IItem;
@@ -21,6 +21,7 @@ import org.javastory.client.ItemType;
 import client.SkillEntry;
 import com.google.common.collect.Lists;
 import handling.world.PlayerCooldownValueHolder;
+import org.javastory.game.Jobs;
 import server.movement.LifeMovementFragment;
 import tools.FiletimeUtil;
 import org.javastory.io.PacketBuilder;
@@ -45,14 +46,14 @@ public class PacketHelper {
         final List<QuestStatus> started = chr.getStartedQuests();
         builder.writeAsShort(started.size());
         for (final QuestStatus q : started) {
-            builder.writeAsShort(q.getQuest().getId());
+            builder.writeAsShort(q.getQuestId());
             builder.writeLengthPrefixedString(q.getCustomData() != null ? q.getCustomData() : "");
         }
         final List<QuestStatus> completed = chr.getCompletedQuests();
         long time;
         builder.writeAsShort(completed.size());
         for (final QuestStatus q : completed) {
-            builder.writeAsShort(q.getQuest().getId());
+            builder.writeAsShort(q.getQuestId());
             time = FiletimeUtil.getFiletime(q.getCompletionTime());
             builder.writeLong(time); // maybe start time? no effect.
         }
@@ -98,7 +99,7 @@ public class PacketHelper {
     }
 
     public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
-        List<Ring> rings = new ArrayList<Ring>();
+        List<Ring> rings = new ArrayList<>();
         final Inventory equipped = chr.getEquippedItemsInventory();
         for (final IItem item : equipped) {
             final IEquip equip = (IEquip) item;
@@ -209,7 +210,7 @@ public class PacketHelper {
         builder.writeAsShort(chr.getJobId()); // job
         chr.getStats().connectData(builder);
         builder.writeAsShort(chr.getRemainingAp()); // remaining ap
-        if (GameConstants.isEvan(chr.getJobId())) {
+        if (Jobs.isEvan(chr.getJobId())) {
             final int size = chr.getRemainingSpSize();
             builder.writeAsByte(size);
             for (int i = 0; i < chr.getRemainingSps().length; i++) {
@@ -237,8 +238,8 @@ public class PacketHelper {
         builder.writeAsByte(mega ? 0 : 1);
         builder.writeInt(chr.getHairId());
 
-        final Map<Byte, Integer> myEquip = new LinkedHashMap<Byte, Integer>();
-        final Map<Byte, Integer> maskedEquip = new LinkedHashMap<Byte, Integer>();
+        final Map<Byte, Integer> myEquip = new LinkedHashMap<>();
+        final Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
         Inventory equip = chr.getEquippedItemsInventory();
 
         // masking items

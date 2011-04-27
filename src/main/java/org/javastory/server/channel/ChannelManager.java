@@ -11,21 +11,10 @@ import java.util.logging.Logger;
 import org.javastory.server.ChannelInfo;
 import client.OdinSEA;
 import database.DatabaseConnection;
-import handling.ServerConstants;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.rmi.NotBoundException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import com.google.common.collect.Maps;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Collection;
-import java.util.Collections;
-import org.javastory.tools.PropertyUtil;
 
 /**
  *
@@ -49,7 +38,7 @@ public class ChannelManager {
             PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM `channel_config`");
             ResultSet rs = ps.executeQuery();
-            while (rs.getRow() != 0) {
+            while (rs.next()) {
                 int channelId = rs.getInt("channel_id");
                 String channelName = rs.getString("channel_name");
                 String channelHost = rs.getString("channel_host");
@@ -58,6 +47,8 @@ public class ChannelManager {
                         channelId, channelName, channelHost, channelPort);
                 configs.put(channelId, channelInfo);
             }
+            rs.close();
+            ps.close();
         } catch (SQLException ex) {
             Logger.getLogger(ChannelManager.class.getName()).log(Level.SEVERE, null, ex);
         }

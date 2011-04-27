@@ -3,9 +3,9 @@ package client.messages.commands;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import client.ChannelCharacter;
-import client.GameCharacterUtil;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.GameCharacterUtil;
+import org.javastory.client.ChannelClient;
 import client.messages.Command;
 import client.messages.CommandDefinition;
 import client.messages.IllegalCommandSyntaxException;

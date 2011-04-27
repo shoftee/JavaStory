@@ -20,24 +20,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import provider.WzData;
 import provider.WzDataProvider;
 import provider.WzDataProviderFactory;
 import provider.WzDataTool;
-import tools.Pair;
 
-public class PetDataFactory {
+public final class PetDataFactory {
 
-    private static WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") +
-            "/Item.wz"));
-    private static Map<Pair<Integer, Integer>, PetCommand> petCommands = new HashMap<Pair<Integer, Integer>, PetCommand>();
-    private static Map<Integer, Integer> petHunger = new HashMap<Integer, Integer>();
+    private static class PetCommandEntry {
+
+        public int pet;
+        public int skill;
+
+        public PetCommandEntry(int petId, int skillId) {
+            this.pet = petId;
+            this.skill = skillId;
+        }
+    }
+    private static WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider("Item.wz");
+    private static Map<PetCommandEntry, PetCommand> petCommands = new HashMap<>();
+    private static Map<Integer, Integer> petHunger = new HashMap<>();
+
+    private PetDataFactory() {
+    }
 
     public static PetCommand getPetCommand(final int petId, final int skillId) {
-        PetCommand ret = petCommands.get(new Pair<Integer, Integer>(Integer.valueOf(petId), Integer.valueOf(skillId)));
+        PetCommand ret = petCommands.get(new PetCommandEntry(petId, skillId));
         if (ret != null) {
             return ret;
         }
@@ -49,7 +59,7 @@ public class PetDataFactory {
             inc = WzDataTool.getInt("interact/" + skillId + "/inc", skillData, 0);
         }
         ret = new PetCommand(petId, skillId, prob, inc);
-        petCommands.put(new Pair<Integer, Integer>(Integer.valueOf(petId), Integer.valueOf(skillId)), ret);
+        petCommands.put(new PetCommandEntry(petId, skillId), ret);
 
         return ret;
     }

@@ -29,7 +29,7 @@ import client.Equip;
 import client.IItem;
 import client.Item;
 import client.GameConstants;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.InventoryType;
 import org.javastory.server.channel.ChannelManager;
 import server.ItemInfoProvider;
@@ -57,7 +57,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 
     public void dropItems(boolean meso, int mesoChance, int minMeso, int maxMeso, int minItems) {
 	final List<ReactorDropEntry> chances = ReactorScriptManager.getInstance().getDrops(reactor.getReactorId());
-	final List<ReactorDropEntry> items = new LinkedList<ReactorDropEntry>();
+	final List<ReactorDropEntry> items = new LinkedList<>();
 
 	if (meso) {
 	    if (Math.random() < (1 / (double) mesoChance)) {

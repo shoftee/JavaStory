@@ -2,8 +2,8 @@ package handling.channel.handler;
 
 import java.rmi.RemoteException;
 
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import client.messages.CommandProcessor;
 import handling.world.Messenger;
 import handling.world.MessengerMember;
@@ -16,7 +16,7 @@ import org.javastory.io.PacketReader;
 
 public class ChatHandler {
 
-    public static final void handleGeneralChat(final String text, final byte unk, final ChannelClient c, final ChannelCharacter chr) {
+    public static void handleGeneralChat(final String text, final byte unk, final ChannelClient c, final ChannelCharacter chr) {
         if (!CommandProcessor.getInstance().processCommand(c, text)) {
             if (!chr.isGM() && text.length() >= 80) {
                 return;
@@ -25,7 +25,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handlePartyChat(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handlePartyChat(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final int type = reader.readByte();
         final byte numRecipients = reader.readByte();
         int recipients[] = new int[numRecipients];
@@ -55,10 +55,11 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+    public static void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         String input;
         final WorldChannelInterface wci = ChannelManager.getInstance(c.getChannelId()).getWorldInterface();
-        Messenger messenger = c.getPlayer().getMessenger();
+        final ChannelCharacter player = c.getPlayer();
+        Messenger messenger = player.getMessenger();
 
         switch (reader.readByte()) {
             case 0x00: // open
@@ -66,10 +67,10 @@ public class ChatHandler {
                     int messengerid = reader.readInt();
                     if (messengerid == 0) { // create
                         try {
-                            final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                            final MessengerMember messengerplayer = new MessengerMember(player);
                             messenger = wci.createMessenger(messengerplayer);
-                            c.getPlayer().setMessenger(messenger);
-                            c.getPlayer().setMessengerPosition(0);
+                            player.setMessenger(messenger);
+                            player.setMessengerPosition(0);
                         } catch (RemoteException e) {
                             c.getChannelServer().pingWorld();
                         }
@@ -77,12 +78,12 @@ public class ChatHandler {
                         try {
                             messenger = wci.getMessenger(messengerid);
                             final int position = messenger.getLowestPosition();
-                            final MessengerMember messengerplayer = new MessengerMember(c.getPlayer(), position);
+                            final MessengerMember messengerplayer = new MessengerMember(player, position);
                             if (messenger != null) {
                                 if (messenger.getMembers().size() < 3) {
-                                    c.getPlayer().setMessenger(messenger);
-                                    c.getPlayer().setMessengerPosition(position);
-                                    wci.joinMessenger(messenger.getId(), messengerplayer, c.getPlayer().getName(), messengerplayer.getChannel());
+                                    player.setMessenger(messenger);
+                                    player.setMessengerPosition(position);
+                                    wci.joinMessenger(messenger.getId(), messengerplayer, player.getName(), messengerplayer.getChannel());
                                 }
                             }
                         } catch (RemoteException e) {
@@ -93,14 +94,14 @@ public class ChatHandler {
                 break;
             case 0x02: // exit
                 if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                    final MessengerMember messengerplayer = new MessengerMember(player);
                     try {
                         wci.leaveMessenger(messenger.getId(), messengerplayer);
                     } catch (RemoteException e) {
                         c.getChannelServer().pingWorld();
                     }
-                    c.getPlayer().setMessenger(null);
-                    c.getPlayer().setMessengerPosition(4);
+                    player.setMessenger(null);
+                    player.setMessengerPosition(4);
                 }
                 break;
             case 0x03: // invite
@@ -110,7 +111,7 @@ public class ChatHandler {
 
                     if (target != null) {
                         if (target.getMessenger() == null) {
-                            target.getClient().write(MaplePacketCreator.messengerInvite(c.getPlayer().getName(), messenger.getId()));
+                            target.getClient().write(MaplePacketCreator.messengerInvite(player.getName(), messenger.getId()));
 
                             if (!target.isGM()) {
                                 c.write(MaplePacketCreator.messengerNote(input, 4, 1));
@@ -118,14 +119,14 @@ public class ChatHandler {
                                 c.write(MaplePacketCreator.messengerNote(input, 4, 0));
                             }
                         } else {
-                            c.write(MaplePacketCreator.messengerChat(c.getPlayer().getName() +
+                            c.write(MaplePacketCreator.messengerChat(player.getName() +
                                     " : " + input +
                                     " is already using Maple Messenger"));
                         }
                     } else {
                         try {
                             if (wci.isConnected(input)) {
-                                wci.messengerInvite(c.getPlayer().getName(), messenger.getId(), input, c.getChannelId());
+                                wci.messengerInvite(player.getName(), messenger.getId(), input, c.getChannelId());
                             } else {
                                 c.write(MaplePacketCreator.messengerNote(input, 4, 0));
                             }
@@ -140,12 +141,12 @@ public class ChatHandler {
                 final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
-                        target.getClient().write(MaplePacketCreator.messengerNote(c.getPlayer().getName(), 5, 0));
+                        target.getClient().write(MaplePacketCreator.messengerNote(player.getName(), 5, 0));
                     }
                 } else { // Other channel
                     try {
-                        if (!c.getPlayer().isGM()) {
-                            wci.declineChat(targeted, c.getPlayer().getName());
+                        if (!player.isGM()) {
+                            wci.declineChat(targeted, player.getName());
                         }
                     } catch (RemoteException e) {
                         c.getChannelServer().pingWorld();
@@ -154,7 +155,7 @@ public class ChatHandler {
                 break;
             case 0x06: // message
                 if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(c.getPlayer());
+                    final MessengerMember messengerplayer = new MessengerMember(player);
                     input = reader.readLengthPrefixedString();
                     try {
                         wci.messengerChat(messenger.getId(), input, messengerplayer.getName());
@@ -166,7 +167,7 @@ public class ChatHandler {
         }
     }
 
-    public static final void handleWhisper(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+    public static void handleWhisper(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final byte mode = reader.readByte();
         reader.readInt();
         switch (mode) {

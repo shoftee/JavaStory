@@ -20,147 +20,158 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.io.Serializable;
+import java.sql.ResultSet;
+import org.javastory.quest.QuestInfoProvider;
+import org.javastory.quest.QuestInfoProvider.QuestInfo;
 
-import server.quest.Quest;
+public final class QuestStatus implements Serializable {
 
-public class QuestStatus implements Serializable {
-
+    private int questId;
     private static final long serialVersionUID = 91795419934134L;
-    private transient Quest quest;
-    private byte status;
+    private byte state;
     private Map<Integer, Integer> killedMobs = null;
-    private int npc;
+    private int npcId;
     private long completionTime;
     private int forfeited = 0;
-    private boolean custom;
     private String customData;
 
-    public QuestStatus(final Quest quest, final byte status) {
-        this.quest = quest;
-        this.custom = quest.getId() > 99999;
-        this.setStatus(status);
+    public QuestStatus(final int questId, final byte status) {
+        this.questId = questId;
+        this.state = status;
         this.completionTime = System.currentTimeMillis();
-        if (status == 1) { // Started
-            if (quest.getRelevantMobs().size() > 0) {
-                killedMobs = new LinkedHashMap<Integer, Integer>();
+        if (status == 1) {
+            if (getQuestInfo().getRelevantMobs().size() > 0) {
+                killedMobs = new LinkedHashMap<>();
                 registerMobs();
             }
         }
     }
 
-    public QuestStatus(final Quest quest, final byte status, final int npc) {
-        this.quest = quest;
-        this.custom = quest.getId() > 99999;
-        this.setStatus(status);
+    public QuestStatus(final int questId, final byte status, final int npc) {
+        this(questId, status);
         this.setNpc(npc);
-        this.completionTime = System.currentTimeMillis();
-        if (status == 1) { // Started
-            if (quest.getRelevantMobs().size() > 0) {
-                killedMobs = new LinkedHashMap<Integer, Integer>();
-                registerMobs();
-            }
+    }
+
+    public QuestStatus(ResultSet rs) throws SQLException {
+        this.state = rs.getByte("status");
+        this.questId = rs.getInt("quest");
+        final long timestamp = rs.getLong("time");
+        this.completionTime = timestamp;
+        if (timestamp > -1) {
+            completionTime *= 1000;
         }
+        this.forfeited = rs.getInt("forfeited");
+        this.customData = rs.getString("customData");
+    }
+    
+    private QuestInfo getQuestInfo() {
+        return QuestInfoProvider.getInfo(questId);
     }
 
-    public final Quest getQuest() {
-        return quest;
+    public int getQuestId() {
+        return questId;
     }
 
-    public final byte getStatus() {
-        return status;
+    public byte getState() {
+        return state;
     }
 
-    public final void setStatus(final byte status) {
-        this.status = status;
+    public void setState(final byte status) {
+        this.state = status;
     }
 
-    public final boolean isCustomQuest() {
-        return custom;
+    public int getNpc() {
+        return npcId;
     }
 
-    public final int getNpc() {
-        return npc;
-    }
-
-    public final void setNpc(final int npc) {
-        this.npc = npc;
+    public void setNpc(final int npc) {
+        this.npcId = npc;
     }
 
     private void registerMobs() {
-        for (final int i : quest.getRelevantMobs().keySet()) {
+        for (final int i : getQuestInfo().getRelevantMobs().keySet()) {
             killedMobs.put(i, 0);
         }
     }
 
-    private int maxMob(final int mobid) {
-        for (final Map.Entry<Integer, Integer> qs : quest.getRelevantMobs().entrySet()) {
-            if (qs.getKey() == mobid) {
+    private int maxMob(final int monsterId) {
+        for (final Map.Entry<Integer, Integer> qs : getQuestInfo().getRelevantMobs().entrySet()) {
+            if (qs.getKey() == monsterId) {
                 return qs.getValue();
             }
         }
         return 0;
     }
 
-    public final boolean mobKilled(final int id) {
-        final Integer mob = killedMobs.get(id);
+    public boolean mobKilled(final int monsterId) {
+        final Integer mob = killedMobs.get(monsterId);
         if (mob != null) {
-            killedMobs.put(id, Math.min(mob + 1, maxMob(id)));
+            killedMobs.put(monsterId, Math.min(mob + 1, maxMob(monsterId)));
             return true;
         }
         return false;
     }
 
-    public final void setMobKills(final int id, final int count) {
-        killedMobs.put(id, count);
+    public void setMobKills(final int monsterId, final int count) {
+        killedMobs.put(monsterId, count);
     }
 
-    public final boolean hasMobKills() {
+    public boolean hasMobKills() {
         if (killedMobs == null) {
             return false;
         }
         return killedMobs.size() > 0;
     }
 
-    public final int getMobKills(final int id) {
-        final Integer mob = killedMobs.get(id);
+    public int getMobKills(final int monsterId) {
+        final Integer mob = killedMobs.get(monsterId);
         if (mob == null) {
             return 0;
         }
         return mob;
     }
 
-    public final Map<Integer, Integer> getMobKills() {
+    public Map<Integer, Integer> getMobKills() {
         return killedMobs;
     }
 
-    public final long getCompletionTime() {
+    public long getCompletionTime() {
         return completionTime;
     }
 
-    public final void setCompletionTime(final long completionTime) {
-        this.completionTime = completionTime;
-    }
-
-    public final int getForfeited() {
+    public int getForfeited() {
         return forfeited;
     }
 
-    public final void setForfeited(final int forfeited) {
-        if (forfeited >= this.forfeited) {
-            this.forfeited = forfeited;
-        } else {
-            throw new IllegalArgumentException("Can't set forfeits to something lower than before.");
-        }
-    }
-
-    public final void setCustomData(final String customData) {
-        this.customData = customData;
-    }
-
-    public final String getCustomData() {
+    public String getCustomData() {
         return customData;
+    }
+    
+    public void setCustomData(String data) {
+        this.customData = data;
+    }
+
+    public void forfeit() {
+        if (state != (byte) 1) {
+            return;
+        }
+        forfeited++;
+        state = 0;
+    }
+
+    public void start(int npcId, String customData) {
+        this.state = 1;
+        this.customData = customData;
+        this.npcId = npcId;
+    }
+
+    public void complete(int npcId) {
+        this.state = 2;
+        this.completionTime = System.currentTimeMillis();
+        this.npcId = npcId;
     }
 }

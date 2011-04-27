@@ -1,11 +1,10 @@
 package handling.channel.handler;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 import client.BuddyListEntry;
-import client.CharacterNameAndId;
-import client.ChannelClient;
+import client.SimpleCharacterInfo;
+import org.javastory.client.ChannelClient;
 import client.QuestStatus;
 import client.BuffStat;
 import handling.world.CharacterTransfer;
@@ -25,9 +24,10 @@ import tools.MaplePacketCreator;
 import tools.packet.FamilyPacket;
 import org.javastory.io.PacketReader;
 import server.maps.GameMap;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.SkillFactory;
 import handling.world.remote.ServerStatus;
+import java.util.Collection;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import org.javastory.server.channel.PlayerStorage;
@@ -80,7 +80,7 @@ public class InterServerHandler {
         try {
             // Start of cooldown, buffs
             final WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
-            final List<PlayerBuffValueHolder> buffs = wci.getBuffsFromStorage(player.getId());
+            final Collection<PlayerBuffValueHolder> buffs = wci.getBuffsFromStorage(player.getId());
             if (buffs != null) {
                 player.silentGiveBuffs(buffs);
             }
@@ -131,7 +131,7 @@ public class InterServerHandler {
                 client.write(MaplePacketCreator.updateQuestMobKills(status));
             }
         }
-        final CharacterNameAndId pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
+        final SimpleCharacterInfo pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
             player.getBuddylist().put(new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
             client.write(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));

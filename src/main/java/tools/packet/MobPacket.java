@@ -125,7 +125,7 @@ public class MobPacket {
         builder.writeAsShort(life.getPosition().y);
         builder.writeAsByte(life.getStance());
         builder.writeAsShort(0); // FH
-        builder.writeAsShort(life.getFh()); // Origin FH
+        builder.writeAsShort(life.getFoothold()); // Origin FH
         if (effect != 0 || link != 0) {
             builder.writeAsByte(effect != 0 ? effect : -3);
             builder.writeInt(link);
@@ -158,7 +158,7 @@ public class MobPacket {
         builder.writeAsShort(life.getPosition().y);
         builder.writeAsByte(life.getStance()); // Bitfield
         builder.writeAsShort(0); // FH
-        builder.writeAsShort(life.getFh()); // Origin FH
+        builder.writeAsShort(life.getFoothold()); // Origin FH
         builder.writeAsByte(life.isFake() ? 0xfc : newSpawn ? -2 : -1);
         builder.writeByte(life.getCarnivalTeam());
         builder.writeInt(0);
@@ -200,7 +200,7 @@ public class MobPacket {
         builder.writeAsShort(life.getPosition().y);
         builder.writeAsByte(life.getStance());
         builder.writeAsShort(0); // FH
-        builder.writeAsShort(life.getFh()); // Origin FH
+        builder.writeAsShort(life.getFoothold()); // Origin FH
         builder.writeAsShort(-1);
         builder.writeInt(0);
 

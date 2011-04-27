@@ -13,7 +13,7 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 import client.BuddyList;
 import client.BuddyListEntry;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import database.DatabaseConnection;
@@ -26,7 +26,7 @@ import handling.world.MessengerMember;
 import handling.world.Party;
 import handling.world.PartyMember;
 import handling.world.PartyOperation;
-import handling.world.guild.GuildSummary;
+import handling.world.GuildSummary;
 import handling.world.remote.CheaterData;
 import org.javastory.client.MemberRank;
 import server.TimerManager;

@@ -1,26 +1,26 @@
 package handling.channel.handler;
 
-import client.GameConstants;
 import java.util.ArrayList;
 import java.util.List;
 
 import client.ISkill;
-import client.ChannelClient;
-import client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
 import client.Stat;
-import client.ActivePlayerStats;
+import org.javastory.client.ActivePlayerStats;
 import client.SkillFactory;
+import org.javastory.game.Skills;
 import org.javastory.io.PacketFormatException;
 import server.AutobanManager;
 import org.javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
-import tools.Pair;
 import org.javastory.io.PacketReader;
+import server.StatEffect.StatValue;
 
 public class StatsHandling {
 
-    public static final void handleDistributeAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
-        final List<Pair<Stat, Integer>> statupdate = new ArrayList<Pair<Stat, Integer>>(2);
+    public static void handleDistributeAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+        final List<StatValue> statupdate = new ArrayList<>(2);
         c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         reader.skip(4);
 
@@ -33,28 +33,28 @@ public class StatsHandling {
                         return;
                     }
                     stat.setStr(stat.getStr() + 1);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.STR, stat.getStr()));
+                    statupdate.add(new StatValue(Stat.STR, stat.getStr()));
                     break;
                 case 128: // Dex
                     if (stat.getDex() >= c.getPlayer().getMaxStats()) {
                         return;
                     }
                     stat.setDex(stat.getDex() + 1);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.DEX, stat.getDex()));
+                    statupdate.add(new StatValue(Stat.DEX, stat.getDex()));
                     break;
                 case 256: // Int
                     if (stat.getInt() >= c.getPlayer().getMaxStats()) {
                         return;
                     }
                     stat.setInt(stat.getInt() + 1);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.INT, stat.getInt()));
+                    statupdate.add(new StatValue(Stat.INT, stat.getInt()));
                     break;
                 case 512: // Luk
                     if (stat.getLuk() >= c.getPlayer().getMaxStats()) {
                         return;
                     }
                     stat.setLuk(stat.getLuk() + 1);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.LUK, stat.getLuk()));
+                    statupdate.add(new StatValue(Stat.LUK, stat.getLuk()));
                     break;
                 case 2048: // HP
                     int MaxHP = stat.getMaxHp();
@@ -94,7 +94,8 @@ public class StatsHandling {
                         }
                     } else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
                         MaxHP += Randomizer.rand(15, 21);
-                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
+                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) ||
+                            (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
                         MaxHP += Randomizer.rand(30, 36);
                     } else { // GameMaster
                         MaxHP += Randomizer.rand(50, 100);
@@ -102,7 +103,7 @@ public class StatsHandling {
                     MaxHP = Math.min(30000, MaxHP);
                     chr.setHpApUsed(chr.getHpApUsed() + 1);
                     stat.setMaxHp(MaxHP);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.MAX_HP, MaxHP));
+                    statupdate.add(new StatValue(Stat.MAX_HP, MaxHP));
                     break;
                 case 8192: // MP
                     int MaxMP = stat.getMaxMp();
@@ -117,7 +118,8 @@ public class StatsHandling {
                         ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
                         int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
                         if (improvingMaxMPLevel >= 1) {
-                            MaxMP += Randomizer.rand(18, 20) + improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
+                            MaxMP += Randomizer.rand(18, 20) +
+                                    improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
                         } else {
                             MaxMP += Randomizer.rand(18, 20);
                         }
@@ -136,7 +138,8 @@ public class StatsHandling {
                         if (improvingMaxMPLevel >= 1) {
                             MaxMP += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
                         }
-                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
+                    } else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) ||
+                            (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
                         MaxMP += Randomizer.rand(21, 24);
                     } else { // GameMaster
                         MaxMP += Randomizer.rand(50, 100);
@@ -144,19 +147,19 @@ public class StatsHandling {
                     MaxMP = Math.min(30000, MaxMP);
                     chr.setMpApUsed(chr.getMpApUsed() + 1);
                     stat.setMaxMp(MaxMP);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.MAX_MP, MaxMP));
+                    statupdate.add(new StatValue(Stat.MAX_MP, MaxMP));
                     break;
                 default:
                     c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - 1);
-            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
+            statupdate.add(new StatValue(Stat.AVAILABLE_AP, chr.getRemainingAp()));
             c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }
 
-    public static final void handleDistributeSkillPoints(final int skillid, final ChannelClient c, final ChannelCharacter chr) {
+    public static void handleDistributeSkillPoints(final int skillid, final ChannelClient c, final ChannelCharacter chr) {
         boolean isBeginnerSkill = false;
         int remainingSp = 0;
 
@@ -167,7 +170,8 @@ public class StatsHandling {
                 final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1000));
                 final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1001));
                 final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1002));
-                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel -
+                        recoveryLevel - nimbleFeetLevel;
                 isBeginnerSkill = true;
                 break;
             }
@@ -177,7 +181,8 @@ public class StatsHandling {
                 final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001000));
                 final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001001));
                 final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001002));
-                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel -
+                        recoveryLevel - nimbleFeetLevel;
                 isBeginnerSkill = true;
                 break;
             }
@@ -187,7 +192,8 @@ public class StatsHandling {
                 final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001000));
                 final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001001));
                 final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001002));
-                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel -
+                        recoveryLevel - nimbleFeetLevel;
                 isBeginnerSkill = true;
                 break;
             }
@@ -197,20 +203,23 @@ public class StatsHandling {
                 final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011000));
                 final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011001));
                 final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011002));
-                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+                remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel -
+                        recoveryLevel - nimbleFeetLevel;
                 isBeginnerSkill = true;
                 break;
             }
             default: {
-                remainingSp = chr.getRemainingSp(GameConstants.getSkillBookForSkill(skillid));
+                remainingSp = chr.getRemainingSp(Skills.getSkillbookForSkill(skillid));
                 break;
             }
         }
         final ISkill skill = SkillFactory.getSkill(skillid);
 
         if (skill.hasRequiredSkill()) {
-            if (chr.getCurrentSkillLevel(SkillFactory.getSkill(skill.getRequiredSkillId())) < skill.getRequiredSkillLevel()) {
-                AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill without the required skill (" + skillid + ")");
+            if (chr.getCurrentSkillLevel(SkillFactory.getSkill(skill.getRequiredSkillId())) <
+                    skill.getRequiredSkillLevel()) {
+                AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill without the required skill (" +
+                        skillid + ")");
                 return;
             }
         }
@@ -218,32 +227,36 @@ public class StatsHandling {
         final int curLevel = chr.getCurrentSkillLevel(skill);
 
         if (skill.isInvisible() && chr.getCurrentSkillLevel(skill) == 0) {
-            if ((skill.isFourthJob() && chr.getMasterSkillLevel(skill) == 0) || !skill.isFourthJob() && maxlevel < 10) {
-                AutobanManager.getInstance().addPoints(c, 1000, 0, "Illegal distribution of SP to invisible skills (" + skillid + ")");
+            if ((skill.isFourthJob() && chr.getMasterSkillLevel(skill) == 0) ||
+                    !skill.isFourthJob() && maxlevel < 10) {
+                AutobanManager.getInstance().addPoints(c, 1000, 0, "Illegal distribution of SP to invisible skills (" +
+                        skillid + ")");
                 return;
             }
         }
 
-        if ((remainingSp > 0 && curLevel + 1 <= maxlevel) && skill.canBeLearnedBy(chr.getJobId())) {
+        if ((remainingSp > 0 && curLevel + 1 <= maxlevel) &&
+                skill.canBeLearnedBy(chr.getJobId())) {
             if (!isBeginnerSkill) {
-                final int skillbook = GameConstants.getSkillBookForSkill(skillid);
+                final int skillbook = Skills.getSkillbookForSkill(skillid);
                 chr.setRemainingSp(chr.getRemainingSp(skillbook) - 1, skillbook);
             }
             chr.updateSingleStat(Stat.AVAILABLE_SP, chr.getRemainingSp());
             chr.changeSkillLevel(skill, (byte) (curLevel + 1), chr.getMasterSkillLevel(skill));
         } else if (!skill.canBeLearnedBy(chr.getJobId())) {
-            AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" + skillid + ")");
+            AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" +
+                    skillid + ")");
         }
     }
 
-    public static final void handleAutoAssignAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+    public static void handleAutoAssignAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         reader.skip(8);
         final int PrimaryStat = reader.readInt();
         final int amount = reader.readInt();
         final int SecondaryStat = reader.readInt();
         final int amount2 = reader.readInt();
         final ActivePlayerStats playerst = chr.getStats();
-        List<Pair<Stat, Integer>> statupdate = new ArrayList<Pair<Stat, Integer>>(2);
+        List<StatValue> statupdate = new ArrayList<>(2);
         c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         if (chr.getRemainingAp() == amount + amount2) {
             switch (PrimaryStat) {
@@ -252,28 +265,28 @@ public class StatsHandling {
                         return;
                     }
                     playerst.setStr(playerst.getStr() + amount);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.STR, playerst.getStr()));
+                    statupdate.add(new StatValue(Stat.STR, playerst.getStr()));
                     break;
                 case 128: // Dex
                     if (playerst.getDex() + amount > 999) {
                         return;
                     }
                     playerst.setDex(playerst.getDex() + amount);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.DEX, playerst.getDex()));
+                    statupdate.add(new StatValue(Stat.DEX, playerst.getDex()));
                     break;
                 case 256: // Int
                     if (playerst.getInt() + amount > 999) {
                         return;
                     }
                     playerst.setInt(playerst.getInt() + amount);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.INT, playerst.getInt()));
+                    statupdate.add(new StatValue(Stat.INT, playerst.getInt()));
                     break;
                 case 512: // Luk
                     if (playerst.getLuk() + amount > 999) {
                         return;
                     }
                     playerst.setLuk(playerst.getLuk() + amount);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.LUK, playerst.getLuk()));
+                    statupdate.add(new StatValue(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
                     c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
@@ -285,35 +298,35 @@ public class StatsHandling {
                         return;
                     }
                     playerst.setStr(playerst.getStr() + amount2);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.STR, playerst.getStr()));
+                    statupdate.add(new StatValue(Stat.STR, playerst.getStr()));
                     break;
                 case 128: // Dex
                     if (playerst.getDex() + amount2 > 999) {
                         return;
                     }
                     playerst.setDex(playerst.getDex() + amount2);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.DEX, playerst.getDex()));
+                    statupdate.add(new StatValue(Stat.DEX, playerst.getDex()));
                     break;
                 case 256: // Int
                     if (playerst.getInt() + amount2 > 999) {
                         return;
                     }
                     playerst.setInt(playerst.getInt() + amount2);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.INT, playerst.getInt()));
+                    statupdate.add(new StatValue(Stat.INT, playerst.getInt()));
                     break;
                 case 512: // Luk
                     if (playerst.getLuk() + amount2 > 999) {
                         return;
                     }
                     playerst.setLuk(playerst.getLuk() + amount2);
-                    statupdate.add(new Pair<Stat, Integer>(Stat.LUK, playerst.getLuk()));
+                    statupdate.add(new StatValue(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
                     c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - (amount + amount2));
-            statupdate.add(new Pair<Stat, Integer>(Stat.AVAILABLE_AP, chr.getRemainingAp()));
+            statupdate.add(new StatValue(Stat.AVAILABLE_AP, chr.getRemainingAp()));
             c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }

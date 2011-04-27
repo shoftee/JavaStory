@@ -2,7 +2,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import org.javastory.server.channel.ChannelServer;
 import org.javastory.tools.Randomizer;
 import server.TimerManager;

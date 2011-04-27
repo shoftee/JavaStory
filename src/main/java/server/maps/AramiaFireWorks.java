@@ -3,7 +3,7 @@ package server.maps;
 import java.awt.Point;
 import java.rmi.RemoteException;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import server.TimerManager;
 import server.life.LifeFactory;
 import tools.MaplePacketCreator;

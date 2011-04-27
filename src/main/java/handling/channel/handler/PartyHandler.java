@@ -2,8 +2,8 @@ package handling.channel.handler;
 
 import java.rmi.RemoteException;
 
-import client.ChannelCharacter;
-import client.ChannelClient;
+import org.javastory.client.ChannelCharacter;
+import org.javastory.client.ChannelClient;
 import handling.world.Party;
 import handling.world.PartyMember;
 import handling.world.PartyOperation;

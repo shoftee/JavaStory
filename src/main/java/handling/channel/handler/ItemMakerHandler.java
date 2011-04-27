@@ -1,35 +1,15 @@
-/*
-This file is part of the OdinMS Maple Story Server
-Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-Matthias Butz <matze@odinms.de>
-Jan Christian Meyer <vimes@odinms.de>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License version 3
-as published by the Free Software Foundation. You may not use, modify
-or distribute this program under any other version of the
-GNU Affero General Public License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package handling.channel.handler;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import client.Inventory;
 import java.util.Map;
 
 import client.IItem;
 import client.Equip;
 import client.SkillFactory;
-import client.ChannelClient;
-import client.InventoryType;
+import org.javastory.client.ChannelClient;
 import client.GameConstants;
+import org.javastory.game.Jobs;
 import org.javastory.io.PacketFormatException;
 import server.ItemMakerFactory;
 import server.ItemMakerFactory.GemInfo;
@@ -37,7 +17,6 @@ import server.ItemMakerFactory.MakerItemInfo;
 import org.javastory.tools.Randomizer;
 import server.ItemInfoProvider;
 import server.InventoryManipulator;
-import tools.Pair;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketReader;
 import org.javastory.server.maker.ItemRecipe;
@@ -324,10 +303,10 @@ public class ItemMakerHandler {
     }
 
     private static boolean hasSkill(final ChannelClient c, final int reqlvl) {
-        if (GameConstants.isKOC(c.getPlayer().getJobId())) { // KoC Maker skill.
+        if (Jobs.isCygnus(c.getPlayer().getJobId())) { // KoC Maker skill.
             return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(10001007)) >=
                     reqlvl;
-        } else if (GameConstants.isAran(c.getPlayer().getJobId())) { // KoC Maker skill.
+        } else if (Jobs.isAran(c.getPlayer().getJobId())) { // KoC Maker skill.
             return c.getPlayer().getCurrentSkillLevel(SkillFactory.getSkill(20001007)) >=
                     reqlvl;
         } else {

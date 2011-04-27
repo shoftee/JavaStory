@@ -20,13 +20,12 @@
 */
 package server.life;
 
+import org.javastory.game.SkillLevelEntry;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import tools.Pair;
 
 public class MonsterStats {
 
@@ -37,7 +36,7 @@ public class MonsterStats {
     private String name;
     private Map<Element, ElementalEffectiveness> resistance = Maps.newEnumMap(Element.class);
     private List<Integer> revives = Collections.emptyList();
-    private List<Pair<Integer, Integer>> skills = new ArrayList<Pair<Integer, Integer>>();
+    private List<SkillLevelEntry> skills = new ArrayList<>();
     private BanishInfo banish;
 
     public int getExp() {
@@ -249,13 +248,13 @@ public class MonsterStats {
         this.tagBgColor = (byte) tagBgColor;
     }
 
-    public void setSkills(List<Pair<Integer, Integer>> skill_) {
-        for (Pair<Integer, Integer> skill : skill_) {
+    public void setSkills(List<SkillLevelEntry> entries) {
+        for (SkillLevelEntry skill : entries) {
             skills.add(skill);
         }
     }
 
-    public List<Pair<Integer, Integer>> getSkills() {
+    public List<SkillLevelEntry> getSkills() {
         return Collections.unmodifiableList(this.skills);
     }
 
@@ -264,8 +263,8 @@ public class MonsterStats {
     }
 
     public boolean hasSkill(int skillId, int level) {
-        for (Pair<Integer, Integer> skill : skills) {
-            if (skill.getLeft() == skillId && skill.getRight() == level) {
+        for (SkillLevelEntry skill : skills) {
+            if (skill.skill == skillId && skill.level == level) {
                 return true;
             }
         }

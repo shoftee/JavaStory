@@ -20,7 +20,6 @@
 */
 package server.life;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import provider.WzData;
@@ -30,10 +29,10 @@ import provider.WzDataTool;
 import tools.Pair;
 import tools.StringUtil;
 
-public class MobAttackInfoFactory {
+public final class MobAttackInfoFactory {
 
     private static final MobAttackInfoFactory instance = new MobAttackInfoFactory();
-    private static final WzDataProvider dataSource = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Mob.wz"));
+    private static final WzDataProvider dataSource = WzDataProviderFactory.getDataProvider("Mob.wz");
     private static Map<Pair<Integer, Integer>, MobAttackInfo> mobAttacks = new HashMap<Pair<Integer, Integer>, MobAttackInfo>();
 
     public static MobAttackInfoFactory getInstance() {

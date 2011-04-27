@@ -14,16 +14,16 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import server.Portal;
 
 public class PortalScriptManager {
 
     private static final PortalScriptManager instance = new PortalScriptManager();
-    private final Map<String, PortalScript> scripts = new HashMap<String, PortalScript>();
+    private final Map<String, PortalScript> scripts = new HashMap<>();
     private final static ScriptEngineFactory sef = new ScriptEngineManager().getEngineByName("javascript").getFactory();
 
-    public final static PortalScriptManager getInstance() {
+    public static PortalScriptManager getInstance() {
         return instance;
     }
 
@@ -42,9 +42,7 @@ public class PortalScriptManager {
             fr = new FileReader(scriptFile);
             CompiledScript compiled = ((Compilable) portal).compile(fr);
             compiled.eval();
-        } catch (final ScriptException e) {
-            System.err.println("THROW" + e);
-        } catch (final IOException e) {
+        } catch (final ScriptException | IOException e) {
             System.err.println("THROW" + e);
         } finally {
             if (fr != null) {
@@ -65,7 +63,8 @@ public class PortalScriptManager {
         if (script != null) {
             script.enter(new PortalPlayerInteraction(c, portal));
         } else {
-            System.out.println(":: Unhandled portal script " + portal.getScriptName() + " ::");
+            System.out.println(":: Unhandled portal script " +
+                    portal.getScriptName() + " ::");
         }
     }
 

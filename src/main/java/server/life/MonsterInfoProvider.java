@@ -15,8 +15,8 @@ import database.DatabaseConnection;
 public final class MonsterInfoProvider {
 
     private static final MonsterInfoProvider instance = new MonsterInfoProvider();
-    private final Map<Integer, List<MonsterDropEntry>> drops = new HashMap<Integer, List<MonsterDropEntry>>();
-    private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<MonsterGlobalDropEntry>();
+    private final Map<Integer, List<MonsterDropEntry>> drops = new HashMap<>();
+    private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
 
     private MonsterInfoProvider() {
         retrieveGlobal();
@@ -70,7 +70,7 @@ public final class MonsterInfoProvider {
         if (drops.containsKey(monsterId)) {
             return drops.get(monsterId);
         }
-        final List<MonsterDropEntry> ret = new LinkedList<MonsterDropEntry>();
+        final List<MonsterDropEntry> ret = new LinkedList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {

@@ -1,6 +1,6 @@
 package server;
 
-import client.ChannelCharacter;
+import org.javastory.client.ChannelCharacter;
 import java.util.LinkedList;
 import java.util.List;
 import server.maps.GameMap;

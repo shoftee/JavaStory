@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import handling.ClientPacketOpcode;
 import handling.GamePacket;
 import handling.ServerConstants;

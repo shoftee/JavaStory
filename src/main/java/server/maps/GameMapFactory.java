@@ -7,7 +7,6 @@ import java.util.WeakHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 
 import client.OdinSEA;
 import provider.WzData;
@@ -22,10 +21,10 @@ import tools.StringUtil;
 
 public class GameMapFactory {
 
-    private static final WzDataProvider source = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/Map.wz"));
-    private static final WzData nameData = WzDataProviderFactory.getDataProvider(new File(System.getProperty("org.javastory.wzpath") + "/String.wz")).getData("Map.img");
-    private final Map<Integer, GameMap> maps = new HashMap<Integer, GameMap>();
-    private final WeakHashMap<Integer, GameMap> instanceMap = new WeakHashMap<Integer, GameMap>();
+    private static final WzDataProvider source = WzDataProviderFactory.getDataProvider("Map.wz");
+    private static final WzData nameData = WzDataProviderFactory.getDataProvider("String.wz").getData("Map.img");
+    private final Map<Integer, GameMap> maps = new HashMap<>();
+    private final WeakHashMap<Integer, GameMap> instanceMap = new WeakHashMap<>();
     private int channel;
     private int world;
 
@@ -73,7 +72,7 @@ public class GameMapFactory {
                 for (WzData portal : mapData.getChildByPath("portal")) {
                     map.addPortal(portalFactory.makePortal(WzDataTool.getInt(portal.getChildByPath("pt")), portal));
                 }
-                List<Foothold> allFootholds = new LinkedList<Foothold>();
+                List<Foothold> allFootholds = new LinkedList<>();
                 Point lBound = new Point();
                 Point uBound = new Point();
                 Foothold fh;
@@ -176,7 +175,8 @@ public class GameMapFactory {
                 map.setClock(mapData.getChildByPath("clock") != null);
                 map.setEverlast(mapData.getChildByPath("info/everlast") != null);
                 map.setTown(mapData.getChildByPath("info/town") != null);
-                map.setPersonalShop(mapData.getChildByPath("info/personalShop") != null);
+                map.setPersonalShop(mapData.getChildByPath("info/personalShop") !=
+                        null);
                 map.setHPDec(WzDataTool.getInt(mapData.getChildByPath("info/decHP"), 0));
                 map.setHPDecProtect(WzDataTool.getInt(mapData.getChildByPath("info/protectItem"), 0));
                 map.setForcedReturnMap(WzDataTool.getInt(mapData.getChildByPath("info/forcedReturn"), 999999999));
@@ -221,7 +221,7 @@ public class GameMapFactory {
         for (WzData portal : mapData.getChildByPath("portal")) {
             map.addPortal(portalFactory.makePortal(WzDataTool.getInt(portal.getChildByPath("pt")), portal));
         }
-        List<Foothold> allFootholds = new LinkedList<Foothold>();
+        List<Foothold> allFootholds = new LinkedList<>();
         Point lBound = new Point();
         Point uBound = new Point();
         for (WzData footRoot : mapData.getChildByPath("foothold")) {
@@ -354,17 +354,17 @@ public class GameMapFactory {
     private AbstractLoadedGameLife loadLife(WzData life, String id, String type) {
         AbstractLoadedGameLife myLife = LifeFactory.getLife(Integer.parseInt(id), type);
         myLife.setCy(WzDataTool.getInt(life.getChildByPath("cy")));
-        WzData dF = life.getChildByPath("f");
-        if (dF != null) {
-            myLife.setF(WzDataTool.getInt(dF));
+        WzData dataFlipped = life.getChildByPath("f");
+        if (dataFlipped != null) {
+            myLife.setFlipped(WzDataTool.getInt(dataFlipped) == 1);
         }
-        myLife.setFh(WzDataTool.getInt(life.getChildByPath("fh")));
+        myLife.setFoothold(WzDataTool.getInt(life.getChildByPath("fh")));
         myLife.setRx0(WzDataTool.getInt(life.getChildByPath("rx0")));
         myLife.setRx1(WzDataTool.getInt(life.getChildByPath("rx1")));
         myLife.setPosition(new Point(WzDataTool.getInt(life.getChildByPath("x")), WzDataTool.getInt(life.getChildByPath("y"))));
 
         if (WzDataTool.getInt("hide", life, 0) == 1) {
-            myLife.setHide(true);
+            myLife.setHidden(true);
             //		} else if (hide > 1) {
             //			System.err.println("Hide > 1 ("+ hide +")");
         }
@@ -377,7 +377,8 @@ public class GameMapFactory {
 
         stats.setFacingDirection(FacingDirection);
         myReactor.setPosition(new Point(WzDataTool.getInt(reactor.getChildByPath("x")), WzDataTool.getInt(reactor.getChildByPath("y"))));
-        myReactor.setDelay(WzDataTool.getInt(reactor.getChildByPath("reactorTime")) * 1000);
+        myReactor.setDelay(WzDataTool.getInt(reactor.getChildByPath("reactorTime")) *
+                1000);
         myReactor.setState((byte) 0);
         myReactor.setName(WzDataTool.getString(reactor.getChildByPath("name"), ""));
 

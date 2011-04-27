@@ -2,7 +2,7 @@ package server.maps;
 
 import java.awt.Point;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import client.SkillFactory;
 import handling.ServerPacketOpcode;
 import org.javastory.tools.Randomizer;
@@ -313,7 +313,7 @@ public class MapScriptMethods {
 		break;
 		}
 		case rien: {
-		if (c.getPlayer().getQuestStatus(21101) == 2 && c.getPlayer().getInfoQuest(21019).equals("miss=o;arr=o;helper=clear")) {
+		if (c.getPlayer().getQuestCompletionStatus(21101) == 2 && c.getPlayer().getInfoQuest(21019).equals("miss=o;arr=o;helper=clear")) {
 			c.getPlayer().updateInfoQuest(21019, "miss=o;arr=o;ck=1;helper=clear");
 		}
 		c.write(UIPacket.IntroDisableUI(false));

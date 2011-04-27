@@ -20,7 +20,7 @@
 */
 package server.maps;
 
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 import tools.MaplePacketCreator;
 import handling.GamePacket;
 

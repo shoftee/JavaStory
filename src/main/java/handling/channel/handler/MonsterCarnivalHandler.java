@@ -21,7 +21,7 @@
 package handling.channel.handler;
 
 import java.awt.Point;
-import client.ChannelClient;
+import org.javastory.client.ChannelClient;
 //import net.sf.odinms.server.Randomizer;
 import org.javastory.io.PacketFormatException;
 import server.life.LifeFactory;
