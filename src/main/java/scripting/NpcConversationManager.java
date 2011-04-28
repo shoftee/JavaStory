@@ -40,7 +40,7 @@ import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import server.CarnivalChallenge;
 import server.ItemInfoProvider;
-import server.StatEffect.StatValue;
+import server.StatValue;
 
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
@@ -559,31 +559,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         super.client.getPlayer().gainMeso(-5000000, true, false, true);
     }
 
-    public void createUnion(String name) {
-        super.client.getPlayer().getGuild().createAlliance(super.client, name);
-    }
-
-    public boolean hasUnion() {
-        return super.client.getPlayer().getGuild().getUnion(super.client) !=
-                null;
-    }
-
-    public void sendUnionInvite(String charname) {
-        ChannelCharacter z = super.client.getChannelServer().getPlayerStorage().getCharacterByName(charname);
-        if (z != null) {
-            if (z.getGuild().getLeader(z.getClient()) == z) {
-                //                z.dropMessage(getPlayer().getName() + " invites your guild to join his alliance");
-                //               z.dropMessage("If you want to accept that offer type @accept, else type @decline");
-                //               z.setAllianceInvited(getPlayer().getGuild().getAlliance(getPlayer().super.client));
-                super.client.getPlayer().getGuildUnion().addGuild(super.client, super.client.getPlayer().getGuildId());
-            } else {
-                getPlayer().sendNotice(0, "That character is not the leader of the guild");
-            }
-        } else {
-            getPlayer().sendNotice(0, "That character is offline");
-        }
-    }
-
     public void displayGuildRanks() {
         super.client.write(MaplePacketCreator.showGuildRanks(npcId, MapleGuildRanking.getInstance().getRank()));
     }
@@ -695,19 +670,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public long getMerchantMesos() {
         long mesos = 0;
-        try {
-            Connection con = (Connection) DatabaseConnection.getConnection();
-            PreparedStatement ps = (PreparedStatement) con.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?");
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = (PreparedStatement) con.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?")) {
             ps.setInt(1, getPlayer().getId());
-            ResultSet rs = ps.executeQuery();
-            if (!rs.next()) {
-                rs.close();
-                ps.close();
-            } else {
-                mesos = rs.getLong("mesos");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    mesos = rs.getLong("mesos");
+                }
             }
-            rs.close();
-            ps.close();
         } catch (SQLException ex) {
             System.err.println("Error gaining mesos in hired merchant" + ex);
         }
@@ -797,12 +767,12 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public void maxStats() {
         List<StatValue> statup = new ArrayList<>(2);
-        
+
         super.client.getPlayer().setRemainingAp(0);
         statup.add(new StatValue(Stat.AVAILABLE_AP, Integer.valueOf(0)));
         super.client.getPlayer().setRemainingSp(0);
         statup.add(new StatValue(Stat.AVAILABLE_SP, Integer.valueOf(0)));
-        
+
         super.client.getPlayer().getStats().setStr(32767);
         statup.add(new StatValue(Stat.STR, Integer.valueOf(32767)));
         super.client.getPlayer().getStats().setDex(32767);
@@ -811,7 +781,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         statup.add(new StatValue(Stat.INT, Integer.valueOf(32767)));
         super.client.getPlayer().getStats().setLuk(32767);
         statup.add(new StatValue(Stat.LUK, Integer.valueOf(32767)));
-        
+
         super.client.getPlayer().getStats().setHp(30000);
         statup.add(new StatValue(Stat.HP, Integer.valueOf(30000)));
         super.client.getPlayer().getStats().setMaxHp(30000);
@@ -820,7 +790,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         statup.add(new StatValue(Stat.MP, Integer.valueOf(30000)));
         super.client.getPlayer().getStats().setMaxMp(30000);
         statup.add(new StatValue(Stat.MAX_MP, Integer.valueOf(30000)));
-        
+
         super.client.write(MaplePacketCreator.updatePlayerStats(statup, super.client.getPlayer().getJobId()));
     }
 

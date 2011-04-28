@@ -286,7 +286,7 @@ public class AbstractPlayerInteraction {
 
     public final Guild getGuild() {
         try {
-            return client.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId(), null);
+            return client.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId());
         } catch (final RemoteException ex) {
             ex.printStackTrace();
         }

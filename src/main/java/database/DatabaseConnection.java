@@ -43,7 +43,7 @@ public class DatabaseConnection {
                 Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
         DatabaseConnection.getConnection();
     }
 
@@ -64,7 +64,7 @@ public class DatabaseConnection {
             extends ThreadLocal<Connection> {
 
         public static final Collection<Connection> allConnections =
-                new LinkedList<Connection>();
+                new LinkedList<>();
 
         @Override
         protected final Connection initialValue() {

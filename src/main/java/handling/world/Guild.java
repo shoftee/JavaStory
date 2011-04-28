@@ -1,16 +1,13 @@
 package handling.world;
 
+import com.google.common.base.Function;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -23,31 +20,33 @@ import com.google.common.collect.Multimap;
 import database.DatabaseConnection;
 import handling.GamePacket;
 import handling.channel.remote.ChannelWorldInterface;
+import java.util.Collection;
+import org.apache.mina.util.CopyOnWriteMap;
 import org.javastory.client.MemberRank;
 import org.javastory.server.channel.ChannelManager;
 import org.javastory.server.channel.ChannelServer;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketBuilder;
+import org.javastory.server.Notes;
 
-public final class Guild implements java.io.Serializable {
+public final class Guild {
 
-    public static long serialVersionUID = 6322150443228168192L;
-    private final List<GuildMember> members;
-    private final Map<MemberRank, String> rankTitles = Maps.newEnumMap(MemberRank.class);
+    private final int GUILD_CAPACITY_MAX = 100;
+    private final int GUILD_CAPACITY_STEP = 5;
+    //
+    private boolean rebuildIndex = true;
+    // Guild information fields:
     private String name, notice;
-    private int id, gp, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature;
-    // TODO: Multimap instead.
-    // private final Multimap<Integer, Integer> n = HashMultimap.create();
-    private final Map<Integer, List<Integer>> notifications = new LinkedHashMap<>();
-    private boolean hasChanged = true;
-    private int allianceid = 0;
-    private GuildUnion ally;
+    private int id, guildPoints, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature;
+    private final Map<MemberRank, String> rankTitles = Maps.newEnumMap(MemberRank.class);
+    private final Map<Integer, GuildMember> members = new CopyOnWriteMap<>();
+    // Misc filds:
     private Lock lock = new ReentrantLock();
+    private Multimap<Integer, Integer> channelIndex;
 
     public Guild(final GuildMember initiator) {
         super();
         int guildid = initiator.getGuildId();
-        members = new CopyOnWriteArrayList<>();
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" +
@@ -61,7 +60,7 @@ public final class Guild implements java.io.Serializable {
             }
             id = guildid;
             name = rs.getString("name");
-            gp = rs.getInt("GP");
+            guildPoints = rs.getInt("GP");
             logo = rs.getInt("logo");
             logoColor = rs.getInt("logoColor");
             logoBG = rs.getInt("logoBG");
@@ -75,10 +74,9 @@ public final class Guild implements java.io.Serializable {
             leader = rs.getInt("leader");
             notice = rs.getString("notice");
             signature = rs.getInt("signature");
-            allianceid = rs.getInt("alliance");
             rs.close();
             ps.close();
-            ps = con.prepareStatement("SELECT id, name, level, job, guildrank FROM characters WHERE guildid = ? ORDER BY guildrank ASC, name ASC");
+            ps = con.prepareStatement("SELECT id, name, level, job, guildrank FROM characters WHERE guildid = ?");
             ps.setInt(1, guildid);
             rs = ps.executeQuery();
             if (!rs.first()) {
@@ -89,9 +87,10 @@ public final class Guild implements java.io.Serializable {
             }
             do {
                 final GuildMember member = new GuildMember(rs);
-                members.add(member);
+                final int characterId = member.getCharacterId();
+                members.put(characterId, member);
             } while (rs.next());
-            setOnline(initiator.getId(), true, initiator.getChannel());
+            setOnline(initiator.getCharacterId(), true, initiator.getChannel());
             rs.close();
             ps.close();
         } catch (SQLException se) {
@@ -100,12 +99,11 @@ public final class Guild implements java.io.Serializable {
         }
     }
 
-    public Guild(final int guildid) { // retrieves the guild from database, with guildid
-        members = new CopyOnWriteArrayList<>();
-        try { // first read the guild information
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" +
-                    guildid);
+    public Guild(final int guildId) {
+        // retrieves the guild from database, with guildid
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `guilds` WHERE `guildid` = ?")) {
+            ps.setInt(1, guildId);
             ResultSet rs = ps.executeQuery();
             if (!rs.first()) { // no result... most likely to be someone from a disbanded guild that got rolled back
                 rs.close();
@@ -113,9 +111,9 @@ public final class Guild implements java.io.Serializable {
                 id = -1;
                 return;
             }
-            id = guildid;
+            id = guildId;
             name = rs.getString("name");
-            gp = rs.getInt("GP");
+            guildPoints = rs.getInt("GP");
             logo = rs.getInt("logo");
             logoColor = rs.getInt("logoColor");
             logoBG = rs.getInt("logoBG");
@@ -129,9 +127,7 @@ public final class Guild implements java.io.Serializable {
             leader = rs.getInt("leader");
             notice = rs.getString("notice");
             signature = rs.getInt("signature");
-            allianceid = rs.getInt("alliance");
             rs.close();
-            ps.close();
         } catch (SQLException se) {
             System.err.println("unable to read guild information from sql" + se);
             return;
@@ -147,9 +143,9 @@ public final class Guild implements java.io.Serializable {
                 buf.append("logoColor = ?, logoBG = ?, logoBGColor = ?, ");
                 buf.append("rank1title = ?, rank2title = ?, rank3title = ?, ");
                 buf.append("rank4title = ?, rank5title = ?, capacity = ?, ");
-                buf.append("notice = ?, alliance = ? WHERE guildid = ?");
+                buf.append("notice = ? WHERE guildid = ?");
                 PreparedStatement ps = con.prepareStatement(buf.toString());
-                ps.setInt(1, gp);
+                ps.setInt(1, guildPoints);
                 ps.setInt(2, logo);
                 ps.setInt(3, logoColor);
                 ps.setInt(4, logoBG);
@@ -161,8 +157,7 @@ public final class Guild implements java.io.Serializable {
                 ps.setString(10, rankTitles.get(MemberRank.MEMBER_LOW));
                 ps.setInt(11, capacity);
                 ps.setString(12, notice);
-                ps.setInt(13, allianceid);
-                ps.setInt(14, id);
+                ps.setInt(13, id);
                 ps.execute();
                 ps.close();
             } else {
@@ -170,16 +165,7 @@ public final class Guild implements java.io.Serializable {
                 ps.setInt(1, id);
                 ps.execute();
                 ps.close();
-                //delete the alliance
-                if (allianceid > 0) {
-                    if (getUnion(null).getGuilds().get(0).getLeaderId() ==
-                            getLeaderId()) {
-                        ps = con.prepareStatement("DELETE FROM alliances WHERE id = ?");
-                        ps.setInt(1, allianceid);
-                        ps.execute();
-                        ps.close();
-                    }
-                }
+
                 ps = con.prepareStatement("DELETE FROM guilds WHERE guildid = ?");
                 ps.setInt(1, id);
                 ps.execute();
@@ -203,8 +189,8 @@ public final class Guild implements java.io.Serializable {
         return c.getChannelServer().getPlayerStorage().getCharacterById(leader);
     }
 
-    public int getGP() {
-        return gp;
+    public int getGuildPoints() {
+        return guildPoints;
     }
 
     public int getLogo() {
@@ -246,22 +232,6 @@ public final class Guild implements java.io.Serializable {
         return notice;
     }
 
-    public int getAllianceId() {
-        return allianceid;
-    }
-
-    public GuildUnion getUnion(final ChannelClient c) {
-        if (ally != null) {
-            return ally;
-        } else if (allianceid > 0) {
-            final GuildUnion al = new GuildUnion(c, allianceid);
-            ally = al;
-            return al;
-        } else {
-            return null;
-        }
-    }
-
     public String getName() {
         return name;
     }
@@ -288,19 +258,19 @@ public final class Guild implements java.io.Serializable {
         final Set<Integer> activeChannels = registry.getActiveChannels();
         lock.lock();
         try {
-            rebuildNotifications();
+            rebuildChannelIndex();
             try {
                 for (final Integer channelId : activeChannels) {
                     final ChannelWorldInterface channel = registry.getChannel(channelId);
-                    final List<Integer> channelNotifications = notifications.get(channelId);
-                    
-                    if (channelNotifications.size() > 0) {
+                    final Collection<Integer> channelMembers = channelIndex.get(channelId);
+
+                    if (channelMembers.size() > 0) {
                         if (operation == GuildOperationType.DISBAND) {
-                            channel.setGuildAndRank(channelNotifications, 0, MemberRank.MEMBER_LOW, exceptionId);
+                            channel.setGuildAndRank(channelMembers, 0, MemberRank.MEMBER_LOW, exceptionId);
                         } else if (operation == GuildOperationType.EMBELMCHANGE) {
-                            channel.changeEmblem(id, channelNotifications, new GuildSummary(this));
+                            channel.changeEmblem(id, channelMembers, new GuildSummary(this));
                         } else {
-                            channel.sendPacket(channelNotifications, packet, exceptionId);
+                            channel.sendPacket(channelMembers, packet, exceptionId);
                         }
                     }
                 }
@@ -313,49 +283,36 @@ public final class Guild implements java.io.Serializable {
         }
     }
 
-    private void rebuildNotifications() {
+    private void rebuildChannelIndex() {
         // any function that calls this should be wrapped in synchronized(notifications) to make sure that it doesn't change before that function finishes with the updated notifications
-        if (!hasChanged) {
+        if (!rebuildIndex) {
             return;
         }
         Set<Integer> activeChannels = WorldRegistryImpl.getInstance().getActiveChannels();
-        // TODO: Multimap instead
-        //n.keySet().retainAll(activeChannels);
-        if (notifications.keySet().size() != activeChannels.size()) {
-            notifications.clear();
-            for (final Integer ch : activeChannels) {
-                notifications.put(ch, new java.util.LinkedList<Integer>());
-            }
-        } else {
-            for (List<Integer> l : notifications.values()) {
-                l.clear();
-            }
-        }
-        for (final GuildMember mgc : members) {
-            if (!mgc.isOnline()) {
+        channelIndex = HashMultimap.create();
+        for (Map.Entry<Integer, GuildMember> entry : members.entrySet()) {
+            final GuildMember member = entry.getValue();
+            if (!member.isOnline()) {
                 continue;
             }
-            final List<Integer> ch = notifications.get(mgc.getChannel());
-            if (ch == null) {
-                System.err.println("Unable to connect to channel " +
-                        mgc.getChannel());
-            } else {
-                ch.add(mgc.getId());
-            }
+
+            channelIndex.put(member.getChannel(), member.getCharacterId());
         }
-        hasChanged = false;
+        channelIndex.keySet().retainAll(activeChannels);
+        rebuildIndex = false;
     }
 
-    public void guildMessage(final GamePacket serverNotice) {
-        for (final GuildMember mgc : members) {
+    public void guildMessage(final GamePacket packet) {
+        for (final GuildMember mgc : members.values()) {
             for (final ChannelServer cs : ChannelManager.getAllInstances()) {
-                if (cs.getPlayerStorage().getCharacterById(mgc.getId()) != null) {
-                    final ChannelCharacter chr = cs.getPlayerStorage().getCharacterById(mgc.getId());
-                    if (serverNotice != null) {
-                        chr.getClient().write(serverNotice);
+                if (cs.getPlayerStorage().getCharacterById(mgc.getCharacterId()) !=
+                        null) {
+                    final ChannelCharacter character = cs.getPlayerStorage().getCharacterById(mgc.getCharacterId());
+                    if (packet != null) {
+                        character.getClient().write(packet);
                     } else {
-                        chr.getMap().removePlayer(chr);
-                        chr.getMap().addPlayer(chr);
+                        character.getMap().removePlayer(character);
+                        character.getMap().addPlayer(character);
                     }
                 }
             }
@@ -363,21 +320,22 @@ public final class Guild implements java.io.Serializable {
     }
 
     public void setOnline(final int cid, final boolean online, final int channel) {
-        boolean broadcast = true;
-        for (final GuildMember mgc : members) {
-            if (mgc.getId() == cid) {
-                if (mgc.isOnline() && online) {
-                    broadcast = false;
-                }
-                mgc.setOnline(online);
-                mgc.setChannel((byte) channel);
-                break;
-            }
+        final GuildMember member = getMember(cid);
+
+        // Only broadcast whatever if something /changed/.
+        // To begin with this shouldn't get called otherwise, but... *shrug*
+        if (!(member.isOnline() && online)) {
+            return;
         }
-        if (broadcast) {
-            broadcast(MaplePacketCreator.guildMemberOnline(id, cid, online), cid);
-        }
-        hasChanged = true; // member formation has changed, update notifications
+
+        member.setOnline(online);
+        member.setChannel((byte) channel);
+        broadcast(MaplePacketCreator.guildMemberOnline(id, cid, online), cid);
+        rebuildIndex = true;
+    }
+
+    private GuildMember getMember(int characterId) {
+        return members.get(characterId);
     }
 
     public void guildChat(final String name, final int cid, final String msg) {
@@ -428,14 +386,13 @@ public final class Guild implements java.io.Serializable {
     }
 
     public boolean addGuildMember(final GuildMember member) {
-        // first of all, insert it into the members keeping alphabetical order of lowest ranks ;)
         lock.lock();
         try {
             if (members.size() >= capacity) {
                 return false;
             }
-            members.add(member);
-            hasChanged = true;
+            members.put(member.getCharacterId(), member);
+            rebuildIndex = true;
         } finally {
             lock.unlock();
         }
@@ -447,130 +404,69 @@ public final class Guild implements java.io.Serializable {
         broadcast(MaplePacketCreator.memberLeft(member, false));
         lock.lock();
         try {
-            members.remove(member);
-            hasChanged = true;
+            members.remove(member.getCharacterId());
+            rebuildIndex = true;
         } finally {
             lock.unlock();
         }
     }
 
-    public void expelMember(final GuildMember initiator, final String name, final int targetId) {
-        final Iterator<GuildMember> itr = members.iterator();
-        while (itr.hasNext()) {
-            final GuildMember member = itr.next();
-            if (member.getId() == targetId &&
-                    initiator.getRank().isSuperior(member.getRank())) {
-                broadcast(MaplePacketCreator.memberLeft(member, true));
-                hasChanged = true;
-                members.remove(member);
-                try {
-                    if (member.isOnline()) {
-                        WorldRegistryImpl.getInstance().getChannel(member.getChannel()).setGuildAndRank(targetId, 0, MemberRank.MEMBER_LOW);
-                    } else {
-                        try {
-                            Connection con = DatabaseConnection.getConnection();
-                            PreparedStatement ps = con.prepareStatement("INSERT INTO notes (`to`, `from`, `message`, `timestamp`) VALUES (?, ?, ?, ?)");
-                            ps.setString(1, member.getName());
-                            ps.setString(2, initiator.getName());
-                            ps.setString(3, "You have been expelled from the guild.");
-                            ps.setLong(4, System.currentTimeMillis());
-                            ps.executeUpdate();
-                            ps.close();
-                        } catch (SQLException e) {
-                            System.err.println("Error sending guild msg 'expelled'." +
-                                    e);
-                        }
-                        WorldRegistryImpl.getInstance().getChannel(1).setOfflineGuildStatus((short) 0, MemberRank.MEMBER_LOW, targetId);
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
-                    return;
-                }
+    public void expelMember(final GuildMember initiator, final int targetId) {
+        final GuildMember target = getMember(targetId);
+        broadcast(MaplePacketCreator.memberLeft(target, true));
+        rebuildIndex = true;
+        members.remove(targetId);
+        try {
+            if (target.isOnline()) {
+                WorldRegistryImpl.getInstance().getChannel(target.getChannel()).setGuildAndRank(targetId, 0, MemberRank.MEMBER_LOW);
+            } else {
+                Notes.send(initiator.getName(),
+                           target.getName(),
+                           "You have been expelled from the guild.");
             }
+        } catch (RemoteException ex) {
+            System.err.println("Could not expel member: " + ex);
+            return;
         }
     }
 
     public void changeRank(final int targetId, final MemberRank newRank) {
-        for (final GuildMember member : members) {
-            if (targetId == member.getId()) {
-                try {
-                    if (member.isOnline()) {
-                        WorldRegistryImpl.getInstance().getChannel(member.getChannel()).setGuildAndRank(targetId, this.id, newRank);
-                    } else {
-                        WorldRegistryImpl.getInstance().getChannel(1).setOfflineGuildStatus((short) this.id, newRank, targetId);
-                    }
-                } catch (RemoteException re) {
-                    re.printStackTrace();
-                    return;
-                }
-                member.setGuildRank(newRank);
-                broadcast(MaplePacketCreator.changeRank(member));
-                return;
+        final GuildMember target = getMember(targetId);
+        try {
+            if (target.isOnline()) {
+                WorldRegistryImpl.getInstance().getChannel(target.getChannel()).setGuildAndRank(targetId, this.id, newRank);
             }
+        } catch (RemoteException ex) {
+            System.err.println("Could not change rank: " + ex);
+            return;
         }
-        // it should never get to this point unless cid was incorrect o_O
-        System.err.println("INFO: unable to find the correct id for changeRank({" +
-                targetId + "}, {" + newRank + "})");
+        target.setGuildRank(newRank);
+        broadcast(MaplePacketCreator.changeRank(target));
     }
 
     public void setGuildNotice(final String notice) {
         this.notice = notice;
         broadcast(MaplePacketCreator.guildNotice(id, notice));
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE guilds SET notice = ? WHERE guildid = ?");
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET notice = ? WHERE guildid = ?")) {
             ps.setString(1, notice);
             ps.setInt(2, id);
             ps.execute();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Saving notice ERROR" + e);
+        } catch (SQLException ex) {
+            System.err.println("Could not save notice: " + ex);
         }
     }
 
-    public void createAlliance(final ChannelClient c, final String name) {
-        if (allianceid != 0) {
-            c.getPlayer().sendNotice(1, "You are already in an Alliance!");
-            return;
-        }
-        if (checkAllianceName(name)) {
-            try {
-                if (name.equals("") || id <= 0) {
-                    return;
-                }
-                Connection con = DatabaseConnection.getConnection();
-                PreparedStatement ps = con.prepareStatement("INSERT INTO `alliances` (notice, name, guild1, guild2, guild3, guild4, guild5, rank1, rank2, rank3, rank4, rank5) VALUES ('', ?, ?, 0, 0, 0, 0, 'Master', 'Jr. Master', 'Member', 'Member', 'Member')");
-                ps.setString(1, name);
-                ps.setInt(2, id);
-                ps.executeUpdate();
-                ps.close();
-                ps = con.prepareStatement("SELECT id FROM alliances WHERE guild1 = ?");
-                ps.setInt(1, id);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    allianceid = rs.getInt("id");
-                }
-                rs.close();
-                ps.close();
-                writeToDB(false);
-                c.getPlayer().sendNotice(1, "Alliance successfully created!");
-            } catch (SQLException a) {
-                //
-            }
-        } else {
-            c.getPlayer().sendNotice(1, "This name already exists.");
-        }
+    public void updateMemberLevel(final int characterId, final short level) {
+        final GuildMember member = getMember(characterId);
+        member.setLevel(level);
+        broadcast(MaplePacketCreator.guildMemberInfoUpdate(member));
     }
 
-    public void memberLevelJobUpdate(final GuildMember mgc) {
-        for (final GuildMember member : members) {
-            if (member.getId() == mgc.getId()) {
-                member.setJobId(mgc.getJobId());
-                member.setLevel((short) mgc.getLevel());
-                broadcast(MaplePacketCreator.guildMemberLevelJobUpdate(mgc));
-                break;
-            }
-        }
+    public void updateMemberJob(final int characterId, final int jobId) {
+        final GuildMember member = getMember(characterId);
+        member.setJobId(id);
+        broadcast(MaplePacketCreator.guildMemberInfoUpdate(member));
     }
 
     public void changeRankTitle(final String[] titles) {
@@ -579,9 +475,9 @@ public final class Guild implements java.io.Serializable {
             rankTitles.put(rank, titles[i - 1]);
         }
         broadcast(MaplePacketCreator.rankTitleChange(id, titles));
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?");
+
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?")) {
             ps.setString(1, rankTitles.get(MemberRank.MASTER));
             ps.setString(2, rankTitles.get(MemberRank.JR_MASTER));
             ps.setString(3, rankTitles.get(MemberRank.MEMBER_HIGH));
@@ -589,9 +485,8 @@ public final class Guild implements java.io.Serializable {
             ps.setString(5, rankTitles.get(MemberRank.MEMBER_LOW));
             ps.setInt(6, id);
             ps.execute();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Saving rankTitle ERROR" + e);
+        } catch (SQLException ex) {
+            System.err.println("Could not save rank titles: " + ex);
         }
     }
 
@@ -606,59 +501,45 @@ public final class Guild implements java.io.Serializable {
         this.logo = logo;
         this.logoColor = logocolor;
         broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?");
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?")) {
             ps.setInt(1, logo);
             ps.setInt(2, logoColor);
             ps.setInt(3, logoBG);
             ps.setInt(4, logoBGColor);
             ps.setInt(5, id);
             ps.execute();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Saving guild logo / BG colo ERROR" + e);
+        } catch (SQLException ex) {
+            System.err.println("Could not save guild emblem: " + ex);
         }
-    }
-
-    public GuildMember getMember(final int cid) {
-        for (final GuildMember mgc : members) {
-            if (mgc.getId() == cid) {
-                return mgc;
-            }
-        }
-        return null;
     }
 
     public boolean increaseCapacity() {
-        if (capacity >= 100 || ((capacity + 5) > 100)) {
+        if (capacity + GUILD_CAPACITY_STEP > GUILD_CAPACITY_MAX) {
             return false;
         }
         capacity += 5;
         broadcast(MaplePacketCreator.guildCapacityChange(this.id, this.capacity));
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?");
+        Connection con = DatabaseConnection.getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?")) {
             ps.setInt(1, this.capacity);
             ps.setInt(2, this.id);
             ps.execute();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Saving guild capacity ERROR" + e);
+        } catch (SQLException ex) {
+            System.err.println("Could not save guild member capacity: " + ex);
         }
         return true;
     }
 
-    public void gainGP(final int amount) {
-        gp += amount;
-        guildMessage(MaplePacketCreator.updateGP(id, gp));
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?");
-            ps.setInt(1, this.gp);
+    public void gainGuildPoints(final int amount) {
+        guildPoints += amount;
+        guildMessage(MaplePacketCreator.updateGuildPoints(id, guildPoints));
+        Connection con = DatabaseConnection.getConnection();
+
+        try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?")) {
+            ps.setInt(1, this.guildPoints);
             ps.setInt(2, this.id);
             ps.execute();
-            ps.close();
         } catch (SQLException e) {
             System.err.println("Saving guild point ERROR" + e);
         }
@@ -666,10 +547,10 @@ public final class Guild implements java.io.Serializable {
 
     public void addMemberData(final PacketBuilder builder) {
         builder.writeAsByte(members.size());
-        for (final GuildMember mgc : members) {
-            builder.writeInt(mgc.getId());
+        for (final GuildMember mgc : members.values()) {
+            builder.writeInt(mgc.getCharacterId());
         }
-        for (final GuildMember member : members) {
+        for (final GuildMember member : members.values()) {
             builder.writePaddedString(member.getName(), 13);
             builder.writeInt(member.getJobId());
             builder.writeInt(member.getLevel());
@@ -694,26 +575,5 @@ public final class Guild implements java.io.Serializable {
         }
         mc.getClient().write(MaplePacketCreator.guildInvite(c.getPlayer().getGuildId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJobId()));
         return null;
-    }
-
-    public boolean checkAllianceName(final String name) {
-        boolean canCreate = true;
-        if (name.length() < 4 && name.length() > 13) {
-            canCreate = false;
-        }
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM alliances WHERE name = ?");
-            ps.setString(1, name);
-            ResultSet rs = ps.executeQuery();
-            if (rs.first()) {
-                canCreate = false;
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            //
-        }
-        return canCreate;
     }
 }

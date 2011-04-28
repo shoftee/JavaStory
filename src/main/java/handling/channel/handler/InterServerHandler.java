@@ -1,5 +1,6 @@
 package handling.channel.handler;
 
+import handling.world.GuildMember;
 import java.rmi.RemoteException;
 
 import client.BuddyListEntry;
@@ -56,12 +57,13 @@ public class InterServerHandler {
     public static void handlePlayerLoggedIn(final int playerId, final ChannelClient client) {
         final ChannelServer channelServer = client.getChannelServer();
         final PlayerStorage playerStorage = channelServer.getPlayerStorage();
-        
+        final int channelId = client.getChannelId();
+
         // Remote hack
         if (!playerStorage.checkSession(playerId, client.getSessionIP())) {
             client.disconnect(true);
         }
-        
+
         ChannelCharacter player;
         final CharacterTransfer transfer = playerStorage.getPendingTransfer(playerId);
         if (transfer == null) {
@@ -73,27 +75,26 @@ public class InterServerHandler {
         client.setPlayer(player);
         client.setAccountId(player.getAccountId());
 
-        final ChannelServer cserv = ChannelManager.getInstance(client.getChannelId());
-        cserv.addPlayer(player);
+        channelServer.addPlayer(player);
         client.write(MaplePacketCreator.getCharInfo(player));
         player.getMap().addPlayer(player);
         try {
             // Start of cooldown, buffs
-            final WorldChannelInterface wci = ChannelManager.getInstance(client.getChannelId()).getWorldInterface();
-            final Collection<PlayerBuffValueHolder> buffs = wci.getBuffsFromStorage(player.getId());
+            final WorldChannelInterface world = channelServer.getWorldInterface();
+            final Collection<PlayerBuffValueHolder> buffs = world.getBuffsFromStorage(player.getId());
             if (buffs != null) {
                 player.silentGiveBuffs(buffs);
             }
-            client.getPlayer().giveCooldowns(wci.getCooldownsFromStorage(player.getId()));
-            client.getPlayer().giveSilentDebuff(wci.getDiseaseFromStorage(player.getId()));
+            client.getPlayer().giveCooldowns(world.getCooldownsFromStorage(player.getId()));
+            client.getPlayer().giveSilentDebuff(world.getDiseaseFromStorage(player.getId()));
 
             // Start of buddylist
             final int buddyIds[] = player.getBuddylist().getBuddyIds();
-            cserv.getWorldInterface().loggedOn(player.getName(), player.getId(), client.getChannelId(), buddyIds);
+            world.loggedOn(player.getName(), player.getId(), channelId, buddyIds);
             if (player.getParty() != null) {
-                channelServer.getWorldInterface().updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, new PartyMember(player));
+                world.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, new PartyMember(player));
             }
-            final CharacterIdChannelPair[] onlineBuddies = cserv.getWorldInterface().multiBuddyFind(player.getId(), buddyIds);
+            final CharacterIdChannelPair[] onlineBuddies = world.multiBuddyFind(player.getId(), buddyIds);
             for (CharacterIdChannelPair onlineBuddy : onlineBuddies) {
                 final BuddyListEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
                 ble.setChannel(onlineBuddy.getChannel());
@@ -107,14 +108,16 @@ public class InterServerHandler {
             if (player.getMessenger() != null && messenger_pos < 4 &&
                     messenger_pos > -1) {
                 MessengerMember messengerplayer = new MessengerMember(client.getPlayer(), messenger_pos);
-                wci.silentJoinMessenger(messenger.getId(), messengerplayer, messenger_pos);
-                wci.updateMessenger(client.getPlayer().getMessenger().getId(), client.getPlayer().getName(), client.getChannelId());
+                world.silentJoinMessenger(messenger.getId(), messengerplayer, messenger_pos);
+                world.updateMessenger(client.getPlayer().getMessenger().getId(), client.getPlayer().getName(), channelId);
             }
-
+            
             // Start of Guild and alliance
-            if (player.getGuildId() > 0) {
-                client.getChannelServer().getWorldInterface().setGuildMemberOnline(player.getGuildMembership(), true, client.getChannelId());
-                client.write(MaplePacketCreator.showGuildInfo(player));
+            final GuildMember guildMember = player.getGuildMembership();
+            if (guildMember != null) {
+                int guildId = guildMember.getGuildId();
+                world.setGuildMemberOnline(guildMember, true, channelId);
+                client.write(MaplePacketCreator.showGuildInfo(client, guildId));
             }
         } catch (RemoteException e) {
             channelServer.pingWorld();

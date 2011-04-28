@@ -10,13 +10,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -234,28 +232,29 @@ class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
         return Guild.createGuild(leaderId, name);
     }
 
-    public final Guild getGuild(final int id, final GuildMember mgc) {
+    public final Guild getGuild(final int guildId) {
         guildMutex.lock();
         try {
-            if (guilds.get(id) != null) {
-                return guilds.get(id);
-            }
-            if (mgc == null) {
-                return null;
-            }
-            final Guild g = new Guild(mgc);
-            if (g.getId() == -1) { //failed to load
-                return null;
-            }
-            guilds.put(id, g);
-            return g;
+            return loadGuildIfAbsent(guildId);
         } finally {
             guildMutex.unlock();
         }
     }
 
+    private Guild loadGuildIfAbsent(final int guildId) {
+        Guild guild = guilds.get(guildId);
+        if (guild == null) {
+            guild = new Guild(guildId);
+            if (guild.getId() == -1) {
+                return null;
+            }
+            guilds.put(guildId, guild);
+        }
+        return guild;
+    }
+
     public void setGuildMemberOnline(final GuildMember mgc, final boolean bOnline, final int channel) {
-        getGuild(mgc.getGuildId(), mgc).setOnline(mgc.getId(), bOnline, channel);
+        getGuild(mgc.getGuildId()).setOnline(mgc.getCharacterId(), bOnline, channel);
     }
 
     public final boolean addGuildMember(final GuildMember mgc) {
@@ -291,10 +290,10 @@ class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
         }
     }
 
-    public void expelMember(final GuildMember initiator, final String name, final int cid) {
+    public void expelMember(final GuildMember initiator, final int cid) {
         final Guild g = guilds.get(initiator.getGuildId());
         if (g != null) {
-            g.expelMember(initiator, name, cid);
+            g.expelMember(initiator, cid);
         }
     }
 
@@ -305,10 +304,17 @@ class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
         }
     }
 
-    public void memberLevelJobUpdate(final GuildMember mgc) {
-        final Guild g = guilds.get(mgc.getGuildId());
+    public void updateGuildMemberLevel(int guildId, int characterId, short level) {
+        final Guild g = guilds.get(guildId);
         if (g != null) {
-            g.memberLevelJobUpdate(mgc);
+            g.updateMemberLevel(characterId, level);
+        }
+    }
+
+    public void updateGuildMemberJob(int guildId, int characterId, int jobId) {
+        final Guild g = guilds.get(guildId);
+        if (g != null) {
+            g.updateMemberJob(characterId, jobId);
         }
     }
 
@@ -347,7 +353,7 @@ class WorldRegistryImpl extends UnicastRemoteObject implements WorldRegistry {
     public void gainGP(final int gid, final int amount) {
         final Guild g = guilds.get(gid);
         if (g != null) {
-            g.gainGP(amount);
+            g.gainGuildPoints(amount);
         }
     }
 

@@ -30,7 +30,7 @@ public class Party implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
     private PartyMember leader;
-    private List<PartyMember> members = new LinkedList<PartyMember>();
+    private List<PartyMember> members = new LinkedList<>();
     private int id;
 
     public Party(int id, PartyMember chrfor) {

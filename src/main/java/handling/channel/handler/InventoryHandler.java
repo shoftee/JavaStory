@@ -48,7 +48,7 @@ import tools.packet.PetPacket;
 import org.javastory.io.PacketReader;
 import org.javastory.quest.QuestInfoProvider;
 import org.javastory.quest.QuestInfoProvider.QuestInfo;
-import server.StatEffect.StatValue;
+import server.StatValue;
 import tools.MaplePacketCreator;
 
 public class InventoryHandler {

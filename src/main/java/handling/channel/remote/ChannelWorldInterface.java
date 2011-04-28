@@ -34,13 +34,14 @@ import handling.world.PartyMember;
 import handling.world.PartyOperation;
 import handling.world.GuildSummary;
 import handling.world.remote.WorldChannelCommonOperations;
+import java.util.Collection;
 import org.javastory.client.MemberRank;
 import org.javastory.server.ChannelInfo;
 
 public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperations {
 
     public int getChannelId() throws RemoteException;
-    
+
     public ChannelInfo getChannelInfo() throws RemoteException;
 
     public String getIP() throws RemoteException;
@@ -69,15 +70,15 @@ public interface ChannelWorldInterface extends Remote, WorldChannelCommonOperati
 
     public void ChannelChange_Data(CharacterTransfer transfer, int characterid) throws RemoteException;
 
-    public void sendPacket(List<Integer> targetIds, GamePacket packet, int exception) throws RemoteException;
+    public void sendPacket(Collection<Integer> targetIds, GamePacket packet, int exception) throws RemoteException;
 
-    public void setGuildAndRank(int cid, int guildid, MemberRank rank) throws RemoteException;
+    public void setGuildAndRank(int characterId, int guildid, MemberRank rank) throws RemoteException;
 
-    public void setOfflineGuildStatus(int guildid, MemberRank rank, int cid) throws RemoteException;
+    public void setOfflineGuildStatus(int guildid, MemberRank rank, int characterId) throws RemoteException;
 
-    public void setGuildAndRank(List<Integer> cids, int guildid, MemberRank rank, int exception) throws RemoteException;
+    public void setGuildAndRank(Collection<Integer> characters, int guildId, MemberRank rank, int exception) throws RemoteException;
 
-    public void changeEmblem(int gid, List<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException;
+    public void changeEmblem(int gid, Collection<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException;
 
     public void addMessengerPlayer(Messenger messenger, String namefrom, int fromchannel, int position) throws RemoteException;
 

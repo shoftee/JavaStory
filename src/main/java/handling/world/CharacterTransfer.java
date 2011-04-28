@@ -50,7 +50,7 @@ public class CharacterTransfer implements Externalizable {
     public int ACash, vpoints, MaplePoints;
     public int MountLevel, MountItemId, MountFatigue, MountExp;
     public byte ChannelId, DojoRecord, Gender, GmLevel;
-    public MemberRank GuildRank, GuildUnionRank;
+    public MemberRank GuildRank;
     public boolean ondmg, callgm;
     public long LastFameTime, TranferTime;
     public String CharacterName, AccountName, BlessOfFairy;
@@ -111,7 +111,6 @@ public class CharacterTransfer implements Externalizable {
         this.JobRankMove = chr.getJobRankMove();
         this.GuildId = chr.getGuildId();
         this.GuildRank = chr.getGuildRank();
-        this.GuildUnionRank = chr.getGuildUnionRank();
         this.GmLevel = (byte) chr.getGmLevel();
         this.Subcategory = chr.getSubcategory();
         this.ondmg = chr.isOnDMG();
@@ -205,7 +204,6 @@ public class CharacterTransfer implements Externalizable {
         this.JobRankMove = in.readInt();
         this.GuildId = in.readInt();
         this.GuildRank = MemberRank.fromNumber(in.readByte());
-        this.GuildUnionRank = MemberRank.fromNumber(in.readByte());
         this.GmLevel = in.readByte();
 
         this.BlessOfFairy = (String) in.readObject();
@@ -300,7 +298,6 @@ public class CharacterTransfer implements Externalizable {
         out.writeInt(this.JobRankMove);
         out.writeInt(this.GuildId);
         out.write(this.GuildRank.asNumber());
-        out.write(this.GuildUnionRank.asNumber());
         out.write(this.GmLevel);
 
         out.writeObject(this.BlessOfFairy);

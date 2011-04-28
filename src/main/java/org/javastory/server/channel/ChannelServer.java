@@ -108,7 +108,7 @@ public final class ChannelServer extends GameService {
     public void initialize() {
         connectToWorld();
         loadSettings();
-        
+
         // TODO: load events from DB.
         final String[] events = new String[0];
         for (int i = 0; i < eventManagers.length; i++) {
@@ -261,11 +261,10 @@ public final class ChannelServer extends GameService {
         this.dropRate = dropRate;
     }
 
-    public final Guild getGuild(final GuildMember mgc) {
-        final int guildId = mgc.getGuildId();
+    public final Guild getGuild(final int guildId) {
         Guild guild = null;
         try {
-            guild = getWorldInterface().getGuild(guildId, mgc);
+            guild = getWorldInterface().getGuild(guildId);
         } catch (RemoteException re) {
             System.err.println("RemoteException while fetching MapleGuild." + re);
             return null;
@@ -281,14 +280,15 @@ public final class ChannelServer extends GameService {
             return gsStore.get(guildId);
         }
         try {
-            final Guild guild = 
-                    this.getWorldInterface().getGuild(guildId, null);
+            final Guild guild =
+                    this.getWorldInterface().getGuild(guildId);
             if (guild != null) {
                 gsStore.put(guildId, new GuildSummary(guild));
             }
             return gsStore.get(guildId);
         } catch (RemoteException re) {
-            System.err.println("RemoteException while fetching GuildSummary." + re);
+            System.err.println("RemoteException while fetching GuildSummary." +
+                    re);
             return null;
         }
     }
@@ -320,7 +320,7 @@ public final class ChannelServer extends GameService {
 
     public final void closeAllMerchant() {
         merchantMutex.lock();
-        final Iterator<HiredMerchantStore> iterator = 
+        final Iterator<HiredMerchantStore> iterator =
                 merchants.values().iterator();
         try {
             while (iterator.hasNext()) {
@@ -359,7 +359,7 @@ public final class ChannelServer extends GameService {
         boolean contains = false;
         merchantMutex.lock();
         try {
-            final Iterator<HiredMerchantStore> iterator = 
+            final Iterator<HiredMerchantStore> iterator =
                     merchants.values().iterator();
             while (iterator.hasNext()) {
                 HiredMerchantStore merchant = iterator.next();

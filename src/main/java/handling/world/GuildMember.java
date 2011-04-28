@@ -46,7 +46,7 @@ public class GuildMember implements Serializable {
         this.level = level;
     }
 
-    public int getId() {
+    public int getCharacterId() {
         return characterId;
     }
 

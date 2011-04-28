@@ -19,7 +19,7 @@ import org.javastory.io.PacketReader;
 import org.javastory.tools.Randomizer;
 import server.InventoryManipulator;
 import server.ItemInfoProvider;
-import server.StatEffect.StatValue;
+import server.StatValue;
 import server.movement.LifeMovementFragment;
 import tools.MaplePacketCreator;
 import tools.packet.PetPacket;

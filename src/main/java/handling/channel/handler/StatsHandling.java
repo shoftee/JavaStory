@@ -15,7 +15,7 @@ import server.AutobanManager;
 import org.javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
 import org.javastory.io.PacketReader;
-import server.StatEffect.StatValue;
+import server.StatValue;
 
 public class StatsHandling {
 

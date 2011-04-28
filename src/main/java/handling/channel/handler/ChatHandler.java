@@ -158,7 +158,7 @@ public class ChatHandler {
                     final MessengerMember messengerplayer = new MessengerMember(player);
                     input = reader.readLengthPrefixedString();
                     try {
-                        wci.messengerChat(messenger.getId(), input, messengerplayer.getName());
+                        wci.messengerChat(messenger.getId(), messengerplayer.getName(), input);
                     } catch (RemoteException e) {
                         c.getChannelServer().pingWorld();
                     }

@@ -193,7 +193,8 @@ public class DueyHandler {
     private static boolean addMesoToDB(final int mesos, final String sName, final int recipientID, final boolean isOn) {
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)");
+            final String insertPackage = "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(insertPackage);
             ps.setInt(1, recipientID);
             ps.setString(2, sName);
             ps.setInt(3, mesos);
@@ -213,7 +214,9 @@ public class DueyHandler {
     private static boolean addItemToDB(final IItem item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            final String insertPackage =
+                    "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(insertPackage, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, recipientID);
             ps.setString(2, sName);
             ps.setInt(3, mesos);
@@ -227,8 +230,11 @@ public class DueyHandler {
             rs.next();
             PreparedStatement ps2;
 
-            if (item.getType() == ItemType.EQUIP) { // equips
-                ps2 = con.prepareStatement("INSERT INTO dueyitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            if (item.getType() == ItemType.EQUIP) {
+                // equips
+                final String insertEquip =
+                        "INSERT INTO dueyitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                ps2 = con.prepareStatement(insertEquip);
                 Equip eq = (Equip) item;
                 ps2.setInt(1, rs.getInt(1));
                 ps2.setInt(2, eq.getItemId());
@@ -258,7 +264,9 @@ public class DueyHandler {
                 ps2.setInt(26, eq.getItemLevel());
                 ps2.setInt(27, eq.getItemEXP());
             } else {
-                ps2 = con.prepareStatement("INSERT INTO dueyitems (PackageId, itemid, quantity, owner, GM_Log, flag, expiredate) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                final String insertItem =
+                        "INSERT INTO dueyitems (PackageId, itemid, quantity, owner, GM_Log, flag, expiredate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                ps2 = con.prepareStatement(insertItem);
                 ps2.setInt(1, rs.getInt(1));
                 ps2.setInt(2, item.getItemId());
                 ps2.setInt(3, quantity);
@@ -280,10 +288,11 @@ public class DueyHandler {
     }
 
     public static List<DueyActions> loadItems(final ChannelCharacter chr) {
-        List<DueyActions> packages = new LinkedList<DueyActions>();
+        List<DueyActions> packages = new LinkedList<>();
         Connection con = DatabaseConnection.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE RecieverId = ?");
+        final String selectPackageByReceiver =
+                "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE RecieverId = ?";
+        try (PreparedStatement ps = con.prepareStatement(selectPackageByReceiver)) {
             ps.setInt(1, chr.getId());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -303,10 +312,12 @@ public class DueyHandler {
     }
 
     public static DueyActions loadSingleItem(final int packageid, final int charid) {
-        List<DueyActions> packages = new LinkedList<DueyActions>();
+        List<DueyActions> packages = new LinkedList<>();
         Connection con = DatabaseConnection.getConnection();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE PackageId = ? and RecieverId = ?");
+            final String selectPackageByIdAndReceiver =
+                    "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE PackageId = ? and RecieverId = ?";
+            PreparedStatement ps = con.prepareStatement(selectPackageByIdAndReceiver);
             ps.setInt(1, packageid);
             ps.setInt(2, charid);
             ResultSet rs = ps.executeQuery();
@@ -333,11 +344,9 @@ public class DueyHandler {
 
     public static void reciveMsg(final ChannelClient c, final int recipientId) {
         Connection con = DatabaseConnection.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?");
+        try (PreparedStatement ps = con.prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?")) {
             ps.setInt(1, recipientId);
             ps.executeUpdate();
-            ps.close();
         } catch (SQLException se) {
             se.printStackTrace();
         }
@@ -345,12 +354,10 @@ public class DueyHandler {
 
     private static void removeItemFromDB(final int packageid, final int charid) {
         Connection con = DatabaseConnection.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement("DELETE FROM dueypackages WHERE PackageId = ? and RecieverId = ?");
+        try (PreparedStatement ps = con.prepareStatement("DELETE FROM dueypackages WHERE PackageId = ? and RecieverId = ?")){
             ps.setInt(1, packageid);
             ps.setInt(2, charid);
             ps.executeUpdate();
-            ps.close();
         } catch (SQLException se) {
             se.printStackTrace();
         }

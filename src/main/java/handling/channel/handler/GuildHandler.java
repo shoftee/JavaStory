@@ -43,6 +43,59 @@ public class GuildHandler {
         }
     }
 
+    private static void handleCreateGuild(final ChannelCharacter player, final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+        // Create guild
+        if (player.getGuildId() > 0 || player.getMapId() != 200000301) {
+            player.sendNotice(1, "You cannot create a new Guild while in one.");
+            return;
+        } else if (player.getMeso() < 5000000) {
+            player.sendNotice(1, "You do not have enough mesos to create a Guild.");
+            return;
+        }
+        final String guildName = reader.readLengthPrefixedString();
+        if (!isGuildNameAcceptable(guildName)) {
+            player.sendNotice(1, "The Guild name you have chosen is not accepted.");
+            return;
+        }
+        int guildId;
+        try {
+            guildId = c.getChannelServer().getWorldInterface().createGuild(player.getId(), guildName);
+        } catch (RemoteException re) {
+            System.err.println("RemoteException occurred" + re);
+            player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
+            return;
+        }
+        if (guildId == 0) {
+            c.write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
+            return;
+        }
+        player.gainMeso(-5000000, true, false, true);
+        player.setGuildId(guildId);
+        player.setGuildRank(MemberRank.MASTER);
+        player.saveGuildStatus();
+        c.write(MaplePacketCreator.showGuildInfo(c, guildId));
+        player.sendNotice(1, "You have successfully created a Guild.");
+        respawnPlayer(player);
+    }
+
+    private static void handleInviteToGuild(final ChannelCharacter player, final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+        // invitation
+        if (player.getGuildId() <= 0 ||
+                !player.getGuildRank().isMaster()) {
+            return;
+        }
+        String name = reader.readLengthPrefixedString();
+        final GuildOperationResponse mgr = Guild.sendInvite(c, name);
+        if (mgr != null) {
+            c.write(mgr.getPacket());
+        } else {
+            Invited inv = new Invited(name, player.getGuildId());
+            if (!invited.contains(inv)) {
+                invited.add(inv);
+            }
+        }
+    }
+
     private static boolean isGuildNameAcceptable(final String name) {
         if (name.length() < 3 || name.length() > 12) {
             return false;
@@ -58,7 +111,7 @@ public class GuildHandler {
 
     private static void respawnPlayer(final ChannelCharacter mc) {
         mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(mc.getId()), false);
-        mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
+        mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapObject(mc), false);
     }
 
     private static final class Invited {
@@ -70,7 +123,7 @@ public class GuildHandler {
         public Invited(final String n, final int id) {
             name = n.toLowerCase();
             gid = id;
-            expiration = System.currentTimeMillis() + 3600000; 
+            expiration = System.currentTimeMillis() + 3600000;
         }
 
         @Override
@@ -101,6 +154,51 @@ public class GuildHandler {
     private static long nextPruneTime =
             System.currentTimeMillis() + 20 * 60 * 1000;
 
+    private static void handleAcceptGuildInvite(final ChannelCharacter player, final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+        // accepted guild invitation
+        if (player.getGuildId() > 0) {
+            return;
+        }
+        int guildId = reader.readInt();
+        int targetId = reader.readInt();
+
+        if (targetId != player.getId()) {
+            return;
+        }
+
+        String name = player.getName().toLowerCase();
+        Iterator<Invited> itr = invited.iterator();
+        while (itr.hasNext()) {
+            Invited inv = itr.next();
+            if (guildId == inv.gid && name.equals(inv.name)) {
+                player.setGuildId(guildId);
+                player.setGuildRank(MemberRank.MEMBER_LOW);
+                itr.remove();
+
+                boolean success = false;
+
+                try {
+                    success = c.getChannelServer().getWorldInterface().addGuildMember(player.getGuildMembership());
+                } catch (RemoteException e) {
+                    System.err.println("RemoteException occurred while attempting to add character to guild" +
+                            e);
+                    player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
+                    player.setGuildId(0);
+                    return;
+                }
+                if (!success) {
+                    player.sendNotice(1, "The Guild you are trying to join is already full.");
+                    player.setGuildId(0);
+                    return;
+                }
+                c.write(MaplePacketCreator.showGuildInfo(c, guildId));
+                player.saveGuildStatus();
+                respawnPlayer(player);
+                return;
+            }
+        }
+    }
+
     public static void handleGuildOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         if (System.currentTimeMillis() >= nextPruneTime) {
             Iterator<Invited> itr = invited.iterator();
@@ -114,111 +212,25 @@ public class GuildHandler {
             nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
         }
         final ChannelCharacter player = c.getPlayer();
-
+        int guildId;
+        String name;
         switch (reader.readByte()) {
-            case 0x02: // Create guild
-                if (player.getGuildId() > 0 || player.getMapId() != 200000301) {
-                    player.sendNotice(1, "You cannot create a new Guild while in one.");
-                    return;
-                } else if (player.getMeso() < 5000000) {
-                    player.sendNotice(1, "You do not have enough mesos to create a Guild.");
-                    return;
-                }
-                final String guildName = reader.readLengthPrefixedString();
-
-                if (!isGuildNameAcceptable(guildName)) {
-                    player.sendNotice(1, "The Guild name you have chosen is not accepted.");
-                    return;
-                }
-                int guildId;
-
-                try {
-                    guildId = c.getChannelServer().getWorldInterface().createGuild(player.getId(), guildName);
-                } catch (RemoteException re) {
-                    System.err.println("RemoteException occurred" + re);
-                    player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
-                    return;
-                }
-                if (guildId == 0) {
-                    c.write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
-                    return;
-                }
-                player.gainMeso(-5000000, true, false, true);
-                player.setGuildId(guildId);
-                player.setGuildRank(MemberRank.MASTER);
-                player.saveGuildStatus();
-                c.write(MaplePacketCreator.showGuildInfo(player));
-                player.sendNotice(1, "You have successfully created a Guild.");
-                respawnPlayer(player);
+            case 0x02:
+                handleCreateGuild(player, reader, c);
                 break;
             case 0x05:
-                // invitation
-                if (player.getGuildId() <= 0 ||
-                        !player.getGuildRank().isMaster()) {
-                    return;
-                }
-                String name = reader.readLengthPrefixedString();
-                final GuildOperationResponse mgr = Guild.sendInvite(c, name);
-
-                if (mgr != null) {
-                    c.write(mgr.getPacket());
-                } else {
-                    Invited inv = new Invited(name, player.getGuildId());
-                    if (!invited.contains(inv)) {
-                        invited.add(inv);
-                    }
-                }
+                handleInviteToGuild(player, reader, c);
                 break;
-            case 0x06: // accepted guild invitation
-                if (player.getGuildId() > 0) {
-                    return;
-                }
-                guildId = reader.readInt();
-                int targetId = reader.readInt();
-
-                if (targetId != player.getId()) {
-                    return;
-                }
-                name = player.getName().toLowerCase();
-                Iterator<Invited> itr = invited.iterator();
-
-                while (itr.hasNext()) {
-                    Invited inv = itr.next();
-                    if (guildId == inv.gid && name.equals(inv.name)) {
-                        player.setGuildId(guildId);
-                        player.setGuildRank(MemberRank.MEMBER_LOW);
-                        itr.remove();
-
-                        boolean success = false;
-
-                        try {
-                            success = c.getChannelServer().getWorldInterface().addGuildMember(player.getGuildMembership());
-                        } catch (RemoteException e) {
-                            System.err.println("RemoteException occurred while attempting to add character to guild" +
-                                    e);
-                            player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
-                            player.setGuildId(0);
-                            return;
-                        }
-                        if (!success) {
-                            player.sendNotice(1, "The Guild you are trying to join is already full.");
-                            player.setGuildId(0);
-                            return;
-                        }
-                        c.write(MaplePacketCreator.showGuildInfo(player));
-                        player.saveGuildStatus();
-                        respawnPlayer(player);
-                        break;
-                    }
-                }
+            case 0x06:
+                handleAcceptGuildInvite(player, reader, c);
                 break;
             case 0x07: // leaving
-                targetId = reader.readInt();
+                int targetId = reader.readInt();
                 name = reader.readLengthPrefixedString();
 
                 if (targetId != player.getId() || !name.equals(player.getName()) ||
                         player.getGuildId() <= 0) {
-                    return;
+                    break;
                 }
                 try {
                     c.getChannelServer().getWorldInterface().leaveGuild(player.getGuildMembership());
@@ -226,9 +238,9 @@ public class GuildHandler {
                     System.err.println("RemoteException occurred while attempting to leave guild" +
                             re);
                     player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
-                    return;
+                    break;
                 }
-                c.write(MaplePacketCreator.showGuildInfo(null));
+                c.write(MaplePacketCreator.showNullGuildInfo());
                 player.setGuildId(0);
                 player.saveGuildStatus();
                 respawnPlayer(player);
@@ -242,7 +254,7 @@ public class GuildHandler {
                     return;
                 }
                 try {
-                    c.getChannelServer().getWorldInterface().expelMember(player.getGuildMembership(), name, targetId);
+                    c.getChannelServer().getWorldInterface().expelMember(player.getGuildMembership(), targetId);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to change rank" +
                             re);

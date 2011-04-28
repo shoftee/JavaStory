@@ -2,21 +2,15 @@ package handling.world;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
-import database.DatabaseConnection;
 import handling.channel.remote.ChannelWorldInterface;
 import handling.login.remote.LoginWorldInterface;
 import handling.world.remote.CheaterData;
@@ -30,7 +24,9 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     private static final long serialVersionUID = -5568606556235590482L;
     private ChannelWorldInterface cb;
-    private int dbId;
+    private static final WorldRegistryImpl registry =
+            WorldRegistryImpl.getInstance();
+    private int configId;
     private boolean ready = false;
 
     public WorldChannelInterfaceImpl() throws RemoteException {
@@ -40,34 +36,16 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     public WorldChannelInterfaceImpl(ChannelWorldInterface cb, int dbId) throws RemoteException {
         super(0, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());
         this.cb = cb;
-        this.dbId = dbId;
-    }
-
-    public Properties getGameProperties() throws RemoteException {
-        Properties ret = new Properties(WorldServer.getInstance().getWorldProperties());
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM auth_server_channel_ip WHERE channelid = ?");
-            ps.setInt(1, dbId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                ret.setProperty(rs.getString("name"), rs.getString("value"));
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException ex) {
-            System.out.println("Could not retrieve channel configuration" + ex);
-        }
-        return ret;
+        this.configId = dbId;
     }
 
     public void serverReady() throws RemoteException {
         ready = true;
-        for (LoginWorldInterface wli : WorldRegistryImpl.getInstance().getLoginServer()) {
+        for (LoginWorldInterface wli : registry.getLoginServer()) {
             try {
                 wli.channelOnline(cb.getChannelInfo());
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterLoginServer(wli);
+                registry.deregisterLoginServer(wli);
             }
         }
         System.out.println(":: Channel " + cb.getChannelId() + " is online ::");
@@ -78,123 +56,123 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public String getIP(int channel) throws RemoteException {
-        final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(channel);
+        final ChannelWorldInterface cwi = registry.getChannel(channel);
         if (cwi == null) {
             return "0.0.0.0:0";
         } else {
             try {
                 return cwi.getIP();
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(channel);
+                registry.deregisterChannelServer(channel);
                 return "0.0.0.0:0";
             }
         }
     }
 
     public void whisper(String sender, String target, int channel, String message) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.whisper(sender, target, channel, message);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public boolean isConnected(String charName) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 if (cwi.isConnected(charName)) {
                     return true;
                 }
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return false;
     }
 
     public boolean isCharacterListConnected(List<String> charName) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 if (cwi.isCharacterListConnected(charName)) {
                     return true;
                 }
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return false;
     }
 
     public void broadcastMessage(byte[] message) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.broadcastMessage(message);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void broadcastSmega(byte[] message) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.broadcastSmega(message);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void broadcastGMMessage(byte[] message) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.broadcastGMMessage(message);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void toggleMegaphoneMuteState() throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.toggleMegaphoneMuteState();
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public boolean hasMerchant(int accountId) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 return cwi.hasMerchant(accountId);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return false;
     }
 
     public int find(String charName) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 if (cwi.isConnected(charName)) {
                     return cwi.getChannelId();
                 }
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return -1;
@@ -203,43 +181,43 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     // can we generify this
     @Override
     public int find(int characterId) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 if (cwi.isConnected(characterId)) {
                     return cwi.getChannelInfo().getId();
                 }
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return -1;
     }
 
     public void shutdownLogin() throws RemoteException {
-        for (LoginWorldInterface lwi : WorldRegistryImpl.getInstance().getLoginServer()) {
+        for (LoginWorldInterface lwi : registry.getLoginServer()) {
             try {
                 lwi.shutdown();
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterLoginServer(lwi);
+                registry.deregisterLoginServer(lwi);
             }
         }
     }
 
     public void shutdown(int time) throws RemoteException {
-        for (LoginWorldInterface lwi : WorldRegistryImpl.getInstance().getLoginServer()) {
+        for (LoginWorldInterface lwi : registry.getLoginServer()) {
             try {
                 lwi.shutdown();
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterLoginServer(lwi);
+                registry.deregisterLoginServer(lwi);
             }
         }
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.shutdown(time);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
@@ -247,14 +225,14 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     public Map<Integer, Integer> getConnected() throws RemoteException {
         Map<Integer, Integer> ret = new HashMap<>();
         int total = 0;
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 int curConnected = cwi.getConnected();
                 ret.put(i, curConnected);
                 total += curConnected;
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         ret.put(0, total);
@@ -262,31 +240,31 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public void loggedOn(String name, int characterId, int channel, int[] buddies) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.loggedOn(name, characterId, channel, buddies);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     @Override
     public void loggedOff(String name, int characterId, int channel, int[] buddies) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.loggedOff(name, characterId, channel, buddies);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     //TODO only notify channels where partymembers are?
     public void updateParty(int partyid, PartyOperation operation, PartyMember target) throws RemoteException {
-        final Party party = WorldRegistryImpl.getInstance().getParty(partyid);
+        final Party party = registry.getParty(partyid);
         if (party == null) {
             throw new IllegalArgumentException("no party with the specified partyid exists");
         }
@@ -299,7 +277,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
                 party.removeMember(target);
                 break;
             case DISBAND:
-                WorldRegistryImpl.getInstance().disbandParty(partyid);
+                registry.disbandParty(partyid);
                 break;
             case SILENT_UPDATE:
             case LOG_ONOFF:
@@ -312,40 +290,40 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
                 throw new RuntimeException("Unhandeled updateParty operation " +
                         operation.name());
         }
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.updateParty(party, operation, target);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public Party createParty(PartyMember chrfor) throws RemoteException {
-        return WorldRegistryImpl.getInstance().createParty(chrfor);
+        return registry.createParty(chrfor);
     }
 
     public Party getParty(int partyid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getParty(partyid);
+        return registry.getParty(partyid);
     }
 
     public void allianceChat(int gid, String name, int cid, String msg) throws RemoteException {
-        WorldRegistryImpl.getInstance().allianceChat(gid, name, cid, msg);
+        registry.allianceChat(gid, name, cid, msg);
     }
 
     @Override
     public void partyChat(int partyid, String chattext, String namefrom) throws RemoteException {
-        final Party party = WorldRegistryImpl.getInstance().getParty(partyid);
+        final Party party = registry.getParty(partyid);
         if (party == null) {
             throw new IllegalArgumentException("no party with the specified partyid exists");
         }
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.partyChat(party, chattext, namefrom);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
@@ -355,14 +333,14 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public WorldLocation getLocation(String charName) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 if (cwi.isConnected(charName)) {
                     return new WorldLocation(cwi.getLocation(charName), (byte) cwi.getChannelId());
                 }
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         return null;
@@ -370,12 +348,12 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     public List<CheaterData> getCheaters() throws RemoteException {
         List<CheaterData> allCheaters = new ArrayList<>();
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 allCheaters.addAll(cwi.getCheaters());
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
         Collections.sort(allCheaters);
@@ -384,12 +362,12 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     @Override
     public ChannelWorldInterface getChannelInterface(int channel) {
-        return WorldRegistryImpl.getInstance().getChannel(channel);
+        return registry.getChannel(channel);
     }
 
     @Override
     public void buddyChat(int[] recipientCharacterIds, int cidFrom, String nameFrom, String chattext) throws RemoteException {
-        for (ChannelWorldInterface cwi : WorldRegistryImpl.getInstance().getAllChannelServers()) {
+        for (ChannelWorldInterface cwi : registry.getAllChannelServers()) {
             cwi.buddyChat(recipientCharacterIds, cidFrom, nameFrom, chattext);
         }
     }
@@ -397,8 +375,8 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     @Override
     public CharacterIdChannelPair[] multiBuddyFind(int charIdFrom, int[] characterIds) throws RemoteException {
         List<CharacterIdChannelPair> foundsChars = new ArrayList<>(characterIds.length);
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             for (int charid : cwi.multiBuddyFind(charIdFrom, characterIds)) {
                 foundsChars.add(new CharacterIdChannelPair(charid, i));
             }
@@ -408,13 +386,13 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
 
     @Override
     public void ChannelChange_Data(CharacterTransfer Data, int characterid, int toChannel) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
+        for (int i : registry.getActiveChannels()) {
             if (i == toChannel) {
-                final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+                final ChannelWorldInterface cwi = registry.getChannel(i);
                 try {
                     cwi.ChannelChange_Data(Data, characterid);
                 } catch (RemoteException e) {
-                    WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                    registry.deregisterChannelServer(i);
                 }
             }
         }
@@ -422,173 +400,178 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     @Override
-    public Guild getGuild(int id, GuildMember mgc) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getGuild(id, mgc);
+    public Guild getGuild(int id) throws RemoteException {
+        return registry.getGuild(id);
     }
 
     @Override
     public void setGuildMemberOnline(GuildMember mgc, boolean bOnline, int channel) throws RemoteException {
-        WorldRegistryImpl.getInstance().setGuildMemberOnline(mgc, bOnline, channel);
+        registry.setGuildMemberOnline(mgc, bOnline, channel);
     }
 
     @Override
     public boolean addGuildMember(GuildMember mgc) throws RemoteException {
-        return WorldRegistryImpl.getInstance().addGuildMember(mgc);
+        return registry.addGuildMember(mgc);
     }
 
     @Override
     public void guildChat(int gid, String name, int cid, String msg) throws RemoteException {
-        WorldRegistryImpl.getInstance().guildChat(gid, name, cid, msg);
+        registry.guildChat(gid, name, cid, msg);
     }
 
     @Override
     public void leaveGuild(GuildMember mgc) throws RemoteException {
-        WorldRegistryImpl.getInstance().leaveGuild(mgc);
+        registry.leaveGuild(mgc);
     }
 
     @Override
     public void changeRank(int gid, int cid, MemberRank newRank) throws RemoteException {
-        WorldRegistryImpl.getInstance().changeRank(gid, cid, newRank);
+        registry.changeRank(gid, cid, newRank);
     }
 
     @Override
-    public void expelMember(GuildMember initiator, String name, int cid) throws RemoteException {
-        WorldRegistryImpl.getInstance().expelMember(initiator, name, cid);
+    public void expelMember(GuildMember initiator, int cid) throws RemoteException {
+        registry.expelMember(initiator, cid);
     }
 
     @Override
     public void setGuildNotice(int gid, String notice) throws RemoteException {
-        WorldRegistryImpl.getInstance().setGuildNotice(gid, notice);
+        registry.setGuildNotice(gid, notice);
     }
 
     @Override
-    public void memberLevelJobUpdate(GuildMember mgc) throws RemoteException {
-        WorldRegistryImpl.getInstance().memberLevelJobUpdate(mgc);
+    public void updateGuildMemberJob(int guildId, int characterId, int jobId) throws RemoteException {
+        registry.updateGuildMemberJob(guildId, characterId, jobId);
+    }
+
+    @Override
+    public void updateGuildMemberLevel(int guildId, int characterId, short level) throws RemoteException {
+        registry.updateGuildMemberLevel(guildId, characterId, level);
     }
 
     @Override
     public void changeRankTitle(int gid, String[] ranks) throws RemoteException {
-        WorldRegistryImpl.getInstance().changeRankTitle(gid, ranks);
+        registry.changeRankTitle(gid, ranks);
     }
 
     @Override
     public int createGuild(int leaderId, String name) throws RemoteException {
-        return WorldRegistryImpl.getInstance().createGuild(leaderId, name);
+        return registry.createGuild(leaderId, name);
     }
 
     @Override
     public void setGuildEmblem(int gid, short bg, byte bgcolor, short logo, byte logocolor) throws RemoteException {
-        WorldRegistryImpl.getInstance().setGuildEmblem(gid, bg, bgcolor, logo, logocolor);
+        registry.setGuildEmblem(gid, bg, bgcolor, logo, logocolor);
     }
 
     @Override
     public void disbandGuild(int gid) throws RemoteException {
-        WorldRegistryImpl.getInstance().disbandGuild(gid);
+        registry.disbandGuild(gid);
     }
 
     @Override
     public boolean increaseGuildCapacity(int gid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().increaseGuildCapacity(gid);
+        return registry.increaseGuildCapacity(gid);
     }
 
     @Override
-    public void gainGP(int gid, int amount) throws RemoteException {
-        WorldRegistryImpl.getInstance().gainGP(gid, amount);
+    public void gainGuildPoints(int gid, int amount) throws RemoteException {
+        registry.gainGP(gid, amount);
     }
 
     public Messenger createMessenger(MessengerMember chrfor) throws RemoteException {
-        return WorldRegistryImpl.getInstance().createMessenger(chrfor);
+        return registry.createMessenger(chrfor);
     }
 
     public Messenger getMessenger(int messengerid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        return registry.getMessenger(messengerid);
     }
 
     public void messengerInvite(String sender, int messengerid, String target, int fromchannel) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.messengerInvite(sender, messengerid, target, fromchannel);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void leaveMessenger(int messengerid, MessengerMember target) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = registry.getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
         final int position = messenger.getPositionByName(target.getName());
         messenger.removeMember(target);
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.removeMessengerPlayer(messenger, position);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void joinMessenger(int messengerid, MessengerMember target, String from, int fromchannel) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = registry.getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
         messenger.addMember(target);
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.addMessengerPlayer(messenger, from, fromchannel, target.getPosition());
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
-    public void messengerChat(int messengerid, String chattext, String namefrom) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+    public void messengerChat(int messengerid, String namefrom, String chattext) throws RemoteException {
+        final Messenger messenger = registry.getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.messengerChat(messenger, chattext, namefrom);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void declineChat(String target, String namefrom) throws RemoteException {
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.declineChat(target, namefrom);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void updateMessenger(int messengerid, String namefrom, int fromchannel) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = registry.getMessenger(messengerid);
         final int position = messenger.getPositionByName(namefrom);
-        for (int i : WorldRegistryImpl.getInstance().getActiveChannels()) {
-            final ChannelWorldInterface cwi = WorldRegistryImpl.getInstance().getChannel(i);
+        for (int i : registry.getActiveChannels()) {
+            final ChannelWorldInterface cwi = registry.getChannel(i);
             try {
                 cwi.updateMessenger(messenger, namefrom, position, fromchannel);
             } catch (RemoteException e) {
-                WorldRegistryImpl.getInstance().deregisterChannelServer(i);
+                registry.deregisterChannelServer(i);
             }
         }
     }
 
     public void silentLeaveMessenger(int messengerid, MessengerMember target) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = registry.getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
@@ -596,7 +579,7 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public void silentJoinMessenger(int messengerid, MessengerMember target, int position) throws RemoteException {
-        final Messenger messenger = WorldRegistryImpl.getInstance().getMessenger(messengerid);
+        final Messenger messenger = registry.getMessenger(messengerid);
         if (messenger == null) {
             throw new IllegalArgumentException("No messenger with the specified messengerid exists");
         }
@@ -604,26 +587,26 @@ public class WorldChannelInterfaceImpl extends UnicastRemoteObject implements Wo
     }
 
     public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) throws RemoteException {
-        WorldRegistryImpl.getInstance().getPlayerBuffStorage().addBuffsToStorage(chrid, toStore);
+        registry.getPlayerBuffStorage().addBuffsToStorage(chrid, toStore);
     }
 
     public Collection<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getPlayerBuffStorage().getBuffsFromStorage(chrid);
+        return registry.getPlayerBuffStorage().getBuffsFromStorage(chrid);
     }
 
     public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException {
-        WorldRegistryImpl.getInstance().getPlayerBuffStorage().addCooldownsToStorage(chrid, toStore);
+        registry.getPlayerBuffStorage().addCooldownsToStorage(chrid, toStore);
     }
 
     public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getPlayerBuffStorage().getCooldownsFromStorage(chrid);
+        return registry.getPlayerBuffStorage().getCooldownsFromStorage(chrid);
     }
 
     public void addDiseaseToStorage(int chrid, List<PlayerDiseaseValueHolder> toStore) throws RemoteException {
-        WorldRegistryImpl.getInstance().getPlayerBuffStorage().addDiseaseToStorage(chrid, toStore);
+        registry.getPlayerBuffStorage().addDiseaseToStorage(chrid, toStore);
     }
 
     public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(int chrid) throws RemoteException {
-        return WorldRegistryImpl.getInstance().getPlayerBuffStorage().getDiseaseFromStorage(chrid);
+        return registry.getPlayerBuffStorage().getDiseaseFromStorage(chrid);
     }
 }

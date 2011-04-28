@@ -40,28 +40,6 @@ import org.javastory.server.channel.ChannelManager;
 import tools.MaplePacketCreator;
 
 public class StatEffect implements Serializable {
-
-    public static class BuffStatValue {
-
-        public BuffStat stat;
-        public int value;
-
-        public BuffStatValue(BuffStat stat, int value) {
-            this.stat = stat;
-            this.value = value;
-        }
-    }
-
-    public static class StatValue {
-
-        public Stat stat;
-        public int value;
-
-        public StatValue(Stat stat, int value) {
-            this.stat = stat;
-            this.value = value;
-        }
-    }
     private static final long serialVersionUID = 9179541993413738569L;
     private byte mastery, mhpR, mmpR, mobCount, attackCount, bulletCount;
     private short hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, mpCon, hpCon, damage, prop;

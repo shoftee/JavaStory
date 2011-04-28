@@ -50,7 +50,7 @@ CREATE TABLE `accounts` (
   `mPoints` int(11) DEFAULT NULL,
   `gender` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `loggedin` bit(1) NOT NULL DEFAULT b'0',
-  `session_ip` varchar(64) DEFAULT NULL,
+  `session_ip` varchar(20) DEFAULT NULL,
   `vpoints` int(50) DEFAULT '0',
   `spoints` int(50) DEFAULT '0',
   `lastlogin` timestamp NULL DEFAULT NULL,
@@ -68,40 +68,6 @@ CREATE TABLE `accounts` (
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `alliances`
---
-
-DROP TABLE IF EXISTS `alliances`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alliances` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `notice` varchar(101) NOT NULL,
-  `name` varchar(45) NOT NULL,
-  `guild1` int(10) NOT NULL DEFAULT '0',
-  `guild2` int(10) NOT NULL DEFAULT '0',
-  `guild3` int(10) NOT NULL DEFAULT '0',
-  `guild4` int(10) NOT NULL DEFAULT '0',
-  `guild5` int(10) NOT NULL DEFAULT '0',
-  `rank1` varchar(45) NOT NULL,
-  `rank2` varchar(45) NOT NULL,
-  `rank3` varchar(45) NOT NULL,
-  `rank4` varchar(45) NOT NULL,
-  `rank5` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `alliances`
---
-
-LOCK TABLES `alliances` WRITE;
-/*!40000 ALTER TABLE `alliances` DISABLE KEYS */;
-/*!40000 ALTER TABLE `alliances` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -284,7 +250,6 @@ CREATE TABLE `characters` (
   `jobRankMove` int(11) NOT NULL DEFAULT '0',
   `guildid` int(10) unsigned NOT NULL DEFAULT '0',
   `guildrank` int(10) unsigned NOT NULL DEFAULT '5',
-  `allianceRank` int(10) unsigned NOT NULL DEFAULT '5',
   `messengerid` int(10) unsigned NOT NULL DEFAULT '0',
   `messengerposition` int(10) unsigned NOT NULL DEFAULT '4',
   `monsterbookcover` int(11) unsigned NOT NULL DEFAULT '0',
@@ -517,18 +482,17 @@ CREATE TABLE `guilds` (
   `GP` int(10) unsigned NOT NULL DEFAULT '0',
   `logo` int(10) unsigned DEFAULT NULL,
   `logoColor` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(45) NOT NULL,
-  `rank1title` varchar(45) NOT NULL DEFAULT 'Master',
-  `rank2title` varchar(45) NOT NULL DEFAULT 'Jr. Master',
-  `rank3title` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank4title` varchar(45) NOT NULL DEFAULT 'Member',
-  `rank5title` varchar(45) NOT NULL DEFAULT 'Member',
+  `name` varchar(13) NOT NULL,
+  `rank1title` varchar(20) NOT NULL DEFAULT 'Master',
+  `rank2title` varchar(20) NOT NULL DEFAULT 'Jr. Master',
+  `rank3title` varchar(20) NOT NULL DEFAULT 'Member',
+  `rank4title` varchar(20) NOT NULL DEFAULT 'Member',
+  `rank5title` varchar(20) NOT NULL DEFAULT 'Member',
   `capacity` int(10) unsigned NOT NULL DEFAULT '10',
   `logoBG` int(10) unsigned DEFAULT NULL,
   `logoBGColor` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `notice` varchar(101) DEFAULT NULL,
+  `notice` varchar(100) DEFAULT NULL,
   `signature` int(11) NOT NULL DEFAULT '0',
-  `alliance` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1576,4 +1540,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-04-28  1:09:07
+-- Dump completed on 2011-04-28  6:35:49

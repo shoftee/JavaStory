@@ -18,7 +18,7 @@ import server.ItemInfoProvider;
 public class ActivePlayerStats extends PlayerStats implements Serializable {
 
     private static final long serialVersionUID = -679541993413738569L;
-    private transient WeakReference<ChannelCharacter> chr;
+    private transient WeakReference<ChannelCharacter> character;
     private transient float shouldHealHP, shouldHealMP;
     private transient short passive_sharpeye_percent, passive_sharpeye_rate;
     private transient int localmaxhp, localmaxmp, localSTR, localDEX, localLUK, localint_;
@@ -30,7 +30,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 
     public ActivePlayerStats(final ChannelCharacter chr) {
         // TODO, move str/dex/int etc here -_-
-        this.chr = new WeakReference<ChannelCharacter>(chr);
+        this.character = new WeakReference<>(chr);
     }
 
     public final void init() {
@@ -73,7 +73,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
         }
         this.HP = thp;
 
-        final ChannelCharacter chra = chr.get();
+        final ChannelCharacter chra = character.get();
         if (chra != null) {
             if (!silent) {
                 chra.updatePartyMemberHP();
@@ -157,7 +157,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
     }
 
     public void recalcLocalStats() {
-        final ChannelCharacter chra = chr.get();
+        final ChannelCharacter chra = character.get();
         if (chra == null) {
             return;
         }
@@ -502,7 +502,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
     }
 
     public final float calculateMaxBaseDamage(final int watk) {
-        final ChannelCharacter chra = chr.get();
+        final ChannelCharacter chra = character.get();
         if (chra == null) {
             return 0;
         }
@@ -575,7 +575,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
     }
 
     public final void relocHeal() {
-        final ChannelCharacter chra = chr.get();
+        final ChannelCharacter chra = character.get();
         if (chra == null) {
             return;
         }

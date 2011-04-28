@@ -26,7 +26,7 @@ public class Mount implements Serializable {
         this.fatigue = fatigue;
         this.level = level;
         this.exp = exp;
-        this.owner = new WeakReference<ChannelCharacter>(owner);
+        this.owner = new WeakReference<>(owner);
     }
 
     public void saveMount(final int characterId) throws SQLException {
@@ -34,12 +34,12 @@ public class Mount implements Serializable {
             return;
         }
         Connection con = DatabaseConnection.getConnection();
-        PreparedStatement ps = con.prepareStatement("UPDATE mountdata set `Level` = ?, `Exp` = ?, `Fatigue` = ? WHERE characterid = ?");
-        ps.setInt(1, level);
-        ps.setInt(2, exp);
-        ps.setInt(3, fatigue);
-        ps.setInt(4, characterId);
-        ps.close();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE mountdata set `Level` = ?, `Exp` = ?, `Fatigue` = ? WHERE characterid = ?")) {
+            ps.setInt(1, level);
+            ps.setInt(2, exp);
+            ps.setInt(3, fatigue);
+            ps.setInt(4, characterId);
+        }
     }
 
     public int getId() {

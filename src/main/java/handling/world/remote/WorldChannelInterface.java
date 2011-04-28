@@ -24,101 +24,101 @@ import org.javastory.client.MemberRank;
 
 public interface WorldChannelInterface extends Remote, WorldChannelCommonOperations {
 
-    public Properties getGameProperties() throws RemoteException;
-
     public void serverReady() throws RemoteException;
 
     public void shutdownLogin() throws RemoteException;
 
-    public String getIP(int channel) throws RemoteException;
+    public String getIP(int channelId) throws RemoteException;
 
     public void toggleMegaphoneMuteState() throws RemoteException;
 
     public boolean hasMerchant(int accountId) throws RemoteException;
 
-    public int find(String charName) throws RemoteException;
+    public int find(String characterName) throws RemoteException;
 
     public int find(int characterId) throws RemoteException;
 
     public Map<Integer, Integer> getConnected() throws RemoteException;
 
-    Party createParty(PartyMember chrfor) throws RemoteException;
+    Party createParty(PartyMember member) throws RemoteException;
 
-    Party getParty(int partyid) throws RemoteException;
+    Party getParty(int partyId) throws RemoteException;
 
-    public void updateParty(int partyid, PartyOperation operation, PartyMember target) throws RemoteException;
+    public void updateParty(int partyId, PartyOperation operation, PartyMember target) throws RemoteException;
 
-    public void partyChat(int partyid, String chattext, String namefrom) throws RemoteException;
+    public void partyChat(int partyId, String message, String sender) throws RemoteException;
 
     public boolean isAvailable() throws RemoteException;
 
-    public ChannelWorldInterface getChannelInterface(int channel) throws RemoteException;
+    public ChannelWorldInterface getChannelInterface(int channelId) throws RemoteException;
 
     public WorldLocation getLocation(String name) throws RemoteException;
 
     public CharacterIdChannelPair[] multiBuddyFind(int charIdFrom, int[] characterIds) throws RemoteException;
 
-    public void ChannelChange_Data(CharacterTransfer data, int characterid, int toChannel) throws RemoteException;
+    public void ChannelChange_Data(CharacterTransfer data, int characterId, int targetChannel) throws RemoteException;
 
-    public Guild getGuild(int id, GuildMember mgc) throws RemoteException;
+    public Guild getGuild(int id) throws RemoteException;
 
-    public void setGuildMemberOnline(GuildMember mgc, boolean bOnline, int channel) throws RemoteException;
+    public void setGuildMemberOnline(GuildMember member, boolean isOnline, int channelId) throws RemoteException;
 
-    public boolean addGuildMember(GuildMember mgc) throws RemoteException;
+    public boolean addGuildMember(GuildMember member) throws RemoteException;
 
-    public void leaveGuild(GuildMember mgc) throws RemoteException;
+    public void leaveGuild(GuildMember member) throws RemoteException;
 
-    public void guildChat(int gid, String name, int cid, String msg) throws RemoteException;
+    public void guildChat(int guildId, String sender, int characterId, String message) throws RemoteException;
 
-    public void allianceChat(int gid, String name, int cid, String msg) throws RemoteException;
+    public void allianceChat(int guildId, String sender, int characterId, String message) throws RemoteException;
 
-    public void changeRank(int gid, int cid, MemberRank newRank) throws RemoteException;
+    public void changeRank(int guildId, int characterId, MemberRank newRank) throws RemoteException;
 
-    public void expelMember(GuildMember initiator, String name, int cid) throws RemoteException;
+    public void expelMember(GuildMember initiator, int characterId) throws RemoteException;
 
-    public void setGuildNotice(int gid, String notice) throws RemoteException;
+    public void setGuildNotice(int guildId, String notice) throws RemoteException;
 
-    public void memberLevelJobUpdate(GuildMember mgc) throws RemoteException;
-
-    public void changeRankTitle(int gid, String[] ranks) throws RemoteException;
+    public void changeRankTitle(int guildId, String[] ranks) throws RemoteException;
 
     public int createGuild(int leaderId, String name) throws RemoteException;
 
-    public void setGuildEmblem(int gid, short bg, byte bgcolor, short logo, byte logocolor) throws RemoteException;
+    public void setGuildEmblem(int guildId, short background, byte backgroundColor, short logo, byte logoVariation) throws RemoteException;
 
-    public void disbandGuild(int gid) throws RemoteException;
+    public void disbandGuild(int guildId) throws RemoteException;
 
-    public boolean increaseGuildCapacity(int gid) throws RemoteException;
+    public boolean increaseGuildCapacity(int guildId) throws RemoteException;
 
-    public void gainGP(int gid, int amount) throws RemoteException;
+    public void gainGuildPoints(int guildId, int amount) throws RemoteException;
 
-    Messenger createMessenger(MessengerMember chrfor) throws RemoteException;
+    Messenger createMessenger(MessengerMember initiator) throws RemoteException;
 
-    Messenger getMessenger(int messengerid) throws RemoteException;
+    Messenger getMessenger(int messengerId) throws RemoteException;
 
-    public void leaveMessenger(int messengerid, MessengerMember target) throws RemoteException;
+    public void leaveMessenger(int messengerId, MessengerMember target) throws RemoteException;
 
-    public void joinMessenger(int messengerid, MessengerMember target, String from, int fromchannel) throws RemoteException;
+    public void joinMessenger(int messengerId, MessengerMember target, String from, int channelId) throws RemoteException;
 
-    public void silentJoinMessenger(int messengerid, MessengerMember target, int position) throws RemoteException;
+    public void silentJoinMessenger(int messengerId, MessengerMember target, int position) throws RemoteException;
 
-    public void silentLeaveMessenger(int messengerid, MessengerMember target) throws RemoteException;
+    public void silentLeaveMessenger(int messengerId, MessengerMember target) throws RemoteException;
 
-    public void messengerChat(int messengerid, String chattext, String namefrom) throws RemoteException;
+    public void messengerChat(int messengerId, String sender, String message) throws RemoteException;
 
-    public void declineChat(String target, String namefrom) throws RemoteException;
+    public void declineChat(String target, String sender) throws RemoteException;
 
-    public void updateMessenger(int messengerid, String namefrom, int fromchannel) throws RemoteException;
+    public void updateMessenger(int messengerId, String sender, int channelId) throws RemoteException;
 
-    public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) throws RemoteException;
+    public void addBuffsToStorage(int characterId, List<PlayerBuffValueHolder> buffs) throws RemoteException;
 
-    public Collection<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerBuffValueHolder> getBuffsFromStorage(int characterId) throws RemoteException;
 
-    public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException;
+    public void addCooldownsToStorage(int characterId, List<PlayerCooldownValueHolder> cooldowns) throws RemoteException;
 
-    public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(int characterId) throws RemoteException;
 
-    public void addDiseaseToStorage(int chrid, List<PlayerDiseaseValueHolder> toStore) throws RemoteException;
+    public void addDiseaseToStorage(int characterId, List<PlayerDiseaseValueHolder> diseases) throws RemoteException;
 
-    public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(int chrid) throws RemoteException;
+    public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(int characterId) throws RemoteException;
+
+    void updateGuildMemberJob(int guildId, int characterId, int jobId) throws RemoteException;
+
+    void updateGuildMemberLevel(int guildId, int characterId, short level) throws RemoteException;
 }

@@ -6,7 +6,6 @@ package org.javastory.server.handling;
 
 import org.javastory.client.ChannelClient;
 import handling.ClientPacketOpcode;
-import handling.channel.handler.AllianceHandler;
 import handling.channel.handler.BbsHandler;
 import handling.channel.handler.BuddyListHandler;
 import handling.channel.handler.ChatHandler;
@@ -280,9 +279,6 @@ public final class ChannelPacketHandler extends PacketHandler {
             case DENY_GUILD_REQUEST:
                 reader.skip(1);
                 GuildHandler.handleDenyGuildInvitation(reader.readLengthPrefixedString(), channelClient);
-                break;
-            case ALLIANCE_OPERATION:
-                AllianceHandler.handleAllianceOperation(reader, channelClient);
                 break;
             case BBS_OPERATION:
                 BbsHandler.handleBbsOperatopn(reader, channelClient);

@@ -42,7 +42,7 @@ import handling.world.PartyOperation;
 import handling.world.Guild;
 import handling.world.GuildSummary;
 import handling.world.GuildMember;
-import handling.world.GuildUnion;
+import java.util.Calendar;
 import java.util.EnumSet;
 import org.javastory.client.MemberRank;
 import org.javastory.game.Jobs;
@@ -65,8 +65,8 @@ import server.maps.Mist;
 import server.maps.GameMapItem;
 import server.movement.LifeMovementFragment;
 import org.javastory.io.PacketBuilder;
-import server.StatEffect.BuffStatValue;
-import server.StatEffect.StatValue;
+import server.BuffStatValue;
+import server.StatValue;
 import tools.packet.PacketHelper;
 
 public final class MaplePacketCreator {
@@ -296,9 +296,9 @@ public final class MaplePacketCreator {
         builder.writeAsByte(4);
         builder.writeAsShort(summon.isPuppet() ? 179 : 14);
         // 0 = don't move, 1 = follow (4th mage summons?), 2/4 = only tele follow, 3 = bird follow
-        builder.writeAsByte(summon.getMovementType().getValue()); 
+        builder.writeAsByte(summon.getMovementType().getValue());
         // 0 = Summon can't attack - but puppets don't attack with 1 either =.=
-        builder.writeAsByte(!summon.isPuppet()); 
+        builder.writeAsByte(!summon.isPuppet());
         builder.writeAsShort(!animated);
 
         return builder.getPacket();
@@ -362,11 +362,11 @@ public final class MaplePacketCreator {
 
     private static GamePacket serverMessage(int type, int channel, String message, boolean servermessage, boolean whisperEnabled) {
         PacketBuilder builder = new PacketBuilder();
-        
+
         builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
         // See ServerMessageType enum
         builder.writeAsByte(type);
-        
+
         if (servermessage) {
             builder.writeAsByte(1);
         }
@@ -729,7 +729,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket spawnPlayerMapobject(ChannelCharacter chr) {
+    public static GamePacket spawnPlayerMapObject(ChannelCharacter chr) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.SPAWN_PLAYER.getValue());
@@ -1367,8 +1367,8 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket damagePlayer(int skill, int monsteridfrom, int cid, 
-            int damage, int fake, byte direction, int reflect, boolean isPowerGuard, 
+    public static GamePacket damagePlayer(int skill, int monsteridfrom, int cid,
+            int damage, int fake, byte direction, int reflect, boolean isPowerGuard,
             int oid, int pos_x, int pos_y) {
         PacketBuilder builder = new PacketBuilder();
 
@@ -1475,13 +1475,7 @@ public final class MaplePacketCreator {
         } else {
             final GuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
             builder.writeLengthPrefixedString(gs.getName());
-            final GuildUnion union = chr.getGuild().getUnion(chr.getClient());
-            if (union == null) {
-                builder.writeLengthPrefixedString("");
-                //builder.writeLengthPrefixedString("Resets: " + chr.getReborns());
-            } else {
-                builder.writeLengthPrefixedString(union.getName());
-            }
+            builder.writeLengthPrefixedString("");
         }
         builder.writeAsByte(0);
         final Inventory equippedItemsInventory = chr.getEquippedItemsInventory();
@@ -2607,14 +2601,17 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket getClockTime(int hour, int min, int sec) { // Current Time
+    public static GamePacket getClockTime(Calendar cal) {
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+        int second = cal.get(Calendar.SECOND);
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.CLOCK.getValue());
         builder.writeAsByte(1); //Clock-Type
         builder.writeAsByte(hour);
-        builder.writeAsByte(min);
-        builder.writeAsByte(sec);
+        builder.writeAsByte(minute);
+        builder.writeAsByte(second);
 
         return builder.getPacket();
     }
@@ -2857,42 +2854,41 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showGuildInfo(ChannelCharacter c) {
+    public static GamePacket showNullGuildInfo() {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x1A); //signature for showing guild info
 
-        if (c == null) { //show empty guild (used for leaving, expelled)
-            builder.writeAsByte(0);
-            return builder.getPacket();
-        }
-        GuildMember initiator = c.getGuildMembership();
-        Guild g = c.getClient().getChannelServer().getGuild(initiator);
-        if (g == null) { //failed to read from DB - don't show a guild
-            builder.writeAsByte(0);
-            return builder.getPacket();
-        } else {
-            //MapleGuild holds the absolute correct value of guild rank after it is initiated
-            GuildMember mgc = g.getMember(c.getId());
-            c.setGuildRank(mgc.getRank());
-        }
+        builder.writeAsByte(0);
+        return builder.getPacket();
+    }
+
+    public static GamePacket showGuildInfo(ChannelClient c, int guildId) {
+        PacketBuilder builder = new PacketBuilder();
+
+        builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
+        builder.writeAsByte(0x1A); //signature for showing guild info
+
+        // TODO: Client is only used to get the guild information. Retarded.
+        final Guild guild = c.getChannelServer().getGuild(guildId);
+
         builder.writeAsByte(1); //bInGuild
-        builder.writeInt(c.getGuildId()); //not entirely sure about this one
-        builder.writeLengthPrefixedString(g.getName());
+        builder.writeInt(guildId); //not entirely sure about this one
+        builder.writeLengthPrefixedString(guild.getName());
         for (int i = 1; i <= 5; i++) {
             final MemberRank rank = MemberRank.fromNumber(i);
-            builder.writeLengthPrefixedString(g.getRankTitle(rank));
+            builder.writeLengthPrefixedString(guild.getRankTitle(rank));
         }
-        g.addMemberData(builder);
+        guild.addMemberData(builder);
 
-        builder.writeInt(g.getCapacity());
-        builder.writeAsShort(g.getLogoBG());
-        builder.writeAsByte(g.getLogoBGColor());
-        builder.writeAsShort(g.getLogo());
-        builder.writeAsByte(g.getLogoColor());
-        builder.writeLengthPrefixedString(g.getNotice());
-        builder.writeInt(g.getGP());
+        builder.writeInt(guild.getCapacity());
+        builder.writeAsShort(guild.getLogoBG());
+        builder.writeAsByte(guild.getLogoBGColor());
+        builder.writeAsShort(guild.getLogo());
+        builder.writeAsByte(guild.getLogoColor());
+        builder.writeLengthPrefixedString(guild.getNotice());
+        builder.writeInt(guild.getGuildPoints());
         builder.writeInt(0);
 
         return builder.getPacket();
@@ -2910,15 +2906,15 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket guildInvite(int gid, String charName, int levelFrom, int jobFrom) {
+    public static GamePacket guildInvite(int guildId, String sender, int senderLevel, int senderJob) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x05);
-        builder.writeInt(gid);
-        builder.writeLengthPrefixedString(charName);
-        builder.writeInt(levelFrom);
-        builder.writeInt(jobFrom);
+        builder.writeInt(guildId);
+        builder.writeLengthPrefixedString(sender);
+        builder.writeInt(senderLevel);
+        builder.writeInt(senderJob);
 
         return builder.getPacket();
     }
@@ -2948,7 +2944,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x27);
         builder.writeInt(mgc.getGuildId());
-        builder.writeInt(mgc.getId());
+        builder.writeInt(mgc.getCharacterId());
         builder.writePaddedString(mgc.getName(), 13);
         builder.writeInt(mgc.getJobId());
         builder.writeInt(mgc.getLevel());
@@ -2968,7 +2964,7 @@ public final class MaplePacketCreator {
         builder.writeAsByte(bExpelled ? 0x2f : 0x2c);
 
         builder.writeInt(mgc.getGuildId());
-        builder.writeInt(mgc.getId());
+        builder.writeInt(mgc.getCharacterId());
         builder.writeLengthPrefixedString(mgc.getName());
 
         return builder.getPacket();
@@ -2980,7 +2976,7 @@ public final class MaplePacketCreator {
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x40);
         builder.writeInt(mgc.getGuildId());
-        builder.writeInt(mgc.getId());
+        builder.writeInt(mgc.getCharacterId());
         builder.writeAsByte(mgc.getRank().asNumber() + 1);
 
         return builder.getPacket();
@@ -2997,15 +2993,15 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket guildMemberLevelJobUpdate(GuildMember mgc) {
+    public static GamePacket guildMemberInfoUpdate(GuildMember member) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
         builder.writeAsByte(0x3C);
-        builder.writeInt(mgc.getGuildId());
-        builder.writeInt(mgc.getId());
-        builder.writeInt(mgc.getLevel());
-        builder.writeInt(mgc.getJobId());
+        builder.writeInt(member.getGuildId());
+        builder.writeInt(member.getCharacterId());
+        builder.writeInt(member.getLevel());
+        builder.writeInt(member.getJobId());
 
         return builder.getPacket();
     }
@@ -3059,80 +3055,16 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket showGuildUnionInfo(ChannelCharacter chr) {
+    public static GamePacket showNullGuildUnionInfo() {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
         builder.writeAsByte(0x0C);
-        GuildUnion union = chr.getGuild().getUnion(chr.getClient());
-        if (union == null) { //show empty alliance (used for leaving, expelled)
-            builder.writeAsByte(0);
-            return builder.getPacket();
-        }
-        builder.writeAsByte(1); //Only happens if you are in an alliance
-        builder.writeInt(union.getId());
-        builder.writeLengthPrefixedString(union.getName()); // alliance name
-        for (String title : union.getTitles()) {
-            builder.writeLengthPrefixedString(title);
-        }
-        builder.writeAsByte(union.getAmountOfGuilds());//ammount of guilds joined
-        for (int z = 0; z < 5; z++) {
-            if (union.getGuilds().get(z) != null) {
-                builder.writeInt(union.getGuilds().get(z).getId());
-            }
-        }
-        builder.writeInt(3);//3..
-        builder.writeLengthPrefixedString(union.getNotice());
-
+        builder.writeAsByte(0);
         return builder.getPacket();
     }
 
-    public static GamePacket createAlliance(String name) {
-        PacketBuilder builder = new PacketBuilder();
-
-        builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
-        builder.writeAsByte(0x0F);
-
-        return builder.getPacket();
-    }
-
-    public static GamePacket showAllianceMembers(ChannelCharacter chr) {
-        PacketBuilder builder = new PacketBuilder();
-        builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
-        builder.writeAsByte(0x0D);
-        GuildUnion az = chr.getGuild().getUnion(chr.getClient());
-        int e = 0;
-        for (int u = 0; u < 5; u++) {
-            if (az.getGuilds().get(u) != null) {
-                e++;
-            }
-        }
-        builder.writeInt(e);//ammount of guilds joined
-        chr.setGuildRank(chr.getGuild().getMember(chr.getId()).getRank());
-        for (int i = 0; i < 5; i++) {
-            Guild g = az.getGuilds().get(i);
-            if (g != null) {
-                builder.writeInt(g.getId());
-                builder.writeLengthPrefixedString(g.getName());
-                for (int ordinal = 1; ordinal <= 5; ordinal++) {
-                    final MemberRank rank = MemberRank.fromNumber(ordinal);
-                    builder.writeLengthPrefixedString(g.getRankTitle(rank));
-                }
-                g.addMemberData(builder);
-                builder.writeInt(g.getCapacity());
-                builder.writeAsShort(g.getLogoBG());
-                builder.writeAsByte(g.getLogoBGColor());
-                builder.writeAsShort(g.getLogo());
-                builder.writeAsByte(g.getLogoColor());
-                builder.writeLengthPrefixedString(g.getNotice());
-                builder.writeInt(g.getGP());
-                builder.writeBytes(HexTool.getByteArrayFromHexString("0F 03 00 00"));
-            }
-        }
-        return builder.getPacket();
-    }
-
-    public static GamePacket BBSThreadList(ResultSet rs, int start) throws SQLException {
+    public static GamePacket showBbsThreadList(ResultSet rs, int start) throws SQLException {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.BBS_OPERATION.getValue());
@@ -3225,7 +3157,7 @@ public final class MaplePacketCreator {
         return builder.getPacket();
     }
 
-    public static GamePacket updateGP(int gid, int GP) {
+    public static GamePacket updateGuildPoints(int gid, int GP) {
         PacketBuilder builder = new PacketBuilder();
 
         builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());

@@ -66,7 +66,6 @@ import handling.world.PartyOperation;
 import handling.world.PlayerBuffValueHolder;
 import handling.world.PlayerCooldownValueHolder;
 import handling.world.PlayerDiseaseValueHolder;
-import handling.world.GuildUnion;
 import handling.world.Guild;
 import handling.world.GuildMember;
 import handling.world.remote.WorldChannelInterface;
@@ -116,8 +115,8 @@ import org.javastory.quest.QuestInfoProvider.QuestInfo;
 import org.javastory.server.FameLog;
 import org.javastory.server.Notes;
 import org.javastory.server.Notes.Note;
-import server.StatEffect.BuffStatValue;
-import server.StatEffect.StatValue;
+import server.BuffStatValue;
+import server.StatValue;
 
 public class ChannelCharacter extends AbstractAnimatedGameMapObject implements GameCharacter, Serializable {
 
@@ -176,10 +175,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
     //
     private int guildId;
     private MemberRank guildRank;
-    private GuildMember guildCharacter;
-    //
-    private GuildUnion guildUnion;
-    private MemberRank guildUnionRank;
+    private GuildMember guildMember;
     //
     private BuddyList buddies;
     private MonsterBook monsterBook;
@@ -293,12 +289,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
         ret.guildId = ct.GuildId;
         ret.guildRank = ct.GuildRank;
 
-        ret.guildUnionRank = ct.GuildUnionRank;
         ret.subcategory = ct.Subcategory;
         ret.ondmg = ct.ondmg;
         ret.callgm = ct.callgm;
         if (ret.guildId > 0) {
-            ret.guildCharacter = new GuildMember(ret);
+            ret.guildMember = new GuildMember(ret);
         }
         ret.buddies = new BuddyList(ct.BuddyListCapacity);
 
@@ -439,10 +434,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
             ret.jobRankMove = rs.getInt("jobRankMove");
             ret.guildId = rs.getInt("guildid");
             ret.guildRank = MemberRank.fromNumber(rs.getInt("guildrank"));
-            ret.guildUnionRank = MemberRank.fromNumber(rs.getInt("allianceRank"));
             ret.reborns = rs.getInt("reborns");
             if (ret.guildId > 0) {
-                ret.guildCharacter = new GuildMember(ret);
+                ret.guildMember = new GuildMember(ret);
             }
             ret.buddies = new BuddyList(rs.getInt("buddyCapacity"));
 
@@ -1531,7 +1525,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
             if (effect.isHide() &&
                     (ChannelCharacter) map.getMapObject(getObjectId()) != null) {
                 this.hidden = false;
-                map.broadcastMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
+                map.broadcastMessage(this, MaplePacketCreator.spawnPlayerMapObject(this), false);
 
                 for (final Pet pet : pets) {
                     if (pet.getSummoned()) {
@@ -2200,7 +2194,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
         client.write(MaplePacketCreator.updatePlayerStats(statup, getJobId()));
         map.broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 8), false);
         silentPartyUpdate();
-        guildUpdate();
+        updateJob();
         if (dragon != null) {
             map.broadcastMessage(MaplePacketCreator.removeDragon(this.id));
             map.removeMapObject(dragon);
@@ -2428,8 +2422,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
             client.write(MaplePacketCreator.updateSp(this, itemReaction, false));
             return;
         }
-        StatValue statpair = new StatValue(stat, Integer.valueOf(newval));
-        client.write(MaplePacketCreator.updatePlayerStats(Collections.singletonList(statpair), itemReaction, getJobId()));
+        StatValue value = new StatValue(stat, Integer.valueOf(newval));
+        client.write(MaplePacketCreator.updatePlayerStats(Collections.singletonList(value), itemReaction, getJobId()));
     }
 
     public void gainExp(final int total, final boolean show, final boolean inChat, final boolean white) {
@@ -2910,7 +2904,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
         map.broadcastMessage(this, MaplePacketCreator.showForeignEffect(getId(), 0), false);
         stats.recalcLocalStats();
         silentPartyUpdate();
-        guildUpdate();
+        updateLevel();
         NpcScriptManager.getInstance().start(getClient(), 9105010); // Vavaan
     }
 
@@ -3021,7 +3015,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
     @Override
     public void sendSpawnData(ChannelClient client) {
         if (!isHidden()) {
-            client.write(MaplePacketCreator.spawnPlayerMapobject(this));
+            client.write(MaplePacketCreator.spawnPlayerMapObject(this));
 
             for (final Pet pet : pets) {
                 if (pet.getSummoned()) {
@@ -3281,58 +3275,61 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
     public void setGuildId(int _id) {
         guildId = _id;
         if (guildId > 0) {
-            if (guildCharacter == null) {
-                guildCharacter = new GuildMember(this);
+            if (guildMember == null) {
+                guildMember = new GuildMember(this);
             } else {
-                guildCharacter.setGuildId(guildId);
+                guildMember.setGuildId(guildId);
             }
         } else {
-            guildCharacter = null;
+            guildMember = null;
         }
     }
 
     public void setGuildRank(MemberRank newRank) {
         guildRank = newRank;
-        if (guildCharacter != null) {
-            guildCharacter.setGuildRank(newRank);
+        if (guildMember != null) {
+            guildMember.setGuildRank(newRank);
         }
     }
 
     public GuildMember getGuildMembership() {
-        return guildCharacter;
-    }
-
-    public void setGuildUnionRank(MemberRank rank) {
-        // TODO: Union rank change logic
-        guildUnionRank = rank;
-    }
-
-    public MemberRank getGuildUnionRank() {
-        return guildUnionRank;
+        return guildMember;
     }
 
     public Guild getGuild() {
         try {
-            return client.getChannelServer().getWorldInterface().getGuild(getGuildId(), null);
+            return client.getChannelServer().getWorldInterface().getGuild(getGuildId());
         } catch (RemoteException e) {
             client.getChannelServer().pingWorld();
         }
         return null;
     }
 
-    public void guildUpdate() {
-        if (guildId <= 0) {
+    private void updateJob() {
+        final WorldChannelInterface world = client.getChannelServer().getWorldInterface();
+        if (guildMember == null) {
             return;
+        } else {
+            try {
+                world.updateGuildMemberJob(guildId, hairId, jobId);
+            } catch (RemoteException ex) {
+                System.err.println("Could not update level: " + ex);
+            }
         }
-        guildCharacter.setLevel((short) level);
-        guildCharacter.setJobId(jobId);
+    }
 
-        try {
-            client.getChannelServer().getWorldInterface().memberLevelJobUpdate(guildCharacter);
-        } catch (RemoteException re) {
-            System.err.println("RemoteExcept while trying to update level/job in guild." +
-                    re);
+    private void updateLevel() {
+        final WorldChannelInterface world = client.getChannelServer().getWorldInterface();
+        if (guildMember == null) {
+            return;
+        } else {
+            try {
+                world.updateGuildMemberLevel(guildId, hairId, level);
+            } catch (RemoteException ex) {
+                System.err.println("Could not update level: " + ex);
+            }
         }
+        // TODO: more stuff here.
     }
 
     public void setReborns(int reborns) {
@@ -3351,10 +3348,6 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
         } catch (SQLException se) {
             System.err.println("SQL error: " + se.getLocalizedMessage() + se);
         }
-    }
-
-    public GuildUnion getGuildUnion() {
-        return guildUnion;
     }
 
     public void modifyCSPoints(int type, int quantity, boolean show) {

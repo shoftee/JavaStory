@@ -101,7 +101,7 @@ public class BbsHandler {
 	    ps.setInt(1, c.getPlayer().getGuildId());
 	    ResultSet rs = ps.executeQuery();
 
-	    c.write(MaplePacketCreator.BBSThreadList(rs, start));
+	    c.write(MaplePacketCreator.showBbsThreadList(rs, start));
 
 	    rs.close();
 	    ps.close();
