@@ -22,10 +22,11 @@ package javastory.channel.shops;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import server.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
+import server.maps.GameMapObjectType;
 
 public class GenericPlayerStore extends AbstractPlayerShop {
 

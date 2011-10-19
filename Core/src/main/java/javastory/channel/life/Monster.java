@@ -1,6 +1,7 @@
 package javastory.channel.life;
 
-import javastory.game.SkillLevelEntry;
+import handling.ServerConstants;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,30 +12,31 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 
-import client.Disease;
-import client.BuffStat;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.Party;
+import javastory.channel.PartyMember;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.client.status.MonsterStatus;
 import javastory.channel.client.status.MonsterStatusEffect;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import handling.ServerConstants;
-import javastory.channel.Party;
-import javastory.channel.PartyMember;
+import javastory.channel.maps.GameMap;
+import javastory.channel.packet.MobPacket;
+import javastory.game.SkillLevelEntry;
+import javastory.server.ChannelServer;
 import scripting.EventInstanceManager;
 import server.TimerManager;
-import javastory.channel.maps.GameMap;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
-import javastory.channel.packet.MobPacket;
-import javastory.server.ChannelServer;
 import server.life.Element;
 import server.life.ElementalEffectiveness;
 import server.life.MonsterListener;
 import server.life.MonsterStats;
 import server.life.OverrideMonsterStats;
+import server.maps.GameMapObjectType;
+import tools.MaplePacketCreator;
+import client.BuffStat;
+import client.Disease;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class Monster extends AbstractLoadedGameLife {
 
@@ -848,10 +850,6 @@ public class Monster extends AbstractLoadedGameLife {
 
         public final long getLastAttackTime() {
             return lastAttackTime;
-        }
-
-        public final void setLastAttackTime(final long lastAttackTime) {
-            this.lastAttackTime = lastAttackTime;
         }
 
         public final ChannelCharacter getAttacker() {

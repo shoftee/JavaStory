@@ -22,13 +22,14 @@ package scripting;
 
 import java.util.Map;
 import java.util.WeakHashMap;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 import javastory.channel.ChannelClient;
 import javastory.quest.QuestInfoProvider;
 import javastory.quest.QuestInfoProvider.QuestInfo;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
 public final class NpcScriptManager extends AbstractScriptManager {
 

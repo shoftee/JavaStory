@@ -1,9 +1,8 @@
 package javastory.game;
 
-import javastory.game.WeaponType;
-import javastory.game.InventoryType;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
+
 import server.maps.GameMapObjectType;
 
 public class GameConstants {

@@ -4,17 +4,17 @@
  */
 package javastory.channel;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Map;
 
+import javastory.db.DatabaseConnection;
 import javastory.server.ChannelInfo;
 import javastory.server.ChannelServer;
-import javastory.db.DatabaseConnection;
 
 import com.google.common.collect.Maps;
 

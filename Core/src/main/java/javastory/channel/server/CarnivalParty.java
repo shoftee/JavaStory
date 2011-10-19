@@ -1,8 +1,9 @@
 package javastory.channel.server;
 
-import javastory.channel.ChannelCharacter;
 import java.util.LinkedList;
 import java.util.List;
+
+import javastory.channel.ChannelCharacter;
 import javastory.channel.maps.GameMap;
 import tools.MaplePacketCreator;
 

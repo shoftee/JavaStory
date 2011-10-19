@@ -1,15 +1,16 @@
 package javastory.channel.packet;
 
-import java.util.List;
-
-import client.Pet;
-import client.Stat;
-import javastory.channel.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
+
+import java.util.List;
+
+import javastory.channel.ChannelCharacter;
+import javastory.io.PacketBuilder;
 import server.movement.LifeMovementFragment;
 import tools.HexTool;
-import javastory.io.PacketBuilder;
+import client.Pet;
+import client.Stat;
 
 public class PetPacket {
 

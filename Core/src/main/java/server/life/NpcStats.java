@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class NpcStats {
 

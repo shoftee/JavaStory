@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.PartyMember;
@@ -119,8 +120,7 @@ public class Door extends AbstractGameMapObject {
         final ChannelCharacter clientPlayer = client.getPlayer();
 
         final boolean isInDoorMap = target.getId() == clientPlayer.getMapId();
-        final boolean isOwner = owner == clientPlayer;
-
+        
         final PartyMember ownerMember = owner.getPartyMembership();
         final PartyMember clientMember = clientPlayer.getPartyMembership();
 

@@ -1,13 +1,12 @@
 package javastory.channel.client;
 
-import javastory.channel.ChannelCharacter;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.concurrent.ScheduledFuture;
-import java.io.Serializable;
 
+import javastory.channel.ChannelCharacter;
 import javastory.db.DatabaseConnection;
 import javastory.tools.Randomizer;
 import tools.MaplePacketCreator;
@@ -17,7 +16,6 @@ public class Mount implements Serializable {
     private static final long serialVersionUID = 9179541993413738569L;
     private int itemId, skillId, fatigue, exp, level;
     private transient boolean changed = false;
-    private transient ScheduledFuture<?> tirednessSchedule = null;
     private transient WeakReference<ChannelCharacter> owner;
 
     public Mount(ChannelCharacter owner, int id, int skillid, int fatigue, int level, int exp) {

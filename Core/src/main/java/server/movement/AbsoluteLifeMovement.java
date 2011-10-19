@@ -21,6 +21,7 @@
 package server.movement;
 
 import java.awt.Point;
+
 import javastory.io.PacketBuilder;
 
 public class AbsoluteLifeMovement extends AbstractLifeMovement {

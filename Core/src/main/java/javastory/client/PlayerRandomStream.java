@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.client;
 
-import javastory.tools.Randomizer;
 import javastory.io.PacketBuilder;
+import javastory.tools.Randomizer;
 
 public class PlayerRandomStream {
 

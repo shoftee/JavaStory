@@ -4,8 +4,8 @@ import java.awt.Point;
 import java.rmi.RemoteException;
 
 import javastory.channel.ChannelCharacter;
-import server.TimerManager;
 import javastory.channel.life.LifeFactory;
+import server.TimerManager;
 import tools.MaplePacketCreator;
 
 public class AramiaFireWorks {

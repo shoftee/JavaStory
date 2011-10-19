@@ -20,9 +20,9 @@
 */
 package javastory.channel.packet;
 
-import javastory.channel.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
+import javastory.channel.ChannelCharacter;
 import javastory.channel.server.CarnivalParty;
 import javastory.io.PacketBuilder;
 

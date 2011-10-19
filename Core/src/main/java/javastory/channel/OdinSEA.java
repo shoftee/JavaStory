@@ -1,9 +1,9 @@
 package javastory.channel;
 
 import javastory.server.ChannelServer;
+import javastory.tools.Randomizer;
 import server.TimerManager;
 import tools.MaplePacketCreator;
-import javastory.tools.Randomizer;
 
 public class OdinSEA {
 

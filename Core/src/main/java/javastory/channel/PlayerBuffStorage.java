@@ -20,16 +20,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import javastory.world.core.PlayerCooldownValueHolder;
-import javastory.world.core.PlayerDiseaseValueHolder;
 import java.io.Serializable;
 import java.util.Collection;
 
+import javastory.world.core.PlayerCooldownValueHolder;
+import javastory.world.core.PlayerDiseaseValueHolder;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 public class PlayerBuffStorage implements Serializable {
 
-    private final Multimap<Integer, PlayerBuffValueHolder> buffs =
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2496799531785198823L;
+	
+	private final Multimap<Integer, PlayerBuffValueHolder> buffs =
             HashMultimap.create();
     private final Multimap<Integer, PlayerCooldownValueHolder> cooldowns =
             HashMultimap.create();

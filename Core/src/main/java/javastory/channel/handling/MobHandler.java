@@ -23,18 +23,18 @@ package javastory.channel.handling;
 import java.awt.Point;
 import java.util.List;
 
-import javastory.channel.ChannelClient;
 import javastory.channel.ChannelCharacter;
-import javastory.game.SkillLevelEntry;
-import javastory.io.PacketFormatException;
-import javastory.tools.Randomizer;
-import javastory.channel.maps.GameMap;
-import javastory.channel.life.Monster;
+import javastory.channel.ChannelClient;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.MobSkillFactory;
-import server.movement.LifeMovementFragment;
+import javastory.channel.life.Monster;
+import javastory.channel.maps.GameMap;
 import javastory.channel.packet.MobPacket;
+import javastory.game.SkillLevelEntry;
+import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.tools.Randomizer;
+import server.movement.LifeMovementFragment;
 
 public class MobHandler {
 

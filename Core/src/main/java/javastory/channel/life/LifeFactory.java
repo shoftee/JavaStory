@@ -1,19 +1,18 @@
 package javastory.channel.life;
 
-import javastory.game.SkillLevelEntry;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.awt.Point;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javastory.db.DatabaseConnection;
-
+import javastory.game.SkillLevelEntry;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;

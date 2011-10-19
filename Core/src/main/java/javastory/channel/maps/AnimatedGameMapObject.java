@@ -20,7 +20,6 @@
 */
 package javastory.channel.maps;
 
-import javastory.channel.maps.GameMapObject;
 
 public interface AnimatedGameMapObject extends GameMapObject {
     int getStance();

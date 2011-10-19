@@ -1,8 +1,8 @@
 package javastory.io;
 
-import com.google.common.base.Preconditions;
 import java.awt.Point;
-import javastory.io.PacketFormatException;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Provides forward-only readBytes access to a game packet.

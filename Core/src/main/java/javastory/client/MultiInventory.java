@@ -4,11 +4,13 @@
  */
 package javastory.client;
 
-import client.Inventory;
-import javastory.game.InventoryType;
-import com.google.common.collect.Maps;
 import java.util.Iterator;
 import java.util.Map;
+
+import javastory.game.InventoryType;
+import client.Inventory;
+
+import com.google.common.collect.Maps;
 
 /**
  *

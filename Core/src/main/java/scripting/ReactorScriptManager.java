@@ -29,13 +29,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javastory.channel.ChannelClient;
+import javastory.channel.maps.Reactor;
+import javastory.db.DatabaseConnection;
+
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import javastory.channel.ChannelClient;
-import javastory.db.DatabaseConnection;
 import server.maps.ReactorDropEntry;
-import javastory.channel.maps.Reactor;
 
 public final class ReactorScriptManager extends AbstractScriptManager {
 

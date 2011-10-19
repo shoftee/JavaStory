@@ -1,12 +1,16 @@
 package javastory.cryptography;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.security.Security;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.Security;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import tools.HexTool;
 
-import static com.google.common.base.Preconditions.*;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import tools.HexTool;
 
 /**
  * Provides AES cryptographic rolling transformation.

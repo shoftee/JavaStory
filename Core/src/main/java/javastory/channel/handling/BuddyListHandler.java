@@ -26,19 +26,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javastory.channel.client.BuddyList;
-import client.BuddyListEntry;
-import client.SimpleCharacterInfo;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import client.BuddyAddResult;
-import client.BuddyOperation;
+import javastory.channel.client.BuddyList;
 import javastory.db.DatabaseConnection;
-import javastory.rmi.ChannelWorldInterface;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.WorldChannelInterface;
 import tools.MaplePacketCreator;
+import client.BuddyAddResult;
+import client.BuddyListEntry;
+import client.BuddyOperation;
+import client.SimpleCharacterInfo;
 
 public class BuddyListHandler {
 

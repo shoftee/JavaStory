@@ -1,21 +1,23 @@
 package javastory.server.channel;
 
-import java.util.Map;
-import java.util.List;
+import handling.GamePacket;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.ChannelCharacter;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import handling.GamePacket;
 import javastory.channel.CharacterTransfer;
 import javastory.world.core.CheaterData;
-import java.util.Collection;
 import server.TimerManager;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class PlayerStorage {
 

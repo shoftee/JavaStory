@@ -22,7 +22,7 @@ public class SpawnMonsterCommand implements Command {
 		Double pexp = getNamedDoubleArg(splitted, 1, "pexp");
 		final Monster onemob = LifeFactory.getMonster(mid);
 		int newhp = 0, newexp = 0;
-		final double oldExpRatio = ((double) onemob.getHp() / onemob.getMobExp());
+
 		if (hp != null) {
 			newhp = hp.intValue();
 		} else if (php != null) {
@@ -40,7 +40,7 @@ public class SpawnMonsterCommand implements Command {
 		if (newhp < 1) {
 			newhp = 1;
 		}
-		final double newExpRatio = ((double) newhp / newexp);
+
 		if (c.getPlayer().getGmLevel() <= 5) { // bad animal
 			if (mid == 8810018 || mid == 5100001 || mid == 5130106 || mid == 8190001 || mid == 9001009 || mid == 9300256 || mid == 9300257 || mid == 9300280 || mid == 9300281 || mid == 9300282 || mid == 9300283 || mid == 9300284) {
 				c.getPlayer().sendNotice(6, "This monster is blocked.");

@@ -1,44 +1,46 @@
 package javastory.channel.client.messages.commands;
 
+import handling.ServerPacketOpcode;
+
+import java.rmi.RemoteException;
+import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.text.DateFormat;
 
-import client.Equip;
-import javastory.game.GameConstants;
-import client.IItem;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import client.Inventory;
-import javastory.game.InventoryType;
 import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import com.google.common.collect.Maps;
-import handling.ServerPacketOpcode;
-import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.List;
-import javastory.server.Bans;
-import scripting.PortalScriptManager;
-import scripting.ReactorScriptManager;
-import javastory.channel.server.InventoryManipulator;
-import javastory.server.ItemInfoProvider;
-import javastory.channel.server.Portal;
-import javastory.channel.server.ShopFactory;
-import server.life.MonsterInfoProvider;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObject;
-import server.maps.GameMapObjectType;
 import javastory.channel.maps.Reactor;
+import javastory.channel.server.InventoryManipulator;
+import javastory.channel.server.Portal;
+import javastory.channel.server.ShopFactory;
+import javastory.game.GameConstants;
+import javastory.game.InventoryType;
+import javastory.server.Bans;
 import javastory.server.ChannelServer;
+import javastory.server.ItemInfoProvider;
+import scripting.PortalScriptManager;
+import scripting.ReactorScriptManager;
+import server.life.MonsterInfoProvider;
+import server.maps.GameMapObjectType;
 import server.maps.ReactorFactory;
 import server.maps.ReactorStats;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.StringUtil;
+import client.Equip;
+import client.IItem;
+import client.Inventory;
+
+import com.google.common.collect.Maps;
 
 public class GM5Commands implements Command {
 
@@ -227,7 +229,7 @@ public class GM5Commands implements Command {
             }
         } else {
             if (Bans.banBySessionIP(splitted[1], sb.toString())) {
-                sb.append(" (IP: ").append(chr.getClient().getSessionIP()).append(")");
+                sb.append(" (IP: ").append(splitted[1]).append(")");
             } else {
                 player.sendNotice(6, "Failed to ban " + splitted[1]);
             }

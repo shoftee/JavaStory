@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.handling;
 
-import javastory.channel.ChannelCharacter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.db.DatabaseConnection;
 import javastory.io.PacketFormatException;

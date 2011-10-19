@@ -20,21 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.client;
 
-import javastory.game.GameConstants;
-import com.google.common.collect.Maps;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.Serializable;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javastory.db.DatabaseConnection;
-import javastory.client.GameClient;
-import javastory.server.ItemInfoProvider;
+import javastory.game.GameConstants;
 import javastory.io.PacketBuilder;
+import javastory.server.ItemInfoProvider;
 import tools.packet.MonsterBookPacket;
+
+import com.google.common.collect.Maps;
 
 public class MonsterBook implements Serializable {
 

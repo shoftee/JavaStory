@@ -4,8 +4,8 @@
  */
 package javastory.client;
 
-import client.Inventory;
 import javastory.game.Gender;
+import client.Inventory;
 
 /**
  *

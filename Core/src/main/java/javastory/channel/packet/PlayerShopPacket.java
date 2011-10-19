@@ -20,17 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.packet;
 
-import javastory.channel.ChannelCharacter;
-import client.IItem;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import server.MerchItemPackage;
+import javastory.channel.ChannelCharacter;
+import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.HiredMerchantStore;
 import javastory.channel.shops.PlayerShop;
-import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.PlayerShopItem;
 import javastory.io.PacketBuilder;
+import server.MerchItemPackage;
 import tools.packet.GameCharacterPacket;
+import client.IItem;
 
 public final class PlayerShopPacket {
 

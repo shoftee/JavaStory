@@ -1,14 +1,16 @@
 package client;
 
-import javastory.game.GameConstants;
-import javastory.game.InventoryType;
-import com.google.common.collect.Maps;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.io.Serializable;
+
+import javastory.game.GameConstants;
+import javastory.game.InventoryType;
+
+import com.google.common.collect.Maps;
 
 public class Inventory implements Iterable<IItem>, Serializable {
 

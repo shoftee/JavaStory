@@ -20,21 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import java.util.Random;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.InvalidKeyException;
-import java.security.NoSuchProviderException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.spec.RSAPrivateKeySpec;
+import java.util.Random;
+
 import javax.crypto.Cipher;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Hex;
 
 import tools.HexTool;
 

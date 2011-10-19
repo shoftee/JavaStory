@@ -24,11 +24,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javastory.channel.ChannelClient;
+
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-
-import javastory.channel.ChannelClient;
 
 /**
  *

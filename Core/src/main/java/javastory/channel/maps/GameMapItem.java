@@ -1,11 +1,12 @@
 package javastory.channel.maps;
 
 import java.awt.Point;
-import client.IItem;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
+import client.IItem;
 
 public class GameMapItem extends AbstractGameMapObject {
 

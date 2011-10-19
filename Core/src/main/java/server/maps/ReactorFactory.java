@@ -22,6 +22,7 @@ package server.maps;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;

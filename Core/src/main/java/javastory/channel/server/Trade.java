@@ -2,11 +2,12 @@ package javastory.channel.server;
 
 import java.util.LinkedList;
 import java.util.List;
-import client.IItem;
-import javastory.game.ItemFlag;
-import javastory.game.GameConstants;
+
 import javastory.channel.ChannelCharacter;
+import javastory.game.GameConstants;
+import javastory.game.ItemFlag;
 import tools.MaplePacketCreator;
+import client.IItem;
 
 public final class Trade {
 

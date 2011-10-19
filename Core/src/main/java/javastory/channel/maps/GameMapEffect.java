@@ -20,9 +20,9 @@
 */
 package javastory.channel.maps;
 
+import handling.GamePacket;
 import javastory.channel.ChannelClient;
 import tools.MaplePacketCreator;
-import handling.GamePacket;
 
 public class GameMapEffect {
 

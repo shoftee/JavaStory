@@ -460,7 +460,9 @@ public final class LoginClient extends GameClient {
         if (withPassword > 0) {
             password = reader.readLengthPrefixedString();
         }
-        final String passport = reader.readLengthPrefixedString();
+        // read passport string
+        reader.readLengthPrefixedString();
+        
         final int characterId = reader.readInt();
         if (!isCharacterAuthorized(characterId)) {
             disconnect(true);

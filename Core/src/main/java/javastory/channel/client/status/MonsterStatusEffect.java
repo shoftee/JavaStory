@@ -25,8 +25,9 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import javastory.channel.client.ISkill;
-import com.google.common.collect.Maps;
 import javastory.channel.life.MobSkill;
+
+import com.google.common.collect.Maps;
 
 public final class MonsterStatusEffect {
 

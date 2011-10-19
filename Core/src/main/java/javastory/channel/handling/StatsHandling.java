@@ -3,19 +3,19 @@ package javastory.channel.handling;
 import java.util.ArrayList;
 import java.util.List;
 
-import javastory.channel.client.ISkill;
-import javastory.channel.ChannelClient;
 import javastory.channel.ChannelCharacter;
-import client.Stat;
-import javastory.client.ActivePlayerStats;
+import javastory.channel.ChannelClient;
+import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
+import javastory.channel.server.AutobanManager;
+import javastory.client.ActivePlayerStats;
 import javastory.game.Skills;
 import javastory.io.PacketFormatException;
-import javastory.channel.server.AutobanManager;
-import javastory.tools.Randomizer;
-import tools.MaplePacketCreator;
 import javastory.io.PacketReader;
+import javastory.tools.Randomizer;
 import server.StatValue;
+import tools.MaplePacketCreator;
+import client.Stat;
 
 public class StatsHandling {
 

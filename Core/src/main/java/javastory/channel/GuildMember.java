@@ -1,9 +1,8 @@
 package javastory.channel;
 
-import java.sql.SQLException;
-import java.sql.ResultSet;
 import java.io.Serializable;
-
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javastory.client.MemberRank;
 

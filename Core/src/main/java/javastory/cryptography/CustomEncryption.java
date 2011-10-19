@@ -1,6 +1,6 @@
 package javastory.cryptography;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Provides methods for the custom encryption routines of the game.

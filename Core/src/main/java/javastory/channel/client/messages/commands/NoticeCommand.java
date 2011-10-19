@@ -1,12 +1,13 @@
 package javastory.channel.client.messages.commands;
 
+import handling.GamePacket;
+
 import java.rmi.RemoteException;
 
 import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import handling.GamePacket;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
 

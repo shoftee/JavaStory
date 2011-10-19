@@ -22,14 +22,11 @@ package server.life;
 
 public class MobAttackInfo {
 
-	private int mobId, attackId;
 	private boolean isDeadlyAttack;
 	private int mpBurn, mpCon;
 	private int diseaseSkill, diseaseLevel;
 
-	public MobAttackInfo(int mobId, int attackId) {
-		this.mobId = mobId;
-		this.attackId = attackId;
+	public MobAttackInfo() {
 	}
 
 	public void setDeadlyAttack(boolean isDeadlyAttack) {

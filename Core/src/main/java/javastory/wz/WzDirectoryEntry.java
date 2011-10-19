@@ -25,10 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javastory.wz.WzDataDirectoryEntry;
-import javastory.wz.WzDataEntity;
-import javastory.wz.WzDataEntry;
-import javastory.wz.WzDataFileEntry;
 
 public class WzDirectoryEntry extends WzEntry implements WzDataDirectoryEntry {
 

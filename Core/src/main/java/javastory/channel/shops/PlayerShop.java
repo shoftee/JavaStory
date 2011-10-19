@@ -20,10 +20,12 @@
 */
 package javastory.channel.shops;
 
+import handling.GamePacket;
+
 import java.util.List;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import handling.GamePacket;
 
 public interface PlayerShop {
     public final static byte HIRED_MERCHANT = 1;

@@ -4,14 +4,16 @@
  */
 package javastory.server;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import javastory.db.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import javastory.db.DatabaseConnection;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  *

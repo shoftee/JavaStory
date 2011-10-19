@@ -4,13 +4,14 @@
  */
 package javastory.server.maker;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javastory.tools.Randomizer;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  *

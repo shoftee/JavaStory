@@ -1,5 +1,7 @@
 package javastory.channel;
 
+import handling.GamePacket;
+
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,24 +13,25 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javastory.client.MemberRank;
+import javastory.db.DatabaseConnection;
+import javastory.io.PacketBuilder;
+import javastory.rmi.ChannelWorldInterface;
+import javastory.server.ChannelServer;
+import javastory.server.GameService;
+import javastory.server.Notes;
+import javastory.world.core.GuildOperationResponse;
+import javastory.world.core.GuildOperationType;
+import javastory.world.core.WorldRegistry;
+
+import org.apache.mina.util.CopyOnWriteMap;
+
+import tools.MaplePacketCreator;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.apache.mina.util.CopyOnWriteMap;
-
-import javastory.db.DatabaseConnection;
-import handling.GamePacket;
-import javastory.world.core.GuildOperationResponse;
-import javastory.world.core.GuildOperationType;
-import javastory.world.core.WorldRegistry;
-import javastory.server.GameService;
-import javastory.server.Notes;
-import javastory.client.MemberRank;
-import javastory.io.PacketBuilder;
-import javastory.rmi.ChannelWorldInterface;
-import javastory.server.ChannelServer;
-import tools.MaplePacketCreator;
 
 public final class Guild {
 

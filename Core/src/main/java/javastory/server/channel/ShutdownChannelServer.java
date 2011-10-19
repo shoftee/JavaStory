@@ -3,8 +3,8 @@ package javastory.server.channel;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 
-import javastory.db.DatabaseConnection;
 import javastory.channel.ChannelManager;
+import javastory.db.DatabaseConnection;
 import javastory.server.GameService;
 import server.TimerManager;
 

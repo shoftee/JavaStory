@@ -20,14 +20,14 @@
  */
 package javastory.channel.handling;
 
-import java.util.List;
 import java.awt.Point;
+import java.util.List;
 
-import javastory.channel.client.ISkill;
 import javastory.channel.ChannelCharacter;
+import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
-import javastory.game.Skills;
 import javastory.channel.server.StatEffect;
+import javastory.game.Skills;
 import tools.AttackPair;
 
 public class AttackInfo {

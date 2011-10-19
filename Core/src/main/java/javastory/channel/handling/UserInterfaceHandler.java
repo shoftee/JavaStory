@@ -21,8 +21,8 @@
 package javastory.channel.handling;
 
 import javastory.channel.ChannelClient;
-import scripting.NpcScriptManager;
 import scripting.EventManager;
+import scripting.NpcScriptManager;
 import tools.MaplePacketCreator;
 
 public class UserInterfaceHandler {

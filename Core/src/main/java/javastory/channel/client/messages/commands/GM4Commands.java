@@ -1,22 +1,22 @@
 package javastory.channel.client.messages.commands;
 
-import javastory.channel.ChannelCharacter;
 import static javastory.channel.client.messages.CommandProcessor.getOptionalIntArg;
-import client.Equip;
-import javastory.game.GameConstants;
-import client.IItem;
-import client.Item;
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.game.InventoryType;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import javastory.channel.server.InventoryManipulator;
-import javastory.server.ItemInfoProvider;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.packet.MobPacket;
+import javastory.channel.server.InventoryManipulator;
+import javastory.game.GameConstants;
+import javastory.game.InventoryType;
 import javastory.server.ChannelServer;
+import javastory.server.ItemInfoProvider;
+import client.Equip;
+import client.IItem;
+import client.Item;
 
 public class GM4Commands implements Command {
 

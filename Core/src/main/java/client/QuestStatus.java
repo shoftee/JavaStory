@@ -20,11 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import java.io.Serializable;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.io.Serializable;
-import java.sql.ResultSet;
+
 import javastory.quest.QuestInfoProvider;
 import javastory.quest.QuestInfoProvider.QuestInfo;
 

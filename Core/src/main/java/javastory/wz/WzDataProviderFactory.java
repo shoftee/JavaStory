@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package javastory.wz;
 
 import java.io.File;
+
 import javastory.xml.XmlWzFile;
 
 public final class WzDataProviderFactory {

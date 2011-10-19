@@ -23,11 +23,22 @@ package javastory.channel.handling;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import javastory.io.PacketFormatException;
-import javastory.io.PacketReader;
 
 import javastory.channel.maps.AnimatedGameMapObject;
-import server.movement.*;
+import javastory.io.PacketFormatException;
+import javastory.io.PacketReader;
+import server.movement.AbsoluteLifeMovement;
+import server.movement.AranMovement;
+import server.movement.BounceMovement;
+import server.movement.ChairMovement;
+import server.movement.ChangeEquipSpecialAwesome;
+import server.movement.FlashMovement;
+import server.movement.JumpDownMovement;
+import server.movement.LifeMovement;
+import server.movement.LifeMovementFragment;
+import server.movement.RelativeLifeMovement;
+import server.movement.TeleportMovement;
+import server.movement.UnknownMovement;
 
 public class MovementParse {
 

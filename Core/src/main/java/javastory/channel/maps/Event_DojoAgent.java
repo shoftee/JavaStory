@@ -3,10 +3,10 @@ package javastory.channel.maps;
 import java.awt.Point;
 
 import javastory.channel.ChannelCharacter;
-import javastory.tools.Randomizer;
-import server.TimerManager;
 import javastory.channel.life.LifeFactory;
 import javastory.server.ChannelServer;
+import javastory.tools.Randomizer;
+import server.TimerManager;
 import tools.MaplePacketCreator;
 
 public class Event_DojoAgent {

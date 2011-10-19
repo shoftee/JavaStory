@@ -20,21 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.rmi;
 
-import java.rmi.RemoteException;
-
-import client.BuddyAddResult;
-import client.BuddyOperation;
 import handling.GamePacket;
+
+import java.rmi.RemoteException;
+import java.util.Collection;
+
 import javastory.channel.CharacterTransfer;
+import javastory.channel.GuildSummary;
 import javastory.channel.Messenger;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
-import javastory.world.core.PartyOperation;
-import javastory.channel.GuildSummary;
-import javastory.world.core.WorldChannelCommonOperations;
-import java.util.Collection;
 import javastory.client.MemberRank;
 import javastory.server.ChannelInfo;
+import javastory.world.core.PartyOperation;
+import javastory.world.core.WorldChannelCommonOperations;
+import client.BuddyAddResult;
+import client.BuddyOperation;
 
 public interface ChannelWorldInterface extends RemotePingable, WorldChannelCommonOperations {
 

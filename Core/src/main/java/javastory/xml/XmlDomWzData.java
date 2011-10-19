@@ -20,7 +20,6 @@
 */
 package javastory.xml;
 
-import javastory.wz.WzDataType;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,12 +29,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javastory.wz.WzData;
+import javastory.wz.WzDataEntity;
+import javastory.wz.WzDataType;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import javastory.wz.WzData;
-import javastory.wz.WzDataEntity;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

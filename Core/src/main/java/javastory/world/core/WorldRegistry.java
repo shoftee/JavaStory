@@ -20,22 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.world.core;
 
-import com.google.common.collect.ImmutableSet;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.List;
+
 import javastory.channel.Guild;
 import javastory.channel.GuildMember;
 import javastory.channel.Messenger;
 import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PlayerBuffStorage;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import javastory.client.MemberRank;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.LoginWorldInterface;
-import java.util.Collection;
-import java.util.List;
-import javastory.client.MemberRank;
 import javastory.rmi.WorldChannelInterface;
 import javastory.server.ChannelInfo;
+
+import com.google.common.collect.ImmutableSet;
 
 public interface WorldRegistry extends Remote {
 

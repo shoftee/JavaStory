@@ -5,7 +5,6 @@ import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import javastory.client.GameClient;
 
 public class CharInfoCommand implements Command {
 

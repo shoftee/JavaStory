@@ -4,10 +4,11 @@
  */
 package javastory.server;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+
+import com.google.common.base.Preconditions;
 
 /**
  *

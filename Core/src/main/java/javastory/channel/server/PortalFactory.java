@@ -2,10 +2,10 @@ package javastory.channel.server;
 
 import java.awt.Point;
 
+import javastory.channel.maps.GameMapPortal;
+import javastory.channel.maps.GenericPortal;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
-import javastory.channel.maps.GenericPortal;
-import javastory.channel.maps.GameMapPortal;
 
 public class PortalFactory {
 

@@ -1,15 +1,19 @@
 package javastory.client;
 
-import javastory.db.DatabaseConnection;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.ScheduledFuture;
-import org.apache.mina.core.session.IoSession;
+
 import javastory.cryptography.AesTransform;
+import javastory.db.DatabaseConnection;
 import javastory.io.PacketBuilder;
+
+import org.apache.mina.core.session.IoSession;
+
 import server.TimerManager;
 
 /**

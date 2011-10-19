@@ -20,8 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.client;
 
-import javastory.channel.ChannelCharacter;
 import java.lang.ref.WeakReference;
+
+import javastory.channel.ChannelCharacter;
 import tools.MaplePacketCreator;
 
 public class CancelCooldownAction implements Runnable {

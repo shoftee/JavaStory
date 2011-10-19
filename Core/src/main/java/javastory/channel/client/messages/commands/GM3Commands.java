@@ -1,26 +1,27 @@
 package javastory.channel.client.messages.commands;
 
-import java.rmi.RemoteException;
-import javastory.channel.ChannelCharacter;
-
 import static javastory.channel.client.messages.CommandProcessor.getOptionalIntArg;
-import javastory.channel.client.ISkill;
+import handling.GamePacket;
+
+import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
+
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import client.Stat;
+import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import handling.GamePacket;
-import java.util.Arrays;
-import java.util.List;
-import javastory.channel.server.ShopFactory;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObject;
+import javastory.channel.server.ShopFactory;
 import javastory.server.ChannelServer;
 import server.maps.GameMapObjectType;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
+import client.Stat;
 
 public class GM3Commands implements Command {
 

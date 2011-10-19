@@ -1,13 +1,15 @@
 package javastory.io;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import java.awt.Point;
-
 import handling.GamePacket;
+
+import java.awt.Point;
 import java.nio.charset.Charset;
 import java.util.List;
+
 import tools.FiletimeUtil;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * Provides methods to construct a game packet.
@@ -241,7 +243,6 @@ public class PacketBuilder {
      * @param string the string to write.
      */
     private void writeString(String string) {
-        final int length = string.length();
         writeArrayInternal(string.getBytes(ASCII));
     }
 

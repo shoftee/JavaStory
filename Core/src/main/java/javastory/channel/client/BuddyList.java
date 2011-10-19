@@ -20,9 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.client;
 
-import client.BuddyListEntry;
-import client.SimpleCharacterInfo;
-import javastory.channel.ChannelClient;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,10 +30,12 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.io.Serializable;
 
+import javastory.channel.ChannelClient;
 import javastory.db.DatabaseConnection;
 import tools.MaplePacketCreator;
+import client.BuddyListEntry;
+import client.SimpleCharacterInfo;
 
 public class BuddyList implements Serializable {
     private static final long serialVersionUID = 1413738569L;

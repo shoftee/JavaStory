@@ -4,14 +4,15 @@
  */
 package tools.packet;
 
-import client.IItem;
-import client.Inventory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javastory.client.GameCharacter;
 import javastory.game.Jobs;
 import javastory.io.PacketBuilder;
+import client.IItem;
+import client.Inventory;
 
 /**
  *

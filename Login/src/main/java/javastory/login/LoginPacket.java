@@ -141,7 +141,6 @@ public final class LoginPacket {
         builder.writeAsByte(0);
         int count = channels.size();
         builder.writeAsByte(count);
-        int load;
         for (LoginChannelInfo info : channels.values()) {
             builder.writeLengthPrefixedString(info.getName());
             builder.writeInt(info.getLoad());

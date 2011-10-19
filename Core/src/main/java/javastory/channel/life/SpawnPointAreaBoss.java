@@ -23,8 +23,8 @@ package javastory.channel.life;
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javastory.tools.Randomizer;
 import javastory.channel.maps.GameMap;
+import javastory.tools.Randomizer;
 import server.life.MonsterListener;
 import tools.MaplePacketCreator;
 

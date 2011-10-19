@@ -7,6 +7,7 @@ package javastory.server;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import javastory.game.Gender;
 
 /**

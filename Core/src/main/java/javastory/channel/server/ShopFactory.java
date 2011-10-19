@@ -1,6 +1,5 @@
 package javastory.channel.server;
 
-import javastory.channel.server.Shop;
 import java.util.HashMap;
 import java.util.Map;
 

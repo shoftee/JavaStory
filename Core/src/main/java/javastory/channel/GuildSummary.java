@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel;
 
-import javastory.channel.Guild;
 import java.io.Serializable;
 
 public class GuildSummary implements Serializable {

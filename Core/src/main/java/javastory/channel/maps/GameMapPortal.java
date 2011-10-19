@@ -20,7 +20,6 @@
 */
 package javastory.channel.maps;
 
-import javastory.channel.maps.GenericPortal;
 import javastory.channel.server.Portal;
 
 public class GameMapPortal extends GenericPortal {

@@ -20,8 +20,6 @@
 */
 package javastory.xml;
 
-import javastory.wz.WzDirectoryEntry;
-import javastory.wz.WzFileEntry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,6 +28,8 @@ import java.io.IOException;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
 import javastory.wz.WzDataProvider;
+import javastory.wz.WzDirectoryEntry;
+import javastory.wz.WzFileEntry;
 
 public class XmlWzFile implements WzDataProvider {
 

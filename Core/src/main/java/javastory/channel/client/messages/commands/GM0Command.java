@@ -1,24 +1,23 @@
 package javastory.channel.client.messages.commands;
 
+import java.rmi.RemoteException;
+
 import javastory.channel.ChannelCharacter;
-import javastory.client.GameCharacterUtil;
 import javastory.channel.ChannelClient;
-import client.Stat;
-import javastory.client.ActivePlayerStats;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import java.rmi.RemoteException;
-import javastory.server.ChannelServer;
+import javastory.client.ActivePlayerStats;
+import javastory.client.GameCharacterUtil;
 import scripting.NpcScriptManager;
 import tools.MaplePacketCreator;
 import tools.StringUtil;
+import client.Stat;
 
 public class GM0Command implements Command {
 
     @Override
     public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
-        ChannelServer cserv = c.getChannelServer();
 
         final ChannelCharacter player = c.getPlayer();
         final ActivePlayerStats stat = player.getStats();

@@ -4,26 +4,27 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
-import client.Equip;
-import client.IItem;
-import javastory.game.ItemFlag;
-import javastory.game.GameConstants;
-import client.Item;
+
 import javastory.channel.ChannelCharacter;
-import javastory.client.GameCharacterUtil;
 import javastory.channel.ChannelClient;
-import client.Inventory;
+import javastory.channel.server.InventoryManipulator;
+import javastory.client.GameCharacterUtil;
 import javastory.client.ItemType;
 import javastory.db.DatabaseConnection;
-import java.sql.Statement;
+import javastory.game.GameConstants;
+import javastory.game.ItemFlag;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import server.DueyActions;
-import javastory.channel.server.InventoryManipulator;
 import javastory.server.ItemInfoProvider;
+import server.DueyActions;
 import tools.MaplePacketCreator;
+import client.Equip;
+import client.IItem;
+import client.Inventory;
+import client.Item;
 
 public class DueyHandler {
 
@@ -39,9 +40,12 @@ public class DueyHandler {
         final ChannelCharacter player = c.getPlayer();
 
         switch (operation) {
-            case 1: { // Start Duey, 13 digit AS
-                final String passport = reader.readLengthPrefixedString();
-//		int unk = reader.readInt(); // Theres an int here, value = 1
+            case 1: { 
+            	// Start Duey, 13 digit AS
+            	// Read 13-digit passport ID.
+                reader.readLengthPrefixedString();
+                // Theres an int here, value = 1
+                //int unk = reader.readInt(); 
                 //  9 = error
                 final int conv = player.getConversationState();
 

@@ -21,13 +21,13 @@
 package javastory.channel.maps;
 
 import java.awt.Point;
-import javastory.channel.ChannelCharacter;
 
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.ChannelManager;
-import scripting.PortalScriptManager;
+import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.server.Portal;
+import scripting.PortalScriptManager;
 import tools.MaplePacketCreator;
 
 public class GenericPortal implements Portal {

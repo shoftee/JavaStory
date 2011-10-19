@@ -1,29 +1,28 @@
 package javastory.channel.packet;
 
-import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
-
+import javastory.channel.ChannelCharacter;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.Ring;
-import javastory.channel.ChannelCharacter;
 import javastory.channel.client.SkillEntry;
-
 import javastory.client.ItemType;
-import javastory.io.PacketBuilder;
-import client.IEquip;
 import javastory.game.GameConstants;
-import client.Pet;
-import client.Inventory;
-import client.QuestStatus;
-import client.IItem;
+import javastory.io.PacketBuilder;
 import javastory.world.core.PlayerCooldownValueHolder;
 import server.movement.LifeMovementFragment;
 import tools.FiletimeUtil;
+import client.IEquip;
+import client.IItem;
+import client.Inventory;
+import client.Pet;
+import client.QuestStatus;
+
+import com.google.common.collect.Lists;
 
 public class PacketHelper {
 

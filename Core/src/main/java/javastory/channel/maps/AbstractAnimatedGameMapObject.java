@@ -20,8 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.maps;
 
-import javastory.channel.maps.AnimatedGameMapObject;
-import javastory.channel.maps.AbstractGameMapObject;
 
 public abstract class AbstractAnimatedGameMapObject extends AbstractGameMapObject implements AnimatedGameMapObject {
 

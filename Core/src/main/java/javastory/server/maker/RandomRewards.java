@@ -1,11 +1,11 @@
 package javastory.server.maker;
 
-import javastory.tools.Randomizer;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javastory.game.GameConstants;
+import javastory.tools.Randomizer;
 
 public class RandomRewards {
 

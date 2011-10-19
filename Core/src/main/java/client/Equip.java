@@ -21,12 +21,18 @@
 
 package client;
 
-import javastory.client.ItemType;
 import java.io.Serializable;
+
+import javastory.client.ItemType;
 
 public class Equip extends Item implements IEquip, Serializable {
 
-    private byte upgradeSlots, level, vicioushammer, itemLevel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6945367220595306871L;
+	
+	private byte upgradeSlots, level, vicioushammer, itemLevel;
     private short STR, DEX, INT, LUK, hp, mp, physicalAttack, magicAttack, 
             physicalDefense, magicDefense, acc, avoid, hands, speed, jump, itemEXP;
     private int ringid, job;

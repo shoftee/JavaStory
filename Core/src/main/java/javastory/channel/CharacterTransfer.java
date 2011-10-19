@@ -26,22 +26,21 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
-import javastory.channel.client.Mount;
 import javastory.channel.client.ISkill;
+import javastory.channel.client.Mount;
 import javastory.channel.client.SkillEntry;
-import javastory.client.MonsterBook;
 import javastory.channel.server.Storage;
-
 import javastory.client.MemberRank;
+import javastory.client.MonsterBook;
 import javastory.client.MultiInventory;
-import client.QuestStatus;
+import javastory.game.Gender;
 import client.BuddyListEntry;
 import client.KeyLayout;
+import client.QuestStatus;
 import client.SimpleCharacterInfo;
 import client.SkillMacro;
-import javastory.game.Gender;
+
+import com.google.common.collect.Maps;
 
 public class CharacterTransfer implements Externalizable {
 

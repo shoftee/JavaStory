@@ -4,7 +4,6 @@
  */
 package javastory.server;
 
-import javastory.server.ChannelInfo;
 
 /**
  *

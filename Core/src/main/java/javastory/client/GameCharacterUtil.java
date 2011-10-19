@@ -1,16 +1,16 @@
 package javastory.client;
 
-import client.LoginCrypto;
-import client.LoginCryptoLegacy;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
 import java.util.regex.Pattern;
 
 import javastory.db.DatabaseConnection;
+import client.LoginCrypto;
+import client.LoginCryptoLegacy;
 
 public class GameCharacterUtil {
 

@@ -21,6 +21,7 @@
 package javastory.channel;
 
 import java.io.Serializable;
+
 import javastory.channel.server.StatEffect;
 
 public class PlayerBuffValueHolder implements Serializable {

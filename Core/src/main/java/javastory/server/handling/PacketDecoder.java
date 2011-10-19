@@ -22,12 +22,11 @@ package javastory.server.handling;
 
 import javastory.channel.ChannelClient;
 import javastory.client.GameClient;
-
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
 import javastory.cryptography.AesTransform;
 import javastory.cryptography.CustomEncryption;
 
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 

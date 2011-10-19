@@ -20,8 +20,6 @@
 */
 package javastory.wz;
 
-import javastory.wz.WzDataEntity;
-import javastory.wz.WzDataEntry;
 
 public class WzEntry implements WzDataEntry {
 

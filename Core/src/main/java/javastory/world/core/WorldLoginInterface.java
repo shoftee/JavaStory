@@ -21,9 +21,10 @@
 package javastory.world.core;
 
 import java.rmi.RemoteException;
-import com.google.common.collect.ImmutableMap;
 
 import javastory.rmi.RemotePingable;
+
+import com.google.common.collect.ImmutableMap;
 
 
 public interface WorldLoginInterface extends RemotePingable {

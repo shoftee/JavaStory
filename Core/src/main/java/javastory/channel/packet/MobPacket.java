@@ -1,17 +1,18 @@
 package javastory.channel.packet;
 
-import java.util.Map;
-import java.util.List;
+import handling.GamePacket;
+import handling.ServerPacketOpcode;
+
 import java.awt.Point;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import javastory.channel.client.status.MonsterStatus;
 import javastory.channel.client.status.MonsterStatusEffect;
-import handling.GamePacket;
-import handling.ServerPacketOpcode;
-import java.util.Collection;
 import javastory.channel.life.Monster;
-import server.movement.LifeMovementFragment;
 import javastory.io.PacketBuilder;
+import server.movement.LifeMovementFragment;
 
 public class MobPacket {
 

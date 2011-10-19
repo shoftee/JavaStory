@@ -1,27 +1,27 @@
 package javastory.channel.handling;
 
-import client.Inventory;
 import java.util.Arrays;
 
-import client.IItem;
-import javastory.game.ItemFlag;
-import javastory.game.GameConstants;
-import javastory.channel.ChannelClient;
 import javastory.channel.ChannelCharacter;
-import javastory.io.PacketFormatException;
+import javastory.channel.ChannelClient;
+import javastory.channel.maps.GameMapObject;
+import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
-import javastory.server.ItemInfoProvider;
 import javastory.channel.server.Trade;
+import javastory.channel.shops.AbstractPlayerShop;
+import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.HiredMerchantStore;
 import javastory.channel.shops.PlayerShop;
-import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.PlayerShopItem;
-import javastory.channel.maps.GameMapObject;
-import server.maps.GameMapObjectType;
-import javastory.channel.shops.AbstractPlayerShop;
-import tools.MaplePacketCreator;
-import javastory.channel.packet.PlayerShopPacket;
+import javastory.game.GameConstants;
+import javastory.game.ItemFlag;
+import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.ItemInfoProvider;
+import server.maps.GameMapObjectType;
+import tools.MaplePacketCreator;
+import client.IItem;
+import client.Inventory;
 
 public class PlayerInteractionHandler {
 

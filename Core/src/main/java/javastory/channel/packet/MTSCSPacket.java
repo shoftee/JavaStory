@@ -1,16 +1,18 @@
 package javastory.channel.packet;
 
 
-import client.IItem;
-import javastory.channel.ChannelClient;
-import javastory.channel.ChannelCharacter;
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
+
 import java.util.List;
-import tools.HexTool;
+
+import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelClient;
 import javastory.io.PacketBuilder;
 import javastory.server.Notes.Note;
+import tools.HexTool;
 import tools.packet.GameCharacterPacket;
+import client.IItem;
 
 public class MTSCSPacket {
 

@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javastory.db.DatabaseConnection;
 import java.sql.Statement;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.server.InventoryManipulator;
+import javastory.db.DatabaseConnection;
 
 public class Ring implements Comparable<Ring> {
 

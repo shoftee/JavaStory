@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javastory.channel.ChannelClient;
+import javastory.channel.server.Portal;
+
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.Invocable;
@@ -13,9 +16,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import javastory.channel.ChannelClient;
-import javastory.channel.server.Portal;
 
 public class PortalScriptManager {
 

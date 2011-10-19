@@ -2,37 +2,18 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package javastory.server.handling;
+package javastory.channel.handling;
 
+import handling.ClientPacketOpcode;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import handling.ClientPacketOpcode;
-import javastory.channel.handling.BbsHandler;
-import javastory.channel.handling.BuddyListHandler;
-import javastory.channel.handling.ChatHandler;
-import javastory.channel.handling.DueyHandler;
-import handling.channel.handler.FamilyHandler;
-import javastory.channel.handling.GuildHandler;
-import javastory.channel.handling.HiredMerchantHandler;
-import javastory.channel.handling.InterServerHandler;
-import javastory.channel.handling.InventoryHandler;
-import javastory.channel.handling.ItemMakerHandler;
-import javastory.channel.handling.MobHandler;
-import javastory.channel.handling.MonsterCarnivalHandler;
-import javastory.channel.handling.NpcHandler;
-import javastory.channel.handling.PartyHandler;
-import javastory.channel.handling.PetHandler;
-import javastory.channel.handling.PlayerHandler;
-import javastory.channel.handling.PlayerInteractionHandler;
-import javastory.channel.handling.PlayersHandler;
-import javastory.channel.handling.StatsHandling;
-import javastory.channel.handling.SummonHandler;
-import javastory.channel.handling.UserInterfaceHandler;
-import org.apache.mina.core.session.IoSession;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.handling.PacketHandler;
+
+import org.apache.mina.core.session.IoSession;
 
 /**
  *
@@ -286,7 +267,8 @@ public final class ChannelPacketHandler extends PacketHandler {
                 BbsHandler.handleBbsOperatopn(reader, channelClient);
                 break;
             case REQUEST_FAMILY:
-                FamilyHandler.handleFamilyRequest(reader);
+            	// TODO: Family stuff.
+                //FamilyHandler.handleFamilyRequest(reader);
                 break;
             case PARTY_OPERATION:
                 PartyHandler.handlePartyOperation(reader, channelClient);

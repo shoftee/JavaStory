@@ -21,18 +21,17 @@
 
 package client;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.HashMap;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.Serializable;
-
-import javastory.io.PacketBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javastory.db.DatabaseConnection;
+import javastory.io.PacketBuilder;
 
 public class KeyLayout implements Serializable {
 

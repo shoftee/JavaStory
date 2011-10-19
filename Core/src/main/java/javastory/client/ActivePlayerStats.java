@@ -1,20 +1,20 @@
 package javastory.client;
 
-import javastory.channel.ChannelCharacter;
-import client.BuffStat;
-import javastory.game.GameConstants;
-import client.IEquip;
-import client.IItem;
-import javastory.channel.client.ISkill;
-import javastory.channel.client.SkillFactory;
-import javastory.game.WeaponType;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.io.Serializable;
+
+import javastory.channel.ChannelCharacter;
+import javastory.channel.client.ISkill;
+import javastory.channel.client.SkillFactory;
+import javastory.game.GameConstants;
 import javastory.game.Jobs;
 import javastory.game.Skills;
-
+import javastory.game.WeaponType;
 import javastory.server.ItemInfoProvider;
+import client.BuffStat;
+import client.IEquip;
+import client.IItem;
 
 public class ActivePlayerStats extends PlayerStats implements Serializable {
 

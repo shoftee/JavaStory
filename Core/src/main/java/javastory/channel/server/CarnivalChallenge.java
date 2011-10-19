@@ -5,6 +5,7 @@
 package javastory.channel.server;
 
 import java.rmi.RemoteException;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;

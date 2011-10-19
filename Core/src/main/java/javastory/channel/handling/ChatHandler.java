@@ -2,18 +2,18 @@ package javastory.channel.handling;
 
 import java.rmi.RemoteException;
 
-import javastory.channel.ChannelClient;
 import javastory.channel.ChannelCharacter;
-import javastory.channel.client.messages.CommandProcessor;
+import javastory.channel.ChannelClient;
+import javastory.channel.ChannelManager;
 import javastory.channel.Messenger;
 import javastory.channel.MessengerMember;
-import javastory.io.PacketFormatException;
-import javastory.channel.ChannelManager;
 import javastory.channel.PartyMember;
-import tools.MaplePacketCreator;
+import javastory.channel.client.messages.CommandProcessor;
+import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.rmi.WorldChannelInterface;
 import javastory.server.ChannelServer;
+import tools.MaplePacketCreator;
 
 public class ChatHandler {
 

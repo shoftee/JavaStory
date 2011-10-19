@@ -1,7 +1,7 @@
 package javastory.channel.client.messages.commands;
 
-import javastory.channel.ChannelCharacter;
 import static javastory.channel.client.messages.CommandProcessor.getOptionalIntArg;
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;

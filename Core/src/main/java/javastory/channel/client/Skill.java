@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.client;
 
-import javastory.channel.ChannelCharacter;
 import java.util.ArrayList;
 import java.util.List;
-import javastory.game.Jobs;
 
+import javastory.channel.ChannelCharacter;
+import javastory.channel.server.StatEffect;
+import javastory.game.Jobs;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
-import javastory.channel.server.StatEffect;
 import server.life.Element;
 
 public class Skill implements ISkill {

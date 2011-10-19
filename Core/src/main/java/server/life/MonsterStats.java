@@ -20,12 +20,14 @@
 */
 package server.life;
 
-import javastory.game.SkillLevelEntry;
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import javastory.game.SkillLevelEntry;
+
+import com.google.common.collect.Maps;
 
 public class MonsterStats {
 

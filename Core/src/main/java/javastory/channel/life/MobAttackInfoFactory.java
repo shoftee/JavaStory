@@ -22,6 +22,7 @@ package javastory.channel.life;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
@@ -57,7 +58,7 @@ public final class MobAttackInfoFactory {
             final WzData attackData = mobData.getChildByPath("attack" + (attack +
                     1) + "/info");
             if (attackData != null) {
-                ret = new MobAttackInfo(mob.getId(), attack);
+                ret = new MobAttackInfo();
                 ret.setDeadlyAttack(attackData.getChildByPath("deadlyAttack") !=
                         null);
                 ret.setMpBurn(WzDataTool.getInt("mpBurn", attackData, 0));

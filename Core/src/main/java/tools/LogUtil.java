@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools;
 
-import java.util.Calendar;
-import java.text.SimpleDateFormat;
-import java.io.StringWriter;
-import java.io.PrintWriter;
-import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class LogUtil {
 

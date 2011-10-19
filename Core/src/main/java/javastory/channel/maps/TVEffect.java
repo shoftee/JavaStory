@@ -20,13 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.maps;
 
+import handling.GamePacket;
+
 import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javastory.channel.ChannelClient;
 import javastory.channel.ChannelCharacter;
-import handling.GamePacket;
+import javastory.channel.ChannelClient;
 import javastory.rmi.WorldChannelInterface;
 import server.TimerManager;
 import tools.MaplePacketCreator;

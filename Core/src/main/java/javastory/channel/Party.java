@@ -20,15 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
+
+import javastory.channel.maps.Door;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-import javastory.channel.maps.Door;
 
 public class Party implements Serializable {
     private static final long serialVersionUID = 9179541993413738569L;

@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel;
 
-import javastory.channel.MessengerMember;
-import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java.util.Collection;
+
+import com.google.common.collect.ImmutableList;
 
 public final class Messenger implements Serializable {
 

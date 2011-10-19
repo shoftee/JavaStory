@@ -21,17 +21,18 @@
 package javastory.channel.shops;
 
 import java.util.concurrent.ScheduledFuture;
-import client.IItem;
-import javastory.game.ItemFlag;
-import javastory.game.GameConstants;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelManager;
-import javastory.channel.server.InventoryManipulator;
-import server.TimerManager;
 import javastory.channel.maps.GameMap;
-import server.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
+import javastory.channel.server.InventoryManipulator;
+import javastory.game.GameConstants;
+import javastory.game.ItemFlag;
+import server.TimerManager;
+import server.maps.GameMapObjectType;
+import client.IItem;
 
 public class HiredMerchantStore extends AbstractPlayerShop {
 

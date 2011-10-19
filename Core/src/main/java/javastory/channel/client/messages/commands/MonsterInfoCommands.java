@@ -1,8 +1,8 @@
 package javastory.channel.client.messages.commands;
 
 import java.util.Arrays;
-import javastory.channel.ChannelCharacter;
 
+import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;

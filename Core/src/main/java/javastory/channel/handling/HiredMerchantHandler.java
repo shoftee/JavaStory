@@ -1,26 +1,26 @@
 package javastory.channel.handling;
 
 import java.rmi.RemoteException;
-import java.util.List;
-import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelClient;
+import javastory.channel.packet.PlayerShopPacket;
+import javastory.channel.server.InventoryManipulator;
+import javastory.db.DatabaseConnection;
+import javastory.game.GameConstants;
+import javastory.game.InventoryType;
+import javastory.io.PacketFormatException;
+import javastory.io.PacketReader;
+import server.MerchItemPackage;
 import client.Equip;
 import client.IItem;
 import client.Item;
-import javastory.game.InventoryType;
-import javastory.channel.ChannelClient;
-import javastory.channel.ChannelCharacter;
-import javastory.game.GameConstants;
-import javastory.db.DatabaseConnection;
-import javastory.io.PacketFormatException;
-import javastory.channel.server.InventoryManipulator;
-import server.MerchItemPackage;
-import javastory.channel.packet.PlayerShopPacket;
-import javastory.io.PacketReader;
 
 public final class HiredMerchantHandler {
 
@@ -84,7 +84,8 @@ public final class HiredMerchantHandler {
 
         switch (operation) {
             case 20: {
-                final String passport = reader.readLengthPrefixedString();
+            	// 13-digit passport ID.
+                reader.readLengthPrefixedString();
 
                 final int conv = player.getConversationState();
 

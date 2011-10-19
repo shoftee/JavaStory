@@ -20,7 +20,6 @@
 */
 package javastory.channel.life;
 
-import javastory.channel.life.Monster;
 
 public class SummonAttackEntry {
 

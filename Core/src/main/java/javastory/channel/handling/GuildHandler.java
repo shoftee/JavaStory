@@ -21,8 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package javastory.channel.handling;
 
 import handling.GamePacket;
-import javastory.channel.Guild;
-import javastory.world.core.GuildOperationResponse;
+
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,10 +29,12 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.Guild;
 import javastory.client.MemberRank;
 import javastory.io.PacketFormatException;
-import tools.MaplePacketCreator;
 import javastory.io.PacketReader;
+import javastory.world.core.GuildOperationResponse;
+import tools.MaplePacketCreator;
 
 public class GuildHandler {
 
@@ -214,7 +215,7 @@ public class GuildHandler {
             nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
         }
         final ChannelCharacter player = c.getPlayer();
-        int guildId;
+
         String name;
         switch (reader.readByte()) {
             case 0x02:

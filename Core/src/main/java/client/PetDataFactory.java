@@ -22,6 +22,7 @@ package client;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
@@ -31,14 +32,15 @@ public final class PetDataFactory {
 
     private static class PetCommandEntry {
 
-        public int pet;
-        public int skill;
+        public final int PetId;
+        public final int SkillId;
 
         public PetCommandEntry(int petId, int skillId) {
-            this.pet = petId;
-            this.skill = skillId;
+            this.PetId = petId;
+            this.SkillId = skillId;
         }
     }
+    
     private static WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider("Item.wz");
     private static Map<PetCommandEntry, PetCommand> petCommands = new HashMap<>();
     private static Map<Integer, Integer> petHunger = new HashMap<>();

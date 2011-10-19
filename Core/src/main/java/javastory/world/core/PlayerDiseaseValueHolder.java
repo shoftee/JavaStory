@@ -20,8 +20,9 @@
 */
 package javastory.world.core;
 
-import client.Disease;
 import java.io.Serializable;
+
+import client.Disease;
 
 public class PlayerDiseaseValueHolder implements Serializable {
 

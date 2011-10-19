@@ -1,23 +1,24 @@
 package javastory.channel.shops;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import handling.GamePacket;
+
+import java.lang.ref.WeakReference;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.lang.ref.WeakReference;
 
-import client.IItem;
-import client.Equip;
 import javastory.channel.ChannelCharacter;
-import javastory.client.ItemType;
-import javastory.db.DatabaseConnection;
-import handling.GamePacket;
-import java.sql.Statement;
 import javastory.channel.maps.AbstractGameMapObject;
 import javastory.channel.packet.PlayerShopPacket;
+import javastory.client.ItemType;
+import javastory.db.DatabaseConnection;
+import client.Equip;
+import client.IItem;
 
 public abstract class AbstractPlayerShop extends AbstractGameMapObject implements PlayerShop {
 
