@@ -9,7 +9,7 @@ ping 127.0.0.1 -w 20000 >nul
 
 @title 2/3 Starting channel server(s)...
 
-start /b launch_channel.bat
+start /b launch_channels.bat
 ping 127.0.0.1 -w 20000 >nul
 
 @title 3/3 Starting login server...

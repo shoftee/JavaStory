@@ -1,4 +1,8 @@
-/target/
+/Channel/target/
+/Common/target/
+/Login/target/
+/World/target/
 /run/xml/
 /run/scripts/
 /run/lib/
+.metadata/*
