@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 	<name>JavaStory</name>
 	<modules>
-		<module>Common</module>
+		<module>Core</module>
 		<module>Login</module>
 		<module>World</module>
 		<module>Channel</module>
