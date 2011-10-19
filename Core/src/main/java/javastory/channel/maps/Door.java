@@ -30,7 +30,6 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.PartyMember;
 import javastory.channel.server.Portal;
-import javastory.server.maps.GameMapObjectType;
 import javastory.tools.packets.ChannelPackets;
 
 public class Door extends AbstractGameMapObject {

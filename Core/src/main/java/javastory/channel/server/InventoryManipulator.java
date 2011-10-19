@@ -7,13 +7,13 @@ import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.client.ActivePlayerStats;
-import javastory.client.BuffStat;
+import javastory.channel.client.ActivePlayerStats;
+import javastory.channel.client.BuffStat;
+import javastory.channel.client.Pet;
 import javastory.client.Equip;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.Item;
-import javastory.client.Pet;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.game.ItemFlag;

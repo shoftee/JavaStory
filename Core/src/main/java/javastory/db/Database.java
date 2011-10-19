@@ -20,7 +20,7 @@ import com.mysql.jdbc.Driver;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class Database implements ConnectionPool {
 

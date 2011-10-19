@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javastory.client.MemberRank;
+import javastory.channel.client.MemberRank;
 
 public class GuildMember implements Serializable {
 

@@ -1,20 +1,18 @@
 package javastory.channel.packet;
 
-
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
-import javastory.client.Pet;
+import javastory.channel.client.Pet;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.client.Stat;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;
-import javastory.server.movement.LifeMovementFragment;
+import javastory.tools.FiletimeUtil;
 import javastory.tools.HexTool;
 
 public class PetPacket {
-
-	private final static byte[] ITEM_MAGIC = new byte[] { (byte) 0x80, 5 };
 
 	public static final GamePacket updatePet(final Pet pet, final boolean alive) {
 		final PacketBuilder builder = new PacketBuilder();
@@ -25,14 +23,19 @@ public class PetPacket {
 		builder.writeAsByte(2);
 		builder.writeAsByte(3);
 		builder.writeAsByte(5);
-		builder.writeAsByte(pet.getInventoryPosition());
+
+		final short inventoryPosition = pet.getInventoryPosition();
+		builder.writeAsByte(inventoryPosition);
 		builder.writeAsShort(0);
 		builder.writeAsByte(5);
-		builder.writeAsByte(pet.getInventoryPosition());
+		builder.writeAsByte(inventoryPosition);
 		builder.writeAsByte(0);
+
 		builder.writeAsByte(3);
+
 		builder.writeInt(pet.getPetItemId());
 		builder.writeAsByte(1);
+
 		builder.writeInt(pet.getUniqueId());
 		builder.writeInt(0);
 		builder.writeBytes(HexTool
@@ -41,15 +44,15 @@ public class PetPacket {
 		builder.writeAsByte(pet.getLevel());
 		builder.writeAsShort(pet.getCloseness());
 		builder.writeAsByte(pet.getFullness());
+
+		long expiration;
 		if (alive) {
-			builder.writeLong(PacketHelper.getKoreanTimestamp(System
-					.currentTimeMillis()));
+			expiration = FiletimeUtil.getFiletime(System.currentTimeMillis());
 		} else {
-			builder.writeAsByte(0);
-			builder.writeBytes(ITEM_MAGIC);
-			builder.writeBytes(HexTool
-					.getByteArrayFromHexString("bb 46 e6 17 02"));
+			expiration = FiletimeUtil.ITEM_EXPIRATION;
 		}
+		builder.writeLong(expiration);
+
 		builder.writeAsShort(0);
 		builder.writeInt(1);
 		builder.writeInt(0);
@@ -58,38 +61,48 @@ public class PetPacket {
 	}
 
 	public static final GamePacket showPet(final ChannelCharacter chr,
-			final Pet pet, final boolean remove, final boolean hunger) {
+			final Pet pet) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
 		builder.writeInt(chr.getId());
 		builder.writeByte(chr.getPetIndex(pet));
-		if (remove) {
-			builder.writeAsByte(0);
-			builder.writeAsByte(hunger ? 1 : 0);
-		} else {
-			builder.writeAsByte(1);
-			builder.writeAsByte(1);
-			builder.writeInt(pet.getPetItemId());
-			builder.writeLengthPrefixedString(pet.getName());
-			builder.writeInt(pet.getUniqueId());
-			builder.writeInt(0);
-			builder.writeAsShort(pet.getPosition().x);
-			builder.writeAsShort(pet.getPosition().y - 20);
-			builder.writeAsByte(pet.getStance());
-			builder.writeInt(pet.getFoothold());
-		}
+
+		builder.writeAsByte(1);
+		builder.writeAsByte(1);
+		builder.writeInt(pet.getPetItemId());
+		builder.writeLengthPrefixedString(pet.getName());
+		builder.writeInt(pet.getUniqueId());
+		builder.writeInt(0);
+		builder.writeAsShort(pet.getPosition().x);
+		builder.writeAsShort(pet.getPosition().y - 20);
+		builder.writeAsByte(pet.getStance());
+		builder.writeInt(pet.getFoothold());
+
 		return builder.getPacket();
 	}
 
-	public static final GamePacket movePet(final int cid, final int pid,
+	public static GamePacket removePet(final ChannelCharacter chr,
+			final Pet pet, final boolean hunger) {
+		final PacketBuilder builder = new PacketBuilder();
+
+		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
+		builder.writeInt(chr.getId());
+		builder.writeByte(chr.getPetIndex(pet));
+
+		builder.writeAsByte(0);
+		builder.writeAsByte(hunger);
+		return builder.getPacket();
+	}
+
+	public static final GamePacket movePet(final int characterId, final int petId,
 			final byte slot, final List<LifeMovementFragment> moves) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MOVE_PET.getValue());
-		builder.writeInt(cid);
+		builder.writeInt(characterId);
 		builder.writeByte(slot);
-		builder.writeLong(pid);
+		builder.writeLong(petId);
 		PacketHelper.serializeMovementList(builder, moves);
 
 		return builder.getPacket();
@@ -176,7 +189,7 @@ public class PetPacket {
 
 		byte count = 0;
 		for (final Pet pet : chr.getPets()) {
-			if (pet.getSummoned()) {
+			if (pet.isSummoned()) {
 				builder.writeInt(pet.getUniqueId());
 				builder.writeZeroBytes(4);
 				count++;

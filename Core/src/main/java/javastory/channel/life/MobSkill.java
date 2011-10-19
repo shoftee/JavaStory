@@ -29,12 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
-import javastory.channel.client.status.MonsterStatus;
+import javastory.channel.client.Disease;
+import javastory.channel.client.MonsterStatus;
 import javastory.channel.maps.GameMapObject;
+import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.maps.Mist;
-import javastory.client.Disease;
-import javastory.server.life.BanishInfo;
-import javastory.server.maps.GameMapObjectType;
 
 import com.google.common.collect.Maps;
 

@@ -23,7 +23,6 @@ package javastory.channel.maps;
 import java.awt.Point;
 
 import javastory.channel.ChannelClient;
-import javastory.server.maps.GameMapObjectType;
 
 public interface GameMapObject {
 

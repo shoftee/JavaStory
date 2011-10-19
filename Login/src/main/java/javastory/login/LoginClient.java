@@ -12,12 +12,12 @@ import java.util.Calendar;
 import java.util.List;
 
 import javastory.db.DatabaseConnection;
+import javastory.channel.client.MemberRank;
 import javastory.client.GameCharacterUtil;
 import javastory.client.GameClient;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.LoginCrypto;
-import javastory.client.MemberRank;
 import javastory.cryptography.AesTransform;
 import javastory.game.Gender;
 import javastory.io.PacketFormatException;
@@ -30,7 +30,7 @@ import org.apache.mina.core.session.IoSession;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class LoginClient extends GameClient {
 
@@ -397,8 +397,8 @@ public final class LoginClient extends GameClient {
 
     public void handleCharacterNameCheck(final PacketReader reader) throws PacketFormatException {
         final String name = reader.readLengthPrefixedString();
-        final boolean isValid = GameCharacterUtil.isValidName(name);
-        final boolean isAvailable = GameCharacterUtil.isAvailable(name);
+        final boolean isValid = GameCharacterUtil.validateCharacterName(name);
+        final boolean isAvailable = GameCharacterUtil.isAvailableName(name);
         final boolean isAllowed = LoginInfoProvider.getInstance().isAllowedName(name);
         final boolean conditions = isValid && isAvailable && isAllowed;
         this.write(LoginPacket.charNameResponse(name, conditions));
@@ -439,8 +439,8 @@ public final class LoginClient extends GameClient {
         item.setPosition((byte) -11);
         equip.addFromDb(item);
 
-        final boolean isValid = GameCharacterUtil.isValidName(name);
-        final boolean isAvailable = GameCharacterUtil.isAvailable(name);
+        final boolean isValid = GameCharacterUtil.validateCharacterName(name);
+        final boolean isAvailable = GameCharacterUtil.isAvailableName(name);
         final boolean isAllowed = li.isAllowedName(name);
 
         if (isValid && isAvailable && isAllowed) {

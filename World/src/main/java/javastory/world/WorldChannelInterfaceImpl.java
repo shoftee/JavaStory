@@ -27,9 +27,9 @@ import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.PlayerBuffValueHolder;
+import javastory.channel.client.MemberRank;
 import javastory.rmi.WorldChannelInterface;
 import java.util.Collection;
-import javastory.client.MemberRank;
 
 public class WorldChannelInterfaceImpl extends GenericRemoteObject implements WorldChannelInterface {
 

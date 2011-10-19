@@ -25,8 +25,8 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
-import javastory.server.maps.GameMapObjectType;
 
 public class GenericPlayerStore extends AbstractPlayerShop {
 

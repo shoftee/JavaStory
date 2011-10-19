@@ -10,7 +10,7 @@ import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObject;
-import javastory.server.maps.GameMapObjectType;
+import javastory.channel.maps.GameMapObjectType;
 
 public class MonsterInfoCommands implements Command {
 

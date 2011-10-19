@@ -23,8 +23,6 @@ package javastory.channel.life;
 import java.util.HashMap;
 import java.util.Map;
 
-import javastory.server.life.MobAttackId;
-import javastory.server.life.MobAttackInfo;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

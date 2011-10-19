@@ -4,11 +4,11 @@
  */
 package javastory.channel;
 
-import javastory.client.Disease;
+import javastory.channel.client.Disease;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class DiseaseValue {
     private Disease disease;

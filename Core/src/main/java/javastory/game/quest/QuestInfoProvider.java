@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class QuestInfoProvider {
 

@@ -3,7 +3,6 @@ package javastory.login;
 import java.util.List;
 import java.util.Map;
 
-import javastory.server.LoginChannelInfo;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;

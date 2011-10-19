@@ -26,17 +26,17 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
 
+import javastory.channel.client.BuddyListEntry;
 import javastory.channel.client.ISkill;
+import javastory.channel.client.KeyLayout;
+import javastory.channel.client.MemberRank;
+import javastory.channel.client.MonsterBook;
 import javastory.channel.client.Mount;
+import javastory.channel.client.MultiInventory;
 import javastory.channel.client.SkillEntry;
+import javastory.channel.client.SkillMacro;
 import javastory.channel.server.Storage;
-import javastory.client.BuddyListEntry;
-import javastory.client.KeyLayout;
-import javastory.client.MemberRank;
-import javastory.client.MonsterBook;
-import javastory.client.MultiInventory;
 import javastory.client.SimpleCharacterInfo;
-import javastory.client.SkillMacro;
 import javastory.game.Gender;
 import javastory.game.quest.QuestStatus;
 

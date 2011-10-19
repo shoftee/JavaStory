@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 interface ConnectionPool {
     public void release(PooledConnection connection) throws SQLException;

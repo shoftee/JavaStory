@@ -26,13 +26,13 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelManager;
 import javastory.channel.maps.GameMap;
+import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.client.IItem;
 import javastory.game.GameConstants;
 import javastory.game.ItemFlag;
 import javastory.server.TimerManager;
-import javastory.server.maps.GameMapObjectType;
 
 public class HiredMerchantStore extends AbstractPlayerShop {
 

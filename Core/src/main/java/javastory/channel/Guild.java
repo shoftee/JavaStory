@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javastory.client.MemberRank;
+import javastory.channel.client.MemberRank;
 import javastory.db.DatabaseConnection;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;

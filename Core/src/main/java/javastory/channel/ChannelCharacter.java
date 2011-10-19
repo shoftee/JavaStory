@@ -1,6 +1,5 @@
 package javastory.channel;
 
-
 import java.awt.Point;
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -26,23 +25,40 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javastory.channel.anticheat.CheatTracker;
+import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.BuddyList;
+import javastory.channel.client.BuddyListEntry;
+import javastory.channel.client.BuffStat;
 import javastory.channel.client.BuffStatValueHolder;
 import javastory.channel.client.CancelCooldownAction;
+import javastory.channel.client.CooldownValueHolder;
+import javastory.channel.client.Disease;
+import javastory.channel.client.DiseaseValueHolder;
 import javastory.channel.client.ISkill;
+import javastory.channel.client.KeyBinding;
+import javastory.channel.client.KeyLayout;
+import javastory.channel.client.MemberRank;
+import javastory.channel.client.MonsterBook;
 import javastory.channel.client.Mount;
+import javastory.channel.client.MultiInventory;
+import javastory.channel.client.Pet;
 import javastory.channel.client.Skill;
 import javastory.channel.client.SkillEntry;
 import javastory.channel.client.SkillFactory;
+import javastory.channel.client.SkillMacro;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.AbstractAnimatedGameMapObject;
 import javastory.channel.maps.Door;
 import javastory.channel.maps.Dragon;
+import javastory.channel.maps.FieldLimitType;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapFactory;
 import javastory.channel.maps.GameMapObject;
+import javastory.channel.maps.GameMapObjectType;
+import javastory.channel.maps.SavedLocationType;
 import javastory.channel.maps.Summon;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.MTSCSPacket;
 import javastory.channel.packet.MobPacket;
 import javastory.channel.packet.MonsterCarnivalPacket;
@@ -56,26 +72,13 @@ import javastory.channel.server.StatEffect;
 import javastory.channel.server.Storage;
 import javastory.channel.server.Trade;
 import javastory.channel.shops.PlayerShop;
-import javastory.client.ActivePlayerStats;
-import javastory.client.BuddyListEntry;
-import javastory.client.BuffStat;
-import javastory.client.CooldownValueHolder;
-import javastory.client.Disease;
-import javastory.client.DiseaseValueHolder;
 import javastory.client.Equip;
 import javastory.client.GameCharacter;
 import javastory.client.IEquip;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.Item;
-import javastory.client.KeyBinding;
-import javastory.client.KeyLayout;
-import javastory.client.MemberRank;
-import javastory.client.MonsterBook;
-import javastory.client.MultiInventory;
-import javastory.client.Pet;
 import javastory.client.PlayerRandomStream;
-import javastory.client.SkillMacro;
 import javastory.client.Stat;
 import javastory.db.DatabaseConnection;
 import javastory.db.DatabaseException;
@@ -102,10 +105,6 @@ import javastory.server.Notes;
 import javastory.server.Notes.Note;
 import javastory.server.StatValue;
 import javastory.server.TimerManager;
-import javastory.server.maps.FieldLimitType;
-import javastory.server.maps.GameMapObjectType;
-import javastory.server.maps.SavedLocationType;
-import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 import javastory.tools.packets.UIPacket;
@@ -519,8 +518,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			rs = ps.executeQuery();
 
 			if (!rs.next()) {
-				throw new RuntimeException(
-											"No Inventory slot column found in SQL. [inventoryslot]");
+				throw new RuntimeException("No Inventory slot column found in SQL. [inventoryslot]");
 			} else {
 				ret.getEquipInventory().setSlotLimit(rs.getByte("equip"));
 				ret.getUseInventory().setSlotLimit(rs.getByte("use"));
@@ -600,6 +598,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			rs.close();
 			ps.close();
+
 			ps = con.prepareStatement("SELECT * FROM accounts WHERE id = ?");
 			ps.setInt(1, ret.accountId);
 			rs = ps.executeQuery();
@@ -810,7 +809,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 			con.setAutoCommit(false);
 
-			ps = con.prepareStatement(	"UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?",
+			ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?",
 										Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, level);
 			ps.setInt(2, fame);
@@ -880,7 +879,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ps.close();
 
 			for (final Pet pet : pets) {
-				if (pet.getSummoned()) {
+				if (pet.isSummoned()) {
 					// Only save those summoned :P
 					pet.saveToDb();
 				}
@@ -917,7 +916,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			deleteByCharacterId(con,
 								"DELETE FROM inventoryitems WHERE characterid = ?");
-			ps = con.prepareStatement(	"INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 										Statement.RETURN_GENERATED_KEYS);
 			pse = con
 					.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -990,7 +989,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			deleteByCharacterId(con,
 								"DELETE FROM queststatus WHERE characterid = ?");
-			ps = con.prepareStatement(	"INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)",
+			ps = con.prepareStatement("INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)",
 										Statement.RETURN_GENERATED_KEYS);
 			pse = con
 					.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
@@ -1136,7 +1135,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			} catch (SQLException e) {
 				System.err
 						.println(ChannelClient
-								.getLogMessage(	this,
+								.getLogMessage(this,
 												"[charsave] Error going back to autocommit mode")
 								+ e);
 			}
@@ -1231,8 +1230,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			client.write(ChannelPackets.startQuest(this, questId, status
 					.getCustomData()));
 			client.write(ChannelPackets.updateQuestInfo(this, questId,
-															status.getNpc(),
-															(byte) 8));
+														status.getNpc(),
+														(byte) 8));
 			break;
 		case 2:
 			client.write(ChannelPackets.completeQuest(questId));
@@ -1364,27 +1363,35 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			dragonBloodSchedule.cancel(false);
 		}
 		dragonBloodSchedule = TimerManager.getInstance()
-				.register(new Runnable() {
+				.register(new DragonBloodRunnable(bloodEffect), 4000, 4000);
 
-					@Override
-					public void run() {
-						if (stats.getHp() - bloodEffect.getX() > 1) {
-							cancelBuffStats(BuffStat.DRAGONBLOOD);
-						} else {
-							addHP(-bloodEffect.getX());
-							client.write(ChannelPackets
-									.showOwnBuffEffect(bloodEffect
-											.getSourceId(), 5));
-							map.broadcastMessage(	ChannelCharacter.this,
-													ChannelPackets
-															.showBuffeffect(getId(),
-																			bloodEffect
-																					.getSourceId(),
-																			5),
-													false);
-						}
-					}
-				}, 4000, 4000);
+	}
+
+	private final class DragonBloodRunnable implements Runnable {
+
+		private StatEffect effect;
+
+		public DragonBloodRunnable(StatEffect effect) {
+			this.effect = effect;
+		}
+
+		@Override
+		public void run() {
+			if (stats.getHp() - effect.getX() > 1) {
+				cancelBuffStats(BuffStat.DRAGONBLOOD);
+			} else {
+				addHP(-effect.getX());
+				final int bloodEffectSourceId = effect.getSourceId();
+				final GamePacket ownEffectPacket = ChannelPackets
+						.showOwnBuffEffect(bloodEffectSourceId, 5);
+				client.write(ownEffectPacket);
+				final GamePacket otherEffectPacket = ChannelPackets
+						.showBuffeffect(getId(), bloodEffectSourceId, 5);
+				map.broadcastMessage(ChannelCharacter.this,
+										otherEffectPacket,
+										false);
+			}
+		}
 	}
 
 	public void startFullnessSchedule(final int decrease, final Pet pet,
@@ -1652,12 +1659,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						.spawnPlayerMapObject(this), false);
 
 				for (final Pet pet : pets) {
-					if (pet.getSummoned()) {
-						map.broadcastMessage(this, PetPacket.showPet(this,
-																		pet,
-																		false,
-																		false),
-												false);
+					if (pet.isSummoned()) {
+						final GamePacket packet = PetPacket.showPet(this, pet);
+						map.broadcastMessage(this, packet, false);
 					}
 				}
 			}
@@ -1886,8 +1890,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					- System.currentTimeMillis()));
 
 			client.write(ChannelPackets.giveBuff(1111002, duration,
-														stat,
-														ceffect));
+													stat,
+													ceffect));
 			map.broadcastMessage(this, ChannelPackets
 					.giveForeignBuff(getId(), stat, ceffect), false);
 		}
@@ -1916,7 +1920,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				- System.currentTimeMillis()));
 
 		client.write(ChannelPackets.giveBuff(1111002, duration, stat,
-													ceffect));
+												ceffect));
 		map.broadcastMessage(this, ChannelPackets
 				.giveForeignBuff(getId(), stat, ceffect), false);
 	}
@@ -1938,7 +1942,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 		if (statups.size() > 0) {
 			client.write(ChannelPackets.updatePlayerStats(statups,
-																getJobId()));
+															getJobId()));
 		}
 	}
 
@@ -2184,7 +2188,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void changeMap(final GameMap to, final Point pos) {
 		changeMapInternal(to, pos, ChannelPackets.getWarpToMap(to, 0x81,
-																	this));
+																this));
 	}
 
 	public void changeMap(final GameMap to, final Portal pto) {
@@ -2447,7 +2451,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			stats.recalcLocalStats();
 		}
 		client.write(ChannelPackets.updateSkill(skill.getId(), newLevel,
-													newMasterlevel));
+												newMasterlevel));
 	}
 
 	public void playerDead() {
@@ -2521,10 +2525,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							.getCharacterByName(partychar.getName());
 					if (other != null) {
 						other.getClient()
-								.write(	ChannelPackets
-												.updatePartyMemberHP(	getId(),
-																		stats.getHp(),
-																		stats.getCurrentMaxHp()));
+								.write(ChannelPackets
+										.updatePartyMemberHP(getId(),
+																stats.getHp(),
+																stats.getCurrentMaxHp()));
 					}
 				}
 			}
@@ -2585,7 +2589,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 		if (statups.size() > 0) {
 			client.write(ChannelPackets.updatePlayerStats(statups,
-																getJobId()));
+															getJobId()));
 		}
 	}
 
@@ -2645,7 +2649,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			updateSingleStat(Stat.EXP, getExp());
 			if (show) { // still show the expgain even if it's not there
 				client.write(ChannelPackets.GainEXP_Others(total, inChat,
-																white));
+															white));
 			}
 		}
 	}
@@ -2728,14 +2732,14 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (show) {
 				// still show the expgain even if it's not there
 				client.write(ChannelPackets.GainEXP_Monster(baseExp, white,
-																eventExp,
-																weddingExp,
-																partyRingExp,
-																partyExp,
-																premiumExp,
-																itemExp,
-																rainbowExp,
-																CLASS_EXP));
+															eventExp,
+															weddingExp,
+															partyRingExp,
+															partyExp,
+															premiumExp,
+															itemExp,
+															rainbowExp,
+															CLASS_EXP));
 			}
 		}
 	}
@@ -3242,10 +3246,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			client.write(ChannelPackets.spawnPlayerMapObject(this));
 
 			for (final Pet pet : pets) {
-				if (pet.getSummoned()) {
-					client.write(PetPacket.showPet(this, pet, false, false));
+				if (pet.isSummoned()) {
+					client.write(PetPacket.showPet(this, pet));
 				}
 			}
+
 			if (dragon != null) {
 				client.write(ChannelPackets.spawnDragon(dragon));
 			}
@@ -3257,8 +3262,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public final void equipChanged() {
-		map.broadcastMessage(this, ChannelPackets.updateCharLook(this),
-								false);
+		map.broadcastMessage(this, ChannelPackets.updateCharLook(this), false);
 		stats.recalcLocalStats();
 		enforceMaxHpMp();
 
@@ -3278,7 +3282,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public final Pet getPet(final int index) {
 		byte count = 0;
 		for (final Pet pet : pets) {
-			if (pet.getSummoned()) {
+			if (pet.isSummoned()) {
 				if (count == index) {
 					return pet;
 				}
@@ -3325,7 +3329,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public final byte getPetIndex(final Pet petz) {
 		byte count = 0;
 		for (final Pet pet : pets) {
-			if (pet.getSummoned()) {
+			if (pet.isSummoned()) {
 				if (pet == petz) {
 					return count;
 				}
@@ -3338,7 +3342,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public final byte getPetIndex(final int petId) {
 		byte count = 0;
 		for (final Pet pet : pets) {
-			if (pet.getSummoned()) {
+			if (pet.isSummoned()) {
 				if (pet.getUniqueId() == petId) {
 					return count;
 				}
@@ -3363,8 +3367,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void unequipPet(Pet pet, boolean shiftLeft, boolean hunger) {
 		cancelFullnessSchedule(getPetIndex(pet));
 		pet.saveToDb();
-		map.broadcastMessage(this, PetPacket
-				.showPet(this, pet, true, hunger),
+
+		map.broadcastMessage(this,
+								PetPacket.removePet(this, pet, hunger),
 								true);
 		List<StatValue> petStat = Lists.newArrayList();
 		petStat.add(new StatValue(Stat.PET, Integer.valueOf(0)));
@@ -3988,13 +3993,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							addHP(healEffect.getHp());
 							client.write(ChannelPackets
 									.showOwnBuffEffect(1321007, 2));
-							map.broadcastMessage(	ChannelCharacter.this,
+							map.broadcastMessage(ChannelCharacter.this,
 													ChannelPackets
-															.summonSkill(	getId(),
+															.summonSkill(getId(),
 																			1321007,
 																			5),
 													true);
-							map.broadcastMessage(	ChannelCharacter.this,
+							map.broadcastMessage(ChannelCharacter.this,
 													ChannelPackets
 															.showBuffeffect(getId(),
 																			1321007,
@@ -4016,15 +4021,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							buffEffect.applyTo(ChannelCharacter.this);
 							client.write(ChannelPackets
 									.showOwnBuffEffect(1321007, 2));
-							map.broadcastMessage(	ChannelCharacter.this,
+							map.broadcastMessage(ChannelCharacter.this,
 													ChannelPackets
-															.summonSkill(	getId(),
+															.summonSkill(getId(),
 																			1321007,
 																			(int) (Math
 																					.random()
 																			* 3) + 6),
 													true);
-							map.broadcastMessage(	ChannelCharacter.this,
+							map.broadcastMessage(ChannelCharacter.this,
 													ChannelPackets
 															.showBuffeffect(getId(),
 																			1321007,

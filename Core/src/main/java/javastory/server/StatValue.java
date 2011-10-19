@@ -8,7 +8,7 @@ import javastory.client.Stat;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class StatValue {
     public Stat stat;

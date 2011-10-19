@@ -32,7 +32,6 @@ import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
 import javastory.channel.server.StatEffect;
 import javastory.io.GamePacket;
-import javastory.server.maps.GameMapObjectType;
 import javastory.tools.packets.ChannelPackets;
 
 public class Mist extends AbstractGameMapObject {

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class PropertyUtil {
 

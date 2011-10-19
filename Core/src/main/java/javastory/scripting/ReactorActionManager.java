@@ -29,13 +29,13 @@ import javastory.channel.ChannelClient;
 import javastory.channel.ChannelManager;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.maps.Reactor;
+import javastory.channel.maps.ReactorDropEntry;
 import javastory.client.Equip;
 import javastory.client.IItem;
 import javastory.client.Item;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.server.ItemInfoProvider;
-import javastory.server.maps.ReactorDropEntry;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {
 

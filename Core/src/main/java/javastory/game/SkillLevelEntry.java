@@ -6,7 +6,7 @@ package javastory.game;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class SkillLevelEntry {
 

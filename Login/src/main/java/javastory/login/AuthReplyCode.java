@@ -2,7 +2,7 @@ package javastory.login;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public enum AuthReplyCode {
     SUCCESS(0),

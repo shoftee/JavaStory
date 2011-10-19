@@ -15,11 +15,11 @@ import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObject;
+import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.server.ShopFactory;
 import javastory.client.Stat;
 import javastory.io.GamePacket;
 import javastory.server.ChannelServer;
-import javastory.server.maps.GameMapObjectType;
 import javastory.tools.StringUtil;
 import javastory.tools.packets.ChannelPackets;
 

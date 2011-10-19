@@ -4,7 +4,7 @@ import javastory.io.GamePacket;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public interface PlayerClient {
 	public void write(GamePacket packet);

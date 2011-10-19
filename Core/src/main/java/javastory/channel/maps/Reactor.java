@@ -24,8 +24,6 @@ import java.awt.Rectangle;
 
 import javastory.channel.ChannelClient;
 import javastory.scripting.ReactorScriptManager;
-import javastory.server.maps.GameMapObjectType;
-import javastory.server.maps.ReactorStats;
 import javastory.tools.Pair;
 import javastory.tools.packets.ChannelPackets;
 

@@ -28,7 +28,6 @@ package javastory.channel.maps;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.server.maps.GameMapObjectType;
 import javastory.tools.packets.ChannelPackets;
 
 public class Dragon extends AbstractAnimatedGameMapObject {

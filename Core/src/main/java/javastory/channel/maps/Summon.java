@@ -27,8 +27,6 @@ import javastory.channel.ChannelClient;
 import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.client.SkillFactory;
 import javastory.game.GameConstants;
-import javastory.server.maps.GameMapObjectType;
-import javastory.server.maps.SummonMovementType;
 import javastory.tools.packets.ChannelPackets;
 
 public class Summon extends AbstractAnimatedGameMapObject {

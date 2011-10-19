@@ -8,7 +8,7 @@ import javastory.game.Gender;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public interface GameCharacter {
 

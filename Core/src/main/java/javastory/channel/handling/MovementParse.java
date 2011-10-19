@@ -25,20 +25,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javastory.channel.maps.AnimatedGameMapObject;
+import javastory.channel.movement.AbsoluteLifeMovement;
+import javastory.channel.movement.AranMovement;
+import javastory.channel.movement.BounceMovement;
+import javastory.channel.movement.ChairMovement;
+import javastory.channel.movement.ChangeEquipSpecialAwesome;
+import javastory.channel.movement.FlashMovement;
+import javastory.channel.movement.JumpDownMovement;
+import javastory.channel.movement.LifeMovement;
+import javastory.channel.movement.LifeMovementFragment;
+import javastory.channel.movement.RelativeLifeMovement;
+import javastory.channel.movement.TeleportMovement;
+import javastory.channel.movement.UnknownMovement;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.server.movement.AbsoluteLifeMovement;
-import javastory.server.movement.AranMovement;
-import javastory.server.movement.BounceMovement;
-import javastory.server.movement.ChairMovement;
-import javastory.server.movement.ChangeEquipSpecialAwesome;
-import javastory.server.movement.FlashMovement;
-import javastory.server.movement.JumpDownMovement;
-import javastory.server.movement.LifeMovement;
-import javastory.server.movement.LifeMovementFragment;
-import javastory.server.movement.RelativeLifeMovement;
-import javastory.server.movement.TeleportMovement;
-import javastory.server.movement.UnknownMovement;
 
 public class MovementParse {
 

@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.life.Element;
 import javastory.channel.server.StatEffect;
 import javastory.game.Jobs;
-import javastory.server.life.Element;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 

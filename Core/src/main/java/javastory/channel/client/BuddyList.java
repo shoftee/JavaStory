@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
-import javastory.client.BuddyListEntry;
 import javastory.client.SimpleCharacterInfo;
 import javastory.db.DatabaseConnection;
 import javastory.tools.packets.ChannelPackets;

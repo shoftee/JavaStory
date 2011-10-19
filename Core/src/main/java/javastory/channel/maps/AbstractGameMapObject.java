@@ -22,7 +22,6 @@ package javastory.channel.maps;
 
 import java.awt.Point;
 
-import javastory.server.maps.GameMapObjectType;
 
 
 public abstract class AbstractGameMapObject implements GameMapObject {

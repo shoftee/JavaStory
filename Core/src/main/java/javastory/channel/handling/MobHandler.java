@@ -29,11 +29,11 @@ import javastory.channel.life.MobSkill;
 import javastory.channel.life.MobSkillFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.GameMap;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.MobPacket;
 import javastory.game.SkillLevelEntry;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
 
 public class MobHandler {

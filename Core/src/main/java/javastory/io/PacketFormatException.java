@@ -6,7 +6,7 @@ package javastory.io;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class PacketFormatException extends Exception {
     /**

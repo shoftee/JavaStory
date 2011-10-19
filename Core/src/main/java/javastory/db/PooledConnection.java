@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 class PooledConnection implements Connection {
 

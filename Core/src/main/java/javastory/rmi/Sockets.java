@@ -12,7 +12,7 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class Sockets {
 

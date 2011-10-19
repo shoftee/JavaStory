@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public abstract class RemoteClient<TClient extends GenericRemoteObject> {
 

@@ -13,7 +13,7 @@ import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.PlayerBuffValueHolder;
-import javastory.client.MemberRank;
+import javastory.channel.client.MemberRank;
 import javastory.server.Location;
 import javastory.world.core.CharacterIdChannelPair;
 import javastory.world.core.PartyOperation;

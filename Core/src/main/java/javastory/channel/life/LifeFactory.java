@@ -13,11 +13,6 @@ import java.util.Map;
 
 import javastory.db.DatabaseConnection;
 import javastory.game.SkillLevelEntry;
-import javastory.server.life.BanishInfo;
-import javastory.server.life.Element;
-import javastory.server.life.ElementalEffectiveness;
-import javastory.server.life.MonsterStats;
-import javastory.server.life.NpcStats;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

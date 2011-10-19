@@ -6,12 +6,13 @@ package javastory.client;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public enum ItemType {
 
 	EQUIP(1),
-	NORMAL_ITEM(2);
+	NORMAL_ITEM(2),
+	PET(3);
 	private byte type;
 
 	private ItemType(int typeByte) {
@@ -23,11 +24,15 @@ public enum ItemType {
 	}
 
 	public static ItemType fromByte(int type) {
-		for (ItemType itemType : ItemType.values()) {
-			if (itemType.asByte() == type) {
-				return itemType;
-			}
+		switch (type) {
+		case 1:
+			return EQUIP;
+		case 2:
+			return NORMAL_ITEM;
+		case 3:
+			return PET;
+		default:
+			return null;
 		}
-		return null;
 	}
 }

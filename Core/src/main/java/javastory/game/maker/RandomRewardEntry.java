@@ -6,7 +6,7 @@ package javastory.game.maker;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class RandomRewardEntry {
 

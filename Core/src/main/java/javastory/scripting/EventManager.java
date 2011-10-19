@@ -31,13 +31,13 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.Party;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
+import javastory.channel.life.OverrideMonsterStats;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapFactory;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.server.Squad;
 import javastory.server.ChannelServer;
 import javastory.server.TimerManager;
-import javastory.server.life.OverrideMonsterStats;
 import javastory.tools.packets.ChannelPackets;
 
 import javax.script.Invocable;

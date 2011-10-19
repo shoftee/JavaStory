@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public abstract class GenericRemoteObject extends UnicastRemoteObject implements RemotePingable {
     /**

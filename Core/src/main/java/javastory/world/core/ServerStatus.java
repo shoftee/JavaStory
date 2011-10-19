@@ -6,7 +6,7 @@ package javastory.world.core;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public enum ServerStatus {
 	OFFLINE,

@@ -12,10 +12,10 @@ import java.util.Set;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.client.Pet;
 import javastory.channel.client.SkillFactory;
 import javastory.client.IItem;
 import javastory.client.Inventory;
-import javastory.client.Pet;
 import javastory.db.DatabaseConnection;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;

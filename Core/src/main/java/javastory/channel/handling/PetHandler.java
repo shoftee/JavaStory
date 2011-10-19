@@ -6,21 +6,21 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.client.Pet;
+import javastory.channel.client.PetCommand;
+import javastory.channel.client.PetDataFactory;
 import javastory.channel.client.SkillFactory;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.client.IItem;
 import javastory.client.Inventory;
-import javastory.client.Pet;
-import javastory.client.PetCommand;
-import javastory.client.PetDataFactory;
 import javastory.client.Stat;
 import javastory.game.GameConstants;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
 import javastory.server.StatValue;
-import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 
@@ -45,7 +45,7 @@ public class PetHandler {
             default: {
                 final Pet pet = item.getPet();
                 if (pet != null) {
-                    if (pet.getSummoned()) { // Already summoned, let's keep it
+                    if (pet.isSummoned()) { // Already summoned, let's keep it
                         chr.unequipPet(pet, true, false);
                     } else {
                         if (chr.getCurrentSkillLevel(SkillFactory.getSkill(8)) ==
@@ -62,7 +62,7 @@ public class PetHandler {
                         pet.setSummoned(true);
 
                         chr.addPet(pet);
-                        chr.getMap().broadcastMessage(chr, PetPacket.showPet(chr, pet, false, false), true);
+                        chr.getMap().broadcastMessage(chr, PetPacket.showPet(chr, pet), true);
 
                         final List<StatValue> stats = new ArrayList<>(1);
                         stats.add(new StatValue(Stat.PET, Integer.valueOf(pet.getUniqueId())));
@@ -130,7 +130,7 @@ public class PetHandler {
         int previousFullness = 100;
 
         for (final Pet pet : chr.getPets()) {
-            if (pet.getSummoned()) {
+            if (pet.isSummoned()) {
                 if (pet.getFullness() < previousFullness) {
                     previousFullness = pet.getFullness();
 

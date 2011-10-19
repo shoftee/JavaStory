@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class ItemRecipeBuilder {
     private List<ItemRecipeEntry> entries;

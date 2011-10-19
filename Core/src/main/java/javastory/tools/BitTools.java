@@ -79,7 +79,7 @@ public class BitTools {
      * @param d The double to transform.
      * @return The converted integer.
      */
-    public static int doubleToShortBits(final double d) {
+    public static int doubleshofteertBits(final double d) {
 	long l = Double.doubleToLongBits(d);
 	return (int) (l >> 48);
     }

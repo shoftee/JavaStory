@@ -24,10 +24,17 @@ import javastory.channel.GuildMember;
 import javastory.channel.GuildSummary;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
+import javastory.channel.client.BuddyListEntry;
+import javastory.channel.client.BuffStat;
+import javastory.channel.client.KeyLayout;
+import javastory.channel.client.MemberRank;
 import javastory.channel.client.Mount;
+import javastory.channel.client.Pet;
 import javastory.channel.client.Ring;
+import javastory.channel.client.SkillMacro;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Npc;
+import javastory.channel.life.NpcStats;
 import javastory.channel.life.SummonAttackEntry;
 import javastory.channel.maps.Dragon;
 import javastory.channel.maps.GameMap;
@@ -35,20 +42,15 @@ import javastory.channel.maps.GameMapItem;
 import javastory.channel.maps.Mist;
 import javastory.channel.maps.Reactor;
 import javastory.channel.maps.Summon;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.PacketHelper;
 import javastory.channel.server.StatEffect;
 import javastory.channel.server.Trade;
-import javastory.client.BuddyListEntry;
-import javastory.client.BuffStat;
 import javastory.client.IEquip;
 import javastory.client.IEquip.ScrollResult;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.ItemType;
-import javastory.client.KeyLayout;
-import javastory.client.MemberRank;
-import javastory.client.Pet;
-import javastory.client.SkillMacro;
 import javastory.client.Stat;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
@@ -65,8 +67,6 @@ import javastory.server.StatValue;
 import javastory.server.channel.GuildRankingInfo;
 import javastory.server.handling.ServerConstants;
 import javastory.server.handling.ServerPacketOpcode;
-import javastory.server.life.NpcStats;
-import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.AttackPair;
 import javastory.tools.BitTools;
 import javastory.tools.FameResponse;
@@ -1053,7 +1053,7 @@ public final class ChannelPackets {
             } else {
                 builder.writeAsShort(0);
                 builder.writeInt(0);
-                builder.writeAsShort(BitTools.doubleToShortBits(ii.getPrice(item.getItemId())));
+                builder.writeAsShort(BitTools.doubleshofteertBits(ii.getPrice(item.getItemId())));
                 builder.writeAsShort(ii.getSlotMax(item.getItemId()));
             }
         }
@@ -1478,7 +1478,7 @@ public final class ChannelPackets {
         final IItem inv = equippedItemsInventory.getItem((byte) -114);
         final int peteqid = inv != null ? inv.getItemId() : 0;
         for (final Pet pet : chr.getPets()) {
-            if (pet.getSummoned()) {
+            if (pet.isSummoned()) {
                 builder.writeAsByte(pet.getUniqueId());
                 builder.writeInt(pet.getPetItemId()); // petid
                 builder.writeLengthPrefixedString(pet.getName());
@@ -3096,7 +3096,7 @@ public final class ChannelPackets {
         builder.writeInt(rs.getInt("localthreadid"));
         builder.writeInt(rs.getInt("postercid"));
         builder.writeLengthPrefixedString(rs.getString("name"));
-        builder.writeLong(PacketHelper.getKoreanTimestamp(rs.getLong("timestamp")));
+        builder.writeLong(PacketHelper.getFiletimeFromMillis(rs.getLong("timestamp")));
         builder.writeInt(rs.getInt("icon"));
         builder.writeInt(rs.getInt("replycount"));
     }
@@ -3108,7 +3108,7 @@ public final class ChannelPackets {
         builder.writeAsByte(7);
         builder.writeInt(localthreadid);
         builder.writeInt(threadRS.getInt("postercid"));
-        builder.writeLong(PacketHelper.getKoreanTimestamp(threadRS.getLong("timestamp")));
+        builder.writeLong(PacketHelper.getFiletimeFromMillis(threadRS.getLong("timestamp")));
         builder.writeLengthPrefixedString(threadRS.getString("name"));
         builder.writeLengthPrefixedString(threadRS.getString("startpost"));
         builder.writeInt(threadRS.getInt("icon"));
@@ -3119,7 +3119,7 @@ public final class ChannelPackets {
             for (i = 0; i < replyCount && repliesRS.next(); i++) {
                 builder.writeInt(repliesRS.getInt("replyid"));
                 builder.writeInt(repliesRS.getInt("postercid"));
-                builder.writeLong(PacketHelper.getKoreanTimestamp(repliesRS.getLong("timestamp")));
+                builder.writeLong(PacketHelper.getFiletimeFromMillis(repliesRS.getLong("timestamp")));
                 builder.writeLengthPrefixedString(repliesRS.getString("content"));
             }
             if (i != replyCount || repliesRS.next()) {

@@ -15,7 +15,7 @@ import org.apache.mina.core.session.IoSession;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class LoginPacketHandler extends PacketHandler {
 

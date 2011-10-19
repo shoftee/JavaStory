@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package javastory.channel.client;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.life.Element;
 import javastory.channel.server.StatEffect;
-import javastory.server.life.Element;
 
 public interface ISkill {
 

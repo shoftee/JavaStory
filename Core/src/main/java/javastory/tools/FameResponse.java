@@ -6,7 +6,7 @@ package javastory.tools;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public enum FameResponse {
     

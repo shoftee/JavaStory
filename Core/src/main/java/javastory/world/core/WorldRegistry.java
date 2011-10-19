@@ -31,7 +31,7 @@ import javastory.channel.Messenger;
 import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PlayerBuffStorage;
-import javastory.client.MemberRank;
+import javastory.channel.client.MemberRank;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldChannelInterface;

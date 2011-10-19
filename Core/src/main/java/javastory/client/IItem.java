@@ -1,5 +1,7 @@
 package javastory.client;
 
+import javastory.channel.client.Pet;
+
 
 public interface IItem extends Comparable<IItem> {
 

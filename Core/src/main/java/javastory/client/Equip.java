@@ -23,7 +23,6 @@ package javastory.client;
 
 import java.io.Serializable;
 
-
 public class Equip extends Item implements IEquip, Serializable {
 
 	/**

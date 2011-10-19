@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.maps.GameMapObject;
+import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.channel.server.Trade;
@@ -20,7 +21,6 @@ import javastory.game.ItemFlag;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
-import javastory.server.maps.GameMapObjectType;
 import javastory.tools.packets.ChannelPackets;
 
 public class PlayerInteractionHandler {

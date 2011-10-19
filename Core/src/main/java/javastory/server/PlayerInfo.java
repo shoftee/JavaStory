@@ -12,7 +12,7 @@ import javastory.game.Gender;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 @SuppressWarnings("serial")
 public class PlayerInfo implements Serializable {

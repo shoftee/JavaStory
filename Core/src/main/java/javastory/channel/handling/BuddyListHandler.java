@@ -28,10 +28,10 @@ import java.sql.SQLException;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.client.BuddyAddResult;
 import javastory.channel.client.BuddyList;
-import javastory.client.BuddyAddResult;
-import javastory.client.BuddyListEntry;
-import javastory.client.BuddyOperation;
+import javastory.channel.client.BuddyListEntry;
+import javastory.channel.client.BuddyOperation;
 import javastory.client.SimpleCharacterInfo;
 import javastory.db.DatabaseConnection;
 import javastory.io.PacketFormatException;

@@ -18,7 +18,7 @@ import org.apache.mina.core.session.IoSession;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public abstract class GameClient {
 

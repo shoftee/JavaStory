@@ -4,11 +4,11 @@
  */
 package javastory.server;
 
-import javastory.client.BuffStat;
+import javastory.channel.client.BuffStat;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class BuffStatValue {
 

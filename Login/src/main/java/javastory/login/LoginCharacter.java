@@ -1,7 +1,13 @@
 package javastory.login;
 
-import javastory.game.InventoryType;
-import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javastory.client.Equip;
 import javastory.client.GameCharacter;
@@ -11,20 +17,15 @@ import javastory.client.Inventory;
 import javastory.client.PlayerStats;
 import javastory.db.DatabaseConnection;
 import javastory.db.DatabaseException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import javastory.game.Gender;
+import javastory.game.InventoryType;
 import javastory.game.Skills;
+
+import com.google.common.collect.Lists;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class LoginCharacter implements GameCharacter {
 

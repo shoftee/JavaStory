@@ -13,7 +13,7 @@ import javastory.db.DatabaseConnection;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class Bans {
 

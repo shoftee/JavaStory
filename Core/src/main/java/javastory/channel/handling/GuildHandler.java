@@ -29,7 +29,7 @@ import java.util.List;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.Guild;
-import javastory.client.MemberRank;
+import javastory.channel.client.MemberRank;
 import javastory.io.GamePacket;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;

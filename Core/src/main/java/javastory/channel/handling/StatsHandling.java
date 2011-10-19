@@ -5,10 +5,10 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.AutobanManager;
-import javastory.client.ActivePlayerStats;
 import javastory.client.Stat;
 import javastory.game.Skills;
 import javastory.io.PacketFormatException;

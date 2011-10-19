@@ -31,8 +31,8 @@ import java.util.Map;
 
 import javastory.channel.ChannelClient;
 import javastory.channel.maps.Reactor;
+import javastory.channel.maps.ReactorDropEntry;
 import javastory.db.DatabaseConnection;
-import javastory.server.maps.ReactorDropEntry;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;

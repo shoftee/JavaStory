@@ -20,6 +20,7 @@ import javastory.channel.PartyMember;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.handling.ChannelPacketHandler;
 import javastory.channel.maps.GameMapFactory;
+import javastory.channel.maps.MapTimer;
 import javastory.channel.rmi.ChannelWorldInterfaceImpl;
 import javastory.channel.server.AutobanManager;
 import javastory.channel.server.Squad;
@@ -33,7 +34,6 @@ import javastory.scripting.EventScriptManager;
 import javastory.server.channel.PlayerStorage;
 import javastory.server.channel.ShutdownChannelServer;
 import javastory.server.handling.PacketHandler;
-import javastory.server.maps.MapTimer;
 import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.ServerStatus;
 

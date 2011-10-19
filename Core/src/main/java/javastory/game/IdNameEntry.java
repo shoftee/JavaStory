@@ -2,7 +2,7 @@ package javastory.game;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class IdNameEntry {
 

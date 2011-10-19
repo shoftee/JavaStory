@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javastory.channel.client.status.MonsterStatus;
-import javastory.channel.client.status.MonsterStatusEffect;
+import javastory.channel.client.MonsterStatus;
+import javastory.channel.client.MonsterStatusEffect;
 import javastory.channel.life.Monster;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;
-import javastory.server.movement.LifeMovementFragment;
 
 public class MobPacket {
 

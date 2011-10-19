@@ -9,7 +9,7 @@ import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
-import javastory.server.life.OverrideMonsterStats;
+import javastory.channel.life.OverrideMonsterStats;
 
 public class SpawnMonsterCommand implements Command {
 	@Override

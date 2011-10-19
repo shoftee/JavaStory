@@ -4,11 +4,10 @@ import java.rmi.RemoteException;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import javastory.client.ActivePlayerStats;
-import javastory.client.GameCharacterUtil;
 import javastory.client.Stat;
 import javastory.scripting.NpcScriptManager;
 import javastory.tools.StringUtil;
@@ -95,26 +94,6 @@ public class GM0Command implements Command {
             case "@ea":
                 c.write(ChannelPackets.enableActions());
                 break;
-            case "@changesecondpass":
-                if (splitted[2].equals(splitted[3])) {
-                    if (splitted[2].length() < 4 || splitted[2].length() > 16) {
-                        player.sendNotice(5, "Your new password must not be length of below 4 or above 16.");
-                    } else {
-                        final int output = GameCharacterUtil.Change_SecondPassword(c.getAccountId(), splitted[1], splitted[2]);
-                        if (output == -2 || output == -1) {
-                            player.sendNotice(1, "An unknown error occured");
-                        } else if (output == 0) {
-                            player.sendNotice(1, "You do not have a second password set currently, please set one at character selection.");
-                        } else if (output == 1) {
-                            player.sendNotice(1, "The old password which you have inputted is invalid.");
-                        } else if (output == 2) {
-                            player.sendNotice(1, "Password changed successfully!");
-                        }
-                    }
-                } else {
-                    player.sendNotice(1, "Please confirm your new password again.");
-                }
-                break;
             case "@help":
                 player.sendNotice(5, "Available commands :");
                 player.sendNotice(5, "@str, @dex, @int, @luk [space] amount to add");
@@ -138,7 +117,6 @@ public class GM0Command implements Command {
                     new CommandDefinition("togm", "", "", 0),
                     new CommandDefinition("dispose", "", "", 0),
                     new CommandDefinition("ea", "", "", 0),
-                    new CommandDefinition("changesecondpass", "", "", 0),
                     new CommandDefinition("help", "", "", 0)
                 };
     }

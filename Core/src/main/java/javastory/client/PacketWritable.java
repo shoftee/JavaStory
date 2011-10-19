@@ -4,7 +4,7 @@ import javastory.io.PacketBuilder;
 
 /**
  * 
- * @author Tosho
+ * @author shoftee
  */
 public interface PacketWritable {
 	public void connectData(PacketBuilder builder);

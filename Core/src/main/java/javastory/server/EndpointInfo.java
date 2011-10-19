@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public class EndpointInfo implements Serializable {
 

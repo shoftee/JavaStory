@@ -24,7 +24,6 @@ import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javastory.channel.maps.GameMap;
-import javastory.server.life.MonsterListener;
 import javastory.tools.packets.ChannelPackets;
 
 public class SpawnPoint extends Spawns {

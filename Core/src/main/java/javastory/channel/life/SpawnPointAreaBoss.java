@@ -24,7 +24,6 @@ import java.awt.Point;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javastory.channel.maps.GameMap;
-import javastory.server.life.MonsterListener;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 

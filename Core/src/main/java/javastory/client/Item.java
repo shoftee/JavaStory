@@ -2,6 +2,7 @@ package javastory.client;
 
 import java.io.Serializable;
 
+import javastory.channel.client.Pet;
 import javastory.tools.Randomizer;
 
 public class Item implements IItem, Serializable {
@@ -15,13 +16,18 @@ public class Item implements IItem, Serializable {
 	private short position;
 	private short quantity;
 	private byte flag;
-	private long expiration = -1;
-	private Pet pet = null;
+	
 	private int uniqueid = 0;
+
+	private long expiration = -1;
+	
+	private int cashId;
+	private int petId = -1;
+	private Pet pet = null;
+
 	private String owner = "";
 	private String GameMaster_log = null;
-	private int cashId;
-
+	
 	public Item(final int id, final short position, final short quantity,
 			final byte flag) {
 		super();
@@ -35,10 +41,11 @@ public class Item implements IItem, Serializable {
 	@Override
 	public IItem copy() {
 		final Item ret = new Item(id, position, quantity, flag);
-		ret.pet = pet;
-		ret.owner = owner;
-		ret.GameMaster_log = GameMaster_log;
-		ret.expiration = expiration;
+		ret.petId = this.petId;
+		ret.pet = this.pet;
+		ret.owner = this.owner;
+		ret.GameMaster_log = this.GameMaster_log;
+		ret.expiration = this.expiration;
 		return ret;
 	}
 
@@ -158,5 +165,13 @@ public class Item implements IItem, Serializable {
 			cashId = Randomizer.nextInt(Integer.MAX_VALUE) + 1;
 		}
 		return cashId;
+	}
+
+	public int getPetId() {
+		return petId;
+	}
+
+	public void setPetId(int petId) {
+		this.petId = petId;
 	}
 }

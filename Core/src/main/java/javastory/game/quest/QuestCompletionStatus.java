@@ -6,7 +6,7 @@ package javastory.game.quest;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public enum QuestCompletionStatus {
     INACTIVE(0),

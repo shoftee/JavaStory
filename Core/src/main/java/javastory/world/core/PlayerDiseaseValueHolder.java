@@ -22,7 +22,7 @@ package javastory.world.core;
 
 import java.io.Serializable;
 
-import javastory.client.Disease;
+import javastory.channel.client.Disease;
 
 
 public class PlayerDiseaseValueHolder implements Serializable {

@@ -28,7 +28,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public abstract class GameService {
 

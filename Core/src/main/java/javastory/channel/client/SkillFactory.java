@@ -3,7 +3,6 @@ package javastory.channel.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import javastory.client.SummonSkillEntry;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;

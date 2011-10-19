@@ -6,7 +6,7 @@ package javastory.game;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public enum Gender {
     MALE(0),

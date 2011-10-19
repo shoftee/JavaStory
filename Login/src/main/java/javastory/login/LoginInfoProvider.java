@@ -16,7 +16,6 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
-
 public final class LoginInfoProvider {
 
     private final static LoginInfoProvider instance = new LoginInfoProvider();

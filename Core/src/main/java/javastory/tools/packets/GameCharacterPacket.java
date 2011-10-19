@@ -16,7 +16,7 @@ import javastory.io.PacketBuilder;
 
 /**
  *
- * @author Tosho
+ * @author shoftee
  */
 public final class GameCharacterPacket {
 

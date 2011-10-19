@@ -8,17 +8,17 @@ import java.util.Map.Entry;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.ISkill;
+import javastory.channel.client.Pet;
 import javastory.channel.client.Ring;
 import javastory.channel.client.SkillEntry;
+import javastory.channel.movement.LifeMovementFragment;
 import javastory.client.IEquip;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.ItemType;
-import javastory.client.Pet;
 import javastory.game.GameConstants;
 import javastory.game.quest.QuestStatus;
 import javastory.io.PacketBuilder;
-import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.FiletimeUtil;
 import javastory.world.core.PlayerCooldownValueHolder;
 
@@ -36,7 +36,7 @@ public class PacketHelper {
 		(byte) 0x4F, (byte) 0x01
 	};
 
-	public static long getKoreanTimestamp(final long realTimestamp) {
+	public static long getFiletimeFromMillis(final long realTimestamp) {
 		long time = (realTimestamp / 1000 / 60); // convert to minutes
 		return ((time * 600000000) + FT_UT_OFFSET);
 	}
@@ -252,7 +252,7 @@ public class PacketHelper {
 				builder.writeAsByte(pos);
 			}
 		}
-		builder.writeByte(item.getPet() != null ? 3 : item.getType().asByte());
+		builder.writeByte(item.getType().asByte());
 		builder.writeInt(item.getItemId());
 
 		if (item.getPet() != null) { // Pet
