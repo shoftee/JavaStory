@@ -9,19 +9,19 @@ import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.AutobanManager;
 import javastory.client.ActivePlayerStats;
+import javastory.client.Stat;
 import javastory.game.Skills;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.StatValue;
 import javastory.tools.Randomizer;
-import server.StatValue;
-import tools.MaplePacketCreator;
-import client.Stat;
+import javastory.tools.packets.ChannelPackets;
 
 public class StatsHandling {
 
     public static void handleDistributeAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
         final List<StatValue> statupdate = new ArrayList<>(2);
-        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
+        c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
         reader.skip(4);
 
         final ActivePlayerStats stat = chr.getStats();
@@ -151,12 +151,12 @@ public class StatsHandling {
                     statupdate.add(new StatValue(Stat.MAX_MP, MaxMP));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
+                    c.write(ChannelPackets.updatePlayerStats(ChannelPackets.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - 1);
             statupdate.add(new StatValue(Stat.AVAILABLE_AP, chr.getRemainingAp()));
-            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
+            c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }
 
@@ -258,7 +258,7 @@ public class StatsHandling {
         final int amount2 = reader.readInt();
         final ActivePlayerStats playerst = chr.getStats();
         List<StatValue> statupdate = new ArrayList<>(2);
-        c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
+        c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
         if (chr.getRemainingAp() == amount + amount2) {
             switch (PrimaryStat) {
                 case 64: // Str
@@ -290,7 +290,7 @@ public class StatsHandling {
                     statupdate.add(new StatValue(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
+                    c.write(ChannelPackets.updatePlayerStats(ChannelPackets.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             switch (SecondaryStat) {
@@ -323,12 +323,12 @@ public class StatsHandling {
                     statupdate.add(new StatValue(Stat.LUK, playerst.getLuk()));
                     break;
                 default:
-                    c.write(MaplePacketCreator.updatePlayerStats(MaplePacketCreator.EMPTY_STATUPDATE, true, chr.getJobId()));
+                    c.write(ChannelPackets.updatePlayerStats(ChannelPackets.EMPTY_STATUPDATE, true, chr.getJobId()));
                     return;
             }
             chr.setRemainingAp(chr.getRemainingAp() - (amount + amount2));
             statupdate.add(new StatValue(Stat.AVAILABLE_AP, chr.getRemainingAp()));
-            c.write(MaplePacketCreator.updatePlayerStats(statupdate, true, chr.getJobId()));
+            c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
         }
     }
 }

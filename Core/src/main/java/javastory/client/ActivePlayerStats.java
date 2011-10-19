@@ -12,13 +12,11 @@ import javastory.game.Jobs;
 import javastory.game.Skills;
 import javastory.game.WeaponType;
 import javastory.server.ItemInfoProvider;
-import client.BuffStat;
-import client.IEquip;
-import client.IItem;
 
 public class ActivePlayerStats extends PlayerStats implements Serializable {
 
 	private static final long serialVersionUID = -679541993413738569L;
+
 	private transient WeakReference<ChannelCharacter> character;
 	private transient float shouldHealHP, shouldHealMP;
 	private transient short passive_sharpeye_percent, passive_sharpeye_rate;

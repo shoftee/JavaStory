@@ -1,12 +1,11 @@
 package javastory.io;
 
-import handling.GamePacket;
 
 import java.awt.Point;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import tools.FiletimeUtil;
+import javastory.tools.FiletimeUtil;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

@@ -23,7 +23,7 @@ package javastory.channel.client;
 import java.lang.ref.WeakReference;
 
 import javastory.channel.ChannelCharacter;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class CancelCooldownAction implements Runnable {
 
@@ -40,7 +40,7 @@ public class CancelCooldownAction implements Runnable {
         final ChannelCharacter realTarget = target.get();
         if (realTarget != null) {
             realTarget.removeCooldown(skillId);
-            realTarget.getClient().write(MaplePacketCreator.skillCooldown(skillId, 0));
+            realTarget.getClient().write(ChannelPackets.skillCooldown(skillId, 0));
         }
     }
 }

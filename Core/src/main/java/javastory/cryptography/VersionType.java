@@ -10,14 +10,14 @@ package javastory.cryptography;
  * @author shoftee
  */
 public enum VersionType {
-    /**
-     * Regular version representation.
-     * The version is used as-is.
-     */
-    REGULAR, 
-    /**
-     * One's complement version representation.
-     * The bit-wise NOT of the version is used.
-     */
-    COMPLEMENT;
+	/**
+	 * Regular version representation.
+	 * The version is used as-is.
+	 */
+	REGULAR,
+	/**
+	 * One's complement version representation.
+	 * The bit-wise NOT of the version is used.
+	 */
+	COMPLEMENT;
 }

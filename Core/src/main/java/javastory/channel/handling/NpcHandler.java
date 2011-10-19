@@ -1,6 +1,5 @@
 package javastory.channel.handling;
 
-import handling.ServerPacketOpcode;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.life.Npc;
@@ -8,18 +7,19 @@ import javastory.channel.server.AutobanManager;
 import javastory.channel.server.InventoryManipulator;
 import javastory.channel.server.Shop;
 import javastory.channel.server.Storage;
+import javastory.client.IItem;
+import javastory.client.Inventory;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
+import javastory.game.quest.QuestInfoProvider;
+import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketBuilder;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.quest.QuestInfoProvider;
-import javastory.quest.QuestInfoProvider.QuestInfo;
-import scripting.NpcConversationManager;
-import scripting.NpcScriptManager;
-import tools.MaplePacketCreator;
-import client.IItem;
-import client.Inventory;
+import javastory.scripting.NpcConversationManager;
+import javastory.scripting.NpcScriptManager;
+import javastory.server.handling.ServerPacketOpcode;
+import javastory.tools.packets.ChannelPackets;
 
 public class NpcHandler {
 
@@ -150,8 +150,8 @@ public class NpcHandler {
                 final int npc = reader.readInt();
                 reader.skip(4);
                 NpcScriptManager.getInstance().endQuest(c, npc, questId, false);
-                c.write(MaplePacketCreator.showSpecialEffect(9)); // Quest completion
-                chr.getMap().broadcastMessage(chr, MaplePacketCreator.showSpecialEffect(chr.getId(), 9), false);
+                c.write(ChannelPackets.showSpecialEffect(9)); // Quest completion
+                chr.getMap().broadcastMessage(chr, ChannelPackets.showSpecialEffect(chr.getId(), 9), false);
                 break;
             }
         }
@@ -228,7 +228,7 @@ public class NpcHandler {
             return;
         }
         if (storage.isFull()) {
-            c.write(MaplePacketCreator.getStorageFull());
+            c.write(ChannelPackets.getStorageFull());
             return;
         }
         if (chr.getMeso() < 100) {
@@ -237,7 +237,7 @@ public class NpcHandler {
             Inventory inventory = chr.getInventoryForItem(itemId);
             IItem item = inventory.getItem(slot).copy();
             if (GameConstants.isPet(item.getItemId())) {
-                c.write(MaplePacketCreator.enableActions());
+                c.write(ChannelPackets.enableActions());
                 return;
             }
             if (item.getItemId() == itemId && (item.getQuantity() >= quantity ||

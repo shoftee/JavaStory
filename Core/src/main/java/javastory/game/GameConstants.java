@@ -3,7 +3,8 @@ package javastory.game;
 import java.util.Arrays;
 import java.util.List;
 
-import server.maps.GameMapObjectType;
+import javastory.server.maps.GameMapObjectType;
+
 
 public class GameConstants {
 

@@ -24,9 +24,9 @@ import java.awt.Point;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javastory.channel.maps.GameMap;
+import javastory.server.life.MonsterListener;
 import javastory.tools.Randomizer;
-import server.life.MonsterListener;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class SpawnPointAreaBoss extends Spawns {
 
@@ -91,7 +91,7 @@ public class SpawnPointAreaBoss extends Spawns {
 	map.spawnMonster(mob, -2);
 
 	if (msg != null) {
-	    map.broadcastMessage(MaplePacketCreator.serverNotice(6, msg));
+	    map.broadcastMessage(ChannelPackets.serverNotice(6, msg));
 //	    map.broadcastMessage(MaplePacketCreator.musicChange("Bgm04/WhiteChristmas_"));
 	}
 	return mob;

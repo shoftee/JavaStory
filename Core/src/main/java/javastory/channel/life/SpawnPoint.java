@@ -24,8 +24,8 @@ import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javastory.channel.maps.GameMap;
-import server.life.MonsterListener;
-import tools.MaplePacketCreator;
+import javastory.server.life.MonsterListener;
+import javastory.tools.packets.ChannelPackets;
 
 public class SpawnPoint extends Spawns {
 
@@ -92,7 +92,7 @@ public class SpawnPoint extends Spawns {
 	map.spawnMonster(mob, -2);
 
 	if (msg != null) {
-	    map.broadcastMessage(MaplePacketCreator.serverNotice(6, msg));
+	    map.broadcastMessage(ChannelPackets.serverNotice(6, msg));
 	}
 	return mob;
     }

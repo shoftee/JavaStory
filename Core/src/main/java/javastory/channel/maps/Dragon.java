@@ -28,8 +28,8 @@ package javastory.channel.maps;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 public class Dragon extends AbstractAnimatedGameMapObject {
 
@@ -49,12 +49,12 @@ public class Dragon extends AbstractAnimatedGameMapObject {
 
     @Override
     public void sendSpawnData(ChannelClient client) {
-        client.write(MaplePacketCreator.spawnDragon(this));
+        client.write(ChannelPackets.spawnDragon(this));
     }
 
     @Override
     public void sendDestroyData(ChannelClient client) {
-        client.write(MaplePacketCreator.removeDragon(this.owner));
+        client.write(ChannelPackets.removeDragon(this.owner));
     }
 
     public int getOwner() {

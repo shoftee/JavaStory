@@ -13,16 +13,16 @@ import java.util.Set;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.SkillFactory;
+import javastory.client.IItem;
+import javastory.client.Inventory;
+import javastory.client.Pet;
 import javastory.db.DatabaseConnection;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.game.Skills;
 import javastory.server.ItemInfoProvider;
-import server.ShopItem;
-import tools.MaplePacketCreator;
-import client.IItem;
-import client.Inventory;
-import client.Pet;
+import javastory.server.ShopItem;
+import javastory.tools.packets.ChannelPackets;
 
 public class Shop {
     private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
@@ -78,7 +78,7 @@ public class Shop {
 
     public void sendShop(ChannelClient c) {
 	c.getPlayer().setShop(this);
-	c.write(MaplePacketCreator.getNPCShop(c, getNpcId(), items));
+	c.write(ChannelPackets.getNPCShop(c, getNpcId(), items));
     }
 
     public void buy(ChannelClient c, int itemId, short quantity) {
@@ -108,7 +108,7 @@ public class Shop {
 		} else {
 		    player.sendNotice(1, "Your Inventory is full");
 		}
-		c.write(MaplePacketCreator.confirmShopTransaction((byte) 0));
+		c.write(ChannelPackets.confirmShopTransaction((byte) 0));
 	    }
 	}
     }
@@ -143,7 +143,7 @@ public class Shop {
 	    if (price != -1 && recvMesos > 0) {
 		c.getPlayer().gainMeso(recvMesos, false);
 	    }
-	    c.write(MaplePacketCreator.confirmShopTransaction((byte) 0x8));
+	    c.write(ChannelPackets.confirmShopTransaction((byte) 0x8));
 	}
     }
 
@@ -165,9 +165,9 @@ public class Shop {
 	    final int price = (int) Math.round(ii.getPrice(item.getItemId()) * (slotMax - item.getQuantity()));
 	    if (player.getMeso() >= price) {
 		item.setQuantity(slotMax);
-		c.write(MaplePacketCreator.updateInventorySlot(InventoryType.USE, item, false));
+		c.write(ChannelPackets.updateInventorySlot(InventoryType.USE, item, false));
 		player.gainMeso(-price, false, true, false);
-		c.write(MaplePacketCreator.confirmShopTransaction((byte) 0x8));
+		c.write(ChannelPackets.confirmShopTransaction((byte) 0x8));
 	    }
 	}
     }

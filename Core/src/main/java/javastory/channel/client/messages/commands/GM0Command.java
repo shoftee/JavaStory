@@ -9,10 +9,10 @@ import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.client.ActivePlayerStats;
 import javastory.client.GameCharacterUtil;
-import scripting.NpcScriptManager;
-import tools.MaplePacketCreator;
-import tools.StringUtil;
-import client.Stat;
+import javastory.client.Stat;
+import javastory.scripting.NpcScriptManager;
+import javastory.tools.StringUtil;
+import javastory.tools.packets.ChannelPackets;
 
 public class GM0Command implements Command {
 
@@ -84,7 +84,7 @@ public class GM0Command implements Command {
                 msg.append(" has requested for help : ");
                 msg.append(StringUtil.joinStringFrom(splitted, 1));
                 try {
-                    c.getChannelServer().getWorldInterface().broadcastGMMessage(MaplePacketCreator.serverNotice(5, msg.toString()).getBytes());
+                    c.getChannelServer().getWorldInterface().broadcastGMMessage(ChannelPackets.serverNotice(5, msg.toString()).getBytes());
                 } catch (RemoteException e) {
                     c.getChannelServer().pingWorld();
                 }
@@ -93,7 +93,7 @@ public class GM0Command implements Command {
                 NpcScriptManager.getInstance().dispose(c);
                 break;
             case "@ea":
-                c.write(MaplePacketCreator.enableActions());
+                c.write(ChannelPackets.enableActions());
                 break;
             case "@changesecondpass":
                 if (splitted[2].equals(splitted[3])) {

@@ -13,7 +13,7 @@ import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.rmi.WorldChannelInterface;
 import javastory.server.ChannelServer;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class ChatHandler {
 
@@ -23,7 +23,7 @@ public class ChatHandler {
                 return;
             }
             final ChannelCharacter player = c.getPlayer();
-            chr.getMap().broadcastMessage(MaplePacketCreator.getChatText(chr.getId(), text, player.isGM(), unk), player.getPosition());
+            chr.getMap().broadcastMessage(ChannelPackets.getChatText(chr.getId(), text, player.isGM(), unk), player.getPosition());
         }
     }
 
@@ -114,15 +114,15 @@ public class ChatHandler {
 
                     if (target != null) {
                         if (target.getMessenger() == null) {
-                            target.getClient().write(MaplePacketCreator.messengerInvite(player.getName(), messenger.getId()));
+                            target.getClient().write(ChannelPackets.messengerInvite(player.getName(), messenger.getId()));
 
                             if (!target.isGM()) {
-                                c.write(MaplePacketCreator.messengerNote(input, 4, 1));
+                                c.write(ChannelPackets.messengerNote(input, 4, 1));
                             } else {
-                                c.write(MaplePacketCreator.messengerNote(input, 4, 0));
+                                c.write(ChannelPackets.messengerNote(input, 4, 0));
                             }
                         } else {
-                            c.write(MaplePacketCreator.messengerChat(player.getName() +
+                            c.write(ChannelPackets.messengerChat(player.getName() +
                                     " : " + input +
                                     " is already using Maple Messenger"));
                         }
@@ -131,7 +131,7 @@ public class ChatHandler {
                             if (wci.isConnected(input)) {
                                 wci.messengerInvite(player.getName(), messenger.getId(), input, c.getChannelId());
                             } else {
-                                c.write(MaplePacketCreator.messengerNote(input, 4, 0));
+                                c.write(ChannelPackets.messengerNote(input, 4, 0));
                             }
                         } catch (RemoteException e) {
                             c.getChannelServer().pingWorld();
@@ -144,7 +144,7 @@ public class ChatHandler {
                 final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
-                        target.getClient().write(MaplePacketCreator.messengerNote(player.getName(), 5, 0));
+                        target.getClient().write(ChannelPackets.messengerNote(player.getName(), 5, 0));
                     }
                 } else { // Other channel
                     try {
@@ -181,9 +181,9 @@ public class ChatHandler {
                 ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
                 if (target != null) {
                     if (!target.isGM() || player.isGM() && target.isGM()) {
-                        c.write(MaplePacketCreator.getFindReplyWithMap(target.getName(), target.getMap().getId()));
+                        c.write(ChannelPackets.getFindReplyWithMap(target.getName(), target.getMap().getId()));
                     } else {
-                        c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                     }
                 } else { // Not found
                     for (ChannelServer cserv : ChannelManager.getAllInstances()) {
@@ -191,14 +191,14 @@ public class ChatHandler {
                         if (target != null) {
                             if (!target.isGM() || player.isGM() &&
                                     target.isGM()) {
-                                c.write(MaplePacketCreator.getFindReply(target.getName(), (byte) target.getClient().getChannelId()));
+                                c.write(ChannelPackets.getFindReply(target.getName(), (byte) target.getClient().getChannelId()));
                             } else {
-                                c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                             }
                             return;
                         }
                     }
-                    c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                    c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                 }
                 break;
             }
@@ -208,11 +208,11 @@ public class ChatHandler {
 
                 ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
                 if (target != null) {
-                    target.getClient().write(MaplePacketCreator.getWhisper(player.getName(), c.getChannelId(), text));
+                    target.getClient().write(ChannelPackets.getWhisper(player.getName(), c.getChannelId(), text));
                     if (target.isGM()) {
-                        c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                     } else {
-                        c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
+                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 1));
                     }
                 } else { // Not found
                     for (ChannelServer cserv : ChannelManager.getAllInstances()) {
@@ -225,16 +225,16 @@ public class ChatHandler {
                         try {
                             chanServ.getWorldInterface().whisper(player.getName(), target.getName(), c.getChannelId(), text);
                             if (!player.isGM() && target.isGM()) {
-                                c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                             } else {
-                                c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 1));
+                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 1));
                             }
                         } catch (RemoteException re) {
-                            c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                            c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                             chanServ.pingWorld();
                         }
                     } else {
-                        c.write(MaplePacketCreator.getWhisperReply(recipient, (byte) 0));
+                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
                     }
                 }
                 break;

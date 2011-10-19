@@ -32,9 +32,9 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.client.status.MonsterStatus;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.Mist;
-import server.life.BanishInfo;
-import server.maps.GameMapObjectType;
-import client.Disease;
+import javastory.client.Disease;
+import javastory.server.life.BanishInfo;
+import javastory.server.maps.GameMapObjectType;
 
 import com.google.common.collect.Maps;
 

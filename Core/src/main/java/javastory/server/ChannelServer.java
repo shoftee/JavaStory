@@ -1,7 +1,5 @@
 package javastory.server;
 
-import handling.GamePacket;
-
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -26,18 +24,18 @@ import javastory.channel.rmi.ChannelWorldInterfaceImpl;
 import javastory.channel.server.AutobanManager;
 import javastory.channel.server.Squad;
 import javastory.channel.shops.HiredMerchantStore;
+import javastory.game.maker.ItemMakerFactory;
+import javastory.game.maker.RandomRewards;
+import javastory.io.GamePacket;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.WorldChannelInterface;
+import javastory.scripting.EventScriptManager;
 import javastory.server.channel.PlayerStorage;
 import javastory.server.channel.ShutdownChannelServer;
 import javastory.server.handling.PacketHandler;
-import javastory.server.maker.ItemMakerFactory;
-import javastory.server.maker.RandomRewards;
+import javastory.server.maps.MapTimer;
+import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.ServerStatus;
-import scripting.EventScriptManager;
-import server.TimerManager;
-import server.maps.MapTimer;
-import tools.MaplePacketCreator;
 
 public final class ChannelServer extends GameService {
 
@@ -149,7 +147,7 @@ public final class ChannelServer extends GameService {
 
     public void addPlayer(final ChannelCharacter chr) {
         players.registerPlayer(chr);
-        chr.getClient().write(MaplePacketCreator.serverMessage(serverMessage));
+        chr.getClient().write(ChannelPackets.serverMessage(serverMessage));
     }
 
     public PlayerStorage getPlayerStorage() {
@@ -166,7 +164,7 @@ public final class ChannelServer extends GameService {
 
     public void setServerMessage(final String newMessage) {
         serverMessage = newMessage;
-        broadcastPacket(MaplePacketCreator.serverMessage(serverMessage));
+        broadcastPacket(ChannelPackets.serverMessage(serverMessage));
     }
 
     public void broadcastPacket(final GamePacket data) {

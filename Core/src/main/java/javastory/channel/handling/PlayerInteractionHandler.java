@@ -13,15 +13,15 @@ import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.HiredMerchantStore;
 import javastory.channel.shops.PlayerShop;
 import javastory.channel.shops.PlayerShopItem;
+import javastory.client.IItem;
+import javastory.client.Inventory;
 import javastory.game.GameConstants;
 import javastory.game.ItemFlag;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
-import client.IItem;
-import client.Inventory;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 public class PlayerInteractionHandler {
 
@@ -79,7 +79,7 @@ public class PlayerInteractionHandler {
             case INVITE_TRADE: {
                 ChannelCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
                 if (ochr.getWorldId() != chr.getWorldId()) {
-                    chr.getClient().write(MaplePacketCreator.serverNotice(5, "Cannot find player"));
+                    chr.getClient().write(ChannelPackets.serverNotice(5, "Cannot find player"));
                     return;
                 }
                 Trade.inviteTrade(chr, ochr);
@@ -222,13 +222,13 @@ public class PlayerInteractionHandler {
 
                         if (ItemFlag.UNTRADEABLE.check(flag) ||
                                 ItemFlag.LOCK.check(flag)) {
-                            c.write(MaplePacketCreator.enableActions());
+                            c.write(ChannelPackets.enableActions());
                             return;
                         }
                         if (ii.isDropRestricted(item.getItemId())) {
                             if (!(ItemFlag.KARMA_EQ.check(flag) ||
                                     ItemFlag.KARMA_USE.check(flag))) {
-                                c.write(MaplePacketCreator.enableActions());
+                                c.write(ChannelPackets.enableActions());
                                 return;
                             }
                         }
@@ -296,13 +296,13 @@ public class PlayerInteractionHandler {
 
                         if (ItemFlag.UNTRADEABLE.check(flag) ||
                                 ItemFlag.LOCK.check(flag)) {
-                            c.write(MaplePacketCreator.enableActions());
+                            c.write(ChannelPackets.enableActions());
                             return;
                         }
                         if (ItemInfoProvider.getInstance().isDropRestricted(ivItem.getItemId())) {
                             if (!(ItemFlag.KARMA_EQ.check(flag) ||
                                     ItemFlag.KARMA_USE.check(flag))) {
-                                c.write(MaplePacketCreator.enableActions());
+                                c.write(ChannelPackets.enableActions());
                                 return;
                             }
                         }

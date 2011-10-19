@@ -1,6 +1,5 @@
 package javastory.channel.rmi;
 
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -20,23 +19,24 @@ import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.client.BuddyList;
+import javastory.client.BuddyAddResult;
+import javastory.client.BuddyListEntry;
+import javastory.client.BuddyOperation;
 import javastory.client.MemberRank;
 import javastory.db.DatabaseConnection;
 import javastory.io.ByteArrayGamePacket;
+import javastory.io.GamePacket;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
 import javastory.server.ChannelInfo;
 import javastory.server.ChannelServer;
+import javastory.server.TimerManager;
 import javastory.server.channel.PlayerStorage;
 import javastory.server.channel.ShutdownChannelServer;
+import javastory.tools.CollectionUtil;
+import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.CheaterData;
 import javastory.world.core.PartyOperation;
-import server.TimerManager;
-import tools.CollectionUtil;
-import tools.MaplePacketCreator;
-import client.BuddyAddResult;
-import client.BuddyListEntry;
-import client.BuddyOperation;
 
 public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements ChannelWorldInterface {
 
@@ -81,7 +81,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     @Override
     public void whisper(String sender, String target, int channel, String message) throws RemoteException {
         if (isConnected(target)) {
-            server.getPlayerStorage().getCharacterByName(target).getClient().write(MaplePacketCreator.getWhisper(sender, channel, message));
+            server.getPlayerStorage().getCharacterByName(target).getClient().write(ChannelPackets.getWhisper(sender, channel, message));
         }
     }
 
@@ -146,7 +146,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                         mcChannel = channel - 1;
                     }
                     chr.getBuddyList().put(ble);
-                    chr.getClient().write(MaplePacketCreator.updateBuddyChannel(ble.getCharacterId(), mcChannel));
+                    chr.getClient().write(ChannelPackets.updateBuddyChannel(ble.getCharacterId(), mcChannel));
                 }
             }
         }
@@ -163,7 +163,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                     } else {
                         chr.setParty(party);
                     }
-                    chr.getClient().write(MaplePacketCreator.updateParty(chr.getClient().getChannelId(), party, operation, target));
+                    chr.getClient().write(ChannelPackets.updateParty(chr.getClient().getChannelId(), party, operation, target));
                 }
             }
         }
@@ -173,7 +173,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                 if (target.getChannel() == server.getChannelId()) {
                     final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(target.getName());
                     if (chr != null) {
-                        chr.getClient().write(MaplePacketCreator.updateParty(chr.getClient().getChannelId(), party, operation, target));
+                        chr.getClient().write(ChannelPackets.updateParty(chr.getClient().getChannelId(), party, operation, target));
                         chr.setParty(null);
                     }
                 }
@@ -187,7 +187,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                     && !(partychar.getName().equals(namefrom))) {
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
-                    chr.getClient().write(MaplePacketCreator.multiChat(namefrom, chattext, 1));
+                    chr.getClient().write(ChannelPackets.multiChat(namefrom, chattext, 1));
                 }
             }
         }
@@ -248,14 +248,14 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                 case ADDED:
                     if (buddylist.contains(cidFrom)) {
                         buddylist.put(new BuddyListEntry(name, cidFrom, "ETC", channel, true, level, job));
-                        addChar.getClient().write(MaplePacketCreator.updateBuddyChannel(cidFrom, channel
+                        addChar.getClient().write(ChannelPackets.updateBuddyChannel(cidFrom, channel
                                 - 1));
                     }
                     break;
                 case DELETED:
                     if (buddylist.contains(cidFrom)) {
                         buddylist.put(new BuddyListEntry(name, cidFrom, "ETC", -1, buddylist.get(cidFrom).isVisible(), level, job));
-                        addChar.getClient().write(MaplePacketCreator.updateBuddyChannel(cidFrom, -1));
+                        addChar.getClient().write(ChannelPackets.updateBuddyChannel(cidFrom, -1));
                     }
                     break;
             }
@@ -269,7 +269,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             final ChannelCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
                 if (chr.getBuddyList().containsVisible(cidFrom)) {
-                    chr.getClient().write(MaplePacketCreator.multiChat(nameFrom, chattext, 0));
+                    chr.getClient().write(ChannelPackets.multiChat(nameFrom, chattext, 0));
                 }
             }
         }
@@ -341,8 +341,8 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             mc.saveGuildStatus();
         }
         if (bDifferentGuild) {
-            mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(cid), false);
-            mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapObject(mc), false);
+            mc.getMap().broadcastMessage(mc, ChannelPackets.removePlayerFromMap(cid), false);
+            mc.getMap().broadcastMessage(mc, ChannelPackets.spawnPlayerMapObject(mc), false);
         }
     }
 
@@ -362,7 +362,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     @Override
     public void changeEmblem(int gid, Collection<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException {
         ChannelManager.getInstance(this.getChannelId()).updateGuildSummary(gid, mgs);
-        this.sendPacket(affectedPlayers, MaplePacketCreator.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
+        this.sendPacket(affectedPlayers, ChannelPackets.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
         this.setGuildAndRank(affectedPlayers, -1, null, -1);	//respawn player
     }
 
@@ -371,11 +371,11 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
         if (isConnected(target)) {
             final Messenger messenger = server.getPlayerStorage().getCharacterByName(target).getMessenger();
             if (messenger == null) {
-                server.getPlayerStorage().getCharacterByName(target).getClient().write(MaplePacketCreator.messengerInvite(sender, messengerid));
+                server.getPlayerStorage().getCharacterByName(target).getClient().write(ChannelPackets.messengerInvite(sender, messengerid));
 
-                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(MaplePacketCreator.messengerNote(target, 4, 1));
+                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(ChannelPackets.messengerNote(target, 4, 1));
             } else {
-                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(MaplePacketCreator.messengerChat(sender
+                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(ChannelPackets.messengerChat(sender
                         + " : " + target + " is already using Maple Messenger"));
             }
         }
@@ -389,16 +389,16 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     final ChannelCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                    chr.getClient().write(MaplePacketCreator.addMessengerPlayer(namefrom, from, position, fromchannel
+                    chr.getClient().write(ChannelPackets.addMessengerPlayer(namefrom, from, position, fromchannel
                             - 1));
-                    from.getClient().write(MaplePacketCreator.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), messengerchar.getChannel()
+                    from.getClient().write(ChannelPackets.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), messengerchar.getChannel()
                             - 1));
                 }
             } else if (messengerchar.getChannel() == server.getChannelId()
                     && (messengerchar.getName().equals(namefrom))) {
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    chr.getClient().write(MaplePacketCreator.joinMessenger(messengerchar.getPosition()));
+                    chr.getClient().write(ChannelPackets.joinMessenger(messengerchar.getPosition()));
                 }
             }
         }
@@ -410,7 +410,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             if (messengerchar.getChannel() == server.getChannelId()) {
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    chr.getClient().write(MaplePacketCreator.removeMessengerPlayer(position));
+                    chr.getClient().write(ChannelPackets.removeMessengerPlayer(position));
                 }
             }
         }
@@ -423,7 +423,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                     && !(messengerchar.getName().equals(namefrom))) {
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
-                    chr.getClient().write(MaplePacketCreator.messengerChat(chattext));
+                    chr.getClient().write(ChannelPackets.messengerChat(chattext));
                 }
             }
         }
@@ -435,7 +435,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(target);
             final Messenger messenger = chr.getMessenger();
             if (messenger != null) {
-                chr.getClient().write(MaplePacketCreator.messengerNote(namefrom, 5, 0));
+                chr.getClient().write(ChannelPackets.messengerNote(namefrom, 5, 0));
             }
         }
     }
@@ -448,7 +448,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
                 final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     ChannelCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                    chr.getClient().write(MaplePacketCreator.updateMessengerPlayer(namefrom, from, position, fromchannel
+                    chr.getClient().write(ChannelPackets.updateMessengerPlayer(namefrom, from, position, fromchannel
                             - 1));
                 }
             }

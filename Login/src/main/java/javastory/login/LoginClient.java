@@ -11,20 +11,19 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 
-import client.IItem;
-import client.Inventory;
-import client.LoginCrypto;
 import javastory.db.DatabaseConnection;
 import javastory.client.GameCharacterUtil;
 import javastory.client.GameClient;
+import javastory.client.IItem;
+import javastory.client.Inventory;
+import javastory.client.LoginCrypto;
 import javastory.client.MemberRank;
 import javastory.cryptography.AesTransform;
 import javastory.game.Gender;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.server.login.AuthReplyCode;
-import tools.FiletimeUtil;
-import tools.MaplePacketCreator;
+import javastory.tools.FiletimeUtil;
+import javastory.tools.packets.CommonPackets;
 
 import com.google.common.collect.Lists;
 import org.apache.mina.core.session.IoSession;
@@ -330,7 +329,7 @@ public final class LoginClient extends GameClient {
             this.getIdleTask().cancel(true);
         }
         final int port = LoginServer.getInstance().getChannelServerPort(this.getChannelId());
-        this.write(MaplePacketCreator.getServerIP(port, characterId));
+        this.write(CommonPackets.getServerIP(port, characterId));
     }
 
     private void updateCharacterPassword(String newPassword) {
@@ -362,7 +361,7 @@ public final class LoginClient extends GameClient {
                 getIdleTask().cancel(true);
             }
             final int port = LoginServer.getInstance().getChannelServerPort(this.getChannelId());
-            this.write(MaplePacketCreator.getServerIP(port, characterId));
+            this.write(CommonPackets.getServerIP(port, characterId));
         } else {
             this.write(LoginPacket.characterPasswordError((byte) 0x14));
         }

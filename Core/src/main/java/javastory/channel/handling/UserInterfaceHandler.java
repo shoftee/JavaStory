@@ -21,9 +21,9 @@
 package javastory.channel.handling;
 
 import javastory.channel.ChannelClient;
-import scripting.EventManager;
-import scripting.NpcScriptManager;
-import tools.MaplePacketCreator;
+import javastory.scripting.EventManager;
+import javastory.scripting.NpcScriptManager;
+import javastory.tools.packets.ChannelPackets;
 
 public class UserInterfaceHandler {
 
@@ -93,6 +93,6 @@ public class UserInterfaceHandler {
                 System.out.println("Unhandled ship object, MapID : " + mapid);
                 break;
 	}
-	c.write(MaplePacketCreator.boatPacket(effect));
+	c.write(ChannelPackets.boatPacket(effect));
     }
 }

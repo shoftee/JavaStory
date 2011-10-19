@@ -1,9 +1,9 @@
 package javastory.channel;
 
 import javastory.server.ChannelServer;
+import javastory.server.TimerManager;
 import javastory.tools.Randomizer;
-import server.TimerManager;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class OdinSEA {
 
@@ -38,7 +38,7 @@ public class OdinSEA {
 			public final void run() {
                 int crandom = Randomizer.nextInt(totalMessages);
                 for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-                    cserv.broadcastPacket(MaplePacketCreator.sendMapleTip("[MapleTip] " +
+                    cserv.broadcastPacket(ChannelPackets.sendMapleTip("[MapleTip] " +
                             messages[crandom]));
                 }
             }

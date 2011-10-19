@@ -23,13 +23,13 @@ package javastory.channel.life;
 import java.util.HashMap;
 import java.util.Map;
 
+import javastory.server.life.MobAttackId;
+import javastory.server.life.MobAttackInfo;
+import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
-import server.life.MobAttackId;
-import server.life.MobAttackInfo;
-import tools.StringUtil;
 
 public final class MobAttackInfoFactory {
     private static final MobAttackInfoFactory instance = new MobAttackInfoFactory();

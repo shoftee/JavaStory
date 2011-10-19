@@ -9,11 +9,12 @@ import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
-import server.life.OverrideMonsterStats;
+import javastory.server.life.OverrideMonsterStats;
 
 public class SpawnMonsterCommand implements Command {
 	@Override
-	public void execute(ChannelClient c, String[] splitted) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splitted) throws Exception,
+			IllegalCommandSyntaxException {
 		final int mid = Integer.parseInt(splitted[1]);
 		final int num = Math.min(getOptionalIntArg(splitted, 2, 1), 50);
 		Integer hp = getNamedIntArg(splitted, 1, "hp");
@@ -42,7 +43,10 @@ public class SpawnMonsterCommand implements Command {
 		}
 
 		if (c.getPlayer().getGmLevel() <= 5) { // bad animal
-			if (mid == 8810018 || mid == 5100001 || mid == 5130106 || mid == 8190001 || mid == 9001009 || mid == 9300256 || mid == 9300257 || mid == 9300280 || mid == 9300281 || mid == 9300282 || mid == 9300283 || mid == 9300284) {
+			if (mid == 8810018 || mid == 5100001 || mid == 5130106
+					|| mid == 8190001 || mid == 9001009 || mid == 9300256
+					|| mid == 9300257 || mid == 9300280 || mid == 9300281
+					|| mid == 9300282 || mid == 9300283 || mid == 9300284) {
 				c.getPlayer().sendNotice(6, "This monster is blocked.");
 				return;
 			}
@@ -55,14 +59,19 @@ public class SpawnMonsterCommand implements Command {
 			Monster mob = LifeFactory.getMonster(mid);
 			mob.setHp(newhp);
 			mob.setOverrideStats(overrideStats);
-			c.getPlayer().getMap().spawnMonsterOnGroundBelow(mob, c.getPlayer().getPosition());
+			c.getPlayer()
+					.getMap()
+					.spawnMonsterOnGroundBelow(mob, c.getPlayer().getPosition());
 		}
 	}
 
 	@Override
 	public CommandDefinition[] getDefinition() {
 		return new CommandDefinition[] {
-			new CommandDefinition("spawn", "monsterid [hp newHp] [exp newExp] [php procentual Hp] [pexp procentual Exp]", "Spawns the monster with the given id", 3)
+			new CommandDefinition(
+									"spawn",
+									"monsterid [hp newHp] [exp newExp] [php procentual Hp] [pexp procentual Exp]",
+									"Spawns the monster with the given id", 3)
 		};
 	}
 }

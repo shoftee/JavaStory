@@ -5,9 +5,9 @@ import java.awt.Point;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.life.LifeFactory;
 import javastory.server.ChannelServer;
+import javastory.server.TimerManager;
 import javastory.tools.Randomizer;
-import server.TimerManager;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class Event_DojoAgent {
 
@@ -109,7 +109,7 @@ public class Event_DojoAgent {
 				c.modifyCSPoints(1, cashGain, true);
 			}
 			c.setDojo(c.getDojo() + 10);
-			c.getClient().write(MaplePacketCreator.Mulung_Pts(10, c.getDojo()));
+			c.getClient().write(ChannelPackets.Mulung_Pts(10, c.getDojo()));
 		}
 		if (currentmap >= 925023800 && currentmap <= 925023814) {
 			final GameMap map = ch.getMapFactory(c.getWorldId()).getMap(925020003);

@@ -33,8 +33,8 @@ import javastory.channel.packet.MobPacket;
 import javastory.game.SkillLevelEntry;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
-import server.movement.LifeMovementFragment;
 
 public class MobHandler {
 

@@ -6,9 +6,9 @@ import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import tools.MaplePacketCreator;
-import tools.StringUtil;
-import tools.packet.TestPacket;
+import javastory.tools.StringUtil;
+import javastory.tools.packets.ChannelPackets;
+import javastory.tools.packets.TestPacket;
 
 public class TestCommands implements Command {
 
@@ -23,11 +23,11 @@ public class TestCommands implements Command {
                 c.write(TestPacket.EXPTest2());
                 break;
             case "-clock":
-                player.getMap().broadcastMessage(MaplePacketCreator.getClock(getOptionalIntArg(splitted, 1, 60)));
+                player.getMap().broadcastMessage(ChannelPackets.getClock(getOptionalIntArg(splitted, 1, 60)));
                 break;
             case "-packet":
                 if (splitted.length > 1) {
-                    c.write(MaplePacketCreator.getPacketFromHexString(StringUtil.joinStringFrom(splitted, 1)));
+                    c.write(ChannelPackets.getPacketFromHexString(StringUtil.joinStringFrom(splitted, 1)));
                 } else {
                     player.sendNotice(6, "Please enter packet data!");
                 }

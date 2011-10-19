@@ -22,9 +22,9 @@ package javastory.channel.life;
 
 import javastory.channel.ChannelClient;
 import javastory.channel.server.ShopFactory;
-import server.life.NpcStats;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
+import javastory.server.life.NpcStats;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 public class Npc extends AbstractLoadedGameLife {
 
@@ -49,18 +49,18 @@ public class Npc extends AbstractLoadedGameLife {
 
 	if (getId() >= 9901000 && getId() <= 9901551) {
 	    if (!stats.getName().equals("")) {
-		client.write(MaplePacketCreator.spawnPlayerNpc(stats, getId()));
-		client.write(MaplePacketCreator.spawnNpcRequestController(this, false));
+		client.write(ChannelPackets.spawnPlayerNpc(stats, getId()));
+		client.write(ChannelPackets.spawnNpcRequestController(this, false));
 	    }
 	} else {
-	    client.write(MaplePacketCreator.spawnNpc(this, true));
-	    client.write(MaplePacketCreator.spawnNpcRequestController(this, true));
+	    client.write(ChannelPackets.spawnNpc(this, true));
+	    client.write(ChannelPackets.spawnNpcRequestController(this, true));
 	}
     }
 
     @Override
     public final void sendDestroyData(final ChannelClient client) {
-	client.write(MaplePacketCreator.removeNpc(getObjectId()));
+	client.write(ChannelPackets.removeNpc(getObjectId()));
     }
 
     @Override

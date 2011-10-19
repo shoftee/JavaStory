@@ -22,7 +22,7 @@ package javastory.channel.client;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.server.StatEffect;
-import server.life.Element;
+import javastory.server.life.Element;
 
 public interface ISkill {
 

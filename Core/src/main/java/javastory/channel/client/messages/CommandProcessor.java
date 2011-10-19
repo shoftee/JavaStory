@@ -27,10 +27,10 @@ import javastory.channel.client.messages.commands.ShutdownCommands;
 import javastory.channel.client.messages.commands.SpawnMonsterCommand;
 import javastory.channel.client.messages.commands.TestCommands;
 import javastory.channel.client.messages.commands.WarpCommands;
-import server.TimerManager;
-import tools.LogUtil;
-import tools.Pair;
-import tools.StringUtil;
+import javastory.server.TimerManager;
+import javastory.tools.LogUtil;
+import javastory.tools.Pair;
+import javastory.tools.StringUtil;
 
 public final class CommandProcessor {
 

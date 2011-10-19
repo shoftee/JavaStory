@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.maps;
 
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 import java.util.LinkedList;
@@ -28,9 +27,10 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.io.GamePacket;
 import javastory.rmi.WorldChannelInterface;
-import server.TimerManager;
-import tools.MaplePacketCreator;
+import javastory.server.TimerManager;
+import javastory.tools.packets.ChannelPackets;
 
 public class TVEffect {
 
@@ -58,11 +58,11 @@ public class TVEffect {
     }
 
     private static GamePacket removeTV() {
-        return MaplePacketCreator.removeTV();
+        return ChannelPackets.removeTV();
     }
 
     public static GamePacket startTV() {
-        return MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type -
+        return ChannelPackets.sendTV(user, message, type <= 2 ? type : type -
                 3, partner);
     }
 
@@ -71,7 +71,7 @@ public class TVEffect {
         WorldChannelInterface wci = user.getClient().getChannelServer().getWorldInterface();
         try {
             if (isActive) {
-                wci.broadcastMessage(MaplePacketCreator.enableTV().getBytes());
+                wci.broadcastMessage(ChannelPackets.enableTV().getBytes());
                 wci.broadcastMessage(startTV().getBytes());
 
                 TimerManager.getInstance().schedule(new Runnable() {

@@ -32,10 +32,10 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
+import javastory.client.BuddyListEntry;
+import javastory.client.SimpleCharacterInfo;
 import javastory.db.DatabaseConnection;
-import tools.MaplePacketCreator;
-import client.BuddyListEntry;
-import client.SimpleCharacterInfo;
+import javastory.tools.packets.ChannelPackets;
 
 public class BuddyList implements Serializable {
     private static final long serialVersionUID = 1413738569L;
@@ -151,7 +151,7 @@ public class BuddyList implements Serializable {
     public void addBuddyRequest(ChannelClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
         put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
         if (pendingRequests.isEmpty()) {
-            c.write(MaplePacketCreator.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
+            c.write(ChannelPackets.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
         } else {
             pendingRequests.push(new SimpleCharacterInfo(cidFrom, nameFrom, levelFrom, jobFrom));
         }

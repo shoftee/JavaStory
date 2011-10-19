@@ -5,7 +5,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.maps.GameMap;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 /**
  * Note for this class : GameCharacter reference must be removed immediately after cpq or upon dc.
@@ -99,7 +99,7 @@ public class CarnivalParty {
         final String effect = winner ? "quest/carnival/win" : "quest/carnival/lose";
 
         for (final ChannelCharacter chr : members) {
-            chr.getClient().write(MaplePacketCreator.showEffect(effect));
+            chr.getClient().write(ChannelPackets.showEffect(effect));
         }
 
     }

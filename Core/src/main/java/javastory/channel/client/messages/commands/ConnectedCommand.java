@@ -10,9 +10,11 @@ import javastory.channel.client.messages.IllegalCommandSyntaxException;
 
 public class ConnectedCommand implements Command {
 	@Override
-	public void execute(ChannelClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
+	public void execute(ChannelClient c, String[] splittedLine)
+			throws Exception, IllegalCommandSyntaxException {
 		try {
-			Map<Integer, Integer> connected = c.getChannelServer().getWorldInterface().getConnected();
+			Map<Integer, Integer> connected = c.getChannelServer()
+					.getWorldInterface().getConnected();
 			StringBuilder conStr = new StringBuilder("Connected Clients: ");
 			boolean first = true;
 			for (int i : connected.keySet()) {
@@ -40,7 +42,11 @@ public class ConnectedCommand implements Command {
 	@Override
 	public CommandDefinition[] getDefinition() {
 		return new CommandDefinition[] {
-			new CommandDefinition("connected", "", "Shows how many players are connected on each channel", 3)
+			new CommandDefinition(
+									"connected",
+									"",
+									"Shows how many players are connected on each channel",
+									3)
 		};
 	}
 }

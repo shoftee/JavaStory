@@ -4,13 +4,13 @@
  */
 package javastory.channel.handling;
 
-import handling.ClientPacketOpcode;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.handling.ClientPacketOpcode;
 import javastory.server.handling.PacketHandler;
 
 import org.apache.mina.core.session.IoSession;

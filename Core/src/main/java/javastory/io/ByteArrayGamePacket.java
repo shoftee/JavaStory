@@ -20,8 +20,7 @@
 */
 package javastory.io;
 
-import handling.GamePacket;
-import tools.HexTool;
+import javastory.tools.HexTool;
 
 public class ByteArrayGamePacket implements GamePacket {
 

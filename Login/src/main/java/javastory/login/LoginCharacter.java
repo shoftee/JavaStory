@@ -1,13 +1,13 @@
 package javastory.login;
 
-import client.Equip;
-import client.IEquip;
-import client.IItem;
-import client.Inventory;
 import javastory.game.InventoryType;
 import com.google.common.collect.Lists;
 
+import javastory.client.Equip;
 import javastory.client.GameCharacter;
+import javastory.client.IEquip;
+import javastory.client.IItem;
+import javastory.client.Inventory;
 import javastory.client.PlayerStats;
 import javastory.db.DatabaseConnection;
 import javastory.db.DatabaseException;

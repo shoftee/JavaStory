@@ -12,15 +12,15 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
+import javastory.client.Equip;
+import javastory.client.IItem;
+import javastory.client.Item;
 import javastory.db.DatabaseConnection;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import server.MerchItemPackage;
-import client.Equip;
-import client.IItem;
-import client.Item;
+import javastory.server.MerchItemPackage;
 
 public final class HiredMerchantHandler {
 

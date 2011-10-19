@@ -3,13 +3,12 @@ package javastory.login;
 import java.util.List;
 import java.util.Map;
 
-import handling.GamePacket;
-import handling.ServerPacketOpcode;
 import javastory.server.LoginChannelInfo;
+import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
-import javastory.server.login.AuthReplyCode;
-import tools.HexTool;
-import tools.packet.GameCharacterPacket;
+import javastory.server.handling.ServerPacketOpcode;
+import javastory.tools.HexTool;
+import javastory.tools.packets.GameCharacterPacket;
 
 public final class LoginPacket {
 

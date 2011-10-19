@@ -30,15 +30,15 @@ import javastory.channel.client.ISkill;
 import javastory.channel.client.Mount;
 import javastory.channel.client.SkillEntry;
 import javastory.channel.server.Storage;
+import javastory.client.BuddyListEntry;
+import javastory.client.KeyLayout;
 import javastory.client.MemberRank;
 import javastory.client.MonsterBook;
 import javastory.client.MultiInventory;
+import javastory.client.SimpleCharacterInfo;
+import javastory.client.SkillMacro;
 import javastory.game.Gender;
-import client.BuddyListEntry;
-import client.KeyLayout;
-import client.QuestStatus;
-import client.SimpleCharacterInfo;
-import client.SkillMacro;
+import javastory.game.quest.QuestStatus;
 
 import com.google.common.collect.Maps;
 

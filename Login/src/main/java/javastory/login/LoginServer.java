@@ -17,7 +17,7 @@ import javastory.world.core.WorldLoginInterface;
 import javastory.server.GameService;
 import javastory.server.ChannelInfo;
 import javastory.server.LoginChannelInfo;
-import server.TimerManager;
+import javastory.server.TimerManager;
 
 public class LoginServer extends GameService {
 

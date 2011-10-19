@@ -20,7 +20,6 @@
 */
 package javastory.channel.maps;
 
-import handling.GamePacket;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -32,8 +31,9 @@ import javastory.channel.client.SkillFactory;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
 import javastory.channel.server.StatEffect;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
+import javastory.io.GamePacket;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 public class Mist extends AbstractGameMapObject {
 
@@ -129,19 +129,19 @@ public class Mist extends AbstractGameMapObject {
 
     public GamePacket fakeSpawnData(int level) {
 	if (owner != null) {
-	    return MaplePacketCreator.spawnMist(this);
+	    return ChannelPackets.spawnMist(this);
 	}
-	return MaplePacketCreator.spawnMist(this);
+	return ChannelPackets.spawnMist(this);
     }
 
     @Override
     public void sendSpawnData(final ChannelClient c) {
-	c.write(MaplePacketCreator.spawnMist(this));
+	c.write(ChannelPackets.spawnMist(this));
     }
 
     @Override
     public void sendDestroyData(final ChannelClient c) {
-	c.write(MaplePacketCreator.removeMist(getObjectId()));
+	c.write(ChannelPackets.removeMist(getObjectId()));
     }
 
     public boolean makeChanceResult() {

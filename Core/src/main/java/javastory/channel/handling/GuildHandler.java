@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.channel.handling;
 
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 import java.util.Iterator;
@@ -31,17 +30,18 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.Guild;
 import javastory.client.MemberRank;
+import javastory.io.GamePacket;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.GuildOperationResponse;
-import tools.MaplePacketCreator;
 
 public class GuildHandler {
 
     public static void handleDenyGuildInvitation(final String from, final ChannelClient c) {
         final ChannelCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
         if (cfrom != null) {
-            cfrom.getClient().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
+            cfrom.getClient().write(ChannelPackets.denyGuildInvitation(c.getPlayer().getName()));
         }
     }
 
@@ -68,14 +68,14 @@ public class GuildHandler {
             return;
         }
         if (guildId == 0) {
-            c.write(MaplePacketCreator.genericGuildMessage((byte) 0x1c));
+            c.write(ChannelPackets.genericGuildMessage((byte) 0x1c));
             return;
         }
         player.gainMeso(-5000000, true, false, true);
         player.setGuildId(guildId);
         player.setGuildRank(MemberRank.MASTER);
         player.saveGuildStatus();
-        c.write(MaplePacketCreator.showGuildInfo(c, guildId));
+        c.write(ChannelPackets.showGuildInfo(c, guildId));
         player.sendNotice(1, "You have successfully created a Guild.");
         respawnPlayer(player);
     }
@@ -89,7 +89,7 @@ public class GuildHandler {
         String name = reader.readLengthPrefixedString();
         final GuildOperationResponse mgr = Guild.sendInvite(c, name);
         if (mgr != null) {
-            GamePacket packet = MaplePacketCreator.genericGuildMessage((byte) mgr.getValue());
+            GamePacket packet = ChannelPackets.genericGuildMessage((byte) mgr.getValue());
             c.write(packet);
         } else {
             Invited inv = new Invited(name, player.getGuildId());
@@ -113,8 +113,8 @@ public class GuildHandler {
     }
 
     private static void respawnPlayer(final ChannelCharacter mc) {
-        mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(mc.getId()), false);
-        mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapObject(mc), false);
+        mc.getMap().broadcastMessage(mc, ChannelPackets.removePlayerFromMap(mc.getId()), false);
+        mc.getMap().broadcastMessage(mc, ChannelPackets.spawnPlayerMapObject(mc), false);
     }
 
     private static final class Invited {
@@ -194,7 +194,7 @@ public class GuildHandler {
                     player.setGuildId(0);
                     return;
                 }
-                c.write(MaplePacketCreator.showGuildInfo(c, guildId));
+                c.write(ChannelPackets.showGuildInfo(c, guildId));
                 player.saveGuildStatus();
                 respawnPlayer(player);
                 return;
@@ -243,7 +243,7 @@ public class GuildHandler {
                     player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
                     break;
                 }
-                c.write(MaplePacketCreator.showNullGuildInfo());
+                c.write(ChannelPackets.showNullGuildInfo());
                 player.setGuildId(0);
                 player.saveGuildStatus();
                 respawnPlayer(player);

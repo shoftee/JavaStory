@@ -1,6 +1,5 @@
 package javastory.channel.client.messages.commands;
 
-import handling.ServerPacketOpcode;
 
 import java.rmi.RemoteException;
 import java.text.DateFormat;
@@ -22,23 +21,24 @@ import javastory.channel.maps.Reactor;
 import javastory.channel.server.InventoryManipulator;
 import javastory.channel.server.Portal;
 import javastory.channel.server.ShopFactory;
+import javastory.client.Equip;
+import javastory.client.IItem;
+import javastory.client.Inventory;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
+import javastory.scripting.PortalScriptManager;
+import javastory.scripting.ReactorScriptManager;
 import javastory.server.Bans;
 import javastory.server.ChannelServer;
 import javastory.server.ItemInfoProvider;
-import scripting.PortalScriptManager;
-import scripting.ReactorScriptManager;
-import server.life.MonsterInfoProvider;
-import server.maps.GameMapObjectType;
-import server.maps.ReactorFactory;
-import server.maps.ReactorStats;
-import tools.MaplePacketCreator;
-import tools.Pair;
-import tools.StringUtil;
-import client.Equip;
-import client.IItem;
-import client.Inventory;
+import javastory.server.handling.ServerPacketOpcode;
+import javastory.server.life.MonsterInfoProvider;
+import javastory.server.maps.GameMapObjectType;
+import javastory.server.maps.ReactorFactory;
+import javastory.server.maps.ReactorStats;
+import javastory.tools.Pair;
+import javastory.tools.StringUtil;
+import javastory.tools.packets.ChannelPackets;
 
 import com.google.common.collect.Maps;
 
@@ -91,7 +91,7 @@ public class GM5Commands implements Command {
                 showTrace(splitted, player);
                 break;
             case "-fakerelog":
-                c.write(MaplePacketCreator.getCharInfo(chr));
+                c.write(ChannelPackets.getCharInfo(chr));
                 chr.getMap().removePlayer(chr);
                 chr.getMap().addPlayer(chr);
                 break;
@@ -376,7 +376,7 @@ public class GM5Commands implements Command {
         List<GameMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
         for (GameMapObject i : items) {
             player.getMap().removeMapObject(i);
-            player.getMap().broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
+            player.getMap().broadcastMessage(ChannelPackets.removeItemFromMap(i.getObjectId(), 0, 0), i.getPosition());
         }
     }
 

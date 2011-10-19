@@ -30,8 +30,8 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.PartyMember;
 import javastory.channel.server.Portal;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 public class Door extends AbstractGameMapObject {
 
@@ -106,11 +106,11 @@ public class Door extends AbstractGameMapObject {
 
         final Point doorPosition = town.getId() == clientPlayer.getMapId() ? townPortal.getPosition() : targetPosition;
         if (isInDoorMap) {
-            client.write(MaplePacketCreator.spawnDoor(owner.getId(), doorPosition, true));
+            client.write(ChannelPackets.spawnDoor(owner.getId(), doorPosition, true));
             if (isOwner && ownerMember == null) {
-                client.write(MaplePacketCreator.spawnPortal(town.getId(), target.getId(), targetPosition));
+                client.write(ChannelPackets.spawnPortal(town.getId(), target.getId(), targetPosition));
             } else if (ownerMember != null && clientMember.getPartyId() == ownerMember.getPartyId()) {
-                client.write(MaplePacketCreator.partyPortal(town.getId(), target.getId(), targetPosition));
+                client.write(ChannelPackets.partyPortal(town.getId(), target.getId(), targetPosition));
             }
         }
     }
@@ -126,11 +126,11 @@ public class Door extends AbstractGameMapObject {
 
         if (isInDoorMap) {
             if (ownerMember == null || ownerMember.getPartyId() == clientMember.getPartyId()) {
-                client.write(MaplePacketCreator.partyPortal(999999999, 999999999, new Point(-1, -1)));
+                client.write(ChannelPackets.partyPortal(999999999, 999999999, new Point(-1, -1)));
 
             }
-            client.write(MaplePacketCreator.removeDoor(owner.getId(), false));
-            client.write(MaplePacketCreator.removeDoor(owner.getId(), true));
+            client.write(ChannelPackets.removeDoor(owner.getId(), false));
+            client.write(ChannelPackets.removeDoor(owner.getId(), true));
         }
     }
 
@@ -149,7 +149,7 @@ public class Door extends AbstractGameMapObject {
                 chr.changeMap(town, townPortal);
             }
         } else {
-            chr.getClient().write(MaplePacketCreator.enableActions());
+            chr.getClient().write(ChannelPackets.enableActions());
         }
     }
 

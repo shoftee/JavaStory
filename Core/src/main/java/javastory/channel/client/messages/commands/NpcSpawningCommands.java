@@ -11,7 +11,7 @@ import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Npc;
 import javastory.channel.maps.GameMapObject;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class NpcSpawningCommands implements Command {
 
@@ -30,7 +30,7 @@ public class NpcSpawningCommands implements Command {
                     npc.setFoothold(player.getMap().getFootholds().findBelow(player.getPosition()).getId());
                     npc.setCustom(true);
                     player.getMap().addMapObject(npc);
-                    player.getMap().broadcastMessage(MaplePacketCreator.spawnNpc(npc, true));
+                    player.getMap().broadcastMessage(ChannelPackets.spawnNpc(npc, true));
                 } else {
                     player.sendNotice(6, "You have entered an invalid Npc-Id");
                 }
@@ -40,7 +40,7 @@ public class NpcSpawningCommands implements Command {
                 for (GameMapObject npcmo : npcs) {
                     Npc item = (Npc) npcmo;
                     if (item.isCustom()) {
-                        player.getMap().broadcastMessage(MaplePacketCreator.spawnNpc(item, false));
+                        player.getMap().broadcastMessage(ChannelPackets.spawnNpc(item, false));
                         player.getMap().removeMapObject(item.getObjectId());
                     }
                 }

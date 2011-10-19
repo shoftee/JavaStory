@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
+import javastory.client.IItem;
 import javastory.game.GameConstants;
 import javastory.game.ItemFlag;
-import tools.MaplePacketCreator;
-import client.IItem;
+import javastory.tools.packets.ChannelPackets;
 
 public final class Trade {
 
@@ -42,7 +42,7 @@ public final class Trade {
         if (exchangeItems != null) { // just to be on the safe side...
             exchangeItems.clear();
         }
-        chr.getClient().write(MaplePacketCreator.TradeMessage(tradingslot, (byte) 0x07));
+        chr.getClient().write(ChannelPackets.TradeMessage(tradingslot, (byte) 0x07));
     }
 
     public void cancel() {
@@ -56,7 +56,7 @@ public final class Trade {
         if (items != null) { // just to be on the safe side...
             items.clear();
         }
-        chr.getClient().write(MaplePacketCreator.getTradeCancel(tradingslot));
+        chr.getClient().write(ChannelPackets.getTradeCancel(tradingslot));
     }
 
     public boolean isLocked() {
@@ -70,9 +70,9 @@ public final class Trade {
         if (chr.getMeso() >= meso) {
             chr.gainMeso(-meso, false, true, false);
             this.meso += meso;
-            chr.getClient().write(MaplePacketCreator.getTradeMesoSet((byte) 0, this.meso));
+            chr.getClient().write(ChannelPackets.getTradeMesoSet((byte) 0, this.meso));
             if (partner != null) {
-                partner.getChr().getClient().write(MaplePacketCreator.getTradeMesoSet((byte) 1, this.meso));
+                partner.getChr().getClient().write(ChannelPackets.getTradeMesoSet((byte) 1, this.meso));
             }
         }
     }
@@ -82,16 +82,16 @@ public final class Trade {
             return;
         }
         items.add(item);
-        chr.getClient().write(MaplePacketCreator.getTradeItemAdd((byte) 0, item));
+        chr.getClient().write(ChannelPackets.getTradeItemAdd((byte) 0, item));
         if (partner != null) {
-            partner.getChr().getClient().write(MaplePacketCreator.getTradeItemAdd((byte) 1, item));
+            partner.getChr().getClient().write(ChannelPackets.getTradeItemAdd((byte) 1, item));
         }
     }
 
     public void chat(final String message) {
-        chr.getClient().write(MaplePacketCreator.getPlayerShopChat(chr, message, true));
+        chr.getClient().write(ChannelPackets.getPlayerShopChat(chr, message, true));
         if (partner != null) {
-            partner.getChr().getClient().write(MaplePacketCreator.getPlayerShopChat(chr, message, false));
+            partner.getChr().getClient().write(ChannelPackets.getPlayerShopChat(chr, message, false));
         }
     }
 
@@ -150,7 +150,7 @@ public final class Trade {
             return;
         }
         local.locked = true; // Locking the trade
-        partner.getChr().getClient().write(MaplePacketCreator.getTradeConfirmation());
+        partner.getChr().getClient().write(ChannelPackets.getTradeConfirmation());
 
         partner.exchangeItems = local.items; // Copy this to partner's trade since it's alreadt accepted
         partner.exchangeMeso = local.meso; // Copy this to partner's trade since it's alreadt accepted
@@ -161,8 +161,8 @@ public final class Trade {
                 partner.cancel();
                 local.cancel();
 
-                c.getClient().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
-                partner.getChr().getClient().write(MaplePacketCreator.serverNotice(5, "There is not enough inventory space to complete the trade."));
+                c.getClient().write(ChannelPackets.serverNotice(5, "There is not enough inventory space to complete the trade."));
+                partner.getChr().getClient().write(ChannelPackets.serverNotice(5, "There is not enough inventory space to complete the trade."));
             } else {
                 local.CompleteTrade();
                 partner.CompleteTrade();
@@ -186,9 +186,9 @@ public final class Trade {
     public static void startTrade(final ChannelCharacter c) {
         if (c.getTrade() == null) {
             c.setTrade(new Trade((byte) 0, c));
-            c.getClient().write(MaplePacketCreator.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
+            c.getClient().write(ChannelPackets.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
         } else {
-            c.getClient().write(MaplePacketCreator.serverNotice(5, "You are already in a trade"));
+            c.getClient().write(ChannelPackets.serverNotice(5, "You are already in a trade"));
         }
     }
 
@@ -197,9 +197,9 @@ public final class Trade {
             c2.setTrade(new Trade((byte) 1, c2));
             c2.getTrade().setPartner(c1.getTrade());
             c1.getTrade().setPartner(c2.getTrade());
-            c2.getClient().write(MaplePacketCreator.getTradeInvite(c1));
+            c2.getClient().write(ChannelPackets.getTradeInvite(c1));
         } else {
-            c1.getClient().write(MaplePacketCreator.serverNotice(5, "The other player is already trading with someone else."));
+            c1.getClient().write(ChannelPackets.serverNotice(5, "The other player is already trading with someone else."));
             cancelTrade(c1.getTrade());
         }
     }
@@ -209,10 +209,10 @@ public final class Trade {
                 c2.getTrade() != null && c2.getTrade().getPartner() ==
                 c1.getTrade()) {
             // We don't need to check for map here as the user is found via MapleMap.getCharacterById_InMap()
-            c2.getClient().write(MaplePacketCreator.getTradePartnerAdd(c1));
-            c1.getClient().write(MaplePacketCreator.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
+            c2.getClient().write(ChannelPackets.getTradePartnerAdd(c1));
+            c1.getClient().write(ChannelPackets.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
         } else {
-            c1.getClient().write(MaplePacketCreator.serverNotice(5, "The other player has already closed the trade"));
+            c1.getClient().write(ChannelPackets.serverNotice(5, "The other player has already closed the trade"));
         }
     }
 
@@ -223,7 +223,7 @@ public final class Trade {
                 ChannelCharacter other = trade.getPartner().getChr();
                 other.getTrade().cancel();
                 other.setTrade(null);
-                other.getClient().write(MaplePacketCreator.serverNotice(5, c.getName() +
+                other.getClient().write(ChannelPackets.serverNotice(5, c.getName() +
                         " has declined your trade request"));
             }
             trade.cancel();

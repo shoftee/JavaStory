@@ -78,7 +78,7 @@ public class PngWzCanvas implements WzCanvas {
 		int maxHeight = 3;
 
 		byte[] writeBuf = new byte[maxWriteBuf];
-		
+
 		switch (getFormat()) {
 		case 1:
 		case 513:

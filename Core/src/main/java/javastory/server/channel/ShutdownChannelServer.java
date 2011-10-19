@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import javastory.channel.ChannelManager;
 import javastory.db.DatabaseConnection;
 import javastory.server.GameService;
-import server.TimerManager;
+import javastory.server.TimerManager;
 
 public class ShutdownChannelServer implements Runnable {
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelManager;
-import server.TimerManager;
+import javastory.server.TimerManager;
 
 public class Squad {
 

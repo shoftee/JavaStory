@@ -27,18 +27,18 @@ import java.util.List;
 import javastory.channel.maps.AnimatedGameMapObject;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import server.movement.AbsoluteLifeMovement;
-import server.movement.AranMovement;
-import server.movement.BounceMovement;
-import server.movement.ChairMovement;
-import server.movement.ChangeEquipSpecialAwesome;
-import server.movement.FlashMovement;
-import server.movement.JumpDownMovement;
-import server.movement.LifeMovement;
-import server.movement.LifeMovementFragment;
-import server.movement.RelativeLifeMovement;
-import server.movement.TeleportMovement;
-import server.movement.UnknownMovement;
+import javastory.server.movement.AbsoluteLifeMovement;
+import javastory.server.movement.AranMovement;
+import javastory.server.movement.BounceMovement;
+import javastory.server.movement.ChairMovement;
+import javastory.server.movement.ChangeEquipSpecialAwesome;
+import javastory.server.movement.FlashMovement;
+import javastory.server.movement.JumpDownMovement;
+import javastory.server.movement.LifeMovement;
+import javastory.server.movement.LifeMovementFragment;
+import javastory.server.movement.RelativeLifeMovement;
+import javastory.server.movement.TeleportMovement;
+import javastory.server.movement.UnknownMovement;
 
 public class MovementParse {
 

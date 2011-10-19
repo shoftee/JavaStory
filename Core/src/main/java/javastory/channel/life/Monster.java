@@ -1,6 +1,5 @@
 package javastory.channel.life;
 
-import handling.ServerConstants;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -21,19 +20,20 @@ import javastory.channel.client.status.MonsterStatus;
 import javastory.channel.client.status.MonsterStatusEffect;
 import javastory.channel.maps.GameMap;
 import javastory.channel.packet.MobPacket;
+import javastory.client.BuffStat;
+import javastory.client.Disease;
 import javastory.game.SkillLevelEntry;
+import javastory.scripting.EventInstanceManager;
 import javastory.server.ChannelServer;
-import scripting.EventInstanceManager;
-import server.TimerManager;
-import server.life.Element;
-import server.life.ElementalEffectiveness;
-import server.life.MonsterListener;
-import server.life.MonsterStats;
-import server.life.OverrideMonsterStats;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
-import client.BuffStat;
-import client.Disease;
+import javastory.server.TimerManager;
+import javastory.server.handling.ServerConstants;
+import javastory.server.life.Element;
+import javastory.server.life.ElementalEffectiveness;
+import javastory.server.life.MonsterListener;
+import javastory.server.life.MonsterStats;
+import javastory.server.life.OverrideMonsterStats;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.packets.ChannelPackets;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -407,8 +407,8 @@ public class Monster extends AbstractLoadedGameLife {
                     map.spawnRevives(mob, this.getObjectId());
 
                     if (mob.getId() == 9300216) {
-                        map.broadcastMessage(MaplePacketCreator.environmentChange("Dojang/clear", 4));
-                        map.broadcastMessage(MaplePacketCreator.environmentChange("dojang/end/clear", 3));
+                        map.broadcastMessage(ChannelPackets.environmentChange("Dojang/clear", 4));
+                        map.broadcastMessage(ChannelPackets.environmentChange("dojang/end/clear", 3));
                     }
                 }
                 break;

@@ -20,9 +20,9 @@
 */
 package javastory.channel.maps;
 
-import handling.GamePacket;
 import javastory.channel.ChannelClient;
-import tools.MaplePacketCreator;
+import javastory.io.GamePacket;
+import javastory.tools.packets.ChannelPackets;
 
 public class GameMapEffect {
 
@@ -40,14 +40,14 @@ public class GameMapEffect {
     }
 
     public GamePacket makeDestroyData() {
-	return MaplePacketCreator.removeMapEffect();
+	return ChannelPackets.removeMapEffect();
     }
 
     public GamePacket makeStartData() {
-	return MaplePacketCreator.startMapEffect(msg, itemId, active);
+	return ChannelPackets.startMapEffect(msg, itemId, active);
     }
 
     public void sendStartData(ChannelClient c) {
-	c.write(MaplePacketCreator.startMapEffect(msg, itemId, active));
+	c.write(ChannelPackets.startMapEffect(msg, itemId, active));
     }
 }

@@ -5,10 +5,10 @@
 package javastory.world.core;
 
 /**
- *
+ * 
  * @author Tosho
  */
- public enum GuildOperationType {
-    NONE, DISBAND, EMBELMCHANGE
-    
+public enum GuildOperationType {
+	NONE, DISBAND, EMBELMCHANGE
+
 }

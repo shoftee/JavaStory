@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public final class AutobanManager implements Runnable {
 
@@ -84,7 +84,7 @@ public final class AutobanManager implements Runnable {
 		sb.append(", ");
 	    }
 	    try {
-		c.getChannelServer().getWorldInterface().broadcastMessage(MaplePacketCreator.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
+		c.getChannelServer().getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
 	    } catch (final RemoteException e) {
 		c.getChannelServer().pingWorld();
 	    }

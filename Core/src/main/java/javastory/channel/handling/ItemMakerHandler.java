@@ -6,21 +6,21 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.InventoryManipulator;
+import javastory.client.Equip;
+import javastory.client.IItem;
+import javastory.client.Inventory;
 import javastory.game.GameConstants;
 import javastory.game.Jobs;
+import javastory.game.maker.GemInfo;
+import javastory.game.maker.ItemMakerFactory;
+import javastory.game.maker.ItemRecipe;
+import javastory.game.maker.ItemRecipeEntry;
+import javastory.game.maker.MakerItemInfo;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
-import javastory.server.maker.GemInfo;
-import javastory.server.maker.ItemMakerFactory;
-import javastory.server.maker.ItemRecipe;
-import javastory.server.maker.ItemRecipeEntry;
-import javastory.server.maker.MakerItemInfo;
 import javastory.tools.Randomizer;
-import tools.MaplePacketCreator;
-import client.Equip;
-import client.IItem;
-import client.Inventory;
+import javastory.tools.packets.ChannelPackets;
 
 public class ItemMakerHandler {
 
@@ -58,8 +58,8 @@ public class ItemMakerHandler {
             InventoryManipulator.addById(c, toGive[0], (byte) toGive[1]);
             InventoryManipulator.removeFromSlot(c, equipInventory, slot, (byte) 1, false);
         }
-        c.write(MaplePacketCreator.ItemMaker_Success());
-        player.getMap().broadcastMessage(player,MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
+        c.write(ChannelPackets.ItemMaker_Success());
+        player.getMap().broadcastMessage(player,ChannelPackets.ItemMaker_Success_3rdParty(player.getId()), false);
         return false;
     }
 
@@ -72,8 +72,8 @@ public class ItemMakerHandler {
             InventoryManipulator.addById(c, getCreateCrystal(etc), (short) 1);
             InventoryManipulator.removeById(c, etcInventory, etc, 100, false, false);
 
-            c.write(MaplePacketCreator.ItemMaker_Success());
-            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
+            c.write(ChannelPackets.ItemMaker_Success());
+            player.getMap().broadcastMessage(player, ChannelPackets.ItemMaker_Success_3rdParty(player.getId()), false);
         }
     }
 
@@ -100,8 +100,8 @@ public class ItemMakerHandler {
             player.gainMeso(-gem.getCost(), false);
             InventoryManipulator.addById(c, gemItemId, (byte) (taken ==
                     gemItemId ? 9 : 1)); // Gem is always 1
-            c.write(MaplePacketCreator.ItemMaker_Success());
-            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
+            c.write(ChannelPackets.ItemMaker_Success());
+            player.getMap().broadcastMessage(player, ChannelPackets.ItemMaker_Success_3rdParty(player.getId()), false);
         } else {
             final boolean stimulator = reader.readByte() > 0;
             final int numEnchanter = reader.readInt();
@@ -142,8 +142,8 @@ public class ItemMakerHandler {
                 }
             }
             InventoryManipulator.addbyItem(c, toGive);
-            c.write(MaplePacketCreator.ItemMaker_Success());
-            player.getMap().broadcastMessage(player, MaplePacketCreator.ItemMaker_Success_3rdParty(player.getId()), false);
+            c.write(ChannelPackets.ItemMaker_Success());
+            player.getMap().broadcastMessage(player, ChannelPackets.ItemMaker_Success_3rdParty(player.getId()), false);
         }
         return false;
     }

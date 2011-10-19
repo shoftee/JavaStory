@@ -13,7 +13,7 @@ import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapFactory;
 import javastory.channel.server.Portal;
 import javastory.server.ChannelServer;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class WarpCommands implements Command {
 
@@ -118,7 +118,7 @@ public class WarpCommands implements Command {
             case "-slime":
                 Monster mob0 = LifeFactory.getMonster(9400202);
                 player.getMap().spawnMonsterOnGroundBelow(mob0, player.getPosition());
-                player.getMap().broadcastMessage(MaplePacketCreator.serverNotice(0, "[Event] EXP slimes!"));
+                player.getMap().broadcastMessage(ChannelPackets.serverNotice(0, "[Event] EXP slimes!"));
                 break;
             case "-lolcastle":
                 {

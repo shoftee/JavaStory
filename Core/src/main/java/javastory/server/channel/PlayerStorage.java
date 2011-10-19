@@ -1,7 +1,5 @@
 package javastory.server.channel;
 
-import handling.GamePacket;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,8 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.CharacterTransfer;
+import javastory.io.GamePacket;
+import javastory.server.TimerManager;
 import javastory.world.core.CheaterData;
-import server.TimerManager;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;

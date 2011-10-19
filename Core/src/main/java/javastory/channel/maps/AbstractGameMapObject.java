@@ -22,7 +22,8 @@ package javastory.channel.maps;
 
 import java.awt.Point;
 
-import server.maps.GameMapObjectType;
+import javastory.server.maps.GameMapObjectType;
+
 
 public abstract class AbstractGameMapObject implements GameMapObject {
     private Point position = new Point();

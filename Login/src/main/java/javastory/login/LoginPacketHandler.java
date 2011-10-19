@@ -4,11 +4,11 @@
  */
 package javastory.login;
 
-import handling.ClientPacketOpcode;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
+import javastory.server.handling.ClientPacketOpcode;
 import javastory.server.handling.PacketHandler;
 
 import org.apache.mina.core.session.IoSession;

@@ -30,7 +30,7 @@ import javastory.channel.ChannelClient;
 import javastory.db.DatabaseConnection;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class BbsHandler {
 
@@ -102,7 +102,7 @@ public class BbsHandler {
             ps.setInt(1, c.getPlayer().getGuildId());
             ResultSet rs = ps.executeQuery();
 
-            c.write(MaplePacketCreator.showBbsThreadList(rs, start));
+            c.write(ChannelPackets.showBbsThreadList(rs, start));
 
             rs.close();
             ps.close();
@@ -324,7 +324,7 @@ public class BbsHandler {
                 repliesRS = ps2.executeQuery();
                 // the lack of repliesRS.next() is intentional
             }
-            c.write(MaplePacketCreator.showThread(bIsThreadIdLocal ? threadid : threadRS.getInt("localthreadid"), threadRS, repliesRS));
+            c.write(ChannelPackets.showThread(bIsThreadIdLocal ? threadid : threadRS.getInt("localthreadid"), threadRS, repliesRS));
 
         } catch (SQLException se) {
             System.err.println("SQLException: " + se.getLocalizedMessage() + se);

@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
+import javastory.client.Equip;
+import javastory.client.IEquip;
+import javastory.client.IItem;
+import javastory.client.Item;
 import javastory.client.ItemType;
 import javastory.db.DatabaseConnection;
 import javastory.db.DatabaseException;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
-import tools.MaplePacketCreator;
-import client.Equip;
-import client.IEquip;
-import client.IItem;
-import client.Item;
+import javastory.tools.packets.ChannelPackets;
 
 import com.google.common.collect.Maps;
 
@@ -273,15 +273,15 @@ public class Storage implements Serializable {
         for (InventoryType type : InventoryType.values()) {
             typeItems.put(type, new ArrayList<>(items));
         }
-        c.write(MaplePacketCreator.getStorage(npcId, slots, items, meso));
+        c.write(ChannelPackets.getStorage(npcId, slots, items, meso));
     }
 
     public void sendStored(ChannelClient c, InventoryType type) {
-        c.write(MaplePacketCreator.storeStorage(slots, type, typeItems.get(type)));
+        c.write(ChannelPackets.storeStorage(slots, type, typeItems.get(type)));
     }
 
     public void sendTakenOut(ChannelClient c, InventoryType type) {
-        c.write(MaplePacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
+        c.write(ChannelPackets.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
     public int getMeso() {
@@ -297,7 +297,7 @@ public class Storage implements Serializable {
     }
 
     public void sendMeso(ChannelClient c) {
-        c.write(MaplePacketCreator.mesoStorage(slots, meso));
+        c.write(ChannelPackets.mesoStorage(slots, meso));
     }
 
     public boolean isFull() {

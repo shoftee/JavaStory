@@ -27,8 +27,8 @@ import javastory.channel.ChannelClient;
 import javastory.channel.ChannelManager;
 import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.server.Portal;
-import scripting.PortalScriptManager;
-import tools.MaplePacketCreator;
+import javastory.scripting.PortalScriptManager;
+import javastory.tools.packets.ChannelPackets;
 
 public class GenericPortal implements Portal {
 
@@ -112,10 +112,10 @@ public class GenericPortal implements Portal {
 	    try {
 		PortalScriptManager.getInstance().executePortalScript(this, c);
 		if (player.getMap() == currentmap) { // Character is still on the same map.
-		    c.write(MaplePacketCreator.enableActions());
+		    c.write(ChannelPackets.enableActions());
 		}
 	    } catch (final Exception e) {
-		c.write(MaplePacketCreator.enableActions());
+		c.write(ChannelPackets.enableActions());
 		e.printStackTrace();
 	    }
 	} else if (getTargetMapId() != 999999999) {

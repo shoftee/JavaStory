@@ -5,57 +5,56 @@
 package javastory.client;
 
 import javastory.game.Gender;
-import client.Inventory;
 
 /**
- *
+ * 
  * @author Tosho
  */
 public interface GameCharacter {
 
-    Inventory getEquippedItemsInventory();
+	Inventory getEquippedItemsInventory();
 
-    int getExp();
+	int getExp();
 
-    int getFaceId();
+	int getFaceId();
 
-    int getFame();
+	int getFame();
 
-    int getGmLevel();
+	int getGmLevel();
 
-    Gender getGender();
+	Gender getGender();
 
-    int getSkinColorId();
+	int getSkinColorId();
 
-    int getHairId();
+	int getHairId();
 
-    int getId();
+	int getId();
 
-    int getInitialSpawnPoint();
+	int getInitialSpawnPoint();
 
-    int getJobId();
+	int getJobId();
 
-    int getLevel();
+	int getLevel();
 
-    int getMapId();
+	int getMapId();
 
-    int getMeso();
+	int getMeso();
 
-    String getName();
+	String getName();
 
-    int getRemainingAp();
+	int getRemainingAp();
 
-    int getRemainingSp();
+	int getRemainingSp();
 
-    int getRemainingSp(final int skillbook);
+	int getRemainingSp(final int skillbook);
 
-    int getRemainingSpSize();
+	int getRemainingSpSize();
 
-    int[] getRemainingSps();
+	int[] getRemainingSps();
 
-    int getSubcategory();
+	int getSubcategory();
 
-    int getWorldId();
+	int getWorldId();
 
-    PlayerStats getStats();
+	PlayerStats getStats();
 }

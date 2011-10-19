@@ -1,6 +1,5 @@
 package javastory.channel.client.messages.commands;
 
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 
@@ -8,8 +7,9 @@ import javastory.channel.ChannelClient;
 import javastory.channel.client.messages.Command;
 import javastory.channel.client.messages.CommandDefinition;
 import javastory.channel.client.messages.IllegalCommandSyntaxException;
-import tools.MaplePacketCreator;
-import tools.StringUtil;
+import javastory.io.GamePacket;
+import javastory.tools.StringUtil;
+import javastory.tools.packets.ChannelPackets;
 
 public class NoticeCommand implements Command {
 
@@ -60,7 +60,7 @@ public class NoticeCommand implements Command {
             }
             joinmod += tfrom;
             sb.append(StringUtil.joinStringFrom(splitted, joinmod));
-            GamePacket packet = MaplePacketCreator.serverNotice(type, sb.toString());
+            GamePacket packet = ChannelPackets.serverNotice(type, sb.toString());
             if (range == 0) {
                 c.getPlayer().getMap().broadcastMessage(packet);
             } else if (range == 1) {

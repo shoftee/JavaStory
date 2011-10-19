@@ -27,14 +27,14 @@ import javastory.channel.maps.Door;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.Reactor;
 import javastory.channel.server.InventoryManipulator;
+import javastory.client.IItem;
+import javastory.client.Stat;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.FameLog;
 import javastory.server.ItemInfoProvider;
-import tools.FameResponse;
-import tools.MaplePacketCreator;
-import client.IItem;
-import client.Stat;
+import javastory.tools.FameResponse;
+import javastory.tools.packets.ChannelPackets;
 
 public final class PlayersHandler {
 
@@ -86,7 +86,7 @@ public final class PlayersHandler {
         }
 
         if (responseCode != FameResponse.SUCCESS) {
-            c.write(MaplePacketCreator.giveFameErrorResponse(responseCode));
+            c.write(ChannelPackets.giveFameErrorResponse(responseCode));
             return;
         }
 
@@ -97,8 +97,8 @@ public final class PlayersHandler {
             long timestamp = FameLog.addEntry(famer.getId(), receiverId);
             famer.setLastFameTime(timestamp);
 
-            c.write(MaplePacketCreator.giveFameResponse(isIncrease, receiver.getName(), receiver.getFame()));
-            receiver.getClient().write(MaplePacketCreator.receiveFame(isIncrease, famer.getName()));
+            c.write(ChannelPackets.giveFameResponse(isIncrease, receiver.getName(), receiver.getFame()));
+            receiver.getClient().write(ChannelPackets.receiveFame(isIncrease, famer.getName()));
         }
     }
 
@@ -129,7 +129,7 @@ public final class PlayersHandler {
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() !=
                 itemId) {
-            c.write(MaplePacketCreator.enableActions());
+            c.write(ChannelPackets.enableActions());
             return;
         }
         switch (itemId) {

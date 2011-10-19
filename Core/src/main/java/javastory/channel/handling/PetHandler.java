@@ -9,20 +9,20 @@ import javastory.channel.ChannelClient;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
+import javastory.client.IItem;
+import javastory.client.Inventory;
+import javastory.client.Pet;
+import javastory.client.PetCommand;
+import javastory.client.PetDataFactory;
+import javastory.client.Stat;
 import javastory.game.GameConstants;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
+import javastory.server.StatValue;
+import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
-import server.StatValue;
-import server.movement.LifeMovementFragment;
-import tools.MaplePacketCreator;
-import client.IItem;
-import client.Inventory;
-import client.Pet;
-import client.PetCommand;
-import client.PetDataFactory;
-import client.Stat;
+import javastory.tools.packets.ChannelPackets;
 
 public class PetHandler {
 
@@ -84,7 +84,7 @@ public class PetHandler {
         final IItem toUse = useInventory.getItem(slot);
 
         if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
-            c.write(MaplePacketCreator.enableActions());
+            c.write(ChannelPackets.enableActions());
             return;
         }
         InventoryManipulator.removeFromSlot(c, useInventory, slot, (short) 1, false);
@@ -187,7 +187,7 @@ public class PetHandler {
                 }
             }
         }
-        c.write(MaplePacketCreator.enableActions());
+        c.write(ChannelPackets.enableActions());
     }
 
     public static void handleMovePet(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {

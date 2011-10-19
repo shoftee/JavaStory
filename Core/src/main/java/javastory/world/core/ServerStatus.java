@@ -5,12 +5,12 @@
 package javastory.world.core;
 
 /**
- *
+ * 
  * @author Tosho
  */
 public enum ServerStatus {
-    OFFLINE,
-    STARTING,
-    ONLINE,
-    SHUTTING_DOWN,
+	OFFLINE,
+	STARTING,
+	ONLINE,
+	SHUTTING_DOWN,
 }

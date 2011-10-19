@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import javastory.channel.ChannelCharacter;
 import javastory.db.DatabaseConnection;
 import javastory.tools.Randomizer;
-import tools.MaplePacketCreator;
+import javastory.tools.packets.ChannelPackets;
 
 public class Mount implements Serializable {
 
@@ -134,7 +134,7 @@ public class Mount implements Serializable {
         final ChannelCharacter chr = owner.get();
         if (chr != null && chr != null) {
 //	    cancelSchedule();
-            chr.getMap().broadcastMessage(MaplePacketCreator.updateMount(chr, false));
+            chr.getMap().broadcastMessage(ChannelPackets.updateMount(chr, false));
         }
     }
 }

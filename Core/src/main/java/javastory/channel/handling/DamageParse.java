@@ -18,19 +18,19 @@ import javastory.channel.maps.GameMapItem;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.server.StatEffect;
 import javastory.client.ActivePlayerStats;
+import javastory.client.BuffStat;
 import javastory.game.AttackType;
 import javastory.game.Skills;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
+import javastory.server.TimerManager;
+import javastory.server.life.Element;
+import javastory.server.life.MonsterStats;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.AttackPair;
 import javastory.tools.Randomizer;
-import server.TimerManager;
-import server.life.Element;
-import server.life.MonsterStats;
-import server.maps.GameMapObjectType;
-import tools.AttackPair;
-import tools.MaplePacketCreator;
-import client.BuffStat;
+import javastory.tools.packets.ChannelPackets;
 
 public final class DamageParse {
 
@@ -48,7 +48,7 @@ public final class DamageParse {
 
         if (attack.skill != 0) {
             if (effect == null) {
-                player.getClient().write(MaplePacketCreator.enableActions());
+                player.getClient().write(ChannelPackets.enableActions());
                 return;
             }
             if (Skills.isMulungSkill(attack.skill)) {
@@ -88,7 +88,7 @@ public final class DamageParse {
                             return;
                         }
                         map.removeMapObject(mapitem);
-                        map.broadcastMessage(MaplePacketCreator.explodeDrop(mapitem.getObjectId()));
+                        map.broadcastMessage(ChannelPackets.explodeDrop(mapitem.getObjectId()));
                         mapitem.setPickedUp(true);
                     } else {
                         player.getCheatTracker().registerOffense(CheatingOffense.ETC_EXPLOSION);
@@ -448,7 +448,7 @@ public final class DamageParse {
         player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
 
         if (effect == null) {
-            player.getClient().write(MaplePacketCreator.enableActions());
+            player.getClient().write(ChannelPackets.enableActions());
             return;
         }
 //	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part

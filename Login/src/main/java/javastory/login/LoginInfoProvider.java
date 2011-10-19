@@ -7,7 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import client.Equip;
+import javastory.client.Equip;
+import javastory.client.IItem;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
 import javastory.wz.WzDataFileEntry;
@@ -15,7 +16,6 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
-import client.IItem;
 
 public final class LoginInfoProvider {
 

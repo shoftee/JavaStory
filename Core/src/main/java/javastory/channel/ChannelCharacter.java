@@ -1,6 +1,5 @@
 package javastory.channel;
 
-import handling.GamePacket;
 
 import java.awt.Point;
 import java.io.Serializable;
@@ -58,11 +57,26 @@ import javastory.channel.server.Storage;
 import javastory.channel.server.Trade;
 import javastory.channel.shops.PlayerShop;
 import javastory.client.ActivePlayerStats;
+import javastory.client.BuddyListEntry;
+import javastory.client.BuffStat;
+import javastory.client.CooldownValueHolder;
+import javastory.client.Disease;
+import javastory.client.DiseaseValueHolder;
+import javastory.client.Equip;
 import javastory.client.GameCharacter;
+import javastory.client.IEquip;
+import javastory.client.IItem;
+import javastory.client.Inventory;
+import javastory.client.Item;
+import javastory.client.KeyBinding;
+import javastory.client.KeyLayout;
 import javastory.client.MemberRank;
 import javastory.client.MonsterBook;
 import javastory.client.MultiInventory;
+import javastory.client.Pet;
 import javastory.client.PlayerRandomStream;
+import javastory.client.SkillMacro;
+import javastory.client.Stat;
 import javastory.db.DatabaseConnection;
 import javastory.db.DatabaseException;
 import javastory.game.GameConstants;
@@ -71,47 +85,33 @@ import javastory.game.InventoryType;
 import javastory.game.ItemFlag;
 import javastory.game.Jobs;
 import javastory.game.Skills;
+import javastory.game.maker.RandomRewards;
+import javastory.game.quest.QuestInfoProvider;
+import javastory.game.quest.QuestInfoProvider.QuestInfo;
+import javastory.game.quest.QuestStatus;
+import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
-import javastory.quest.QuestInfoProvider;
-import javastory.quest.QuestInfoProvider.QuestInfo;
 import javastory.rmi.WorldChannelInterface;
+import javastory.scripting.EventInstanceManager;
+import javastory.scripting.NpcScriptManager;
+import javastory.server.BuffStatValue;
 import javastory.server.FameLog;
 import javastory.server.GameService;
 import javastory.server.ItemInfoProvider;
 import javastory.server.Notes;
 import javastory.server.Notes.Note;
-import javastory.server.maker.RandomRewards;
+import javastory.server.StatValue;
+import javastory.server.TimerManager;
+import javastory.server.maps.FieldLimitType;
+import javastory.server.maps.GameMapObjectType;
+import javastory.server.maps.SavedLocationType;
+import javastory.server.movement.LifeMovementFragment;
 import javastory.tools.Randomizer;
+import javastory.tools.packets.ChannelPackets;
+import javastory.tools.packets.UIPacket;
 import javastory.world.core.PartyOperation;
 import javastory.world.core.PlayerCooldownValueHolder;
 import javastory.world.core.PlayerDiseaseValueHolder;
-import scripting.EventInstanceManager;
-import scripting.NpcScriptManager;
-import server.BuffStatValue;
-import server.StatValue;
-import server.TimerManager;
-import server.maps.FieldLimitType;
-import server.maps.GameMapObjectType;
-import server.maps.SavedLocationType;
-import server.movement.LifeMovementFragment;
-import tools.MaplePacketCreator;
-import tools.packet.UIPacket;
-import client.BuddyListEntry;
-import client.BuffStat;
-import client.CooldownValueHolder;
-import client.Disease;
-import client.DiseaseValueHolder;
-import client.Equip;
-import client.IEquip;
-import client.IItem;
-import client.Inventory;
-import client.Item;
-import client.KeyBinding;
-import client.KeyLayout;
-import client.Pet;
-import client.QuestStatus;
-import client.SkillMacro;
-import client.Stat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -1174,7 +1174,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public final void updateInfoQuest(final int questid, final String data) {
 		questInfo.put(questid, data);
-		client.write(MaplePacketCreator.updateInfoQuest(questid, data));
+		client.write(ChannelPackets.updateInfoQuest(questid, data));
 	}
 
 	public final String getInfoQuest(final int questid) {
@@ -1225,17 +1225,17 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		QuestStatus status = getQuestStatus(questId);
 		switch (status.getState()) {
 		case 0:
-			client.write(MaplePacketCreator.forfeitQuest(this, questId));
+			client.write(ChannelPackets.forfeitQuest(this, questId));
 			break;
 		case 1:
-			client.write(MaplePacketCreator.startQuest(this, questId, status
+			client.write(ChannelPackets.startQuest(this, questId, status
 					.getCustomData()));
-			client.write(MaplePacketCreator.updateQuestInfo(this, questId,
+			client.write(ChannelPackets.updateQuestInfo(this, questId,
 															status.getNpc(),
 															(byte) 8));
 			break;
 		case 2:
-			client.write(MaplePacketCreator.completeQuest(questId));
+			client.write(ChannelPackets.completeQuest(questId));
 			break;
 		}
 	}
@@ -1372,11 +1372,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							cancelBuffStats(BuffStat.DRAGONBLOOD);
 						} else {
 							addHP(-bloodEffect.getX());
-							client.write(MaplePacketCreator
+							client.write(ChannelPackets
 									.showOwnBuffEffect(bloodEffect
 											.getSourceId(), 5));
 							map.broadcastMessage(	ChannelCharacter.this,
-													MaplePacketCreator
+													ChannelPackets
 															.showBuffeffect(getId(),
 																			bloodEffect
 																					.getSourceId(),
@@ -1438,7 +1438,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void startMapTimeLimitTask(int time, final GameMap to) {
-		client.write(MaplePacketCreator.getClock(time));
+		client.write(ChannelPackets.getClock(time));
 
 		time *= 1000;
 		mapTimeLimitTask = TimerManager.getInstance().register(new Runnable() {
@@ -1507,7 +1507,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ScheduledFuture<?> schedule) {
 		if (effect.isHide()) {
 			this.hidden = true;
-			map.broadcastMessage(this, MaplePacketCreator
+			map.broadcastMessage(this, ChannelPackets
 					.removePlayerFromMap(getId()), false);
 		} else if (effect.isDragonBlood()) {
 			prepareDragonBlood(effect);
@@ -1562,7 +1562,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					final int summonId = value.effect.getSourceId();
 					final Summon summon = summons.get(summonId);
 					if (summon != null) {
-						map.broadcastMessage(MaplePacketCreator
+						map.broadcastMessage(ChannelPackets
 								.removeSummon(summon, true));
 						map.removeMapObject(summon);
 						removeVisibleMapObject(summon);
@@ -1648,7 +1648,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (effect.isHide()
 					&& (ChannelCharacter) map.getMapObject(getObjectId()) != null) {
 				this.hidden = false;
-				map.broadcastMessage(this, MaplePacketCreator
+				map.broadcastMessage(this, ChannelPackets
 						.spawnPlayerMapObject(this), false);
 
 				for (final Pet pet : pets) {
@@ -1680,13 +1680,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				!= null) {
 			// are we still connected ?
 			if (buffstats.contains(BuffStat.HOMING_BEACON)) {
-				client.write(MaplePacketCreator.cancelHoming());
+				client.write(ChannelPackets.cancelHoming());
 			} else {
 				stats.recalcLocalStats();
 				enforceMaxHpMp();
-				client.write(MaplePacketCreator.cancelBuff(buffstats, buffstats
+				client.write(ChannelPackets.cancelBuff(buffstats, buffstats
 						.contains(BuffStat.MONSTER_RIDING)));
-				map.broadcastMessage(this, MaplePacketCreator
+				map.broadcastMessage(this, ChannelPackets
 						.cancelForeignBuff(getId(), buffstats), false);
 			}
 		}
@@ -1827,7 +1827,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					if (energyLevel < 10000) {
 						energyLevel += (100 * targets);
 						setBuffedValue(BuffStat.ENERGY_CHARGE, energyLevel);
-						client.write(MaplePacketCreator
+						client.write(ChannelPackets
 								.giveEnergyChargeTest(energyLevel));
 
 						if (energyLevel >= 10000) {
@@ -1885,10 +1885,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			duration += (int) ((getBuffedStartTime(BuffStat.COMBO)
 					- System.currentTimeMillis()));
 
-			client.write(MaplePacketCreator.giveBuff(1111002, duration,
+			client.write(ChannelPackets.giveBuff(1111002, duration,
 														stat,
 														ceffect));
-			map.broadcastMessage(this, MaplePacketCreator
+			map.broadcastMessage(this, ChannelPackets
 					.giveForeignBuff(getId(), stat, ceffect), false);
 		}
 	}
@@ -1915,9 +1915,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		duration += (int) ((getBuffedStartTime(BuffStat.COMBO)
 				- System.currentTimeMillis()));
 
-		client.write(MaplePacketCreator.giveBuff(1111002, duration, stat,
+		client.write(ChannelPackets.giveBuff(1111002, duration, stat,
 													ceffect));
-		map.broadcastMessage(this, MaplePacketCreator
+		map.broadcastMessage(this, ChannelPackets
 				.giveForeignBuff(getId(), stat, ceffect), false);
 	}
 
@@ -1937,7 +1937,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			statups.add(new StatValue(Stat.HP, Integer.valueOf(stats.getHp())));
 		}
 		if (statups.size() > 0) {
-			client.write(MaplePacketCreator.updatePlayerStats(statups,
+			client.write(ChannelPackets.updatePlayerStats(statups,
 																getJobId()));
 		}
 	}
@@ -2183,12 +2183,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void changeMap(final GameMap to, final Point pos) {
-		changeMapInternal(to, pos, MaplePacketCreator.getWarpToMap(to, 0x81,
+		changeMapInternal(to, pos, ChannelPackets.getWarpToMap(to, 0x81,
 																	this));
 	}
 
 	public void changeMap(final GameMap to, final Portal pto) {
-		changeMapInternal(to, pto.getPosition(), MaplePacketCreator
+		changeMapInternal(to, pto.getPosition(), ChannelPackets
 				.getWarpToMap(to, pto.getId(), this));
 	}
 
@@ -2243,7 +2243,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		newStats.add(new StatValue(Stat.INT, int_));
 		newStats.add(new StatValue(Stat.LUK, luk));
 		newStats.add(new StatValue(Stat.AVAILABLE_AP, total));
-		client.write(MaplePacketCreator.updatePlayerStats(newStats, false, chr
+		client.write(ChannelPackets.updatePlayerStats(newStats, false, chr
 				.getJobId()));
 	}
 
@@ -2287,7 +2287,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				resetStats(4, 20, 4, 4);
 			}
 		}
-		client.write(MaplePacketCreator.updateSp(this, false, wasEvan));
+		client.write(ChannelPackets.updateSp(this, false, wasEvan));
 		updateSingleStat(Stat.JOB, newJob);
 
 		int maxhp = stats.getMaxHp(), maxmp = stats.getMaxMp();
@@ -2353,13 +2353,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		statup.add(new StatValue(Stat.MAX_HP, Integer.valueOf(maxhp)));
 		statup.add(new StatValue(Stat.MAX_MP, Integer.valueOf(maxmp)));
 		stats.recalcLocalStats();
-		client.write(MaplePacketCreator.updatePlayerStats(statup, getJobId()));
-		map.broadcastMessage(this, MaplePacketCreator
+		client.write(ChannelPackets.updatePlayerStats(statup, getJobId()));
+		map.broadcastMessage(this, ChannelPackets
 				.showForeignEffect(getId(), 8), false);
 		silentPartyUpdate();
 		updateJob();
 		if (dragon != null) {
-			map.broadcastMessage(MaplePacketCreator.removeDragon(this.id));
+			map.broadcastMessage(ChannelPackets.removeDragon(this.id));
 			map.removeMapObject(dragon);
 			dragon = null;
 		}
@@ -2416,7 +2416,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void gainSP(int sp) {
 		this.remainingSp[Skills.getSkillbook(jobId)] += sp; // default
-		client.write(MaplePacketCreator.updateSp(this, false));
+		client.write(ChannelPackets.updateSp(this, false));
 		client.write(UIPacket.getSPMsg((byte) sp));
 	}
 
@@ -2446,7 +2446,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		} else if (Skills.isElementAmplification(skill.getId())) {
 			stats.recalcLocalStats();
 		}
-		client.write(MaplePacketCreator.updateSkill(skill.getId(), newLevel,
+		client.write(ChannelPackets.updateSkill(skill.getId(), newLevel,
 													newMasterlevel));
 	}
 
@@ -2521,7 +2521,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							.getCharacterByName(partychar.getName());
 					if (other != null) {
 						other.getClient()
-								.write(	MaplePacketCreator
+								.write(	ChannelPackets
 												.updatePartyMemberHP(	getId(),
 																		stats.getHp(),
 																		stats.getCurrentMaxHp()));
@@ -2540,7 +2540,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						.getPlayerStorage()
 						.getCharacterByName(partychar.getName());
 				if (other != null) {
-					client.write(MaplePacketCreator.updatePartyMemberHP(other
+					client.write(ChannelPackets.updatePartyMemberHP(other
 							.getId(), other.getStats().getHp(), other
 							.getStats().getCurrentMaxHp()));
 				}
@@ -2584,7 +2584,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			statups.add(new StatValue(Stat.MP, Integer.valueOf(stats.getMp())));
 		}
 		if (statups.size() > 0) {
-			client.write(MaplePacketCreator.updatePlayerStats(statups,
+			client.write(ChannelPackets.updatePlayerStats(statups,
 																getJobId()));
 		}
 	}
@@ -2604,11 +2604,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	 */
 	public void updateSingleStat(Stat stat, int newval, boolean itemReaction) {
 		if (stat == Stat.AVAILABLE_SP) {
-			client.write(MaplePacketCreator.updateSp(this, itemReaction, false));
+			client.write(ChannelPackets.updateSp(this, itemReaction, false));
 			return;
 		}
 		StatValue value = new StatValue(stat, Integer.valueOf(newval));
-		client.write(MaplePacketCreator.updatePlayerStats(Collections
+		client.write(ChannelPackets.updatePlayerStats(Collections
 				.singletonList(value), itemReaction, getJobId()));
 	}
 
@@ -2644,7 +2644,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			updateSingleStat(Stat.EXP, getExp());
 			if (show) { // still show the expgain even if it's not there
-				client.write(MaplePacketCreator.GainEXP_Others(total, inChat,
+				client.write(ChannelPackets.GainEXP_Others(total, inChat,
 																white));
 			}
 		}
@@ -2727,7 +2727,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			updateSingleStat(Stat.EXP, getExp());
 			if (show) {
 				// still show the expgain even if it's not there
-				client.write(MaplePacketCreator.GainEXP_Monster(baseExp, white,
+				client.write(ChannelPackets.GainEXP_Monster(baseExp, white,
 																eventExp,
 																weddingExp,
 																partyRingExp,
@@ -2827,7 +2827,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 							item.setExpiration(-1);
 							item.setFlag((byte) (flag - ItemFlag.LOCK
 									.getValue()));
-							client.write(MaplePacketCreator
+							client.write(ChannelPackets
 									.updateSpecialItemUse(item, item.getType()
 											.asByte()));
 						}
@@ -2884,13 +2884,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void gainMeso(int gain, boolean show, boolean enableActions,
 			boolean inChat) {
 		if (meso + gain < 0) {
-			client.write(MaplePacketCreator.enableActions());
+			client.write(ChannelPackets.enableActions());
 			return;
 		}
 		meso += gain;
 		updateSingleStat(Stat.MESO, meso, enableActions);
 		if (show) {
-			client.write(MaplePacketCreator.showMesoGain(gain, inChat));
+			client.write(ChannelPackets.showMesoGain(gain, inChat));
 		}
 	}
 
@@ -2927,11 +2927,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				continue;
 			}
 			if (status.mobKilled(id)) {
-				client.write(MaplePacketCreator.updateQuestMobKills(status));
+				client.write(ChannelPackets.updateQuestMobKills(status));
 				final int questId = status.getQuestId();
 				QuestInfo info = QuestInfoProvider.getInfo(questId);
 				if (info.canComplete(this, null)) {
-					client.write(MaplePacketCreator
+					client.write(ChannelPackets
 							.getShowQuestCompletion(questId));
 				}
 			}
@@ -3086,7 +3086,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				sb.append(" has achieved Level 200. Let us Celebrate! Maplers!");
 				client.getChannelServer()
 						.getWorldInterface()
-						.broadcastMessage(MaplePacketCreator
+						.broadcastMessage(ChannelPackets
 								.serverNotice(6,
 												sb.toString())
 								.getBytes());
@@ -3109,7 +3109,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 																				// and
 																				// Legend
 			remainingSp[Skills.getSkillbook(jobId)] += 3;
-			client.write(MaplePacketCreator.updateSp(this, false));
+			client.write(ChannelPackets.updateSp(this, false));
 		} else {
 			if (level <= 10) {
 				stats.setStr(stats.getStr() + remainingAp);
@@ -3122,8 +3122,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		stats.setMaxMp(maxmp);
 		stats.setHp(maxhp);
 		stats.setMp(maxmp);
-		client.write(MaplePacketCreator.updatePlayerStats(statup, getJobId()));
-		map.broadcastMessage(this, MaplePacketCreator
+		client.write(ChannelPackets.updatePlayerStats(statup, getJobId()));
+		map.broadcastMessage(this, ChannelPackets
 				.showForeignEffect(getId(), 0), false);
 		stats.recalcLocalStats();
 		silentPartyUpdate();
@@ -3142,7 +3142,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void sendMacros() {
 		for (int i = 0; i < 5; i++) {
 			if (skillMacros[i] != null) {
-				client.write(MaplePacketCreator.getMacros(skillMacros));
+				client.write(ChannelPackets.getMacros(skillMacros));
 				break;
 			}
 		}
@@ -3233,13 +3233,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	@Override
 	public void sendDestroyData(ChannelClient client) {
-		client.write(MaplePacketCreator.removePlayerFromMap(this.getObjectId()));
+		client.write(ChannelPackets.removePlayerFromMap(this.getObjectId()));
 	}
 
 	@Override
 	public void sendSpawnData(ChannelClient client) {
 		if (!isHidden()) {
-			client.write(MaplePacketCreator.spawnPlayerMapObject(this));
+			client.write(ChannelPackets.spawnPlayerMapObject(this));
 
 			for (final Pet pet : pets) {
 				if (pet.getSummoned()) {
@@ -3247,7 +3247,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				}
 			}
 			if (dragon != null) {
-				client.write(MaplePacketCreator.spawnDragon(dragon));
+				client.write(ChannelPackets.spawnDragon(dragon));
 			}
 		}
 	}
@@ -3257,7 +3257,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public final void equipChanged() {
-		map.broadcastMessage(this, MaplePacketCreator.updateCharLook(this),
+		map.broadcastMessage(this, ChannelPackets.updateCharLook(this),
 								false);
 		stats.recalcLocalStats();
 		enforceMaxHpMp();
@@ -3369,7 +3369,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		List<StatValue> petStat = Lists.newArrayList();
 		petStat.add(new StatValue(Stat.PET, Integer.valueOf(0)));
 		client.write(PetPacket.petStatUpdate(this));
-		client.write(MaplePacketCreator.enableActions());
+		client.write(ChannelPackets.enableActions());
 		removePet(pet, shiftLeft);
 	}
 
@@ -3617,7 +3617,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			if (show) {
 				sendNotice(5, "You have gained " + quantity + " cash.");
-				client.write(MaplePacketCreator.showSpecialEffect(19));
+				client.write(ChannelPackets.showSpecialEffect(19));
 			}
 		} else {
 			sendNotice(5, "You have reached the maximum ammount of @cash");
@@ -3688,7 +3688,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void setBuddyCapacity(int capacity) {
 		buddies.setCapacity(capacity);
-		client.write(MaplePacketCreator.updateBuddyCapacity(capacity));
+		client.write(ChannelPackets.updateBuddyCapacity(capacity));
 	}
 
 	public Messenger getMessenger() {
@@ -3824,8 +3824,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			diseases.put(disease, new DiseaseValueHolder(System
 					.currentTimeMillis(), skill.getDuration()));
-			client.write(MaplePacketCreator.giveDebuff(debuff, skill));
-			map.broadcastMessage(this, MaplePacketCreator
+			client.write(ChannelPackets.giveDebuff(debuff, skill));
+			map.broadcastMessage(this, ChannelPackets
 					.giveForeignDebuff(id, debuff, skill), false);
 		}
 	}
@@ -3854,8 +3854,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void dispelDebuff(Disease debuff) {
 		if (hasDisease(debuff)) {
 			long mask = debuff.getValue();
-			client.write(MaplePacketCreator.cancelDebuff(mask));
-			map.broadcastMessage(this, MaplePacketCreator
+			client.write(ChannelPackets.cancelDebuff(mask));
+			map.broadcastMessage(this, ChannelPackets
 					.cancelForeignDebuff(id, mask), false);
 
 			diseases.remove(debuff);
@@ -3905,11 +3905,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		} else {
 			mulung_energy = 0;
 		}
-		client.write(MaplePacketCreator.MulungEnergy(mulung_energy));
+		client.write(ChannelPackets.MulungEnergy(mulung_energy));
 	}
 
 	public void writeMulungEnergy() {
-		client.write(MaplePacketCreator.MulungEnergy(mulung_energy));
+		client.write(ChannelPackets.MulungEnergy(mulung_energy));
 	}
 
 	public final short getCombo() {
@@ -3953,8 +3953,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				berserk = true;
 			}
 
-			client.write(MaplePacketCreator.showOwnBerserk(skilllevel, berserk));
-			map.broadcastMessage(this, MaplePacketCreator
+			client.write(ChannelPackets.showOwnBerserk(skilllevel, berserk));
+			map.broadcastMessage(this, ChannelPackets
 					.showBerserk(getId(), skilllevel, berserk), false);
 
 			BerserkSchedule = TimerManager.getInstance()
@@ -3986,16 +3986,16 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						@Override
 						public void run() {
 							addHP(healEffect.getHp());
-							client.write(MaplePacketCreator
+							client.write(ChannelPackets
 									.showOwnBuffEffect(1321007, 2));
 							map.broadcastMessage(	ChannelCharacter.this,
-													MaplePacketCreator
+													ChannelPackets
 															.summonSkill(	getId(),
 																			1321007,
 																			5),
 													true);
 							map.broadcastMessage(	ChannelCharacter.this,
-													MaplePacketCreator
+													ChannelPackets
 															.showBuffeffect(getId(),
 																			1321007,
 																			2),
@@ -4014,10 +4014,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						@Override
 						public void run() {
 							buffEffect.applyTo(ChannelCharacter.this);
-							client.write(MaplePacketCreator
+							client.write(ChannelPackets
 									.showOwnBuffEffect(1321007, 2));
 							map.broadcastMessage(	ChannelCharacter.this,
-													MaplePacketCreator
+													ChannelPackets
 															.summonSkill(	getId(),
 																			1321007,
 																			(int) (Math
@@ -4025,7 +4025,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 																			* 3) + 6),
 													true);
 							map.broadcastMessage(	ChannelCharacter.this,
-													MaplePacketCreator
+													ChannelPackets
 															.showBuffeffect(getId(),
 																			1321007,
 																			2),
@@ -4124,7 +4124,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void sendNotice(int type, String message) {
-		client.write(MaplePacketCreator.serverNotice(type, message));
+		client.write(ChannelPackets.serverNotice(type, message));
 	}
 
 	public PlayerShop getPlayerShop() {

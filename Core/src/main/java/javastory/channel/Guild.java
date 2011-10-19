@@ -1,6 +1,5 @@
 package javastory.channel;
 
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;
@@ -15,18 +14,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.client.MemberRank;
 import javastory.db.DatabaseConnection;
+import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.server.ChannelServer;
 import javastory.server.GameService;
 import javastory.server.Notes;
+import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.GuildOperationResponse;
 import javastory.world.core.GuildOperationType;
 import javastory.world.core.WorldRegistry;
 
 import org.apache.mina.util.CopyOnWriteMap;
-
-import tools.MaplePacketCreator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
@@ -174,7 +173,7 @@ public final class Guild {
                 ps.setInt(1, id);
                 ps.execute();
                 ps.close();
-                broadcast(MaplePacketCreator.guildDisband(id));
+                broadcast(ChannelPackets.guildDisband(id));
             }
         } catch (SQLException se) {
             System.err.println("Error saving guild to SQL" + se);
@@ -334,7 +333,7 @@ public final class Guild {
 
         member.setOnline(online);
         member.setChannel((byte) channel);
-        broadcast(MaplePacketCreator.guildMemberOnline(id, cid, online), cid);
+        broadcast(ChannelPackets.guildMemberOnline(id, cid, online), cid);
         rebuildIndex = true;
     }
 
@@ -343,11 +342,11 @@ public final class Guild {
     }
 
     public void guildChat(final String name, final int cid, final String msg) {
-        broadcast(MaplePacketCreator.multiChat(name, msg, 2), cid);
+        broadcast(ChannelPackets.multiChat(name, msg, 2), cid);
     }
 
     public void allianceChat(final String name, final int cid, final String msg) {
-        broadcast(MaplePacketCreator.multiChat(name, msg, 3), cid);
+        broadcast(ChannelPackets.multiChat(name, msg, 3), cid);
     }
 
     public String getRankTitle(final MemberRank rank) {
@@ -400,12 +399,12 @@ public final class Guild {
         } finally {
             lock.unlock();
         }
-        broadcast(MaplePacketCreator.newGuildMember(member));
+        broadcast(ChannelPackets.newGuildMember(member));
         return true;
     }
 
     public void leaveGuild(final GuildMember member) {
-        broadcast(MaplePacketCreator.memberLeft(member, false));
+        broadcast(ChannelPackets.memberLeft(member, false));
         lock.lock();
         try {
             members.remove(member.getCharacterId());
@@ -417,7 +416,7 @@ public final class Guild {
 
     public void expelMember(final GuildMember initiator, final int targetId) {
         final GuildMember target = getMember(targetId);
-        broadcast(MaplePacketCreator.memberLeft(target, true));
+        broadcast(ChannelPackets.memberLeft(target, true));
         rebuildIndex = true;
         members.remove(targetId);
         try {
@@ -445,12 +444,12 @@ public final class Guild {
             return;
         }
         target.setGuildRank(newRank);
-        broadcast(MaplePacketCreator.changeRank(target));
+        broadcast(ChannelPackets.changeRank(target));
     }
 
     public void setGuildNotice(final String notice) {
         this.notice = notice;
-        broadcast(MaplePacketCreator.guildNotice(id, notice));
+        broadcast(ChannelPackets.guildNotice(id, notice));
         Connection con = DatabaseConnection.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET notice = ? WHERE guildid = ?")) {
             ps.setString(1, notice);
@@ -464,13 +463,13 @@ public final class Guild {
     public void updateMemberLevel(final int characterId, final int level) {
         final GuildMember member = getMember(characterId);
         member.setLevel(level);
-        broadcast(MaplePacketCreator.guildMemberInfoUpdate(member));
+        broadcast(ChannelPackets.guildMemberInfoUpdate(member));
     }
 
     public void updateMemberJob(final int characterId, final int jobId) {
         final GuildMember member = getMember(characterId);
         member.setJobId(id);
-        broadcast(MaplePacketCreator.guildMemberInfoUpdate(member));
+        broadcast(ChannelPackets.guildMemberInfoUpdate(member));
     }
 
     public void changeRankTitle(final String[] titles) {
@@ -478,7 +477,7 @@ public final class Guild {
             final MemberRank rank = MemberRank.fromNumber(i);
             rankTitles.put(rank, titles[i - 1]);
         }
-        broadcast(MaplePacketCreator.rankTitleChange(id, titles));
+        broadcast(ChannelPackets.rankTitleChange(id, titles));
 
         Connection con = DatabaseConnection.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?")) {
@@ -523,7 +522,7 @@ public final class Guild {
             return false;
         }
         capacity += 5;
-        broadcast(MaplePacketCreator.guildCapacityChange(this.id, this.capacity));
+        broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
         Connection con = DatabaseConnection.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?")) {
             ps.setInt(1, this.capacity);
@@ -537,7 +536,7 @@ public final class Guild {
 
     public void gainGuildPoints(final int amount) {
         guildPoints += amount;
-        guildMessage(MaplePacketCreator.updateGuildPoints(id, guildPoints));
+        guildMessage(ChannelPackets.updateGuildPoints(id, guildPoints));
         Connection con = DatabaseConnection.getConnection();
 
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?")) {
@@ -578,7 +577,7 @@ public final class Guild {
             return GuildOperationResponse.ALREADY_IN_GUILD;
         }
         final ChannelCharacter player = c.getPlayer();
-        mc.getClient().write(MaplePacketCreator.guildInvite(player.getGuildId(), player.getName(), player.getLevel(), player.getJobId()));
+        mc.getClient().write(ChannelPackets.guildInvite(player.getGuildId(), player.getName(), player.getLevel(), player.getJobId()));
         return null;
     }
 }

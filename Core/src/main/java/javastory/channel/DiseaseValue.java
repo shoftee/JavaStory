@@ -4,7 +4,7 @@
  */
 package javastory.channel;
 
-import client.Disease;
+import javastory.client.Disease;
 
 /**
  *

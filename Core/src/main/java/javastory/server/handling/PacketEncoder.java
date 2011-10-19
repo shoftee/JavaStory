@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.server.handling;
 
-import handling.GamePacket;
 import javastory.channel.ChannelClient;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
 import javastory.cryptography.CustomEncryption;
+import javastory.io.GamePacket;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;

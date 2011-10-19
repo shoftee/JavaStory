@@ -1,7 +1,6 @@
 package javastory.channel.client.messages.commands;
 
 import static javastory.channel.client.messages.CommandProcessor.getOptionalIntArg;
-import handling.GamePacket;
 
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -17,11 +16,12 @@ import javastory.channel.client.messages.IllegalCommandSyntaxException;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.server.ShopFactory;
+import javastory.client.Stat;
+import javastory.io.GamePacket;
 import javastory.server.ChannelServer;
-import server.maps.GameMapObjectType;
-import tools.MaplePacketCreator;
-import tools.StringUtil;
-import client.Stat;
+import javastory.server.maps.GameMapObjectType;
+import javastory.tools.StringUtil;
+import javastory.tools.packets.ChannelPackets;
 
 public class GM3Commands implements Command {
 
@@ -41,7 +41,7 @@ public class GM3Commands implements Command {
                     sb.append(player.getName());
                     sb.append("] ");
                     sb.append(StringUtil.joinStringFrom(splitted, 1));
-                    GamePacket packet = MaplePacketCreator.serverNotice(6, sb.toString());
+                    GamePacket packet = ChannelPackets.serverNotice(6, sb.toString());
                     try {
                         c.getChannelServer().getWorldInterface().broadcastMessage(packet.getBytes());
                     } catch (RemoteException e) {
@@ -52,7 +52,7 @@ public class GM3Commands implements Command {
                 }
                 break;
             case "-song":
-                player.getMap().broadcastMessage(MaplePacketCreator.musicChange(splitted[1]));
+                player.getMap().broadcastMessage(ChannelPackets.musicChange(splitted[1]));
                 break;
             case "-level":
                 player.setLevel(Short.parseShort(splitted[1]));
@@ -102,7 +102,7 @@ public class GM3Commands implements Command {
                 List<GameMapObject> items = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
                 for (GameMapObject i : items) {
                     map.removeMapObject(i);
-                    map.broadcastMessage(MaplePacketCreator.removeItemFromMap(i.getObjectId(), 0, player.getId()));
+                    map.broadcastMessage(ChannelPackets.removeItemFromMap(i.getObjectId(), 0, player.getId()));
                 }
                 player.sendNotice(6, "You have destroyed " + items.size() + " items on the ground.");
                 break;

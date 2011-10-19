@@ -13,17 +13,17 @@ import java.util.Map;
 
 import javastory.db.DatabaseConnection;
 import javastory.game.SkillLevelEntry;
+import javastory.server.life.BanishInfo;
+import javastory.server.life.Element;
+import javastory.server.life.ElementalEffectiveness;
+import javastory.server.life.MonsterStats;
+import javastory.server.life.NpcStats;
+import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 import javastory.wz.WzDataType;
-import server.life.BanishInfo;
-import server.life.Element;
-import server.life.ElementalEffectiveness;
-import server.life.MonsterStats;
-import server.life.NpcStats;
-import tools.StringUtil;
 
 public final class LifeFactory {
 
