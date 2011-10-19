@@ -15,7 +15,12 @@ import java.net.SocketAddress;
  */
 public class EndpointInfo implements Serializable {
 
-    private String host;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1156828871325259684L;
+	
+	private String host;
     private int port;
     private SocketAddress address;
 

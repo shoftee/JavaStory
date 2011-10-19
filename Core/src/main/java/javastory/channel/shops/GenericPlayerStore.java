@@ -31,7 +31,6 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 
     private boolean open;
     private ChannelCharacter owner;
-    private int boughtnumber = 0;
     private List<String> bannedList = new ArrayList<>();
 
     public GenericPlayerStore(ChannelCharacter owner, int itemId, String desc) {

@@ -6,3 +6,7 @@
 /run/scripts/
 /run/lib/
 .metadata/*
+Core/target/*
+Channel/target/*
+World/target/*
+Login/target/*

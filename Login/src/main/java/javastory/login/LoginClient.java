@@ -17,7 +17,6 @@ import client.LoginCrypto;
 import javastory.db.DatabaseConnection;
 import javastory.client.GameCharacterUtil;
 import javastory.client.GameClient;
-import javastory.client.LoginCharacter;
 import javastory.client.MemberRank;
 import javastory.cryptography.AesTransform;
 import javastory.game.Gender;

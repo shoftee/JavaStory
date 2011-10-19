@@ -9,19 +9,11 @@ package javastory.server.maker;
  * @author Tosho
  */
 public class ItemRecipeEntry {
-    private int itemId;
-    private int quantity;
+	public final int ItemId;
+    public final int Quantity;
     
     public ItemRecipeEntry(int itemId, int quantity) {
-        this.itemId = itemId;
-        this.quantity = quantity;
-    }
-
-    public int getItemId() {
-        return itemId;
-    }
-
-    public int getQuantity() {
-        return quantity;
+        this.ItemId = itemId;
+        this.Quantity = quantity;
     }
 }

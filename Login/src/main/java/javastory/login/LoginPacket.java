@@ -5,7 +5,6 @@ import java.util.Map;
 
 import handling.GamePacket;
 import handling.ServerPacketOpcode;
-import javastory.client.LoginCharacter;
 import javastory.server.LoginChannelInfo;
 import javastory.io.PacketBuilder;
 import javastory.server.login.AuthReplyCode;

@@ -11,16 +11,16 @@ import javastory.channel.ChannelClient;
 import javastory.game.GameConstants;
 import javastory.game.Jobs;
 import javastory.io.PacketFormatException;
-import server.ItemMakerFactory;
-import server.ItemMakerFactory.GemInfo;
-import server.ItemMakerFactory.MakerItemInfo;
 import javastory.tools.Randomizer;
 import javastory.server.ItemInfoProvider;
 import javastory.channel.server.InventoryManipulator;
 import tools.MaplePacketCreator;
 import javastory.io.PacketReader;
+import javastory.server.maker.GemInfo;
+import javastory.server.maker.ItemMakerFactory;
 import javastory.server.maker.ItemRecipe;
 import javastory.server.maker.ItemRecipeEntry;
+import javastory.server.maker.MakerItemInfo;
 
 public class ItemMakerHandler {
 
@@ -106,13 +106,13 @@ public class ItemMakerHandler {
             final boolean stimulator = reader.readByte() > 0;
             final int numEnchanter = reader.readInt();
             final MakerItemInfo create = ItemMakerFactory.getInstance().getItemInfo(toCreate);
-            if (numEnchanter > create.getTUC()) {
+            if (numEnchanter > create.TUC) {
                 return true;
             }
-            if (!hasSkill(c, create.getRequiredSkillLevel())) {
+            if (!hasSkill(c, create.ReqMakerLevel)) {
                 return true;
             }
-            if (player.getMeso() < create.getCost()) {
+            if (player.getMeso() < create.Cost) {
                 return true;
             }
             if (player.getInventoryForItem(toCreate).isFull()) {
@@ -121,14 +121,14 @@ public class ItemMakerHandler {
             if (checkRequiredNRemove(c, create.getRecipe()) == 0) {
                 return true;
             }
-            player.gainMeso(-create.getCost(), false);
+            player.gainMeso(-create.Cost, false);
             final ItemInfoProvider ii = ItemInfoProvider.getInstance();
             final Equip toGive = (Equip) ii.getEquipById(toCreate);
             final Inventory etcInventory = player.getEtcInventory();
             if (stimulator || numEnchanter > 0) {
-                if (player.haveItem(create.getStimulator(), 1, false, true)) {
+                if (player.haveItem(create.Stimulator, 1, false, true)) {
                     ii.randomizeStats(toGive);
-                    InventoryManipulator.removeById(c, etcInventory, create.getStimulator(), 1, false, false);
+                    InventoryManipulator.removeById(c, etcInventory, create.Stimulator, 1, false, false);
                 }
                 for (int i = 0; i < numEnchanter; i++) {
                     final int enchant = reader.readInt();
@@ -291,15 +291,15 @@ public class ItemMakerHandler {
         int removed = 0;
         final ChannelCharacter player = c.getPlayer();
         for (final ItemRecipeEntry p : recipe) {
-            if (!player.haveItem(p.getItemId(), p.getQuantity(), false, true)) {
+            if (!player.haveItem(p.ItemId, p.Quantity, false, true)) {
                 return 0;
             }
             removed++;
         }
         for (final ItemRecipeEntry p : recipe) {
-            int itemId = p.getItemId();
+            int itemId = p.ItemId;
             final Inventory inventory = player.getInventoryForItem(itemId);
-            InventoryManipulator.removeById(c, inventory, itemId, p.getQuantity(), false, false);
+            InventoryManipulator.removeById(c, inventory, itemId, p.Quantity, false, false);
         }
         return removed;
     }

@@ -13,7 +13,7 @@ public class CharInfoCommand implements Command {
     public void execute(ChannelClient c, String[] splittedLine) throws Exception, IllegalCommandSyntaxException {
         final StringBuilder builder = new StringBuilder();
         final ChannelCharacter other = c.getChannelServer().getPlayerStorage().getCharacterByName(splittedLine[1]);
-        builder.append(GameClient.getLogMessage(other, ""));
+        builder.append(ChannelClient.getLogMessage(other, ""));
         builder.append(" at ");
         builder.append(" x : ");
         builder.append(other.getPosition().x);

@@ -63,7 +63,6 @@ import javastory.game.Jobs;
 import javastory.game.Skills;
 import javastory.client.ActivePlayerStats;
 import javastory.client.GameCharacter;
-import javastory.client.GameClient;
 import javastory.client.MemberRank;
 import javastory.client.MultiInventory;
 import javastory.client.PlayerRandomStream;
@@ -76,7 +75,6 @@ import javastory.channel.server.Storage;
 import javastory.channel.server.Trade;
 import server.TimerManager;
 import javastory.tools.Randomizer;
-import server.RandomRewards;
 import javastory.channel.server.CarnivalParty;
 import javastory.server.ItemInfoProvider;
 import javastory.channel.life.Monster;
@@ -110,6 +108,7 @@ import javastory.server.FameLog;
 import javastory.server.GameService;
 import javastory.server.Notes;
 import javastory.server.Notes.Note;
+import javastory.server.maker.RandomRewards;
 import server.BuffStatValue;
 import server.StatValue;
 
@@ -557,7 +556,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					equip.setQuantity(quantity);
 					equip.setExpiration(expiration);
 					equip.setGMLog(gmLog);
-					
+
 					equip.setAcc(rs.getShort("acc"));
 					equip.setAvoid(rs.getShort("avoid"));
 					equip.setDex(rs.getShort("dex"));
@@ -585,7 +584,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					item.setOwner(owner);
 					item.setExpiration(expiration);
 					item.setGMLog(gmLog);
-					
+
 					ret.inventory.get(type).addFromDb(item);
 
 					if (rs.getInt("petid") > -1) {
@@ -1107,7 +1106,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			con.commit();
 		} catch (SQLException | DatabaseException e) {
-			final String failMessage = GameClient
+			final String failMessage = ChannelClient
 					.getLogMessage(this,
 									"[charsave] Error saving character data");
 			System.err.println(failMessage + e);
@@ -1115,7 +1114,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				con.rollback();
 			} catch (SQLException ex) {
 				final String completelyFailMessage =
-						GameClient
+						ChannelClient
 								.getLogMessage(this,
 												"[charsave] Error Rolling Back");
 				System.err.println(completelyFailMessage + e);
@@ -1135,7 +1134,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 			} catch (SQLException e) {
 				System.err
-						.println(GameClient
+						.println(ChannelClient
 								.getLogMessage(	this,
 												"[charsave] Error going back to autocommit mode")
 								+ e);

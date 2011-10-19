@@ -10,19 +10,11 @@ package javastory.server.maker;
  */
 public class RandomRewardEntry {
 
-    private int probability;
-    private int itemId;
+    public final int Probability;
+    public final int ItemId;
 
     public RandomRewardEntry(int probability, int itemId) {
-        this.probability = probability;
-        this.itemId = itemId;
-    }
-
-    public int getProbability() {
-        return probability;
-    }
-
-    public int getItemId() {
-        return itemId;
+        this.Probability = probability;
+        this.ItemId = itemId;
     }
 }

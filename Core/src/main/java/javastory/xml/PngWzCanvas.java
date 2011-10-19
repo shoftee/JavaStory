@@ -1,22 +1,22 @@
 /*
-	This file is part of the OdinMS Maple Story Server
-    Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
-                       Matthias Butz <matze@odinms.de>
-                       Jan Christian Meyer <vimes@odinms.de>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License version 3
-    as published by the Free Software Foundation. You may not use, modify
-    or distribute this program under any other version of the
-    GNU Affero General Public License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of the OdinMS Maple Story Server
+ * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
+ * Matthias Butz <matze@odinms.de>
+ * Jan Christian Meyer <vimes@odinms.de>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation. You may not use, modify
+ * or distribute this program under any other version of the
+ * GNU Affero General Public License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.xml;
 
@@ -78,8 +78,7 @@ public class PngWzCanvas implements WzCanvas {
 		int maxHeight = 3;
 
 		byte[] writeBuf = new byte[maxWriteBuf];
-		byte[] rowPointers = new byte[maxHeight];
-
+		
 		switch (getFormat()) {
 		case 1:
 		case 513:
@@ -102,7 +101,6 @@ public class PngWzCanvas implements WzCanvas {
 
 		if (getHeight() > maxHeight) {
 			maxHeight = getHeight();
-			rowPointers = new byte[maxHeight];
 		}
 
 		Inflater dec = new Inflater();
@@ -164,12 +162,16 @@ public class PngWzCanvas implements WzCanvas {
 		// PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE, c.getWidth(),
 		// c.getHeight(), 4, c.getWidth() * 4, new int[] {2, 1, 0, 3});
 		SampleModel sm = new PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE,
-				getWidth(), getHeight(), 4, getWidth() * 4, ZAHLEN);
-		WritableRaster imgRaster = Raster.createWritableRaster(sm, imgData,
-				new Point(0, 0));
+															getWidth(),
+															getHeight(), 4,
+															getWidth() * 4,
+															ZAHLEN);
+		WritableRaster imgRaster = Raster
+				.createWritableRaster(sm, imgData,
+										new Point(0, 0));
 
 		BufferedImage aa = new BufferedImage(getWidth(), getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
+												BufferedImage.TYPE_INT_ARGB);
 		aa.setData(imgRaster);
 
 		return aa;

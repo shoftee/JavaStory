@@ -32,11 +32,11 @@ import javastory.channel.PartyMember;
 import javastory.io.PacketFormatException;
 import javastory.server.ChannelServer;
 import javastory.tools.Randomizer;
-import server.RandomRewards;
 import javastory.channel.server.ShopFactory;
 import javastory.server.ItemInfoProvider;
+import javastory.server.maker.RandomRewards;
+import javastory.server.maker.RewardItemInfo;
 import javastory.channel.server.InventoryManipulator;
-import server.StructRewardItem;
 import server.maps.SavedLocationType;
 import server.maps.FieldLimitType;
 import javastory.channel.maps.GameMap;
@@ -148,11 +148,11 @@ public class InventoryHandler {
 					&& chr.getSetupInventory().getNextFreeSlot() > -1
 					&& chr.getEtcInventory().getNextFreeSlot() > -1) {
 				final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-				final Pair<Integer, List<StructRewardItem>> rewards = ii
+				final Pair<Integer, List<RewardItemInfo>> rewards = ii
 						.getRewardItem(itemId);
 
 				if (rewards != null) {
-					for (StructRewardItem reward : rewards.getRight()) {
+					for (RewardItemInfo reward : rewards.getRight()) {
 						if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) { // Total
 																					// prob
 							if (GameConstants.getInventoryType(reward.itemid)

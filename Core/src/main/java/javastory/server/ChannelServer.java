@@ -29,6 +29,8 @@ import javastory.rmi.ChannelWorldInterface;
 
 import javastory.server.handling.ChannelPacketHandler;
 import javastory.server.handling.PacketHandler;
+import javastory.server.maker.ItemMakerFactory;
+import javastory.server.maker.RandomRewards;
 import javastory.server.channel.PlayerStorage;
 import javastory.server.channel.ShutdownChannelServer;
 
@@ -37,8 +39,6 @@ import handling.GamePacket;
 
 import scripting.EventScriptManager;
 import server.TimerManager;
-import server.ItemMakerFactory;
-import server.RandomRewards;
 import server.maps.MapTimer;
 import tools.MaplePacketCreator;
 

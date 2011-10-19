@@ -12,7 +12,12 @@ import com.google.common.base.Preconditions;
  */
 public class ChannelInfo extends EndpointInfo {
 
-    private int id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8022870720043372903L;
+	
+	private int id;
     private String name;
 
     public ChannelInfo(int id, String name, String host, int port) {

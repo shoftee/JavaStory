@@ -6,6 +6,9 @@ package javastory.server.maker;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javastory.tools.Randomizer;
 
@@ -39,10 +42,13 @@ public class RandomRewardList {
         private int total;
         
         public ConcreteRandomRewardFactory(List<RandomRewardEntry> list) {
-            this.entries = Lists.newArrayList();
-            for(RandomRewardEntry entry : entries) {
+        	
+            ArrayList<RandomRewardEntry> shuffledList = Lists.newArrayList(list);
+            Collections.shuffle(shuffledList);
+            
+            for(RandomRewardEntry entry : shuffledList) {
                 this.entries.add(entry);
-                this.total += entry.getProbability();
+                this.total += entry.Probability;
             }
         }       
         
@@ -51,9 +57,9 @@ public class RandomRewardList {
             int factor = Randomizer.nextInt(total);
             int itemId = -1;
             for(RandomRewardEntry entry : entries) {
-                factor -= entry.getProbability();
+                factor -= entry.Probability;
                 if (factor <= 0) {
-                    itemId = entry.getItemId();
+                    itemId = entry.ItemId;
                     break;
                 }
             }

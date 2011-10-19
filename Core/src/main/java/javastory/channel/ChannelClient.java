@@ -137,4 +137,43 @@ public final class ChannelClient extends GameClient {
         }
         super.getSession().close(immediately);
     }
+    
+    public static String getLogMessage(final ChannelClient cfor, final String message) {
+        return getLogMessage(cfor, message, new Object[0]);
+    }
+
+    public static String getLogMessage(final ChannelClient cfor, final String message, final Object... parms) {
+        final StringBuilder builder = new StringBuilder();
+        if (cfor != null) {
+            final ChannelCharacter player = cfor.getPlayer();
+            if (player != null) {
+                builder.append("<");
+                builder.append(player.getName().toUpperCase());
+                builder.append(" (cid: ");
+                builder.append(player.getId());
+                builder.append(")> ");
+            }
+            if (cfor.getAccountName() != null) {
+                builder.append("(Account: ");
+                builder.append(cfor.getAccountName());
+                builder.append(") ");
+            }
+        }
+        builder.append(message);
+        int start;
+        for (final Object parm : parms) {
+            start = builder.indexOf("{}");
+            builder.replace(start, start + 2, parm.toString());
+        }
+        return builder.toString();
+    }
+
+    public static String getLogMessage(final ChannelCharacter cfor, final String message) {
+        return getLogMessage(cfor == null ? null : cfor.getClient(), message);
+    }
+
+    public static String getLogMessage(final ChannelCharacter cfor, final String message, final Object... parms) {
+        return getLogMessage(cfor == null ? null : cfor.getClient(), message, parms);
+    }
+
 }

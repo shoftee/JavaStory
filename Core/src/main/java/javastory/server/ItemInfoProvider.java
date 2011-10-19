@@ -1,5 +1,6 @@
 package javastory.server;
 
+import javastory.server.maker.RewardItemInfo;
 import javastory.tools.Randomizer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +25,7 @@ import javastory.wz.WzDataFileEntry;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
-import server.StructEquipLevel;
-import server.StructRewardItem;
+import server.EquipLevelInfo;
 import tools.Pair;
 
 public final class ItemInfoProvider {
@@ -46,7 +46,7 @@ public final class ItemInfoProvider {
     private final Map<Integer, StatEffect> itemEffects = new HashMap<>();
     private final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<>();
     private final Map<Integer, Map<String, Byte>> itemMakeStatsCache = new HashMap<>();
-    private final Map<Integer, List<StructEquipLevel>> equipLevelCache = new HashMap<>();
+    private final Map<Integer, List<EquipLevelInfo>> equipLevelCache = new HashMap<>();
     private final Map<Integer, Short> itemMakeLevel = new HashMap<>();
     private final Map<Integer, Equip> equipCache = new HashMap<>();
     private final Map<Integer, Double> priceCache = new HashMap<>();
@@ -65,7 +65,7 @@ public final class ItemInfoProvider {
     private final Map<Integer, Boolean> isQuestItemCache = new HashMap<>();
     private final Map<Integer, List<IdProbabilityEntry>> summonMobCache = new HashMap<>();
     private final List<IdNameEntry> itemNameCache = new ArrayList<>();
-    private final Map<Integer, Pair<Integer, List<StructRewardItem>>> RewardItem = new HashMap<>();
+    private final Map<Integer, Pair<Integer, List<RewardItemInfo>>> RewardItem = new HashMap<>();
     //
     public static int UNLIMITED_SLOT_ITEM = 1082174; //Lunar Glove
 
@@ -315,7 +315,7 @@ public final class ItemInfoProvider {
         return pEntry;
     }
 
-    public final List<StructEquipLevel> getEquipLevelStat(final int itemid, final byte level) {
+    public final List<EquipLevelInfo> getEquipLevelStat(final int itemid, final byte level) {
         if (equipLevelCache.containsKey(itemid)) {
             return equipLevelCache.get(itemid);
         }
@@ -327,11 +327,11 @@ public final class ItemInfoProvider {
         if (info == null) {
             return null;
         }
-        final List<StructEquipLevel> el = new ArrayList<>();
-        StructEquipLevel sel;
+        final List<EquipLevelInfo> el = new ArrayList<>();
+        EquipLevelInfo sel;
 
         for (final WzData data : info.getChildByPath("info")) {
-            sel = new StructEquipLevel();
+            sel = new EquipLevelInfo();
             sel.incSTRMax = (byte) WzDataTool.getInt("incSTRMax", data, 0);
             sel.incSTRMin = (byte) WzDataTool.getInt("incSTRMin", data, 0);
 
@@ -944,7 +944,7 @@ public final class ItemInfoProvider {
         return bRestricted == (karmaID % 10 + 1);
     }
 
-    public final Pair<Integer, List<StructRewardItem>> getRewardItem(final int itemid) {
+    public final Pair<Integer, List<RewardItemInfo>> getRewardItem(final int itemid) {
         if (RewardItem.containsKey(itemid)) {
             return RewardItem.get(itemid);
         }
@@ -957,10 +957,10 @@ public final class ItemInfoProvider {
             return null;
         }
         int totalprob = 0; // As there are some rewards with prob above 2000, we can't assume it's always 100
-        List<StructRewardItem> all = new ArrayList<StructRewardItem>();
+        List<RewardItemInfo> all = new ArrayList<RewardItemInfo>();
 
         for (final WzData reward : rewards) {
-            StructRewardItem struct = new StructRewardItem();
+            RewardItemInfo struct = new RewardItemInfo();
 
             struct.itemid = WzDataTool.getInt("item", reward, 0);
             struct.prob = (byte) WzDataTool.getInt("prob", reward, 0);
@@ -973,7 +973,7 @@ public final class ItemInfoProvider {
 
             all.add(struct);
         }
-        Pair<Integer, List<StructRewardItem>> toreturn = new Pair<Integer, List<StructRewardItem>>(totalprob, all);
+        Pair<Integer, List<RewardItemInfo>> toreturn = new Pair<Integer, List<RewardItemInfo>>(totalprob, all);
         RewardItem.put(itemid, toreturn);
         return toreturn;
     }
