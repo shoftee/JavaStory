@@ -19,9 +19,8 @@ public class Event_DojoAgent {
 	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;
 		final int mapid = baseAgentMapId + (stage * 100);
-		final ChannelServer ch = ChannelServer.getInstance();
 		for (int i = mapid; i < mapid + 15; i++) {
-			final GameMap map = ch.getMapFactory().getMap(i);
+			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
@@ -50,15 +49,14 @@ public class Event_DojoAgent {
 				c.modifyCSPoints(1, cashGain, true);
 			}
 		}
-		final ChannelServer ch = ChannelServer.getInstance();
 		if (currentmap >= 970032700 && currentmap <= 970032800) {
-			map = ch.getMapFactory().getMap(baseAgentMapId);
+			map = ChannelServer.getMapFactory().getMap(baseAgentMapId);
 			c.changeMap(map, map.getPortal(0));
 			return true;
 		}
 		final int nextmapid = baseAgentMapId + ((thisStage + 1) * 100);
 		for (int i = nextmapid; i < nextmapid + 7; i++) {
-			map = ch.getMapFactory().getMap(i);
+			map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
 			clearMap(map, false);
 			c.changeMap(map, map.getPortal(0));
@@ -75,9 +73,8 @@ public class Event_DojoAgent {
 			stage = 1;
 		}
 		final int mapid = 925020000 + (stage * 100);
-		final ChannelServer ch = ChannelServer.getInstance();
 		for (int i = mapid; i < mapid + 15; i++) {
-			final GameMap map = ch.getMapFactory().getMap(i);
+			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
@@ -97,9 +94,8 @@ public class Event_DojoAgent {
 	// 925023600 ~ 925023609
 	public static boolean warpNextMap(final ChannelCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
-		final ChannelServer ch = ChannelServer.getInstance();
 		if (!fromResting) {
-			clearMap(ch.getMapFactory().getMap(currentmap), true);
+			clearMap(ChannelServer.getMapFactory().getMap(currentmap), true);
 			int cashGain;
 			cashGain = (int) (Math.random() * 50);
 			if (cashGain < 10) {
@@ -112,7 +108,7 @@ public class Event_DojoAgent {
 			c.getClient().write(ChannelPackets.Mulung_Pts(10, c.getDojo()));
 		}
 		if (currentmap >= 925023800 && currentmap <= 925023814) {
-			final GameMap map = ch.getMapFactory().getMap(925020003);
+			final GameMap map = ChannelServer.getMapFactory().getMap(925020003);
 			c.modifyCSPoints(1, 5000, true);
 			c.changeMap(map, map.getPortal(1));
 			return true;
@@ -122,7 +118,7 @@ public class Event_DojoAgent {
 		final int nextmapid = 925020000 + ((thisStage + 1) * 100);
 
 		for (int i = nextmapid; i < nextmapid + 15; i++) {
-			final GameMap map = ch.getMapFactory().getMap(i);
+			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
 			clearMap(map, false);
 			c.changeMap(map, map.getPortal(0));

@@ -134,7 +134,7 @@ public class EventManager {
 	}
 
 	public EventInstanceManager newInstance(String name) {
-		EventInstanceManager ret = new EventInstanceManager(this, name, cserv.getMapFactory());
+		EventInstanceManager ret = new EventInstanceManager(this, name, ChannelServer.getMapFactory());
 		instances.put(name, ret);
 		return ret;
 	}
@@ -219,15 +219,15 @@ public class EventManager {
 	}
 
 	public void warpAllPlayer(int from, int to) {
-		final GameMap tomap = cserv.getMapFactory().getMap(to);
-		for (GameMapObject mmo : cserv.getMapFactory().getMap(from)
+		final GameMap tomap = ChannelServer.getMapFactory().getMap(to);
+		for (GameMapObject mmo : ChannelServer.getMapFactory().getMap(from)
 				.getAllPlayer()) {
 			((ChannelCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 		}
 	}
 
 	public GameMapFactory getMapFactory() {
-		return cserv.getMapFactory();
+		return ChannelServer.getMapFactory();
 	}
 
 	public OverrideMonsterStats newMonsterStats() {
@@ -239,7 +239,7 @@ public class EventManager {
 	}
 
 	public void broadcastShip(final int mapid, final int effect) {
-		cserv.getMapFactory().getMap(mapid)
+		ChannelServer.getMapFactory().getMap(mapid)
 				.broadcastMessage(ChannelPackets.boatPacket(effect));
 	}
 
@@ -248,7 +248,7 @@ public class EventManager {
 		if (!weather) {
 			cserv.broadcastPacket(ChannelPackets.serverNotice(type, msg));
 		} else {
-			for (Entry<Integer, GameMap> map : cserv.getMapFactory()
+			for (Entry<Integer, GameMap> map : ChannelServer.getMapFactory()
 					.getMaps().entrySet()) {
 				final GameMap load = map.getValue();
 				if (load.getCharactersSize() > 0) {

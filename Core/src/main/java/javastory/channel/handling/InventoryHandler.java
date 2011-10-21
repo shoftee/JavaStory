@@ -606,7 +606,8 @@ public class InventoryHandler {
 				boolean warped = false;
 
 				for (int i = 390001000; i <= 390001004; i++) {
-					map = ChannelServer.getInstance().getMapFactory()
+					ChannelServer.getInstance();
+					map = ChannelServer.getMapFactory()
 							.getMap(i);
 
 					if (map.getCharactersSize() == 0) {
@@ -733,7 +734,7 @@ public class InventoryHandler {
 														true));
 			if (GameConstants.gachaponRareItem(item.getItemId()) > 0) {
 				try {
-					ChannelServer.getInstance()
+					ChannelServer
 							.getWorldInterface()
 							.broadcastMessage(	ChannelPackets
 														.getGachaponMega(	c.getPlayer()
@@ -743,7 +744,7 @@ public class InventoryHandler {
 																			(byte) 2)
 														.getBytes());
 				} catch (RemoteException e) {
-					ChannelServer.getInstance().pingWorld();
+					ChannelServer.pingWorld();
 				}
 			}
 		} else {
@@ -773,7 +774,7 @@ public class InventoryHandler {
 			final QuestInfo quest = QuestInfoProvider.getInfo(questid);
 			if (player.getQuestStatus(questid).getState() == 1
 					&& quest.canComplete(player, npcid)) {
-				final GameMap map = ChannelServer.getInstance()
+				final GameMap map = ChannelServer
 						.getMapFactory()
 						.getMap(LifeFactory.getNPCLocation(npcid));
 				if (map.containsNPC(npcid) != -1) {
@@ -788,7 +789,7 @@ public class InventoryHandler {
 		case 5040000: // The Teleport Rock
 		case 5040001: { // Teleport Coke
 			if (reader.readByte() == 0) { // Rocktype
-				final GameMap target = ChannelServer.getInstance()
+				final GameMap target = ChannelServer
 						.getMapFactory()
 						.getMap(reader.readInt());
 				if (!FieldLimitType.VipRock.check(player.getMap()
@@ -798,11 +799,11 @@ public class InventoryHandler {
 					used = true;
 				}
 			} else {
-				final ChannelCharacter victim = ChannelServer.getInstance()
+				final ChannelCharacter victim = ChannelServer
 						.getPlayerStorage()
 						.getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
-					if (!FieldLimitType.VipRock.check(ChannelServer.getInstance()
+					if (!FieldLimitType.VipRock.check(ChannelServer
 							.getMapFactory()
 							.getMap(victim.getMapId()).getFieldLimit())) {
 						if (itemId == 5041000 || (victim.getMapId()
@@ -1370,7 +1371,8 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() > 0;
 
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.tripleSmega(messages,
@@ -1404,7 +1406,8 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(9,
@@ -1439,7 +1442,8 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(10,
@@ -1471,7 +1475,8 @@ public class InventoryHandler {
 				sb.append(message);
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(3,
@@ -1513,7 +1518,8 @@ public class InventoryHandler {
 				}
 
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.itemMegaphone(sb.toString(),
@@ -1713,7 +1719,8 @@ public class InventoryHandler {
 				}
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getInstance()
+					ChannelServer.getInstance();
+					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.getAvatarMega(player,

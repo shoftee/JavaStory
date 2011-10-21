@@ -40,7 +40,7 @@ import javastory.world.core.GuildOperationResponse;
 public class GuildHandler {
 
     public static void handleDenyGuildInvitation(final String from, final ChannelClient c) {
-        final ChannelCharacter cfrom = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(from);
+		final ChannelCharacter cfrom = ChannelServer.getPlayerStorage().getCharacterByName(from);
         if (cfrom != null) {
             cfrom.getClient().write(ChannelPackets.denyGuildInvitation(c.getPlayer().getName()));
         }
@@ -62,7 +62,7 @@ public class GuildHandler {
         }
         int guildId;
         try {
-            guildId = ChannelServer.getInstance().getWorldInterface().createGuild(player.getId(), guildName);
+			guildId = ChannelServer.getWorldInterface().createGuild(player.getId(), guildName);
         } catch (RemoteException re) {
             System.err.println("RemoteException occurred" + re);
             player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
@@ -182,7 +182,8 @@ public class GuildHandler {
                 boolean success = false;
 
                 try {
-                    success = ChannelServer.getInstance().getWorldInterface().addGuildMember(player.getGuildMembership());
+                    ChannelServer.getInstance();
+					success = ChannelServer.getWorldInterface().addGuildMember(player.getGuildMembership());
                 } catch (RemoteException e) {
                     System.err.println("RemoteException occurred while attempting to add character to guild" +
                             e);
@@ -237,7 +238,8 @@ public class GuildHandler {
                     break;
                 }
                 try {
-                    ChannelServer.getInstance().getWorldInterface().leaveGuild(player.getGuildMembership());
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().leaveGuild(player.getGuildMembership());
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to leave guild" +
                             re);
@@ -258,7 +260,8 @@ public class GuildHandler {
                     return;
                 }
                 try {
-                    ChannelServer.getInstance().getWorldInterface().expelMember(player.getGuildMembership(), targetId);
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().expelMember(player.getGuildMembership(), targetId);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to change rank" +
                             re);
@@ -277,7 +280,8 @@ public class GuildHandler {
                 }
 
                 try {
-                    ChannelServer.getInstance().getWorldInterface().changeRankTitle(player.getGuildId(), ranks);
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().changeRankTitle(player.getGuildId(), ranks);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);
                     player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
@@ -302,7 +306,8 @@ public class GuildHandler {
                 }
 
                 try {
-                    ChannelServer.getInstance().getWorldInterface().changeRank(player.getGuildId(), targetId, newRank);
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().changeRank(player.getGuildId(), targetId, newRank);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to change rank" +
                             re);
@@ -333,7 +338,8 @@ public class GuildHandler {
                 final byte logocolor = reader.readByte();
 
                 try {
-                    ChannelServer.getInstance().getWorldInterface().setGuildEmblem(player.getGuildId(), bg, bgcolor, logo, logocolor);
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().setGuildEmblem(player.getGuildId(), bg, bgcolor, logo, logocolor);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);
                     player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");
@@ -352,7 +358,8 @@ public class GuildHandler {
                     return;
                 }
                 try {
-                    ChannelServer.getInstance().getWorldInterface().setGuildNotice(player.getGuildId(), notice);
+                    ChannelServer.getInstance();
+					ChannelServer.getWorldInterface().setGuildNotice(player.getGuildId(), notice);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);
                     player.sendNotice(5, "Unable to connect to the World Server. Please try again later.");

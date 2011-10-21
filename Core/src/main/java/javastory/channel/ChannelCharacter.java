@@ -308,7 +308,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 		ret.buddies = new BuddyList(ct.BuddyListCapacity);
 
-		final GameMapFactory mapFactory = ChannelServer.getInstance().getMapFactory();
+		final GameMapFactory mapFactory = ChannelServer.getMapFactory();
 		ret.map = mapFactory.getMap(ret.mapId);
 		if (ret.map == null) {
 			// char is on a map that doesn't exist warp it to henesys
@@ -330,12 +330,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		int partyId = ct.PartyId;
 		if (partyId >= 0) {
 			try {
-				Party party = ChannelServer.getInstance().getWorldInterface().getParty(partyId);
+				Party party = ChannelServer.getWorldInterface().getParty(partyId);
 				if (party != null && party.getMemberById(ret.id) != null) {
 					ret.party = party;
 				}
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 
@@ -343,7 +344,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		final int position = ct.MessengerPosition;
 		if (messengerid > 0 && position < 4 && position > -1) {
 			try {
-				WorldChannelInterface wci = ChannelServer.getInstance()
+				ChannelServer.getInstance();
+				WorldChannelInterface wci = ChannelServer
 						.getWorldInterface();
 				Messenger messenger = wci.getMessenger(messengerid);
 				if (messenger != null) {
@@ -351,7 +353,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					ret.messengerPosition = position;
 				}
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 
@@ -452,7 +455,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			ret.buddies = new BuddyList(rs.getInt("buddyCapacity"));
 
-			GameMapFactory mapFactory = ChannelServer.getInstance().getMapFactory();
+			ChannelServer.getInstance();
+			GameMapFactory mapFactory = ChannelServer.getMapFactory();
 			ret.map = mapFactory.getMap(ret.mapId);
 			if (ret.map == null) {
 				// char is on a map that doesn't exist warp it to henesys
@@ -470,13 +474,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			int partyid = rs.getInt("party");
 			if (partyid >= 0) {
 				try {
-					Party party = ChannelServer.getInstance().getWorldInterface()
+					ChannelServer.getInstance();
+					Party party = ChannelServer.getWorldInterface()
 							.getParty(partyid);
 					if (party != null && party.getMemberById(ret.id) != null) {
 						ret.party = party;
 					}
 				} catch (RemoteException e) {
-					ChannelServer.getInstance().pingWorld();
+					ChannelServer.getInstance();
+					ChannelServer.pingWorld();
 				}
 			}
 
@@ -485,7 +491,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (messengerId > 0 && messengerPosition < 4 && messengerPosition
 					> -1) {
 				try {
-					WorldChannelInterface wci = ChannelServer.getInstance()
+					WorldChannelInterface wci = ChannelServer
 							.getWorldInterface();
 					Messenger messenger = wci.getMessenger(messengerId);
 					if (messenger != null) {
@@ -493,7 +499,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						ret.messengerPosition = messengerPosition;
 					}
 				} catch (RemoteException e) {
-					ChannelServer.getInstance().pingWorld();
+					ChannelServer.pingWorld();
 				}
 			}
 			ret.bookCover = rs.getInt("monsterbookcover");
@@ -1675,7 +1681,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	private void cancelPlayerBuffs(List<BuffStat> buffstats) {
-		if (ChannelServer.getInstance().getPlayerStorage()
+		ChannelServer.getInstance();
+		if (ChannelServer.getPlayerStorage()
 				.getCharacterById(getId())
 				!= null) {
 			// are we still connected ?
@@ -2177,7 +2184,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void changeMapBanish(final int mapid, final String portal,
 			final String msg) {
 		sendNotice(5, msg);
-		final GameMap newMap = ChannelServer.getInstance().getMapFactory()
+		ChannelServer.getInstance();
+		final GameMap newMap = ChannelServer.getMapFactory()
 				.getMap(mapid);
 		changeMap(newMap, newMap.getPortal(portal));
 	}
@@ -2199,7 +2207,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 		client.write(warpPacket);
 		map.removePlayer(this);
-		if (ChannelServer.getInstance().getPlayerStorage()
+		ChannelServer.getInstance();
+		if (ChannelServer.getPlayerStorage()
 				.getCharacterById(getId())
 				!= null) {
 			map = to;
@@ -2515,7 +2524,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			for (PartyMember partychar : party.getMembers()) {
 				if (partychar.getMapId() == getMapId()
 						&& partychar.getChannel() == channel) {
-					final ChannelCharacter other = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(partychar.getName());
+					ChannelServer.getInstance();
+					final ChannelCharacter other = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
 					if (other != null) {
 						final GamePacket packet = ChannelPackets.updatePartyMemberHP(getId(), stats.getHp(), stats.getCurrentMaxHp());
 						other.getClient().write(packet);
@@ -2530,7 +2540,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		for (PartyMember partychar : party.getMembers()) {
 			if (partychar.getMapId() == getMapId() && partychar.getChannel()
 						== channel) {
-				final ChannelCharacter other = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(partychar.getName());
+				ChannelServer.getInstance();
+				final ChannelCharacter other = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
 				if (other != null) {
 					final GamePacket packet = ChannelPackets.updatePartyMemberHP(other.getId(), other.getStats().getHp(), other.getStats().getCurrentMaxHp());
 					client.write(packet);
@@ -2735,13 +2746,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (party != null) {
 			try {
 				PartyMember newMember = new PartyMember(party.getId(), this);
-				ChannelServer.getInstance()
+				ChannelServer.getInstance();
+				ChannelServer
 						.getWorldInterface()
 						.updateParty(party.getId(),
 										PartyOperation.SILENT_UPDATE, newMember);
 			} catch (RemoteException e) {
 				System.err.println("REMOTE THROW, silentPartyUpdate" + e);
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 	}
@@ -3075,14 +3088,16 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				}
 				sb.append(getName());
 				sb.append(" has achieved Level 200. Let us Celebrate! Maplers!");
-				ChannelServer.getInstance()
+				ChannelServer.getInstance();
+				ChannelServer
 						.getWorldInterface()
 						.broadcastMessage(ChannelPackets
 								.serverNotice(6,
 												sb.toString())
 								.getBytes());
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 		maxhp = Math.min(30000, maxhp);
@@ -3255,13 +3270,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 		final ChannelCharacter player = client.getPlayer();
 		if (player.getMessenger() != null) {
-			WorldChannelInterface wci = ChannelServer.getInstance()
+			ChannelServer.getInstance();
+			WorldChannelInterface wci = ChannelServer
 					.getWorldInterface();
 			try {
 				wci.updateMessenger(player.getMessenger().getId(), player
 						.getName(), client.getChannelId());
 			} catch (final RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 	}
@@ -3534,16 +3551,19 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public Guild getGuild() {
 		try {
-			return ChannelServer.getInstance().getWorldInterface()
+			ChannelServer.getInstance();
+			return ChannelServer.getWorldInterface()
 					.getGuild(getGuildId());
 		} catch (RemoteException e) {
-			ChannelServer.getInstance().pingWorld();
+			ChannelServer.getInstance();
+			ChannelServer.pingWorld();
 		}
 		return null;
 	}
 
 	private void updateJob() {
-		final WorldChannelInterface world = ChannelServer.getInstance()
+		ChannelServer.getInstance();
+		final WorldChannelInterface world = ChannelServer
 				.getWorldInterface();
 		if (guildMember == null) {
 			return;
@@ -3557,7 +3577,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	private void updateLevel() {
-		final WorldChannelInterface world = ChannelServer.getInstance()
+		ChannelServer.getInstance();
+		final WorldChannelInterface world = ChannelServer
 				.getWorldInterface();
 		if (guildMember == null) {
 			return;
@@ -4233,10 +4254,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 		if (member != null) {
 			try {
-				return ChannelServer.getInstance().getWorldInterface()
+				ChannelServer.getInstance();
+				return ChannelServer.getWorldInterface()
 						.getParty(member.getPartyId());
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.getInstance();
+				ChannelServer.pingWorld();
 			}
 		}
 

@@ -169,7 +169,7 @@ public class Monster extends AbstractLoadedGameLife {
             member.getPartyId();
             attacker = new PartyAttackerEntry(member.getPartyId());
         } else {
-            attacker = new SingleAttackerEntry(from, ChannelServer.getInstance());
+            attacker = new SingleAttackerEntry(from);
         }
         boolean replaced = false;
         for (final AttackerEntry aentry : attackers) {
@@ -870,11 +870,9 @@ public class Monster extends AbstractLoadedGameLife {
         private int damage;
         private int chrid;
         private long lastAttackTime;
-        private ChannelServer cserv;
 
-        public SingleAttackerEntry(final ChannelCharacter from, final ChannelServer cserv) {
+        public SingleAttackerEntry(final ChannelCharacter from) {
             this.chrid = from.getId();
-            this.cserv = cserv;
         }
 
         @Override
@@ -889,7 +887,7 @@ public class Monster extends AbstractLoadedGameLife {
 
         @Override
         public final List<AttackingMapleCharacter> getAttackers() {
-            final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
+            final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(chrid);
             if (chr != null) {
                 return Collections.singletonList(new AttackingMapleCharacter(chr, lastAttackTime));
             } else {
@@ -909,7 +907,7 @@ public class Monster extends AbstractLoadedGameLife {
 
         @Override
         public void killedMob(final GameMap map, final int baseExp, final boolean mostDamage) {
-            final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(chrid);
+            final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(chrid);
             if (chr != null && chr.getMap() == map && chr.isAlive()) {
                 giveExpToCharacter(chr, baseExp, mostDamage, 1, (byte) 0, (byte) 0);
             }
@@ -978,7 +976,8 @@ public class Monster extends AbstractLoadedGameLife {
 		public List<AttackingMapleCharacter> getAttackers() {
             final List<AttackingMapleCharacter> ret = new ArrayList<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> entry : attackers.entrySet()) {
-                final ChannelCharacter chr = ChannelServer.getInstance().getPlayerStorage().getCharacterById(entry.getKey());
+                ChannelServer.getInstance();
+				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(entry.getKey());
                 if (chr != null) {
                     ret.add(new AttackingMapleCharacter(chr, entry.getValue().lastAttackTime));
                 }
@@ -989,7 +988,8 @@ public class Monster extends AbstractLoadedGameLife {
         private Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
             final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> aentry : attackers.entrySet()) {
-                final ChannelCharacter chr = ChannelServer.getInstance().getPlayerStorage().getCharacterById(aentry.getKey());
+                ChannelServer.getInstance();
+				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(aentry.getKey());
                 if (chr != null) {
                     ret.put(chr, aentry.getValue());
                 }
@@ -1048,7 +1048,8 @@ public class Monster extends AbstractLoadedGameLife {
                 expApplicable = new ArrayList<>();
                 for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
-                        pchr = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(partychar.getName());
+                        ChannelServer.getInstance();
+						pchr = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
                         if (pchr != null) {
                             if (pchr.isAlive() && pchr.getMap() == map) {
                                 expApplicable.add(pchr);

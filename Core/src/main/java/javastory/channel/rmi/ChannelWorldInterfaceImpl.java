@@ -77,19 +77,19 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     @Override
     public void whisper(String sender, String target, int channel, String message) throws RemoteException {
         if (isConnected(target)) {
-            server.getPlayerStorage().getCharacterByName(target).getClient().write(ChannelPackets.getWhisper(sender, channel, message));
+            ChannelServer.getPlayerStorage().getCharacterByName(target).getClient().write(ChannelPackets.getWhisper(sender, channel, message));
         }
     }
 
     @Override
     public boolean isConnected(String charName) throws RemoteException {
-        return server.getPlayerStorage().getCharacterByName(charName) != null;
+        return ChannelServer.getPlayerStorage().getCharacterByName(charName) != null;
     }
 
     @Override
     public boolean isCharacterListConnected(List<String> charName) throws RemoteException {
         for (final String c : charName) {
-            if (server.getPlayerStorage().getCharacterByName(c) != null) {
+            if (ChannelServer.getPlayerStorage().getCharacterByName(c) != null) {
                 return true;
             }
         }
@@ -113,7 +113,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public int getConnected() throws RemoteException {
-        return server.getPlayerStorage().getConnectedClients();
+        return ChannelServer.getPlayerStorage().getConnectedClients();
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     }
 
     private void updateBuddies(int characterId, int channel, int[] buddies, boolean offline) {
-        final PlayerStorage playerStorage = server.getPlayerStorage();
+        final PlayerStorage playerStorage = ChannelServer.getPlayerStorage();
         for (int buddy : buddies) {
             final ChannelCharacter chr = playerStorage.getCharacterById(buddy);
             if (chr != null) {
@@ -152,7 +152,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     public void updateParty(Party party, PartyOperation operation, PartyMember target) throws RemoteException {
         for (PartyMember partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId()) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
+                final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     if (operation == PartyOperation.DISBAND) {
                         chr.setParty(null);
@@ -167,7 +167,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             case LEAVE:
             case EXPEL:
                 if (target.getChannel() == server.getChannelId()) {
-                    final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(target.getName());
+                    final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(target.getName());
                     if (chr != null) {
                         chr.getClient().write(ChannelPackets.updateParty(chr.getClient().getChannelId(), party, operation, target));
                         chr.setParty(null);
@@ -181,7 +181,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
         for (PartyMember partychar : party.getMembers()) {
             if (partychar.getChannel() == server.getChannelId()
                     && !(partychar.getName().equals(namefrom))) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(partychar.getName());
+                final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
                 if (chr != null) {
                     chr.getClient().write(ChannelPackets.multiChat(namefrom, chattext, 1));
                 }
@@ -196,7 +196,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public int getLocation(String name) throws RemoteException {
-        ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(name);
+        ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(name);
         if (chr != null) {
             return chr.getMapId();
         }
@@ -205,7 +205,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public List<CheaterData> getCheaters() throws RemoteException {
-        List<CheaterData> cheaters = server.getPlayerStorage().getCheaters();
+        List<CheaterData> cheaters = ChannelServer.getPlayerStorage().getCheaters();
 
         Collections.sort(cheaters);
         return CollectionUtil.copyFirst(cheaters, 20);
@@ -213,7 +213,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public BuddyAddResult requestBuddyAdd(String addName, int channelFrom, int cidFrom, String nameFrom, int levelFrom, int jobFrom) {
-        final ChannelCharacter addChar = server.getPlayerStorage().getCharacterByName(addName);
+        final ChannelCharacter addChar = ChannelServer.getPlayerStorage().getCharacterByName(addName);
         if (addChar != null) {
             final BuddyList buddylist = addChar.getBuddyList();
             if (buddylist.isFull()) {
@@ -232,12 +232,12 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public boolean isConnected(int characterId) throws RemoteException {
-        return server.getPlayerStorage().getCharacterById(characterId) != null;
+        return ChannelServer.getPlayerStorage().getCharacterById(characterId) != null;
     }
 
     @Override
     public void buddyChanged(int cid, int cidFrom, String name, int channel, BuddyOperation operation, int level, int job) {
-        final ChannelCharacter addChar = server.getPlayerStorage().getCharacterById(cid);
+        final ChannelCharacter addChar = ChannelServer.getPlayerStorage().getCharacterById(cid);
         if (addChar != null) {
             final BuddyList buddylist = addChar.getBuddyList();
             switch (operation) {
@@ -260,7 +260,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void buddyChat(int[] recipientCharacterIds, int cidFrom, String nameFrom, String chattext) throws RemoteException {
-        final PlayerStorage playerStorage = server.getPlayerStorage();
+        final PlayerStorage playerStorage = ChannelServer.getPlayerStorage();
         for (int characterId : recipientCharacterIds) {
             final ChannelCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
@@ -274,7 +274,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     @Override
     public int[] multiBuddyFind(int charIdFrom, int[] characterIds) throws RemoteException {
         List<Integer> ret = new ArrayList<>(characterIds.length);
-        final PlayerStorage playerStorage = server.getPlayerStorage();
+        final PlayerStorage playerStorage = ChannelServer.getPlayerStorage();
         for (int characterId : characterIds) {
             ChannelCharacter chr = playerStorage.getCharacterById(characterId);
             if (chr != null) {
@@ -293,7 +293,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void ChannelChange_Data(CharacterTransfer transfer, int characterid) throws RemoteException {
-        server.getPlayerStorage().registerTransfer(transfer, characterid);
+        ChannelServer.getPlayerStorage().registerTransfer(transfer, characterid);
     }
 
     @Override
@@ -303,7 +303,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
             if (i == exception) {
                 continue;
             }
-            c = server.getPlayerStorage().getCharacterById(i);
+            c = ChannelServer.getPlayerStorage().getCharacterById(i);
             if (c != null) {
                 c.getClient().write(packet);
             }
@@ -321,7 +321,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void setGuildAndRank(int cid, int guildid, MemberRank rank) throws RemoteException {
-        final ChannelCharacter mc = server.getPlayerStorage().getCharacterById(cid);
+        final ChannelCharacter mc = ChannelServer.getPlayerStorage().getCharacterById(cid);
         if (mc == null) {
             // System.out.println("ERROR: cannot find player in given channel");
             return;
@@ -376,7 +376,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     public void removeMessengerPlayer(Messenger messenger, int position) throws RemoteException {
         for (MessengerMember messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId()) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     chr.getClient().write(ChannelPackets.removeMessengerPlayer(position));
                 }
@@ -389,7 +389,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
         for (MessengerMember messengerchar : messenger.getMembers()) {
             if (messengerchar.getChannel() == server.getChannelId()
                     && !(messengerchar.getName().equals(namefrom))) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
+                final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(messengerchar.getName());
                 if (chr != null) {
                     chr.getClient().write(ChannelPackets.messengerChat(chattext));
                 }
@@ -400,7 +400,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
     @Override
     public void declineChat(String target, String namefrom) throws RemoteException {
         if (isConnected(target)) {
-            final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(target);
+            final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterByName(target);
             final Messenger messenger = chr.getMessenger();
             if (messenger != null) {
                 chr.getClient().write(ChannelPackets.messengerNote(namefrom, 5, 0));

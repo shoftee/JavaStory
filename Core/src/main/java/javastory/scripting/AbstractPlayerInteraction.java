@@ -82,7 +82,7 @@ public class AbstractPlayerInteraction {
     }
 
     private GameMap getWarpMap(final int map) {
-    	return ChannelServer.getInstance().getMapFactory().getMap(map);
+		return ChannelServer.getMapFactory().getMap(map);
     }
 
     public final GameMap getMap() {
@@ -167,11 +167,13 @@ public class AbstractPlayerInteraction {
     }
 
     public final void removeNpc(final int mapid, final int npcId) {
-    	ChannelServer.getInstance().getMapFactory().getMap(mapid).removeNpc(npcId);
+    	ChannelServer.getInstance();
+		ChannelServer.getMapFactory().getMap(mapid).removeNpc(npcId);
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
+        ChannelServer.getInstance();
+		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -183,7 +185,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
+        ChannelServer.getInstance();
+		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -195,7 +198,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
+        ChannelServer.getInstance();
+		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -286,7 +290,8 @@ public class AbstractPlayerInteraction {
 
     public final Guild getGuild() {
         try {
-            return ChannelServer.getInstance().getWorldInterface().getGuild(getPlayer().getGuildId());
+            ChannelServer.getInstance();
+			return ChannelServer.getWorldInterface().getGuild(getPlayer().getGuildId());
         } catch (final RemoteException ex) {
             System.err.println("Could not connect to World Server: " + ex);
         }
@@ -433,7 +438,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getMonsterCount(final int mapid) {
-        return ChannelServer.getInstance().getMapFactory().getMap(mapid).getAllMonster().size();
+        ChannelServer.getInstance();
+		return ChannelServer.getMapFactory().getMap(mapid).getAllMonster().size();
     }
 
     public final void teachSkill(final int id, final byte level, final byte masterlevel) {
@@ -441,7 +447,8 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getPlayerCount(final int mapid) {
-        return ChannelServer.getInstance().getMapFactory().getMap(mapid).getCharactersSize();
+        ChannelServer.getInstance();
+		return ChannelServer.getMapFactory().getMap(mapid).getCharactersSize();
     }
 
     public final void dojo_getUp() {

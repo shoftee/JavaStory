@@ -120,7 +120,7 @@ public class GenericPortal implements Portal {
 				e.printStackTrace();
 			}
 		} else if (getTargetMapId() != 999999999) {
-			final GameMap to = ChannelServer.getInstance().getMapFactory().getMap(getTargetMapId());
+			final GameMap to = ChannelServer.getMapFactory().getMap(getTargetMapId());
 			player.changeMap(to, to.getPortal(getTarget()) == null ? to.getPortal(0) : to.getPortal(getTarget()));
 		}
 	}

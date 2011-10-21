@@ -25,7 +25,8 @@ public final class CarnivalChallenge {
         this.challenger = challenger;
         try {
             final int partyId = challenger.getPartyMembership().getPartyId();
-            Party party = ChannelServer.getInstance().getWorldInterface().getParty(partyId);
+            ChannelServer.getInstance();
+			Party party = ChannelServer.getWorldInterface().getParty(partyId);
             challengeinfo += "#b";
             for (PartyMember pc : party.getMembers()) {
                 ChannelCharacter c = challenger.getMap().getCharacterById_InMap(pc.getCharacterId());

@@ -101,31 +101,31 @@ public final class ChannelClient extends GameClient {
             final ChannelServer channel = ChannelServer.getInstance();
             try {
                 if (this.player.getMessenger() != null) {
-                    channel.getWorldInterface().leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
+                    ChannelServer.getWorldInterface().leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
                     this.player.setMessenger(null);
                 }
                 PartyMember partyMember = this.player.getPartyMembership();
                 if (partyMember != null) {
                     partyMember.setOnline(false);
-                    channel.getWorldInterface().updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
+                    ChannelServer.getWorldInterface().updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
                 }
                 if (!this.transition) {
-                    channel.getWorldInterface().loggedOff(this.player.getName(), this.player.getId(), super.getChannelId(), this.player.getBuddyList().getBuddyIds());
+                    ChannelServer.getWorldInterface().loggedOff(this.player.getName(), this.player.getId(), super.getChannelId(), this.player.getBuddyList().getBuddyIds());
                 } else {
                     // Change channel
-                    channel.getWorldInterface().loggedOn(this.player.getName(), this.player.getId(), super.getChannelId(), this.player.getBuddyList().getBuddyIds());
+                    ChannelServer.getWorldInterface().loggedOn(this.player.getName(), this.player.getId(), super.getChannelId(), this.player.getBuddyList().getBuddyIds());
                 }
                 if (this.player.getGuildId() > 0) {
-                    channel.getWorldInterface().setGuildMemberOnline(this.player.getGuildMembership(), false, -1);
+                    ChannelServer.getWorldInterface().setGuildMemberOnline(this.player.getGuildMembership(), false, -1);
                 }
             } catch (final RemoteException e) {
-                channel.pingWorld();
+                ChannelServer.pingWorld();
                 this.player.setMessenger(null);
             } catch (final Exception e) {
                 System.err.println(getLogMessage(this, "ERROR") + e);
             } finally {
                 if (channel != null) {
-                    channel.removePlayer(this.player);
+                    ChannelServer.removePlayer(this.player);
                 }
                 this.player = null;
             }

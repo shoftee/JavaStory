@@ -42,9 +42,9 @@ public final class HiredMerchantHandler {
                 case 0:
                     boolean merch = true;
                     try {
-                        merch = ChannelServer.getInstance().getWorldInterface().hasMerchant(c.getAccountId());
+						merch = ChannelServer.getWorldInterface().hasMerchant(c.getAccountId());
                     } catch (RemoteException re) {
-                        ChannelServer.getInstance().pingWorld();
+						ChannelServer.pingWorld();
                     }
                     if (!merch) {
 //		    c.getPlayer().dropMessage(1, "The Hired Merchant is temporary disabled until it's fixed.");

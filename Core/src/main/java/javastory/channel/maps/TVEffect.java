@@ -69,7 +69,8 @@ public class TVEffect {
 
     public static void broadCastTV(boolean isActive) {
         setActive(isActive);
-        WorldChannelInterface wci = ChannelServer.getInstance().getWorldInterface();
+        ChannelServer.getInstance();
+		WorldChannelInterface wci = ChannelServer.getWorldInterface();
         try {
             if (isActive) {
                 wci.broadcastMessage(ChannelPackets.enableTV().getBytes());

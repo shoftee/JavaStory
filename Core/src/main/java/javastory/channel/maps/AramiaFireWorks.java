@@ -41,16 +41,16 @@ public class AramiaFireWorks {
 
 	private void broadcastEvent(final ChannelCharacter c) {
 		try {
-			ChannelServer.getInstance().getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
+			ChannelServer.getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
 		} catch (RemoteException e) {
-			ChannelServer.getInstance().pingWorld();
+			ChannelServer.pingWorld();
 		}
 		// Henesys Park
 		TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public final void run() {
-				startEvent(ChannelServer.getInstance().getMapFactory().getMap(100000200));
+				startEvent(ChannelServer.getMapFactory().getMap(100000200));
 			}
 		}, 10000);
 	}

@@ -31,7 +31,7 @@ import javastory.world.core.PartyOperation;
 public class InterServerHandler {
 
 	public static void handleEnterMTS(final ChannelClient c) {
-		final GameMap map = ChannelServer.getInstance().getMapFactory().getMap(910000000);
+		final GameMap map = ChannelServer.getMapFactory().getMap(910000000);
 		final ChannelCharacter player = c.getPlayer();
 		if ((player.getMapId() < 910000000) || (player.getMapId()
 				> 910000022)) {
@@ -50,8 +50,7 @@ public class InterServerHandler {
 	}
 
 	public static void handlePlayerLoggedIn(final int playerId, final ChannelClient client) {
-		final ChannelServer channelServer = ChannelServer.getInstance();
-		final PlayerStorage playerStorage = channelServer.getPlayerStorage();
+		final PlayerStorage playerStorage = ChannelServer.getPlayerStorage();
 		final int channelId = client.getChannelId();
 
 		// Remote hack
@@ -70,12 +69,12 @@ public class InterServerHandler {
 		client.setPlayer(player);
 		client.setAccountId(player.getAccountId());
 
-		channelServer.addPlayer(player);
+		ChannelServer.addPlayer(player);
 		client.write(ChannelPackets.getCharInfo(player));
 		player.getMap().addPlayer(player);
 		try {
 			// Start of cooldown, buffs
-			final WorldChannelInterface world = channelServer.getWorldInterface();
+			final WorldChannelInterface world = ChannelServer.getWorldInterface();
 			final Collection<PlayerBuffValueHolder> buffs = world.getBuffsFromStorage(player.getId());
 			if (buffs != null) {
 				player.silentGiveBuffs(buffs);
@@ -118,7 +117,7 @@ public class InterServerHandler {
 				client.write(ChannelPackets.showGuildInfo(client, guildId));
 			}
 		} catch (RemoteException e) {
-			channelServer.pingWorld();
+			ChannelServer.pingWorld();
 		} catch (Exception e) {
 			LogUtil.outputFileError(LogUtil.Login_Error, e);
 		}

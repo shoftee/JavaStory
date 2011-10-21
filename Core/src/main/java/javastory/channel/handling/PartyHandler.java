@@ -25,7 +25,7 @@ public class PartyHandler {
             return;
         }
         try {
-            WorldChannelInterface wci = ChannelServer.getInstance().getWorldInterface();
+			WorldChannelInterface wci = ChannelServer.getWorldInterface();
             Party party = wci.getParty(partyid);
             if (party == null) {
                 player.sendNotice(5, "The party you are trying to join does not exist");
@@ -46,20 +46,20 @@ public class PartyHandler {
                 case 0x16:
                     break;
                 default:
-                    final ChannelCharacter cfrom = ChannelServer.getInstance().getPlayerStorage().getCharacterById(party.getLeader().getCharacterId());
+                    final ChannelCharacter cfrom = ChannelServer.getPlayerStorage().getCharacterById(party.getLeader().getCharacterId());
                     if (cfrom != null) {
                         cfrom.getClient().write(ChannelPackets.partyStatusMessage(23, player.getName()));
                     }
                     break;
             }
         } catch (RemoteException e) {
-            ChannelServer.getInstance().pingWorld();
+            ChannelServer.pingWorld();
         }
     }
 
     public static void handlePartyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int operation = reader.readByte();
-        final WorldChannelInterface wci = ChannelServer.getInstance().getWorldInterface();
+		final WorldChannelInterface wci = ChannelServer.getWorldInterface();
         final ChannelCharacter player = c.getPlayer();
         PartyMember member = player.getPartyMembership();
         switch (operation) {
@@ -70,7 +70,7 @@ public class PartyHandler {
                         member = player.setPartyMembership(party.getId());
                         party.addMember(member);
                     } catch (RemoteException e) {
-                        ChannelServer.getInstance().pingWorld();
+                        ChannelServer.pingWorld();
                     }
                     c.write(ChannelPackets.partyCreated());
                 } else {
@@ -94,7 +94,7 @@ public class PartyHandler {
                             }
                         }
                     } catch (RemoteException e) {
-                        ChannelServer.getInstance().pingWorld();
+                        ChannelServer.pingWorld();
                     }
                     player.setParty(null);
                 }
@@ -118,7 +118,7 @@ public class PartyHandler {
                             player.sendNotice(5, "The party you are trying to join does not exist");
                         }
                     } catch (RemoteException e) {
-                        ChannelServer.getInstance().pingWorld();
+                        ChannelServer.pingWorld();
                     }
                 } else {
                     player.sendNotice(5, "You can't join the party as you are already in one");
@@ -129,12 +129,12 @@ public class PartyHandler {
                 // TODO store pending invitations and check against them
                 final String name = reader.readLengthPrefixedString();
                 final ChannelCharacter inviter =
-                        ChannelServer.getInstance().getPlayerStorage().getCharacterByName(name);
+                        ChannelServer.getPlayerStorage().getCharacterByName(name);
                 if (inviter != null && inviter.getWorldId() == c.getWorldId()) {
                     PartyMember inviterMember = inviter.getPartyMembership();
                     if (inviterMember != null) {
                         try {
-                            Party party = ChannelServer.getInstance().getWorldInterface().getParty(inviterMember.getPartyId());
+							Party party = ChannelServer.getWorldInterface().getParty(inviterMember.getPartyId());
                             if (party.getMembers().size() < 6) {
                                 c.write(ChannelPackets.partyStatusMessage(22, inviter.getName()));
                                 inviter.getClient().write(ChannelPackets.partyInvite(player));
@@ -155,7 +155,7 @@ public class PartyHandler {
                 // expel
                 if (member.isLeader()) {
                     try {
-                        Party party = ChannelServer.getInstance().getWorldInterface().getParty(member.getPartyId());
+						Party party = ChannelServer.getWorldInterface().getParty(member.getPartyId());
                         final PartyMember expelled = party.getMemberById(reader.readInt());
                         if (expelled != null) {
                             wci.updateParty(party.getId(), PartyOperation.EXPEL, expelled);
@@ -169,18 +169,18 @@ public class PartyHandler {
                             }
                         }
                     } catch (RemoteException e) {
-                        ChannelServer.getInstance().pingWorld();
+                        ChannelServer.pingWorld();
                     }
                 }
                 break;
             case 6:
                 // change leader
                 try {
-                    Party party = ChannelServer.getInstance().getWorldInterface().getParty(member.getPartyId());
+					Party party = ChannelServer.getWorldInterface().getParty(member.getPartyId());
                     final PartyMember newleader = party.getMemberById(reader.readInt());
                     wci.updateParty(party.getId(), PartyOperation.CHANGE_LEADER, newleader);
                 } catch (RemoteException e) {
-                    ChannelServer.getInstance().pingWorld();
+                    ChannelServer.pingWorld();
                 }
                 break;
             default:

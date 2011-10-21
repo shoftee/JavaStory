@@ -76,12 +76,12 @@ public final class ChannelServer extends GameService {
 		return channelInfo;
 	}
 
-	public void pingWorld() {
+	public static void pingWorld() {
 		try {
-			wci.isAvailable();
+			instance.wci.isAvailable();
 		} catch (RemoteException ex) {
-			if (isWorldReady.compareAndSet(true, false)) {
-				connectToWorld();
+			if (instance.isWorldReady.compareAndSet(true, false)) {
+				instance.connectToWorld();
 			}
 		}
 	}
@@ -140,21 +140,21 @@ public final class ChannelServer extends GameService {
 		eventManager.init();
 	}
 
-	public GameMapFactory getMapFactory() {
-		return mapFactory;
+	public static GameMapFactory getMapFactory() {
+		return instance.mapFactory;
 	}
 
-	public void addPlayer(final ChannelCharacter chr) {
-		players.registerPlayer(chr);
-		chr.getClient().write(ChannelPackets.serverMessage(serverMessage));
+	public static void addPlayer(final ChannelCharacter chr) {
+		instance.players.registerPlayer(chr);
+		chr.getClient().write(ChannelPackets.serverMessage(instance.serverMessage));
 	}
 
-	public PlayerStorage getPlayerStorage() {
-		return players;
+	public static PlayerStorage getPlayerStorage() {
+		return instance.players;
 	}
 
-	public void removePlayer(final ChannelCharacter chr) {
-		players.deregisterPlayer(chr);
+	public static void removePlayer(final ChannelCharacter chr) {
+		instance.players.deregisterPlayer(chr);
 	}
 
 	public String getServerMessage() {
@@ -187,9 +187,9 @@ public final class ChannelServer extends GameService {
 		}
 	}
 
-	public WorldChannelInterface getWorldInterface() {
-		if (isWorldReady.get()) {
-			return wci;
+	public static WorldChannelInterface getWorldInterface() {
+		if (instance.isWorldReady.get()) {
+			return instance.wci;
 		}
 		return null;
 	}
@@ -269,7 +269,7 @@ public final class ChannelServer extends GameService {
 		}
 		try {
 			final Guild guild =
-					this.getWorldInterface().getGuild(guildId);
+					ChannelServer.getWorldInterface().getGuild(guildId);
 			if (guild != null) {
 				gsStore.put(guildId, new GuildSummary(guild));
 			}
@@ -373,7 +373,7 @@ public final class ChannelServer extends GameService {
 	public final List<ChannelCharacter> getPartyMembers(final int partyId) {
 		List<ChannelCharacter> partym = new LinkedList<>();
 		try {
-			Party party = this.getWorldInterface().getParty(partyId);
+			Party party = ChannelServer.getWorldInterface().getParty(partyId);
 			for (final PartyMember partychar : party.getMembers()) {
 				if (partychar.getChannel() == getChannelId()) {
 					// Make sure the thing doesn't get duplicate plays due to
@@ -427,7 +427,6 @@ public final class ChannelServer extends GameService {
 	}
 
 	public static ChannelServer getInstance() {
-		// TODO Auto-generated method stub
-		return null;
+		return instance;
 	}
 }

@@ -273,8 +273,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		final byte rareness = GameConstants.gachaponRareItem(item.getItemId());
 		if (rareness > 0) {
 			try {
-				ChannelServer.getInstance()
-						.getWorldInterface()
+				ChannelServer						.getWorldInterface()
 						.broadcastMessage(ChannelPackets
 								.getGachaponMega(super.client
 										.getPlayer()
@@ -284,7 +283,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 													rareness)
 								.getBytes());
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.pingWorld();
 			}
 		}
 		return item.getItemId();
@@ -428,7 +427,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExp(int mapId, int exp) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = ChannelServer.getInstance()
+			ChannelServer.getInstance();
+			ChannelCharacter curChar = ChannelServer
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
 					&& getPlayer().getEventInstance() == null)
@@ -443,7 +443,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = ChannelServer.getInstance()
+			ChannelServer.getInstance();
+			ChannelCharacter curChar = ChannelServer
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
 					&& getPlayer().getEventInstance() == null)
@@ -576,7 +577,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			ChannelServer.getInstance().getWorldInterface()
+			ChannelServer.getInstance();
+			ChannelServer.getWorldInterface()
 					.disbandGuild(gid);
 		} catch (RemoteException e) {
 			System.err.println("Error while disbanding guild." + e);
@@ -620,7 +622,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			ChannelServer.getInstance().getWorldInterface()
+			ChannelServer.getInstance();
+			ChannelServer.getWorldInterface()
 					.increaseGuildCapacity(gid);
 		} catch (RemoteException e) {
 			System.err.println("Error while increasing capacity." + e);

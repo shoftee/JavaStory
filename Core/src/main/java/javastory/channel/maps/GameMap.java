@@ -91,7 +91,7 @@ public class GameMap {
 	}
 
 	public final GameMap getReturnMap() {
-		return ChannelServer.getInstance().getMapFactory().getMap(returnMapId);
+		return ChannelServer.getMapFactory().getMap(returnMapId);
 	}
 
 	public final int getReturnMapId() {
@@ -103,7 +103,7 @@ public class GameMap {
 	}
 
 	public final GameMap getForcedReturnMap() {
-		return ChannelServer.getInstance().getMapFactory().getMap(forcedReturnMap);
+		return ChannelServer.getMapFactory().getMap(forcedReturnMap);
 	}
 
 	public final void setForcedReturnMap(final int map) {
@@ -465,26 +465,24 @@ public class GameMap {
 		final int mobid = monster.getId();
 		if (mobid == 8810018) {
 			try {
-				ChannelServer.getInstance()
-						.getWorldInterface()
+				ChannelServer.getWorldInterface()
 						.broadcastMessage(ChannelPackets
 								.serverNotice(6,
 												"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!")
 								.getBytes());
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.pingWorld();
 			}
 			LogUtil.log(LogUtil.Horntail_Log, MapDebug_Log());
 		} else if (mobid == 8820001) {
 			try {
-				ChannelServer.getInstance()
-						.getWorldInterface()
+				ChannelServer.getWorldInterface()
 						.broadcastMessage(ChannelPackets
 								.serverNotice(6,
 												"Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!")
 								.getBytes());
 			} catch (RemoteException e) {
-				ChannelServer.getInstance().pingWorld();
+				ChannelServer.pingWorld();
 			}
 			LogUtil.log(LogUtil.Pinkbean_Log, MapDebug_Log());
 		} else if (mobid >= 8800003 && mobid <= 8800010) {
@@ -1224,7 +1222,8 @@ public class GameMap {
 		final PartyMember member = character.getPartyMembership();
 		if (member != null) {
 			try {
-				Party party = ChannelServer.getInstance().getWorldInterface()
+				ChannelServer.getInstance();
+				Party party = ChannelServer.getWorldInterface()
 						.getParty(member.getPartyId());
 				character.silentPartyUpdate();
 				client.write(ChannelPackets
