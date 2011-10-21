@@ -7,6 +7,7 @@ package javastory.channel.server;
 import java.rmi.RemoteException;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelServer;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.game.Jobs;
@@ -24,7 +25,7 @@ public final class CarnivalChallenge {
         this.challenger = challenger;
         try {
             final int partyId = challenger.getPartyMembership().getPartyId();
-            Party party = challenger.getClient().getChannelServer().getWorldInterface().getParty(partyId);
+            Party party = ChannelServer.getInstance().getWorldInterface().getParty(partyId);
             challengeinfo += "#b";
             for (PartyMember pc : party.getMembers()) {
                 ChannelCharacter c = challenger.getMap().getCharacterById_InMap(pc.getCharacterId());

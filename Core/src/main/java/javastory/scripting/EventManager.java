@@ -43,7 +43,6 @@ import javastory.tools.packets.ChannelPackets;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-
 public class EventManager {
 
 	private Invocable invocable;
@@ -51,14 +50,11 @@ public class EventManager {
 	private WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<>();
 	private Properties props = new Properties();
 	private String name;
-	private int world;
 
-	public EventManager(ChannelServer cserv, Invocable invocable, String name,
-			int world) {
+	public EventManager(ChannelServer cserv, Invocable invocable, String name) {
 		this.invocable = invocable;
 		this.cserv = cserv;
 		this.name = name;
-		this.world = world;
 	}
 
 	public void cancel() {
@@ -138,8 +134,7 @@ public class EventManager {
 	}
 
 	public EventInstanceManager newInstance(String name) {
-		EventInstanceManager ret = new EventInstanceManager(this, name, cserv
-				.getMapFactory(), world);
+		EventInstanceManager ret = new EventInstanceManager(this, name, cserv.getMapFactory());
 		instances.put(name, ret);
 		return ret;
 	}

@@ -76,14 +76,14 @@ public class DueyHandler {
                             boolean recipientOn = false;
                             /*			    GameClient rClient = null;
                             try {
-                            int channel = c.getChannelServer().getWorldInterface().find(recipient);
+                            int channel = ChannelServer.getInstance().getWorldInterface().find(recipient);
                             if (channel > -1) {
                             recipientOn = true;
                             ChannelServer rcserv = ChannelServer.getInstance(channel);
                             rClient = rcserv.getPlayerStorage().getCharacterByName(recipient).getClient();
                             }
                             } catch (RemoteException re) {
-                            c.getChannelServer().reconnectWorld();
+                            ChannelServer.getInstance().reconnectWorld();
                             }*/
 
                             if (inventoryId > 0) {

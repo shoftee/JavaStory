@@ -27,6 +27,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.io.GamePacket;
 import javastory.rmi.WorldChannelInterface;
 import javastory.server.TimerManager;
@@ -68,7 +69,7 @@ public class TVEffect {
 
     public static void broadCastTV(boolean isActive) {
         setActive(isActive);
-        WorldChannelInterface wci = user.getClient().getChannelServer().getWorldInterface();
+        WorldChannelInterface wci = ChannelServer.getInstance().getWorldInterface();
         try {
             if (isActive) {
                 wci.broadcastMessage(ChannelPackets.enableTV().getBytes());

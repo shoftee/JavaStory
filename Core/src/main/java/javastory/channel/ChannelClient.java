@@ -81,10 +81,6 @@ public final class ChannelClient extends GameClient {
         sb.append(getPlayer() != null);
     }
 
-    public final ChannelServer getChannelServer() {
-    	return ChannelServer.getInstance();
-    }
-
     public final void setScriptEngine(final String name, final ScriptEngine e) {
         engines.put(name, e);
     }
@@ -102,7 +98,7 @@ public final class ChannelClient extends GameClient {
         if (!immediately) {
             this.removalTask();
             this.player.saveToDb(true);
-            final ChannelServer channel = getChannelServer();
+            final ChannelServer channel = ChannelServer.getInstance();
             try {
                 if (this.player.getMessenger() != null) {
                     channel.getWorldInterface().leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));

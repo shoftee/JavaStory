@@ -60,8 +60,7 @@ public class EventScriptManager extends AbstractScriptManager {
 		return runningInstanceMapId.addAndGet(1);
 	}
 
-	public EventScriptManager(final ChannelServer cserv,
-			final String[] scripts, int world) {
+	public EventScriptManager(final ChannelServer cserv, final String[] scripts) {
 		super();
 		for (final String script : scripts) {
 			if (!script.equals("")) {
@@ -69,10 +68,8 @@ public class EventScriptManager extends AbstractScriptManager {
 				final Invocable invocable = getInvocable(path, null);
 
 				if (invocable != null) {
-					final EventManager eventManager =
-							new EventManager(cserv, invocable, script, world);
-					final EventEntry eventEntry =
-							new EventEntry(script, invocable, eventManager);
+					final EventManager eventManager = new EventManager(cserv, invocable, script);
+					final EventEntry eventEntry = new EventEntry(script, invocable, eventManager);
 					events.put(script, eventEntry);
 				}
 			}

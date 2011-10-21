@@ -5,6 +5,7 @@ import java.awt.Point;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.life.LifeFactory;
 import javastory.io.PacketBuilder;
@@ -205,7 +206,7 @@ public class MapScriptMethods {
                         c.write(UIPacket.IntroDisableUI(false));
                         c.write(UIPacket.IntroLock(false));
                         c.write(ChannelPackets.enableActions());
-                        final GameMap mapto = c.getChannelServer().getMapFactory().getMap(910000000);
+                        final GameMap mapto = ChannelServer.getInstance().getMapFactory().getMap(910000000);
                         player.changeMap(mapto, mapto.getPortal(0));
                         return;
                 }

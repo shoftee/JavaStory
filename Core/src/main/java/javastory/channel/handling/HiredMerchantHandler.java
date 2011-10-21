@@ -10,6 +10,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.client.Equip;
@@ -41,9 +42,9 @@ public final class HiredMerchantHandler {
                 case 0:
                     boolean merch = true;
                     try {
-                        merch = c.getChannelServer().getWorldInterface().hasMerchant(c.getAccountId());
+                        merch = ChannelServer.getInstance().getWorldInterface().hasMerchant(c.getAccountId());
                     } catch (RemoteException re) {
-                        c.getChannelServer().pingWorld();
+                        ChannelServer.getInstance().pingWorld();
                     }
                     if (!merch) {
 //		    c.getPlayer().dropMessage(1, "The Hired Merchant is temporary disabled until it's fixed.");

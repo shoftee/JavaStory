@@ -19,7 +19,7 @@ public class Event_DojoAgent {
 	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;
 		final int mapid = baseAgentMapId + (stage * 100);
-		final ChannelServer ch = c.getClient().getChannelServer();
+		final ChannelServer ch = ChannelServer.getInstance();
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ch.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
@@ -50,7 +50,7 @@ public class Event_DojoAgent {
 				c.modifyCSPoints(1, cashGain, true);
 			}
 		}
-		final ChannelServer ch = c.getClient().getChannelServer();
+		final ChannelServer ch = ChannelServer.getInstance();
 		if (currentmap >= 970032700 && currentmap <= 970032800) {
 			map = ch.getMapFactory().getMap(baseAgentMapId);
 			c.changeMap(map, map.getPortal(0));
@@ -75,7 +75,7 @@ public class Event_DojoAgent {
 			stage = 1;
 		}
 		final int mapid = 925020000 + (stage * 100);
-		final ChannelServer ch = c.getClient().getChannelServer();
+		final ChannelServer ch = ChannelServer.getInstance();
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ch.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
@@ -97,7 +97,7 @@ public class Event_DojoAgent {
 	// 925023600 ~ 925023609
 	public static boolean warpNextMap(final ChannelCharacter c, final boolean fromResting) {
 		final int currentmap = c.getMapId();
-		final ChannelServer ch = c.getClient().getChannelServer();
+		final ChannelServer ch = ChannelServer.getInstance();
 		if (!fromResting) {
 			clearMap(ch.getMapFactory().getMap(currentmap), true);
 			int cashGain;

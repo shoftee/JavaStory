@@ -6,6 +6,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.Guild;
 import javastory.channel.PartyMember;
 import javastory.channel.client.Pet;
@@ -47,7 +48,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final EventManager getEventManager(final String event) {
-        return client.getChannelServer().getEventSM(client.getWorldId()).getEventManager(event);
+        return ChannelServer.getInstance().getEventSM().getEventManager(event);
     }
 
     public final EventInstanceManager getEventInstance() {
@@ -55,24 +56,24 @@ public class AbstractPlayerInteraction {
     }
 
     public final void warp(final int map) {
-        final GameMap mapz = getWarpMap(map);
-        client.getPlayer().changeMap(mapz, mapz.getPortal(Randomizer.nextInt(mapz.getPortals().size())));
+        final GameMap target = getWarpMap(map);
+        client.getPlayer().changeMap(target, target.getPortal(Randomizer.nextInt(target.getPortals().size())));
     }
 
-    public final void warp(final int map, final int portal) {
-        final GameMap mapz = getWarpMap(map);
-        client.getPlayer().changeMap(mapz, mapz.getPortal(portal));
+    public final void warp(final int mapId, final int portalId) {
+        final GameMap target = getWarpMap(mapId);
+        client.getPlayer().changeMap(target, target.getPortal(portalId));
     }
 
-    public final void warp(final int map, final String portal) {
-        final GameMap mapz = getWarpMap(map);
-        client.getPlayer().changeMap(mapz, mapz.getPortal(portal));
+    public final void warp(final int mapId, final String portal) {
+        final GameMap target = getWarpMap(mapId);
+        client.getPlayer().changeMap(target, target.getPortal(portal));
     }
 
-    public final void warpMap(final int mapid, final int portal) {
-        final GameMap map = getMap(mapid);
+    public final void warpMap(final int mapId, final int portal) {
+        final GameMap target = getMap(mapId);
         for (ChannelCharacter chr : client.getPlayer().getMap().getCharacters()) {
-            chr.changeMap(map, map.getPortal(portal));
+            chr.changeMap(target, target.getPortal(portal));
         }
     }
 
@@ -81,7 +82,7 @@ public class AbstractPlayerInteraction {
     }
 
     private GameMap getWarpMap(final int map) {
-    	return client.getChannelServer().getMapFactory().getMap(map);
+    	return ChannelServer.getInstance().getMapFactory().getMap(map);
     }
 
     public final GameMap getMap() {
@@ -166,11 +167,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final void removeNpc(final int mapid, final int npcId) {
-        client.getChannelServer().getMapFactory().getMap(mapid).removeNpc(npcId);
+    	ChannelServer.getInstance().getMapFactory().getMap(mapid).removeNpc(npcId);
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
+        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -182,7 +183,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
+        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -194,7 +195,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
+        GameMap map = ChannelServer.getInstance().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -285,7 +286,7 @@ public class AbstractPlayerInteraction {
 
     public final Guild getGuild() {
         try {
-            return client.getChannelServer().getWorldInterface().getGuild(getPlayer().getGuildId());
+            return ChannelServer.getInstance().getWorldInterface().getGuild(getPlayer().getGuildId());
         } catch (final RemoteException ex) {
             System.err.println("Could not connect to World Server: " + ex);
         }
@@ -299,7 +300,7 @@ public class AbstractPlayerInteraction {
     public final boolean isAllPartyMembersAllowedJob(final int job) {
         boolean allow = true;
         PartyMember member = client.getPlayer().getPartyMembership();
-        for (final ChannelCharacter chr : client.getChannelServer().getPartyMembers(member.getPartyId())) {
+        for (final ChannelCharacter chr : ChannelServer.getInstance().getPartyMembers(member.getPartyId())) {
             if (chr.getJobId() / 100 != job) {
                 allow = false;
                 break;
@@ -312,7 +313,7 @@ public class AbstractPlayerInteraction {
         boolean allHere = true;
         final ChannelCharacter player = client.getPlayer();
         PartyMember member = player.getPartyMembership();
-        for (final ChannelCharacter partymem : client.getChannelServer().getPartyMembers(member.getPartyId())) {
+        for (final ChannelCharacter partymem : ChannelServer.getInstance().getPartyMembers(member.getPartyId())) {
             // TODO, store info in MaplePartyCharacter instead
             if (partymem.getMapId() != player.getMapId()) {
                 allHere = false;
@@ -326,7 +327,7 @@ public class AbstractPlayerInteraction {
         final int cMap = client.getPlayer().getMapId();
         final GameMap target = getMap(mapId);
         PartyMember member = client.getPlayer().getPartyMembership();
-        for (final ChannelCharacter chr : client.getChannelServer().getPartyMembers(member.getPartyId())) {
+        for (final ChannelCharacter chr : ChannelServer.getInstance().getPartyMembers(member.getPartyId())) {
             if (chr != null && chr.getMapId() == cMap) {
                 chr.changeMap(target, target.getPortal(0));
             }
@@ -346,7 +347,7 @@ public class AbstractPlayerInteraction {
 
     public final void givePartyExp(final int amount, final List<ChannelCharacter> party) {
         for (final ChannelCharacter chr : party) {
-            chr.gainExp(amount * client.getChannelServer().getExpRate(), true, true, true);
+            chr.gainExp(amount * ChannelServer.getInstance().getExpRate(), true, true, true);
         }
     }
 
@@ -432,7 +433,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getMonsterCount(final int mapid) {
-        return client.getChannelServer().getMapFactory().getMap(mapid).getAllMonster().size();
+        return ChannelServer.getInstance().getMapFactory().getMap(mapid).getAllMonster().size();
     }
 
     public final void teachSkill(final int id, final byte level, final byte masterlevel) {
@@ -440,7 +441,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getPlayerCount(final int mapid) {
-        return client.getChannelServer().getMapFactory().getMap(mapid).getCharactersSize();
+        return ChannelServer.getInstance().getMapFactory().getMap(mapid).getCharactersSize();
     }
 
     public final void dojo_getUp() {

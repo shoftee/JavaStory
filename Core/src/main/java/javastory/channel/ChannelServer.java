@@ -52,7 +52,7 @@ public final class ChannelServer extends GameService {
 	private int channelId, currentMerchantId = 0;
 	private final ChannelInfo channelInfo;
 	private final Lock merchantMutex = new ReentrantLock();
-	private EventScriptManager eventManagers[] = new EventScriptManager[2];
+	private EventScriptManager eventManager;
 
 	private ChannelServer(ChannelInfo info) {
 		super(info);
@@ -114,9 +114,7 @@ public final class ChannelServer extends GameService {
 
 		// TODO: load events from DB.
 		final String[] events = new String[0];
-		for (int i = 0; i < eventManagers.length; i++) {
-			eventManagers[i] = new EventScriptManager(this, events, i == 0 ? 6 : 5);
-		}
+		eventManager = new EventScriptManager(this, events);
 
 		TimerManager.getInstance().start();
 		TimerManager.getInstance().register(AutobanManager.getInstance(), 60000);
@@ -139,9 +137,7 @@ public final class ChannelServer extends GameService {
 		System.out.printf(":: Channel %d : Listening on port %d ::",
 							this.getChannelId(), super.endpointInfo.getPort());
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownListener()));
-		for (EventScriptManager manager : eventManagers) {
-			manager.init();
-		}
+		eventManager.init();
 	}
 
 	public GameMapFactory getMapFactory() {
@@ -218,20 +214,15 @@ public final class ChannelServer extends GameService {
 		return getMapFactory().getLoadedMaps();
 	}
 
-	public final EventScriptManager getEventSM(int world) {
-		return eventManagers[world == 6 ? 0 : 1];
+	public final EventScriptManager getEventSM() {
+		return eventManager;
 	}
 
 	public final void reloadEvents() {
-		int i = 0;
 		final String[] events = new String[0];
-
-		for (EventScriptManager manager : eventManagers) {
-			manager.cancel();
-			manager = new EventScriptManager(this, events, i == 0 ? 6 : 5);
-			manager.init();
-			i++;
-		}
+		eventManager.cancel();
+		eventManager = new EventScriptManager(this, events);
+		eventManager.init();
 	}
 
 	public final byte getExpRate() {

@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.PartyMember;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.MemberRank;
@@ -272,8 +273,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		final byte rareness = GameConstants.gachaponRareItem(item.getItemId());
 		if (rareness > 0) {
 			try {
-				super.client
-						.getChannelServer()
+				ChannelServer.getInstance()
 						.getWorldInterface()
 						.broadcastMessage(ChannelPackets
 								.getGachaponMega(super.client
@@ -284,7 +284,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 													rareness)
 								.getBytes());
 			} catch (RemoteException e) {
-				super.client.getChannelServer().pingWorld();
+				ChannelServer.getInstance().pingWorld();
 			}
 		}
 		return item.getItemId();
@@ -428,7 +428,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExp(int mapId, int exp) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = super.client.getChannelServer()
+			ChannelCharacter curChar = ChannelServer.getInstance()
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
 					&& getPlayer().getEventInstance() == null)
@@ -443,7 +443,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = super.client.getChannelServer()
+			ChannelCharacter curChar = ChannelServer.getInstance()
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
 					&& getPlayer().getEventInstance() == null)
@@ -465,11 +465,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public Squad getSquad(String type) {
-		return super.client.getChannelServer().getMapleSquad(type);
+		return ChannelServer.getInstance().getMapleSquad(type);
 	}
 
 	public int getSquadAvailability(String type) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		}
@@ -486,11 +486,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		map.broadcastMessage(ChannelPackets.serverNotice(6, player
 				.getName()
 				+ startText));
-		super.client.getChannelServer().addMapleSquad(squad, type);
+		ChannelServer.getInstance().addMapleSquad(squad, type);
 	}
 
 	public boolean getSquadList(String type, byte type_) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return false;
 		}
@@ -510,7 +510,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public byte isSquadLeader(String type) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		} else {
@@ -523,21 +523,21 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void banMember(String type, int pos) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			squad.banMember(pos);
 		}
 	}
 
 	public void acceptMember(String type, int pos) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			squad.acceptMember(pos);
 		}
 	}
 
 	public int addMember(String type, boolean join) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			return squad.addMember(super.client.getPlayer(), join);
 		}
@@ -545,7 +545,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public byte isSquadMember(String type) {
-		final Squad squad = super.client.getChannelServer().getMapleSquad(type);
+		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
 		} else {
@@ -576,7 +576,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			super.client.getChannelServer().getWorldInterface()
+			ChannelServer.getInstance().getWorldInterface()
 					.disbandGuild(gid);
 		} catch (RemoteException e) {
 			System.err.println("Error while disbanding guild." + e);
@@ -620,7 +620,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			super.client.getChannelServer().getWorldInterface()
+			ChannelServer.getInstance().getWorldInterface()
 					.increaseGuildCapacity(gid);
 		} catch (RemoteException e) {
 			System.err.println("Error while increasing capacity." + e);

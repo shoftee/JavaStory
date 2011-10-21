@@ -347,7 +347,7 @@ public class GameMap {
 									/ 100.0);
 						}
 						spawnMobMesoDrop(mesos
-								* chr.getClient().getChannelServer()
+								* ChannelServer.getInstance()
 										.getMesoRate(), calcDropPos(pos, mob
 								.getPosition()), mob, chr, false, droptype);
 					}
@@ -1224,7 +1224,7 @@ public class GameMap {
 		final PartyMember member = character.getPartyMembership();
 		if (member != null) {
 			try {
-				Party party = client.getChannelServer().getWorldInterface()
+				Party party = ChannelServer.getInstance().getWorldInterface()
 						.getParty(member.getPartyId());
 				character.silentPartyUpdate();
 				client.write(ChannelPackets

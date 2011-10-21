@@ -28,6 +28,7 @@ import java.sql.SQLException;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.client.BuddyAddResult;
 import javastory.channel.client.BuddyList;
 import javastory.channel.client.BuddyListEntry;
@@ -83,7 +84,7 @@ public class BuddyListHandler {
 
     public static void handleBuddyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int mode = reader.readByte();
-        final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
+        final WorldChannelInterface worldInterface = ChannelServer.getInstance().getWorldInterface();
         final ChannelCharacter player = c.getPlayer();
         final BuddyList buddylist = player.getBuddyList();
 
@@ -103,7 +104,7 @@ public class BuddyListHandler {
                 try {
                     CharacterIdNameBuddyCapacity charWithId = null;
                     int channel;
-                    final ChannelCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterByName(addName);
+                    final ChannelCharacter otherChar = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(addName);
                     if (otherChar != null) {
                         channel = c.getChannelId();
 
@@ -185,7 +186,7 @@ public class BuddyListHandler {
                     final int channel = worldInterface.find(otherCid);
                     String otherName = null;
                     int otherLevel = 0, otherJob = 0;
-                    final ChannelCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
+                    final ChannelCharacter otherChar = ChannelServer.getInstance().getPlayerStorage().getCharacterById(otherCid);
                     if (otherChar == null) {
                         Connection con = Database.getConnection();
                         try (PreparedStatement ps = con.prepareStatement("SELECT name, level, job FROM characters WHERE id = ?")) {
@@ -229,7 +230,7 @@ public class BuddyListHandler {
     }
 
     private static void notifyRemoteChannel(final ChannelClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
-        final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
+        final WorldChannelInterface worldInterface = ChannelServer.getInstance().getWorldInterface();
         final ChannelCharacter player = c.getPlayer();
 
         if (remoteChannel != -1) {

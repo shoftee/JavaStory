@@ -35,7 +35,7 @@ public class ChatHandler {
 		final String message = reader.readLengthPrefixedString();
 
 		try {
-			final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
+			final WorldChannelInterface worldInterface = ChannelServer.getInstance().getWorldInterface();
 			switch (type) {
 			case 0:
 				worldInterface.buddyChat(recipients, chr.getId(), chr.getName(), message);
@@ -52,13 +52,14 @@ public class ChatHandler {
 				break;
 			}
 		} catch (RemoteException e) {
-			c.getChannelServer().pingWorld();
+			ChannelServer.getInstance().pingWorld();
 		}
 	}
 
 	public static void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 		String input;
-		final WorldChannelInterface wci = c.getChannelServer().getWorldInterface();
+		final ChannelServer cs = ChannelServer.getInstance();
+		final WorldChannelInterface wci = cs.getWorldInterface();
 		final ChannelCharacter player = c.getPlayer();
 		Messenger messenger = player.getMessenger();
 
@@ -73,7 +74,7 @@ public class ChatHandler {
 						player.setMessenger(messenger);
 						player.setMessengerPosition(0);
 					} catch (RemoteException e) {
-						c.getChannelServer().pingWorld();
+						cs.pingWorld();
 					}
 				} else { // join
 					try {
@@ -88,7 +89,7 @@ public class ChatHandler {
 							}
 						}
 					} catch (RemoteException e) {
-						c.getChannelServer().pingWorld();
+						cs.pingWorld();
 					}
 				}
 			}
@@ -99,7 +100,7 @@ public class ChatHandler {
 				try {
 					wci.leaveMessenger(messenger.getId(), messengerplayer);
 				} catch (RemoteException e) {
-					c.getChannelServer().pingWorld();
+					cs.pingWorld();
 				}
 				player.setMessenger(null);
 				player.setMessengerPosition(4);
@@ -108,7 +109,7 @@ public class ChatHandler {
 		case 0x03: // invite
 			if (messenger.getMembers().size() < 3) {
 				input = reader.readLengthPrefixedString();
-				final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
+				final ChannelCharacter target = cs.getPlayerStorage().getCharacterByName(input);
 
 				if (target != null) {
 					if (target.getMessenger() == null) {
@@ -132,14 +133,14 @@ public class ChatHandler {
 							c.write(ChannelPackets.messengerNote(input, 4, 0));
 						}
 					} catch (RemoteException e) {
-						c.getChannelServer().pingWorld();
+						cs.pingWorld();
 					}
 				}
 			}
 			break;
 		case 0x05: // decline
 			final String targeted = reader.readLengthPrefixedString();
-			final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
+			final ChannelCharacter target = cs.getPlayerStorage().getCharacterByName(targeted);
 			if (target != null) { // This channel
 				if (target.getMessenger() != null) {
 					target.getClient().write(ChannelPackets.messengerNote(player.getName(), 5, 0));
@@ -150,7 +151,7 @@ public class ChatHandler {
 						wci.declineChat(targeted, player.getName());
 					}
 				} catch (RemoteException e) {
-					c.getChannelServer().pingWorld();
+					cs.pingWorld();
 				}
 			}
 			break;
@@ -161,7 +162,7 @@ public class ChatHandler {
 				try {
 					wci.messengerChat(messenger.getId(), messengerplayer.getName(), input);
 				} catch (RemoteException e) {
-					c.getChannelServer().pingWorld();
+					cs.pingWorld();
 				}
 			}
 			break;
@@ -172,11 +173,11 @@ public class ChatHandler {
 		final byte mode = reader.readByte();
 		reader.readInt();
 		final ChannelCharacter player = c.getPlayer();
-		final ChannelServer chanServ = c.getChannelServer();
+		final ChannelServer cs = ChannelServer.getInstance();
 		switch (mode) {
 		case 5: { // Find
 			final String recipient = reader.readLengthPrefixedString();
-			ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
+			ChannelCharacter target = cs.getPlayerStorage().getCharacterByName(recipient);
 			if (target != null) {
 				if (!target.isGM() || player.isGM() && target.isGM()) {
 					c.write(ChannelPackets.getFindReplyWithMap(target.getName(), target.getMap().getId()));
@@ -194,7 +195,7 @@ public class ChatHandler {
 			final String recipient = reader.readLengthPrefixedString();
 			final String text = reader.readLengthPrefixedString();
 
-			ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
+			ChannelCharacter target = cs.getPlayerStorage().getCharacterByName(recipient);
 			if (target != null) {
 				target.getClient().write(ChannelPackets.getWhisper(player.getName(), c.getChannelId(), text));
 				if (target.isGM()) {

@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.BuffStat;
@@ -849,7 +850,7 @@ public class PlayerHandler {
             }
             reader.skip(1);
             final boolean wheel = reader.readShort() > 0;
-            final GameMapFactory mapFactory = c.getChannelServer().getMapFactory();
+            final GameMapFactory mapFactory = ChannelServer.getInstance().getMapFactory();
 
             if (targetid != -1 && !chr.isAlive()) {
                 if (chr.getEventInstance() != null) {

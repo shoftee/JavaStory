@@ -187,10 +187,6 @@ public final class Guild {
         return leader;
     }
 
-    public ChannelCharacter getLeader(final ChannelClient c) {
-        return c.getChannelServer().getPlayerStorage().getCharacterById(leader);
-    }
-
     public int getGuildPoints() {
         return guildPoints;
     }
@@ -555,7 +551,7 @@ public final class Guild {
     // so this will be running mostly on a channel server, unlike the rest
     // of the class
     public static GuildOperationResponse sendInvite(final ChannelClient c, final String targetName) {
-        final ChannelCharacter mc = c.getChannelServer().getPlayerStorage().getCharacterByName(targetName);
+        final ChannelCharacter mc = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(targetName);
         if (mc == null) {
             return GuildOperationResponse.NOT_IN_CHANNEL;
         }

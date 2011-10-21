@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.DiseaseValue;
 import javastory.channel.DoorInfo;
 import javastory.channel.Guild;
@@ -737,7 +738,7 @@ public final class ChannelPackets {
             builder.writeInt(0);
             builder.writeInt(0);
         } else {
-            final GuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+            final GuildSummary gs = ChannelServer.getInstance().getGuildSummary(chr.getGuildId());
 
             if (gs != null) {
                 builder.writeLengthPrefixedString(gs.getName());
@@ -1469,7 +1470,7 @@ public final class ChannelPackets {
             builder.writeLengthPrefixedString("");
             //builder.writeLengthPrefixedString("Resets: " + chr.getReborns());
         } else {
-            final GuildSummary gs = chr.getClient().getChannelServer().getGuildSummary(chr.getGuildId());
+            final GuildSummary gs = ChannelServer.getInstance().getGuildSummary(chr.getGuildId());
             builder.writeLengthPrefixedString(gs.getName());
             builder.writeLengthPrefixedString("");
         }
@@ -2870,7 +2871,7 @@ public final class ChannelPackets {
         builder.writeAsByte(0x1A); //signature for showing guild info
 
         // TODO: Client is only used to get the guild information. Retarded.
-        final Guild guild = c.getChannelServer().getGuild(guildId);
+        final Guild guild = ChannelServer.getInstance().getGuild(guildId);
 
         builder.writeAsByte(1); //bInGuild
         builder.writeInt(guildId); //not entirely sure about this one

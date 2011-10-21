@@ -59,13 +59,11 @@ public class EventInstanceManager {
     private List<Integer> mapIds = new LinkedList<>();
     private ScheduledFuture<?> eventTimer;
     private final Lock mutex = new ReentrantLock();
-    private int world;
 
-    public EventInstanceManager(EventManager em, String name, GameMapFactory factory, int world) {
+    public EventInstanceManager(EventManager em, String name, GameMapFactory factory) {
         this.eventManager = em;
         this.name = name;
         mapFactory = factory;
-        this.world = world;
     }
 
     public void registerPlayer(ChannelCharacter chr) {
@@ -387,13 +385,13 @@ public class EventInstanceManager {
     }
 
     public final GameMap createInstanceMap(final int mapid) {
-        int assignedid = eventManager.getChannelServer().getEventSM(world).getNewInstanceMapId();
+        int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
         return mapFactory.CreateInstanceMap(mapid, true, true, true, assignedid);
     }
 
     public final GameMap createInstanceMapS(final int mapid) {
-        final int assignedid = eventManager.getChannelServer().getEventSM(world).getNewInstanceMapId();
+        final int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
         return mapFactory.CreateInstanceMap(mapid, false, false, false, assignedid);
     }

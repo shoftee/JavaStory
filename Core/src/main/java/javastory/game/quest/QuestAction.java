@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelServer;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.InventoryManipulator;
@@ -117,7 +118,7 @@ public class QuestAction implements Serializable {
                     break;
                 }
                 c.gainExp((WzDataTool.getInt(data, 0)
-                        * (c.getLevel() <= 10 ? 1 : c.getClient().getChannelServer().getExpRate())), true, true, true);
+                        * (c.getLevel() <= 10 ? 1 : ChannelServer.getInstance().getExpRate())), true, true, true);
                 break;
             case ITEM:
                 // first check for randomness in item selection
@@ -342,7 +343,7 @@ public class QuestAction implements Serializable {
         switch (actionType) {
             case EXP: {
                 c.gainExp((WzDataTool.getInt(data, 0)
-                        * (c.getLevel() <= 10 ? 1 : c.getClient().getChannelServer().getExpRate())), true, true, true);
+                        * (c.getLevel() <= 10 ? 1 : ChannelServer.getInstance().getExpRate())), true, true, true);
                 break;
             }
             case ITEM: {

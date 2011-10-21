@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
@@ -191,7 +192,7 @@ public class PlayerInteractionHandler {
 
                         if (shop.getShopType() == 1) {
                             final HiredMerchantStore merchant = (HiredMerchantStore) shop;
-                            merchant.setStoreid(c.getChannelServer().addMerchant(merchant));
+                            merchant.setStoreid(ChannelServer.getInstance().addMerchant(merchant));
                             merchant.setOpen(true);
                             chr.getMap().broadcastMessage(PlayerShopPacket.spawnHiredMerchant(merchant));
                             chr.setPlayerShop(null);

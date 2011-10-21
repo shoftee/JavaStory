@@ -167,9 +167,9 @@ public class Monster extends AbstractLoadedGameLife {
         final PartyMember member = from.getPartyMembership();
         if (member != null) {
             member.getPartyId();
-            attacker = new PartyAttackerEntry(member.getPartyId(), from.getClient().getChannelServer());
+            attacker = new PartyAttackerEntry(member.getPartyId());
         } else {
-            attacker = new SingleAttackerEntry(from, from.getClient().getChannelServer());
+            attacker = new SingleAttackerEntry(from, ChannelServer.getInstance());
         }
         boolean replaced = false;
         for (final AttackerEntry aentry : attackers) {
@@ -310,7 +310,7 @@ public class Monster extends AbstractLoadedGameLife {
     }
 
     public final ChannelCharacter killBy(final ChannelCharacter killer) {
-        int totalBaseExp = (Math.min(Integer.MAX_VALUE, (getMobExp() * killer.getClient().getChannelServer().getExpRate())));
+        int totalBaseExp = (Math.min(Integer.MAX_VALUE, (getMobExp() * ChannelServer.getInstance().getExpRate())));
         AttackerEntry highest = null;
         int highdamage = 0;
         for (final AttackerEntry attackEntry : attackers) {
@@ -969,18 +969,16 @@ public class Monster extends AbstractLoadedGameLife {
         private int totDamage;
         private final Map<Integer, OnePartyAttacker> attackers = new HashMap<>(6);
         private int partyid;
-        private ChannelServer cserv;
 
-        public PartyAttackerEntry(final int partyid, final ChannelServer cserv) {
+        public PartyAttackerEntry(final int partyid) {
             this.partyid = partyid;
-            this.cserv = cserv;
         }
 
         @Override
 		public List<AttackingMapleCharacter> getAttackers() {
             final List<AttackingMapleCharacter> ret = new ArrayList<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> entry : attackers.entrySet()) {
-                final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(entry.getKey());
+                final ChannelCharacter chr = ChannelServer.getInstance().getPlayerStorage().getCharacterById(entry.getKey());
                 if (chr != null) {
                     ret.add(new AttackingMapleCharacter(chr, entry.getValue().lastAttackTime));
                 }
@@ -991,7 +989,7 @@ public class Monster extends AbstractLoadedGameLife {
         private Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
             final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> aentry : attackers.entrySet()) {
-                final ChannelCharacter chr = cserv.getPlayerStorage().getCharacterById(aentry.getKey());
+                final ChannelCharacter chr = ChannelServer.getInstance().getPlayerStorage().getCharacterById(aentry.getKey());
                 if (chr != null) {
                     ret.put(chr, aentry.getValue());
                 }
@@ -1050,7 +1048,7 @@ public class Monster extends AbstractLoadedGameLife {
                 expApplicable = new ArrayList<>();
                 for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
-                        pchr = cserv.getPlayerStorage().getCharacterByName(partychar.getName());
+                        pchr = ChannelServer.getInstance().getPlayerStorage().getCharacterByName(partychar.getName());
                         if (pchr != null) {
                             if (pchr.isAlive() && pchr.getMap() == map) {
                                 expApplicable.add(pchr);

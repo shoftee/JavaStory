@@ -606,7 +606,7 @@ public class InventoryHandler {
 				boolean warped = false;
 
 				for (int i = 390001000; i <= 390001004; i++) {
-					map = c.getChannelServer().getMapFactory()
+					map = ChannelServer.getInstance().getMapFactory()
 							.getMap(i);
 
 					if (map.getCharactersSize() == 0) {
@@ -733,7 +733,7 @@ public class InventoryHandler {
 														true));
 			if (GameConstants.gachaponRareItem(item.getItemId()) > 0) {
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastMessage(	ChannelPackets
 														.getGachaponMega(	c.getPlayer()
@@ -743,7 +743,7 @@ public class InventoryHandler {
 																			(byte) 2)
 														.getBytes());
 				} catch (RemoteException e) {
-					c.getChannelServer().pingWorld();
+					ChannelServer.getInstance().pingWorld();
 				}
 			}
 		} else {
@@ -773,7 +773,7 @@ public class InventoryHandler {
 			final QuestInfo quest = QuestInfoProvider.getInfo(questid);
 			if (player.getQuestStatus(questid).getState() == 1
 					&& quest.canComplete(player, npcid)) {
-				final GameMap map = c.getChannelServer()
+				final GameMap map = ChannelServer.getInstance()
 						.getMapFactory()
 						.getMap(LifeFactory.getNPCLocation(npcid));
 				if (map.containsNPC(npcid) != -1) {
@@ -788,7 +788,7 @@ public class InventoryHandler {
 		case 5040000: // The Teleport Rock
 		case 5040001: { // Teleport Coke
 			if (reader.readByte() == 0) { // Rocktype
-				final GameMap target = c.getChannelServer()
+				final GameMap target = ChannelServer.getInstance()
 						.getMapFactory()
 						.getMap(reader.readInt());
 				if (!FieldLimitType.VipRock.check(player.getMap()
@@ -798,11 +798,11 @@ public class InventoryHandler {
 					used = true;
 				}
 			} else {
-				final ChannelCharacter victim = c.getChannelServer()
+				final ChannelCharacter victim = ChannelServer.getInstance()
 						.getPlayerStorage()
 						.getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
-					if (!FieldLimitType.VipRock.check(c.getChannelServer()
+					if (!FieldLimitType.VipRock.check(ChannelServer.getInstance()
 							.getMapFactory()
 							.getMap(victim.getMapId()).getFieldLimit())) {
 						if (itemId == 5041000 || (victim.getMapId()
@@ -1329,7 +1329,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5071000: { // Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String message = reader.readLengthPrefixedString();
 
 				if (message.length() > 65) {
@@ -1353,7 +1353,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5077000: { // 3 line Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final byte numLines = reader.readByte();
 				if (numLines > 3) {
 					return;
@@ -1370,7 +1370,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() > 0;
 
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.tripleSmega(messages,
@@ -1389,7 +1389,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5073000: { // Heart Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String message = reader.readLengthPrefixedString();
 
 				if (message.length() > 65) {
@@ -1404,7 +1404,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(9,
@@ -1424,7 +1424,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5074000: { // Skull Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String message = reader.readLengthPrefixedString();
 
 				if (message.length() > 65) {
@@ -1439,7 +1439,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(10,
@@ -1459,7 +1459,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5072000: { // Super Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String message = reader.readLengthPrefixedString();
 				if (message.length() > 65) {
 					break;
@@ -1471,7 +1471,7 @@ public class InventoryHandler {
 				sb.append(message);
 				final boolean ear = reader.readByte() != 0;
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.serverNotice(3,
@@ -1491,7 +1491,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5076000: { // Item Megaphone
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String message = reader.readLengthPrefixedString();
 
 				if (message.length() > 65) {
@@ -1513,7 +1513,7 @@ public class InventoryHandler {
 				}
 
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.itemMegaphone(sb.toString(),
@@ -1706,14 +1706,14 @@ public class InventoryHandler {
 		case 5390004: // New Year Megassenger 2
 		case 5390005: // Cute Tiger Messenger
 		case 5390006: { // Tiger Roar's Messenger
-			if (!c.getChannelServer().getMegaphoneMuteState()) {
+			if (!ChannelServer.getInstance().getMegaphoneMuteState()) {
 				final String text = reader.readLengthPrefixedString();
 				if (text.length() > 55) {
 					break;
 				}
 				final boolean ear = reader.readByte() != 0;
 				try {
-					c.getChannelServer()
+					ChannelServer.getInstance()
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.getAvatarMega(player,
@@ -1803,7 +1803,7 @@ public class InventoryHandler {
 			PartyMember member = chr.getPartyMembership();
 			if (member != null && mapItem.getOwner() == chr.getId()) {
 				final List<ChannelCharacter> toGive = new LinkedList<>();
-				final ChannelServer channelServer = c.getChannelServer();
+				final ChannelServer channelServer = ChannelServer.getInstance();
 
 				Party party = chr.getParty();
 				for (final ChannelCharacter m : channelServer
@@ -1873,7 +1873,7 @@ public class InventoryHandler {
 			if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
 				final List<ChannelCharacter> toGive = new LinkedList<>();
 
-				for (final ChannelCharacter m : c.getChannelServer()
+				for (final ChannelCharacter m : ChannelServer.getInstance()
 						.getPartyMembers(chr.getParty().getId())) {
 					// TODO, store info in MaplePartyCharacter instead
 					if (m != null) {

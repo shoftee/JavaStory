@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.tools.packets.ChannelPackets;
 
 public final class AutobanManager implements Runnable {
@@ -84,9 +85,9 @@ public final class AutobanManager implements Runnable {
 		sb.append(", ");
 	    }
 	    try {
-		c.getChannelServer().getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
+		ChannelServer.getInstance().getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
 	    } catch (final RemoteException e) {
-		c.getChannelServer().pingWorld();
+		ChannelServer.getInstance().pingWorld();
 	    }
 //		Calendar cal = Calendar.getInstance();
 //		cal.add(Calendar.DATE, 60);
