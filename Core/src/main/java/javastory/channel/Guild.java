@@ -13,11 +13,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.client.MemberRank;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.rmi.ChannelWorldInterface;
-import javastory.server.ChannelServer;
 import javastory.server.GameService;
 import javastory.server.Notes;
 import javastory.tools.packets.ChannelPackets;
@@ -51,7 +50,7 @@ public final class Guild {
         super();
         int guildid = initiator.getGuildId();
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid="
                     + guildid);
             ResultSet rs = ps.executeQuery();
@@ -104,7 +103,7 @@ public final class Guild {
 
     public Guild(final int guildId) {
         // retrieves the guild from database, with guildid
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `guilds` WHERE `guildid` = ?")) {
             ps.setInt(1, guildId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -139,7 +138,7 @@ public final class Guild {
 
     private void writeToDB(final boolean bDisband) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             if (!bDisband) {
                 StringBuilder buf = new StringBuilder();
                 buf.append("UPDATE guilds SET GP = ?, logo = ?, ");
@@ -306,20 +305,7 @@ public final class Guild {
     }
 
     public void guildMessage(final GamePacket packet) {
-        for (final GuildMember mgc : members.values()) {
-            for (final ChannelServer cs : ChannelManager.getAllInstances()) {
-                if (cs.getPlayerStorage().getCharacterById(mgc.getCharacterId())
-                        != null) {
-                    final ChannelCharacter character = cs.getPlayerStorage().getCharacterById(mgc.getCharacterId());
-                    if (packet != null) {
-                        character.getClient().write(packet);
-                    } else {
-                        character.getMap().removePlayer(character);
-                        character.getMap().addPlayer(character);
-                    }
-                }
-            }
-        }
+    	// TODO: Not done. Complete when proper ChannelServer remoting is done.
     }
 
     public void setOnline(final int cid, final boolean online, final int channel) {
@@ -357,7 +343,7 @@ public final class Guild {
     // function to create guild, returns the guild id if successful, 0 if not
     public static int createGuild(final int leaderId, final String name) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT guildid FROM guilds WHERE name = ?");
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
@@ -450,7 +436,7 @@ public final class Guild {
     public void setGuildNotice(final String notice) {
         this.notice = notice;
         broadcast(ChannelPackets.guildNotice(id, notice));
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET notice = ? WHERE guildid = ?")) {
             ps.setString(1, notice);
             ps.setInt(2, id);
@@ -479,7 +465,7 @@ public final class Guild {
         }
         broadcast(ChannelPackets.rankTitleChange(id, titles));
 
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?")) {
             ps.setString(1, rankTitles.get(MemberRank.MASTER));
             ps.setString(2, rankTitles.get(MemberRank.JR_MASTER));
@@ -504,7 +490,7 @@ public final class Guild {
         this.logo = logo;
         this.logoColor = logocolor;
         broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?")) {
             ps.setInt(1, logo);
             ps.setInt(2, logoColor);
@@ -523,7 +509,7 @@ public final class Guild {
         }
         capacity += 5;
         broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?")) {
             ps.setInt(1, this.capacity);
             ps.setInt(2, this.id);
@@ -537,7 +523,7 @@ public final class Guild {
     public void gainGuildPoints(final int amount) {
         guildPoints += amount;
         guildMessage(ChannelPackets.updateGuildPoints(id, guildPoints));
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
 
         try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?")) {
             ps.setInt(1, this.guildPoints);

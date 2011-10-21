@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
 import javastory.channel.PartyMember;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.MemberRank;
@@ -32,10 +31,9 @@ import javastory.client.Equip;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.Stat;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.game.quest.QuestInfoProvider;
-import javastory.server.ChannelServer;
 import javastory.server.ItemInfoProvider;
 import javastory.server.StatValue;
 import javastory.server.channel.MapleGuildRanking;
@@ -110,77 +108,77 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void sendNext(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"00 01", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"00 01", (byte) 0));
 	}
 
 	public void sendNextS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"00 01", type));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"00 01", type));
 	}
 
 	public void sendPrev(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"01 00", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"01 00", (byte) 0));
 	}
 
 	public void sendPrevS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"01 00", type));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"01 00", type));
 	}
 
 	public void sendNextPrev(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"01 01", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"01 01", (byte) 0));
 	}
 
 	public void sendNextPrevS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"01 01", type));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"01 01", type));
 	}
 
 	public void sendOk(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"00 00", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"00 00", (byte) 0));
 	}
 
 	public void sendOkS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0,
-															text,
-															"00 00", type));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0,
+														text,
+														"00 00", type));
 	}
 
 	public void sendYesNo(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 2,
-															text,
-															"", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 2,
+														text,
+														"", (byte) 0));
 	}
 
 	public void sendYesNoS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 2,
-															text,
-															"", type));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 2,
+														text,
+														"", type));
 	}
 
 	public void askAcceptDecline(String text) {
 		super.client
-				.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0x0C,
-														text,
-														"", (byte) 0));
+				.write(ChannelPackets.getNPCTalk(npcId, (byte) 0x0C,
+													text,
+													"", (byte) 0));
 	}
 
 	public void askAcceptDeclineNoESC(String text) {
 		super.client
-				.write(ChannelPackets.getNPCTalk(	npcId, (byte) 0x0E,
-														text,
-														"", (byte) 0));
+				.write(ChannelPackets.getNPCTalk(npcId, (byte) 0x0E,
+													text,
+													"", (byte) 0));
 	}
 
 	public void askAvatar(String text, int... args) {
@@ -189,14 +187,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void sendSimple(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(	npcId, (byte) 5,
-															text,
-															"", (byte) 0));
+		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 5,
+														text,
+														"", (byte) 0));
 	}
 
 	public void sendGetNumber(String text, int def, int min, int max) {
 		super.client.write(ChannelPackets.getNPCTalkNum(npcId, text, def,
-															min, max));
+														min, max));
 	}
 
 	public void sendGetText(String text) {
@@ -277,14 +275,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 				super.client
 						.getChannelServer()
 						.getWorldInterface()
-						.broadcastMessage(	ChannelPackets
-													.getGachaponMega(	super.client
-																				.getPlayer()
-																				.getName(),
-																		" : Lucky winner of Gachapon! Congratulations~",
-																		item,
-																		rareness)
-													.getBytes());
+						.broadcastMessage(ChannelPackets
+								.getGachaponMega(super.client
+										.getPlayer()
+										.getName(),
+													" : Lucky winner of Gachapon! Congratulations~",
+													item,
+													rareness)
+								.getBytes());
 			} catch (RemoteException e) {
 				super.client.getChannelServer().pingWorld();
 			}
@@ -390,8 +388,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void environmentChange(boolean broadcast, String env) {
 		if (broadcast) {
 			super.client.getPlayer().getMap()
-					.broadcastMessage(	ChannelPackets
-												.environmentChange(env, 2));
+					.broadcastMessage(ChannelPackets
+							.environmentChange(env, 2));
 		} else {
 			super.client.write(ChannelPackets.environmentChange(env, 2));
 		}
@@ -422,17 +420,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (!getPlayer().hasParty()) {
 			return null;
 		}
-		List<ChannelCharacter> chars = new LinkedList<>(); // creates an empty
-															// array full of
-															// shit..
-		for (ChannelServer channel : ChannelManager.getAllInstances()) {
-			for (ChannelCharacter chr : channel.getPartyMembers(getPlayer()
-					.getParty().getId())) {
-				if (chr != null) { // double check <3
-					chars.add(chr);
-				}
-			}
-		}
+		List<ChannelCharacter> chars = new LinkedList<>();
+		// TODO: Not done. Finish when ChannelServer remoting is done.
 		return chars;
 	}
 
@@ -490,9 +479,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void registerSquad(String type, int minutes, String startText) {
 		final ChannelCharacter player = super.client.getPlayer();
 
-		final Squad squad = new Squad(super.client.getChannelId(), type,
-										player, minutes
-										* 60 * 1000);
+		final Squad squad = new Squad(type, player, minutes * 60 * 1000);
 		final GameMap map = player.getMap();
 
 		map.broadcastMessage(ChannelPackets.getClock(minutes * 60));
@@ -614,9 +601,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		} else {
 			getPlayer()
 					.getClient()
-					.write(	ChannelPackets
-									.serverNotice(	6,
-													"You have reached the maximum amount of rebirths!"));
+					.write(ChannelPackets
+							.serverNotice(6,
+											"You have reached the maximum amount of rebirths!"));
 		}
 	}
 
@@ -731,7 +718,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void giveMerchantMesos() {
 		long mesos = 0;
 		try {
-			Connection con = DatabaseConnection.getConnection();
+			Connection con = Database.getConnection();
 			PreparedStatement ps = con
 					.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?");
 			ps.setInt(1, getPlayer().getId());
@@ -758,7 +745,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public long getMerchantMesos() {
 		long mesos = 0;
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try (PreparedStatement ps = con
 				.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?")) {
 			ps.setInt(1, getPlayer().getId());
@@ -855,7 +842,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (inventory == null) {
 			return false;
 		}
-		InventoryManipulator.drop(	super.client, inventory, (short) slot,
+		InventoryManipulator.drop(super.client, inventory, (short) slot,
 									(short) quantity);
 		return true;
 	}

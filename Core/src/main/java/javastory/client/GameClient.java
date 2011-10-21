@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ScheduledFuture;
 
 import javastory.cryptography.AesTransform;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.TimerManager;
@@ -125,7 +125,7 @@ public abstract class GameClient {
 
 	public void unban() {
 		try {
-			Connection con = DatabaseConnection.getConnection();
+			Connection con = Database.getConnection();
 			PreparedStatement ps = con
 					.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
 			ps.setInt(1, getAccountId());
@@ -167,7 +167,7 @@ public abstract class GameClient {
 	protected void logOff() {
 		if (loggedIn) {
 			try {
-				Connection con = DatabaseConnection.getConnection();
+				Connection con = Database.getConnection();
 				PreparedStatement ps = con
 						.prepareStatement("UPDATE `accounts` SET `loggedin` = ? WHERE `id` = ?");
 				ps.setBoolean(1, false);

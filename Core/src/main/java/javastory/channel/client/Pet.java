@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javastory.channel.movement.AbsoluteLifeMovement;
 import javastory.channel.movement.LifeMovement;
 import javastory.channel.movement.LifeMovementFragment;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.server.ItemInfoProvider;
 
 public class Pet implements Serializable {
@@ -45,7 +45,7 @@ public class Pet implements Serializable {
 		try {
 			final Pet ret = new Pet(itemId, petid, inventorypos);
 
-			Connection con = DatabaseConnection.getConnection(); 
+			Connection con = Database.getConnection(); 
 			
 			// Get pet details..
 			PreparedStatement ps = con
@@ -72,7 +72,7 @@ public class Pet implements Serializable {
 
 	public final void saveToDb() {
 		try {
-			final PreparedStatement ps = DatabaseConnection
+			final PreparedStatement ps = Database
 					.getConnection()
 					.prepareStatement(	"UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ? WHERE petid = ?");
 			ps.setString(1, name); // Set name
@@ -90,7 +90,7 @@ public class Pet implements Serializable {
 	public static Pet createPet(final int petItemId) {
 		int ret;
 		try { // Commit to db first
-			final PreparedStatement ps = DatabaseConnection
+			final PreparedStatement ps = Database
 					.getConnection()
 					.prepareStatement(	"INSERT INTO pets (name, level, closeness, fullness) VALUES (?, ?, ?, ?)",
 										Statement.RETURN_GENERATED_KEYS);

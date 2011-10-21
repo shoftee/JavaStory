@@ -16,7 +16,7 @@ import javastory.channel.client.Pet;
 import javastory.channel.client.SkillFactory;
 import javastory.client.IItem;
 import javastory.client.Inventory;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.game.Skills;
@@ -185,7 +185,7 @@ public class Shop {
 	int shopId;
 
 	try {
-	    Connection con = DatabaseConnection.getConnection();
+	    Connection con = Database.getConnection();
 	    PreparedStatement ps = con.prepareStatement(isShopId ? "SELECT * FROM shops WHERE shopid = ?" : "SELECT * FROM shops WHERE npcid = ?");
 	    
 	    ps.setInt(1, id);

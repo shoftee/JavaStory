@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 public final class GameCharacterUtil {
 
@@ -34,7 +34,7 @@ public final class GameCharacterUtil {
 	}
 
 	public static int getIdByName(final String name) {
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try (PreparedStatement ps = con
 				.prepareStatement("SELECT `id` FROM `characters` WHERE `name` = ?")) {
 			ps.setString(1, name);

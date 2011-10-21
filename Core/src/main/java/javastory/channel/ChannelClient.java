@@ -9,7 +9,6 @@ import javastory.channel.shops.PlayerShop;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
 import javastory.scripting.NpcScriptManager;
-import javastory.server.ChannelServer;
 import javastory.tools.LogUtil;
 import javastory.world.core.PartyOperation;
 
@@ -83,7 +82,7 @@ public final class ChannelClient extends GameClient {
     }
 
     public final ChannelServer getChannelServer() {
-        return ChannelManager.getInstance(super.getChannelId());
+    	return ChannelServer.getInstance();
     }
 
     public final void setScriptEngine(final String name, final ScriptEngine e) {

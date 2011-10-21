@@ -4,241 +4,211 @@ import java.rmi.RemoteException;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
+import javastory.channel.ChannelServer;
 import javastory.channel.Messenger;
 import javastory.channel.MessengerMember;
 import javastory.channel.PartyMember;
-import javastory.channel.client.messages.CommandProcessor;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.rmi.WorldChannelInterface;
-import javastory.server.ChannelServer;
 import javastory.tools.packets.ChannelPackets;
 
 public class ChatHandler {
 
-    public static void handleGeneralChat(final String text, final byte unk, final ChannelClient c, final ChannelCharacter chr) {
-        if (!CommandProcessor.getInstance().processCommand(c, text)) {
-            if (!chr.isGM() && text.length() >= 80) {
-                return;
-            }
-            final ChannelCharacter player = c.getPlayer();
-            chr.getMap().broadcastMessage(ChannelPackets.getChatText(chr.getId(), text, player.isGM(), unk), player.getPosition());
-        }
-    }
+	public static void handleGeneralChat(final String text, final byte unk, final ChannelClient c, final ChannelCharacter chr) {
+		// TODO: Add commands later.
+		if (!chr.isGM() && text.length() >= 80) {
+			return;
+		}
+		final ChannelCharacter player = c.getPlayer();
+		chr.getMap().broadcastMessage(ChannelPackets.getChatText(chr.getId(), text, player.isGM(), unk), player.getPosition());
+	}
 
-    public static void handleGroupChat(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
-        final int type = reader.readByte();
-        final byte numRecipients = reader.readByte();
-        int recipients[] = new int[numRecipients];
+	public static void handleGroupChat(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+		final int type = reader.readByte();
+		final byte numRecipients = reader.readByte();
+		int recipients[] = new int[numRecipients];
 
-        for (byte i = 0; i < numRecipients; i++) {
-            recipients[i] = reader.readInt();
-        }
-        final String message = reader.readLengthPrefixedString();
+		for (byte i = 0; i < numRecipients; i++) {
+			recipients[i] = reader.readInt();
+		}
+		final String message = reader.readLengthPrefixedString();
 
-        try {
-            final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
-            switch (type) {
-                case 0:
-                    worldInterface.buddyChat(recipients, chr.getId(), chr.getName(), message);
-                    break;
-                case 1:
-                    PartyMember member = chr.getPartyMembership();
-                    if (member == null) break;
-                    
-                    worldInterface.partyChat(member.getPartyId(), message, chr.getName());
-                    break;
-                case 2:
-                    worldInterface.guildChat(chr.getGuildId(), chr.getName(), chr.getId(), message);
-                    break;
-            }
-        } catch (RemoteException e) {
-            c.getChannelServer().pingWorld();
-        }
-    }
+		try {
+			final WorldChannelInterface worldInterface = c.getChannelServer().getWorldInterface();
+			switch (type) {
+			case 0:
+				worldInterface.buddyChat(recipients, chr.getId(), chr.getName(), message);
+				break;
+			case 1:
+				PartyMember member = chr.getPartyMembership();
+				if (member == null)
+					break;
 
-    public static void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
-        String input;
-        final WorldChannelInterface wci = c.getChannelServer().getWorldInterface();
-        final ChannelCharacter player = c.getPlayer();
-        Messenger messenger = player.getMessenger();
+				worldInterface.partyChat(member.getPartyId(), message, chr.getName());
+				break;
+			case 2:
+				worldInterface.guildChat(chr.getGuildId(), chr.getName(), chr.getId(), message);
+				break;
+			}
+		} catch (RemoteException e) {
+			c.getChannelServer().pingWorld();
+		}
+	}
 
-        switch (reader.readByte()) {
-            case 0x00: // open
-                if (messenger == null) {
-                    int messengerid = reader.readInt();
-                    if (messengerid == 0) { // create
-                        try {
-                            final MessengerMember messengerplayer = new MessengerMember(player);
-                            messenger = wci.createMessenger(messengerplayer);
-                            player.setMessenger(messenger);
-                            player.setMessengerPosition(0);
-                        } catch (RemoteException e) {
-                            c.getChannelServer().pingWorld();
-                        }
-                    } else { // join
-                        try {
-                            messenger = wci.getMessenger(messengerid);
-                            final int position = messenger.getLowestPosition();
-                            final MessengerMember messengerplayer = new MessengerMember(player, position);
-                            if (messenger != null) {
-                                if (messenger.getMembers().size() < 3) {
-                                    player.setMessenger(messenger);
-                                    player.setMessengerPosition(position);
-                                    wci.joinMessenger(messenger.getId(), messengerplayer, player.getName(), messengerplayer.getChannel());
-                                }
-                            }
-                        } catch (RemoteException e) {
-                            c.getChannelServer().pingWorld();
-                        }
-                    }
-                }
-                break;
-            case 0x02: // exit
-                if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(player);
-                    try {
-                        wci.leaveMessenger(messenger.getId(), messengerplayer);
-                    } catch (RemoteException e) {
-                        c.getChannelServer().pingWorld();
-                    }
-                    player.setMessenger(null);
-                    player.setMessengerPosition(4);
-                }
-                break;
-            case 0x03: // invite
-                if (messenger.getMembers().size() < 3) {
-                    input = reader.readLengthPrefixedString();
-                    final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
+	public static void handleMessenger(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+		String input;
+		final WorldChannelInterface wci = c.getChannelServer().getWorldInterface();
+		final ChannelCharacter player = c.getPlayer();
+		Messenger messenger = player.getMessenger();
 
-                    if (target != null) {
-                        if (target.getMessenger() == null) {
-                            target.getClient().write(ChannelPackets.messengerInvite(player.getName(), messenger.getId()));
+		switch (reader.readByte()) {
+		case 0x00: // open
+			if (messenger == null) {
+				int messengerid = reader.readInt();
+				if (messengerid == 0) { // create
+					try {
+						final MessengerMember messengerplayer = new MessengerMember(player);
+						messenger = wci.createMessenger(messengerplayer);
+						player.setMessenger(messenger);
+						player.setMessengerPosition(0);
+					} catch (RemoteException e) {
+						c.getChannelServer().pingWorld();
+					}
+				} else { // join
+					try {
+						messenger = wci.getMessenger(messengerid);
+						final int position = messenger.getLowestPosition();
+						final MessengerMember messengerplayer = new MessengerMember(player, position);
+						if (messenger != null) {
+							if (messenger.getMembers().size() < 3) {
+								player.setMessenger(messenger);
+								player.setMessengerPosition(position);
+								wci.joinMessenger(messenger.getId(), messengerplayer, player.getName(), messengerplayer.getChannel());
+							}
+						}
+					} catch (RemoteException e) {
+						c.getChannelServer().pingWorld();
+					}
+				}
+			}
+			break;
+		case 0x02: // exit
+			if (messenger != null) {
+				final MessengerMember messengerplayer = new MessengerMember(player);
+				try {
+					wci.leaveMessenger(messenger.getId(), messengerplayer);
+				} catch (RemoteException e) {
+					c.getChannelServer().pingWorld();
+				}
+				player.setMessenger(null);
+				player.setMessengerPosition(4);
+			}
+			break;
+		case 0x03: // invite
+			if (messenger.getMembers().size() < 3) {
+				input = reader.readLengthPrefixedString();
+				final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(input);
 
-                            if (!target.isGM()) {
-                                c.write(ChannelPackets.messengerNote(input, 4, 1));
-                            } else {
-                                c.write(ChannelPackets.messengerNote(input, 4, 0));
-                            }
-                        } else {
-                            c.write(ChannelPackets.messengerChat(player.getName() +
-                                    " : " + input +
-                                    " is already using Maple Messenger"));
-                        }
-                    } else {
-                        try {
-                            if (wci.isConnected(input)) {
-                                wci.messengerInvite(player.getName(), messenger.getId(), input, c.getChannelId());
-                            } else {
-                                c.write(ChannelPackets.messengerNote(input, 4, 0));
-                            }
-                        } catch (RemoteException e) {
-                            c.getChannelServer().pingWorld();
-                        }
-                    }
-                }
-                break;
-            case 0x05: // decline
-                final String targeted = reader.readLengthPrefixedString();
-                final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
-                if (target != null) { // This channel
-                    if (target.getMessenger() != null) {
-                        target.getClient().write(ChannelPackets.messengerNote(player.getName(), 5, 0));
-                    }
-                } else { // Other channel
-                    try {
-                        if (!player.isGM()) {
-                            wci.declineChat(targeted, player.getName());
-                        }
-                    } catch (RemoteException e) {
-                        c.getChannelServer().pingWorld();
-                    }
-                }
-                break;
-            case 0x06: // message
-                if (messenger != null) {
-                    final MessengerMember messengerplayer = new MessengerMember(player);
-                    input = reader.readLengthPrefixedString();
-                    try {
-                        wci.messengerChat(messenger.getId(), messengerplayer.getName(), input);
-                    } catch (RemoteException e) {
-                        c.getChannelServer().pingWorld();
-                    }
-                }
-                break;
-        }
-    }
+				if (target != null) {
+					if (target.getMessenger() == null) {
+						target.getClient().write(ChannelPackets.messengerInvite(player.getName(), messenger.getId()));
 
-    public static void handleWhisper(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
-        final byte mode = reader.readByte();
-        reader.readInt();
-        final ChannelCharacter player = c.getPlayer();
-        final ChannelServer chanServ = c.getChannelServer();
-        switch (mode) {
-            case 5: { // Find
-                final String recipient = reader.readLengthPrefixedString();
-                ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
-                if (target != null) {
-                    if (!target.isGM() || player.isGM() && target.isGM()) {
-                        c.write(ChannelPackets.getFindReplyWithMap(target.getName(), target.getMap().getId()));
-                    } else {
-                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                    }
-                } else { // Not found
-                    for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-                        target = cserv.getPlayerStorage().getCharacterByName(recipient);
-                        if (target != null) {
-                            if (!target.isGM() || player.isGM() &&
-                                    target.isGM()) {
-                                c.write(ChannelPackets.getFindReply(target.getName(), (byte) target.getClient().getChannelId()));
-                            } else {
-                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                            }
-                            return;
-                        }
-                    }
-                    c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                }
-                break;
-            }
-            case 6: { // Whisper
-                final String recipient = reader.readLengthPrefixedString();
-                final String text = reader.readLengthPrefixedString();
+						if (!target.isGM()) {
+							c.write(ChannelPackets.messengerNote(input, 4, 1));
+						} else {
+							c.write(ChannelPackets.messengerNote(input, 4, 0));
+						}
+					} else {
+						c.write(ChannelPackets.messengerChat(player.getName() +
+								" : " + input +
+								" is already using Maple Messenger"));
+					}
+				} else {
+					try {
+						if (wci.isConnected(input)) {
+							wci.messengerInvite(player.getName(), messenger.getId(), input, c.getChannelId());
+						} else {
+							c.write(ChannelPackets.messengerNote(input, 4, 0));
+						}
+					} catch (RemoteException e) {
+						c.getChannelServer().pingWorld();
+					}
+				}
+			}
+			break;
+		case 0x05: // decline
+			final String targeted = reader.readLengthPrefixedString();
+			final ChannelCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
+			if (target != null) { // This channel
+				if (target.getMessenger() != null) {
+					target.getClient().write(ChannelPackets.messengerNote(player.getName(), 5, 0));
+				}
+			} else { // Other channel
+				try {
+					if (!player.isGM()) {
+						wci.declineChat(targeted, player.getName());
+					}
+				} catch (RemoteException e) {
+					c.getChannelServer().pingWorld();
+				}
+			}
+			break;
+		case 0x06: // message
+			if (messenger != null) {
+				final MessengerMember messengerplayer = new MessengerMember(player);
+				input = reader.readLengthPrefixedString();
+				try {
+					wci.messengerChat(messenger.getId(), messengerplayer.getName(), input);
+				} catch (RemoteException e) {
+					c.getChannelServer().pingWorld();
+				}
+			}
+			break;
+		}
+	}
 
-                ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
-                if (target != null) {
-                    target.getClient().write(ChannelPackets.getWhisper(player.getName(), c.getChannelId(), text));
-                    if (target.isGM()) {
-                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                    } else {
-                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 1));
-                    }
-                } else { // Not found
-                    for (ChannelServer cserv : ChannelManager.getAllInstances()) {
-                        target = cserv.getPlayerStorage().getCharacterByName(recipient);
-                        if (target != null) {
-                            break;
-                        }
-                    }
-                    if (target != null) {
-                        try {
-                            chanServ.getWorldInterface().whisper(player.getName(), target.getName(), c.getChannelId(), text);
-                            if (!player.isGM() && target.isGM()) {
-                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                            } else {
-                                c.write(ChannelPackets.getWhisperReply(recipient, (byte) 1));
-                            }
-                        } catch (RemoteException re) {
-                            c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                            chanServ.pingWorld();
-                        }
-                    } else {
-                        c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
-                    }
-                }
-                break;
-            }
-        }
-    }
+	public static void handleWhisper(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
+		final byte mode = reader.readByte();
+		reader.readInt();
+		final ChannelCharacter player = c.getPlayer();
+		final ChannelServer chanServ = c.getChannelServer();
+		switch (mode) {
+		case 5: { // Find
+			final String recipient = reader.readLengthPrefixedString();
+			ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
+			if (target != null) {
+				if (!target.isGM() || player.isGM() && target.isGM()) {
+					c.write(ChannelPackets.getFindReplyWithMap(target.getName(), target.getMap().getId()));
+				} else {
+					c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
+				}
+			} else { // Not found
+				// TODO: Not complete, finish when proper ChannelServer remoting
+				// is done.
+				c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
+			}
+			break;
+		}
+		case 6: { // Whisper
+			final String recipient = reader.readLengthPrefixedString();
+			final String text = reader.readLengthPrefixedString();
+
+			ChannelCharacter target = chanServ.getPlayerStorage().getCharacterByName(recipient);
+			if (target != null) {
+				target.getClient().write(ChannelPackets.getWhisper(player.getName(), c.getChannelId(), text));
+				if (target.isGM()) {
+					c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
+				} else {
+					c.write(ChannelPackets.getWhisperReply(recipient, (byte) 1));
+				}
+			} else { // Not found
+				// TODO: Not complete, finish when proper ChannelServer remoting
+				// is done.
+				c.write(ChannelPackets.getWhisperReply(recipient, (byte) 0));
+			}
+			break;
+		}
+		}
+	}
 }

@@ -22,9 +22,9 @@ package javastory.login;
 
 import java.rmi.RemoteException;
 
+import javastory.config.ChannelInfo;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.GenericRemoteObject;
-import javastory.server.ChannelInfo;
 
 public class LoginWorldInterfaceImpl extends GenericRemoteObject implements LoginWorldInterface {
 

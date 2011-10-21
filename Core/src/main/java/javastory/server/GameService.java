@@ -14,7 +14,6 @@ import java.rmi.registry.Registry;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javastory.db.DatabaseConnection;
 import javastory.rmi.Sockets;
 import javastory.server.handling.GameCodecFactory;
 import javastory.server.handling.PacketHandler;
@@ -46,7 +45,6 @@ public abstract class GameService {
 
     private GameService() {
         isWorldReady = new AtomicBoolean(false);
-        DatabaseConnection.initialize();
     }
 
     protected GameService(EndpointInfo endpointInfo) {

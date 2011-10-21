@@ -28,6 +28,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelServer;
 import javastory.channel.Party;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
@@ -36,7 +37,6 @@ import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapFactory;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.server.Squad;
-import javastory.server.ChannelServer;
 import javastory.server.TimerManager;
 import javastory.tools.packets.ChannelPackets;
 
@@ -139,7 +139,7 @@ public class EventManager {
 
 	public EventInstanceManager newInstance(String name) {
 		EventInstanceManager ret = new EventInstanceManager(this, name, cserv
-				.getMapFactory(world), world);
+				.getMapFactory(), world);
 		instances.put(name, ret);
 		return ret;
 	}
@@ -224,15 +224,15 @@ public class EventManager {
 	}
 
 	public void warpAllPlayer(int from, int to) {
-		final GameMap tomap = cserv.getMapFactory(world).getMap(to);
-		for (GameMapObject mmo : cserv.getMapFactory(world).getMap(from)
+		final GameMap tomap = cserv.getMapFactory().getMap(to);
+		for (GameMapObject mmo : cserv.getMapFactory().getMap(from)
 				.getAllPlayer()) {
 			((ChannelCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 		}
 	}
 
-	public GameMapFactory getMapFactory(int world) {
-		return cserv.getMapFactory(world);
+	public GameMapFactory getMapFactory() {
+		return cserv.getMapFactory();
 	}
 
 	public OverrideMonsterStats newMonsterStats() {
@@ -244,7 +244,7 @@ public class EventManager {
 	}
 
 	public void broadcastShip(final int mapid, final int effect) {
-		cserv.getMapFactory(world).getMap(mapid)
+		cserv.getMapFactory().getMap(mapid)
 				.broadcastMessage(ChannelPackets.boatPacket(effect));
 	}
 
@@ -253,7 +253,7 @@ public class EventManager {
 		if (!weather) {
 			cserv.broadcastPacket(ChannelPackets.serverNotice(type, msg));
 		} else {
-			for (Entry<Integer, GameMap> map : cserv.getMapFactory(world)
+			for (Entry<Integer, GameMap> map : cserv.getMapFactory()
 					.getMaps().entrySet()) {
 				final GameMap load = map.getValue();
 				if (load.getCharactersSize() > 0) {

@@ -4,7 +4,7 @@
  */
 package javastory.login;
 
-import javastory.server.ChannelInfo;
+import javastory.config.ChannelInfo;
 
 
 /**
@@ -20,7 +20,7 @@ public class LoginChannelInfo extends ChannelInfo {
 	private int load;
     
     public LoginChannelInfo(ChannelInfo info, int load) {
-        super(info.getId(), info.getName(), info.getHost(), info.getPort());
+        super(info.getWorldId(), info.getId(), info.getName(), info.getHost(), info.getPort());
         this.load = load;
     }
 

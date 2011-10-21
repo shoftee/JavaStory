@@ -15,7 +15,7 @@ import javastory.channel.server.InventoryManipulator;
 import javastory.client.Equip;
 import javastory.client.IItem;
 import javastory.client.Item;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
 import javastory.io.PacketFormatException;
@@ -62,7 +62,7 @@ public final class HiredMerchantHandler {
     }
 
     private static byte checkExistance(final int accid) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where accountid = ?");
             ps.setInt(1, accid);
@@ -166,7 +166,7 @@ public final class HiredMerchantHandler {
     }
 
     private static boolean deletePackage(final int charid) {
-        final Connection con = DatabaseConnection.getConnection();
+        final Connection con = Database.getConnection();
 
         try {
             PreparedStatement ps = con.prepareStatement("DELETE from hiredmerch where characterid = ?");
@@ -180,7 +180,7 @@ public final class HiredMerchantHandler {
     }
 
     private static MerchItemPackage loadItemFrom_Database(final int charid) {
-        final Connection con = DatabaseConnection.getConnection();
+        final Connection con = Database.getConnection();
 
         try {
             PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where characterid = ?");

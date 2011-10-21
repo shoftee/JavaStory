@@ -20,13 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.world;
 
+import java.rmi.AccessException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import javastory.db.DatabaseConnection;
-import java.rmi.AccessException;
-import java.rmi.AlreadyBoundException;
 import javastory.rmi.Sockets;
 
 public class WorldServer {
@@ -35,7 +34,6 @@ public class WorldServer {
     private int worldId;
 
     private WorldServer() {
-        DatabaseConnection.initialize();
     }
 
     public static WorldServer getInstance() {

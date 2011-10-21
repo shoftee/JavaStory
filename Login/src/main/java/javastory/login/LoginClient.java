@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.channel.client.MemberRank;
 import javastory.client.GameCharacterUtil;
 import javastory.client.GameClient;
@@ -54,7 +54,7 @@ public final class LoginClient extends GameClient {
 
     public boolean hasBannedIP() {
         boolean ret = false;
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM ipbans WHERE ? LIKE CONCAT(ip, '%')")) {
             ps.setString(1, super.getSessionIP());
             try (ResultSet rs = ps.executeQuery()) {
@@ -73,7 +73,7 @@ public final class LoginClient extends GameClient {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            final Connection con = DatabaseConnection.getConnection();
+            final Connection con = Database.getConnection();
             ps = con.prepareStatement("SELECT id, level, job, guildid, guildrank, name FROM characters WHERE id = ? AND accountid = ?");
             ps.setInt(1, characterId);
             ps.setInt(2, super.getAccountId());
@@ -154,7 +154,7 @@ public final class LoginClient extends GameClient {
 
     public AuthReplyCode authenticate(String username, String inputPassword) {
         AuthReplyCode replyCode = AuthReplyCode.NOT_REGISTERED;
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `accounts` WHERE `name` = ?")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -207,7 +207,7 @@ public final class LoginClient extends GameClient {
 
     private boolean logOn() {
         boolean success = false;
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement(
                         "UPDATE `accounts` "
                         + "SET `loggedin` = ?, `session_ip` = ?, `lastlogin` = CURRENT_TIMESTAMP() "
@@ -333,7 +333,7 @@ public final class LoginClient extends GameClient {
     }
 
     private void updateCharacterPassword(String newPassword) {
-        final Connection con = DatabaseConnection.getConnection();
+        final Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `char_password` = ?, `char_salt` = ? WHERE id = ?")) {
             final String newSalt = LoginCrypto.makeSalt();
             ps.setString(1, LoginCrypto.padWithRandom(LoginCrypto.makeSaltedSha512Hash(newPassword, newSalt)));

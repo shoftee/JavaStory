@@ -17,7 +17,7 @@ import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.Item;
 import javastory.client.ItemType;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.game.ItemFlag;
 import javastory.io.PacketFormatException;
@@ -195,7 +195,7 @@ public class DueyHandler {
     }
 
     private static boolean addMesoToDB(final int mesos, final String sName, final int recipientID, final boolean isOn) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             final String insertPackage = "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(insertPackage);
@@ -216,7 +216,7 @@ public class DueyHandler {
     }
 
     private static boolean addItemToDB(final IItem item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             final String insertPackage =
                     "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
@@ -293,7 +293,7 @@ public class DueyHandler {
 
     public static List<DueyActions> loadItems(final ChannelCharacter chr) {
         List<DueyActions> packages = new LinkedList<>();
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         final String selectPackageByReceiver =
                 "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE RecieverId = ?";
         try (PreparedStatement ps = con.prepareStatement(selectPackageByReceiver)) {
@@ -317,7 +317,7 @@ public class DueyHandler {
 
     public static DueyActions loadSingleItem(final int packageid, final int charid) {
         List<DueyActions> packages = new LinkedList<>();
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             final String selectPackageByIdAndReceiver =
                     "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE PackageId = ? and RecieverId = ?";
@@ -347,7 +347,7 @@ public class DueyHandler {
     }
 
     public static void reciveMsg(final ChannelClient c, final int recipientId) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?")) {
             ps.setInt(1, recipientId);
             ps.executeUpdate();
@@ -357,7 +357,7 @@ public class DueyHandler {
     }
 
     private static void removeItemFromDB(final int packageid, final int charid) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("DELETE FROM dueypackages WHERE PackageId = ? and RecieverId = ?")){
             ps.setInt(1, packageid);
             ps.setInt(2, charid);

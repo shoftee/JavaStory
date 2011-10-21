@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.client.GameClient;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.io.PacketBuilder;
 import javastory.server.ItemInfoProvider;
@@ -50,7 +50,7 @@ public class MonsterBook implements Serializable {
 
 	public static MonsterBook loadFromDb(final int characterId)
 			throws SQLException {
-		final Connection connection = DatabaseConnection.getConnection();
+		final Connection connection = Database.getConnection();
 
 		final MonsterBook instance = new MonsterBook();
 		try (PreparedStatement ps = connection
@@ -79,7 +79,7 @@ public class MonsterBook implements Serializable {
 		if (!changed || cards.isEmpty()) {
 			return;
 		}
-		final Connection con = DatabaseConnection.getConnection();
+		final Connection con = Database.getConnection();
 		PreparedStatement ps = con
 				.prepareStatement("DELETE FROM monsterbook WHERE charid = ?");
 		ps.setInt(1, charid);

@@ -32,7 +32,7 @@ import java.util.Map;
 import javastory.channel.ChannelClient;
 import javastory.channel.maps.Reactor;
 import javastory.channel.maps.ReactorDropEntry;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -75,7 +75,7 @@ public final class ReactorScriptManager extends AbstractScriptManager {
 	ResultSet rs = null;
 
 	try {
-	    Connection con = DatabaseConnection.getConnection();
+	    Connection con = Database.getConnection();
 	    ps = con.prepareStatement("SELECT * FROM reactordrops WHERE reactorid = ?");
 	    ps.setInt(1, rid);
 	    rs = ps.executeQuery();

@@ -33,7 +33,7 @@ import javastory.channel.client.BuddyList;
 import javastory.channel.client.BuddyListEntry;
 import javastory.channel.client.BuddyOperation;
 import javastory.client.SimpleCharacterInfo;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.rmi.ChannelWorldInterface;
@@ -64,7 +64,7 @@ public class BuddyListHandler {
     }
 
     private static CharacterIdNameBuddyCapacity getCharacterIdAndNameFromDatabase(final String name) throws SQLException {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         CharacterIdNameBuddyCapacity ret;
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM characters WHERE name LIKE ?")) {
             ps.setString(1, name);
@@ -121,7 +121,7 @@ public class BuddyListHandler {
                             final ChannelWorldInterface channelInterface = worldInterface.getChannelInterface(channel);
                             buddyAddResult = channelInterface.requestBuddyAdd(addName, c.getChannelId(), player.getId(), player.getName(), player.getLevel(), player.getJobId());
                         } else {
-                            Connection con = DatabaseConnection.getConnection();
+                            Connection con = Database.getConnection();
                             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) as buddyCount FROM buddies WHERE characterid = ? AND pending = 0");
                             ps.setInt(1, charWithId.getId());
                             ResultSet rs = ps.executeQuery();
@@ -158,7 +158,7 @@ public class BuddyListHandler {
                                 displayChannel = channel;
                                 notifyRemoteChannel(c, channel, otherCid, BuddyOperation.ADDED);
                             } else if (buddyAddResult != BuddyAddResult.ALREADY_ON_LIST && channel == -1) {
-                                Connection con = DatabaseConnection.getConnection();
+                                Connection con = Database.getConnection();
                                 try (PreparedStatement ps = con.prepareStatement("INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 1)")) {
                                     ps.setInt(1, charWithId.getId());
                                     ps.setInt(2, player.getId());
@@ -187,7 +187,7 @@ public class BuddyListHandler {
                     int otherLevel = 0, otherJob = 0;
                     final ChannelCharacter otherChar = c.getChannelServer().getPlayerStorage().getCharacterById(otherCid);
                     if (otherChar == null) {
-                        Connection con = DatabaseConnection.getConnection();
+                        Connection con = Database.getConnection();
                         try (PreparedStatement ps = con.prepareStatement("SELECT name, level, job FROM characters WHERE id = ?")) {
                             ps.setInt(1, otherCid);
                             try (ResultSet rs = ps.executeQuery()) {

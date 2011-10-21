@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.packets.ChannelPackets;
@@ -97,7 +97,7 @@ public class BbsHandler {
 
     private static void listBBSThreads(ChannelClient c, int start) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM bbs_threads WHERE guildid = ? ORDER BY localthreadid DESC");
             ps.setInt(1, c.getPlayer().getGuildId());
             ResultSet rs = ps.executeQuery();
@@ -116,7 +116,7 @@ public class BbsHandler {
         if (player.getGuildId() <= 0) {
             return;
         }
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT threadid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
             ps.setInt(1, player.getGuildId());
@@ -157,7 +157,7 @@ public class BbsHandler {
             return; // expelled while viewing?
         }
         
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE bbs_threads SET " + "`name` = ?, `timestamp` = ?, " + "`icon` = ?, " + "`startpost` = ? WHERE guildid = ? AND localthreadid = ? AND (postercid = ? OR ?)")) {
             ps.setString(1, title);
             ps.setLong(2, System.currentTimeMillis());
@@ -182,7 +182,7 @@ public class BbsHandler {
         }
         int nextId = 0;
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps;
 
             if (!bNotice) { // notice's local id is always 0, so we don't need to fetch it
@@ -218,7 +218,7 @@ public class BbsHandler {
         if (player.getGuildId() <= 0) {
             return;
         }
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT threadid, postercid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
             ps.setInt(1, player.getGuildId());
@@ -260,7 +260,7 @@ public class BbsHandler {
         }
 
         int threadid;
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT postercid, threadid FROM bbs_replies WHERE replyid = ?");
             ps.setInt(1, replyid);
@@ -300,7 +300,7 @@ public class BbsHandler {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         PreparedStatement ps = null;
         PreparedStatement ps2 = null;
         ResultSet repliesRS = null;

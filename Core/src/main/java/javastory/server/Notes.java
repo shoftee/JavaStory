@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -72,7 +72,7 @@ public final class Notes {
     public static ImmutableList<Note> loadReceived(String recepient) {
         List<Note> list = Lists.newArrayList();
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement(
                     "SELECT * FROM notes WHERE `recepient` = ?",
                     ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -90,7 +90,7 @@ public final class Notes {
 
     public static void send(String from, String to, String message) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("INSERT INTO notes (`sender`, `recepient`, `message`) VALUES (?, ?, ?)");
             ps.setString(1, from);
             ps.setString(2, to);
@@ -104,7 +104,7 @@ public final class Notes {
 
     public static void delete(int noteId) {
         try {
-            Connection connection = DatabaseConnection.getConnection();
+            Connection connection = Database.getConnection();
             PreparedStatement ps = connection.prepareStatement(
                     "DELETE FROM `notes` WHERE `id` = ?");
             ps.setInt(1, noteId);

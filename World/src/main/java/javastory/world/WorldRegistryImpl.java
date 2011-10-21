@@ -1,10 +1,5 @@
 package javastory.world;
 
-import javastory.world.core.ServerStatus;
-import javastory.world.core.WorldRegistry;
-import javastory.world.core.WorldLoginInterface;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,9 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javastory.db.DatabaseConnection;
-import javastory.rmi.ChannelWorldInterface;
-import javastory.rmi.LoginWorldInterface;
 import javastory.channel.Guild;
 import javastory.channel.GuildMember;
 import javastory.channel.Messenger;
@@ -32,9 +24,18 @@ import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PlayerBuffStorage;
 import javastory.channel.client.MemberRank;
-import javastory.rmi.WorldChannelInterface;
+import javastory.config.ChannelInfo;
+import javastory.db.Database;
+import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
-import javastory.server.ChannelInfo;
+import javastory.rmi.LoginWorldInterface;
+import javastory.rmi.WorldChannelInterface;
+import javastory.world.core.ServerStatus;
+import javastory.world.core.WorldLoginInterface;
+import javastory.world.core.WorldRegistry;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 public class WorldRegistryImpl extends GenericRemoteObject implements
 		WorldRegistry {
@@ -61,8 +62,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 	private WorldRegistryImpl() throws RemoteException {
 		super();
 
-		DatabaseConnection.initialize();
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try (PreparedStatement ps = con
 				.prepareStatement("SELECT MAX(party)+1 FROM characters");
 				ResultSet rs = ps.executeQuery()) {

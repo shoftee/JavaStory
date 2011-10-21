@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 public class MapleGuildRanking {
 
@@ -51,7 +51,7 @@ public class MapleGuildRanking {
     private void reload() {
         ranks.clear();
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds ORDER BY `GP` DESC LIMIT 50");
             ResultSet rs = ps.executeQuery();
 

@@ -1,6 +1,5 @@
 package javastory.channel.rmi;
 
-
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
-import javastory.channel.ChannelManager;
+import javastory.channel.ChannelServer;
 import javastory.channel.CharacterTransfer;
 import javastory.channel.GuildSummary;
 import javastory.channel.Messenger;
@@ -23,16 +22,13 @@ import javastory.channel.client.BuddyList;
 import javastory.channel.client.BuddyListEntry;
 import javastory.channel.client.BuddyOperation;
 import javastory.channel.client.MemberRank;
-import javastory.db.DatabaseConnection;
+import javastory.config.ChannelInfo;
+import javastory.db.Database;
 import javastory.io.ByteArrayGamePacket;
 import javastory.io.GamePacket;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
-import javastory.server.ChannelInfo;
-import javastory.server.ChannelServer;
-import javastory.server.TimerManager;
 import javastory.server.channel.PlayerStorage;
-import javastory.server.channel.ShutdownChannelServer;
 import javastory.tools.CollectionUtil;
 import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.CheaterData;
@@ -112,7 +108,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void shutdown(int time) throws RemoteException {
-        TimerManager.getInstance().schedule(new ShutdownChannelServer(server.getChannelId()), time);
+    	server.shutdown(time);
     }
 
     @Override
@@ -348,7 +344,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void setOfflineGuildStatus(int guildId, MemberRank rank, int cid) throws RemoteException {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?")) {
             ps.setInt(1, guildId);
             ps.setInt(2, rank.asNumber());
@@ -361,47 +357,19 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void changeEmblem(int gid, Collection<Integer> affectedPlayers, GuildSummary mgs) throws RemoteException {
-        ChannelManager.getInstance(this.getChannelId()).updateGuildSummary(gid, mgs);
+        ChannelServer.getInstance().updateGuildSummary(gid, mgs);
         this.sendPacket(affectedPlayers, ChannelPackets.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
         this.setGuildAndRank(affectedPlayers, -1, null, -1);	//respawn player
     }
 
     @Override
     public void messengerInvite(String sender, int messengerid, String target, int fromchannel) throws RemoteException {
-        if (isConnected(target)) {
-            final Messenger messenger = server.getPlayerStorage().getCharacterByName(target).getMessenger();
-            if (messenger == null) {
-                server.getPlayerStorage().getCharacterByName(target).getClient().write(ChannelPackets.messengerInvite(sender, messengerid));
-
-                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(ChannelPackets.messengerNote(target, 4, 1));
-            } else {
-                ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(sender).getClient().write(ChannelPackets.messengerChat(sender
-                        + " : " + target + " is already using Maple Messenger"));
-            }
-        }
+    	// TODO: No op. Finish when ChannelServer remoting is done.
     }
 
     @Override
     public void addMessengerPlayer(Messenger messenger, String namefrom, int fromchannel, int position) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
-            if (messengerchar.getChannel() == server.getChannelId()
-                    && !(messengerchar.getName().equals(namefrom))) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
-                if (chr != null) {
-                    final ChannelCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                    chr.getClient().write(ChannelPackets.addMessengerPlayer(namefrom, from, position, fromchannel
-                            - 1));
-                    from.getClient().write(ChannelPackets.addMessengerPlayer(chr.getName(), chr, messengerchar.getPosition(), messengerchar.getChannel()
-                            - 1));
-                }
-            } else if (messengerchar.getChannel() == server.getChannelId()
-                    && (messengerchar.getName().equals(namefrom))) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
-                if (chr != null) {
-                    chr.getClient().write(ChannelPackets.joinMessenger(messengerchar.getPosition()));
-                }
-            }
-        }
+    	// TODO: No op. Finish when ChannelServer remoting is done.
     }
 
     @Override
@@ -442,16 +410,6 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
     @Override
     public void updateMessenger(Messenger messenger, String namefrom, int position, int fromchannel) throws RemoteException {
-        for (MessengerMember messengerchar : messenger.getMembers()) {
-            if (messengerchar.getChannel() == server.getChannelId()
-                    && !(messengerchar.getName().equals(namefrom))) {
-                final ChannelCharacter chr = server.getPlayerStorage().getCharacterByName(messengerchar.getName());
-                if (chr != null) {
-                    ChannelCharacter from = ChannelManager.getInstance(fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                    chr.getClient().write(ChannelPackets.updateMessengerPlayer(namefrom, from, position, fromchannel
-                            - 1));
-                }
-            }
-        }
+    	// TODO: No op. Finish when ChannelServer remoting is done.
     }
 }

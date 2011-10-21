@@ -21,9 +21,9 @@ public class EndpointInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = -1156828871325259684L;
 	
-	private String host;
-    private int port;
-    private SocketAddress address;
+	private final String host;
+    private final int port;
+    private final SocketAddress address;
 
     public EndpointInfo(int port) {
         Preconditions.checkArgument(0 <= port && port <= 65535);
@@ -43,11 +43,11 @@ public class EndpointInfo implements Serializable {
         this.address = new InetSocketAddress(host, port);
     }
 
-    public String getHost() {
+    public final String getHost() {
         return this.host;
     }
 
-    public int getPort() {
+    public final int getPort() {
         return this.port;
     }
 

@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javastory.channel.ChannelCharacter;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 
@@ -31,7 +31,7 @@ public class Mount implements Serializable {
         if (!changed) {
             return;
         }
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE mountdata set `Level` = ?, `Exp` = ?, `Fatigue` = ? WHERE characterid = ?")) {
             ps.setInt(1, level);
             ps.setInt(2, exp);

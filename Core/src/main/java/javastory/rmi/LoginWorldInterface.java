@@ -22,7 +22,7 @@ package javastory.rmi;
 
 import java.rmi.RemoteException;
 
-import javastory.server.ChannelInfo;
+import javastory.config.ChannelInfo;
 
 public interface LoginWorldInterface extends RemotePingable {
 

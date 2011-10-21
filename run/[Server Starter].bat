@@ -2,9 +2,9 @@
 color b
 cls
 
-@title 1/3 Starting world server...
+@title 1/3 Starting world server(s)...
 
-start /b launch_world.bat
+start /b launch_worlds.bat
 ping 127.0.0.1 -w 20000 >nul
 
 @title 2/3 Starting channel server(s)...

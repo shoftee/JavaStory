@@ -849,7 +849,7 @@ public class PlayerHandler {
             }
             reader.skip(1);
             final boolean wheel = reader.readShort() > 0;
-            final GameMapFactory mapFactory = c.getChannelServer().getMapFactory(c.getWorldId());
+            final GameMapFactory mapFactory = c.getChannelServer().getMapFactory();
 
             if (targetid != -1 && !chr.isAlive()) {
                 if (chr.getEventInstance() != null) {

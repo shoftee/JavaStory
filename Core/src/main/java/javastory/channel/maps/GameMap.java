@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
+import javastory.channel.ChannelServer;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.client.BuffStat;
@@ -66,7 +66,6 @@ public class GameMap {
 	private FootholdTree footholds = null;
 	private float monsterRate, recoveryRate;
 	private GameMapEffect mapEffect;
-	private byte channel;
 	private short decHP = 0, createMobInterval = 9000;
 	private int protectItem = 0, mapid, returnMapId, timeLimit, fieldLimit,
 			maxRegularSpawn = 0;
@@ -75,19 +74,12 @@ public class GameMap {
 			dropsDisabled = false;
 	private String mapName, streetName, onUserEnter, onFirstUserEnter;
 	private final Lock mutex = new ReentrantLock();
-	private final int world;
 
-	public GameMap(final int mapid, final int channel, final int returnMapId,
-			final float monsterRate, final int world) {
+	public GameMap(final int mapid, final int returnMapId,
+			final float monsterRate) {
 		this.mapid = mapid;
-		this.channel = (byte) channel;
 		this.returnMapId = returnMapId;
 		this.monsterRate = monsterRate;
-		this.world = world;
-	}
-
-	public int getWorld() {
-		return world;
 	}
 
 	public final void toggleDrops() {
@@ -99,8 +91,7 @@ public class GameMap {
 	}
 
 	public final GameMap getReturnMap() {
-		return ChannelManager.getInstance(channel).getMapFactory(world)
-				.getMap(returnMapId);
+		return ChannelServer.getInstance().getMapFactory().getMap(returnMapId);
 	}
 
 	public final int getReturnMapId() {
@@ -112,8 +103,7 @@ public class GameMap {
 	}
 
 	public final GameMap getForcedReturnMap() {
-		return ChannelManager.getInstance(channel).getMapFactory(world)
-				.getMap(forcedReturnMap);
+		return ChannelServer.getInstance().getMapFactory().getMap(forcedReturnMap);
 	}
 
 	public final void setForcedReturnMap(final int map) {
@@ -329,8 +319,7 @@ public class GameMap {
 		final byte droptype = (byte) (mob.getStats().isExplosiveReward()
 				? 3
 				: mob.getStats().isFfaLoot() ? 2 : chr.hasParty() ? 1 : 0);
-		final int mobpos = mob.getPosition().x, chServerrate = ChannelManager
-				.getInstance(channel).getDropRate();
+		final int mobpos = mob.getPosition().x, chServerrate = ChannelServer.getInstance().getDropRate();
 		IItem idrop;
 		byte d = 1;
 		Point pos = new Point(0, mob.getPosition().y);
@@ -476,28 +465,26 @@ public class GameMap {
 		final int mobid = monster.getId();
 		if (mobid == 8810018) {
 			try {
-				ChannelManager
-						.getInstance(channel)
+				ChannelServer.getInstance()
 						.getWorldInterface()
-						.broadcastMessage(	ChannelPackets
-													.serverNotice(	6,
-																	"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!")
-													.getBytes());
+						.broadcastMessage(ChannelPackets
+								.serverNotice(6,
+												"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!")
+								.getBytes());
 			} catch (RemoteException e) {
-				ChannelManager.getInstance(channel).pingWorld();
+				ChannelServer.getInstance().pingWorld();
 			}
 			LogUtil.log(LogUtil.Horntail_Log, MapDebug_Log());
 		} else if (mobid == 8820001) {
 			try {
-				ChannelManager
-						.getInstance(channel)
+				ChannelServer.getInstance()
 						.getWorldInterface()
-						.broadcastMessage(	ChannelPackets
-													.serverNotice(	6,
-																	"Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!")
-													.getBytes());
+						.broadcastMessage(ChannelPackets
+								.serverNotice(6,
+												"Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!")
+								.getBytes());
 			} catch (RemoteException e) {
-				ChannelManager.getInstance(channel).pingWorld();
+				ChannelServer.getInstance().pingWorld();
 			}
 			LogUtil.log(LogUtil.Pinkbean_Log, MapDebug_Log());
 		} else if (mobid >= 8800003 && mobid <= 8800010) {
@@ -985,10 +972,10 @@ public class GameMap {
 							.singletonList(GameMapObjectType.MONSTER))) {
 						if (mist.makeChanceResult()) {
 							((Monster) mo)
-									.applyStatus(	mist.getOwner(),
+									.applyStatus(mist.getOwner(),
 													new MonsterStatusEffect(
 																			Collections
-																					.singletonMap(	MonsterStatus.POISON,
+																					.singletonMap(MonsterStatus.POISON,
 																									1),
 																			mist.getSourceSkill(),
 																			null,
@@ -1396,7 +1383,7 @@ public class GameMap {
 		for (final GameMapObject o : getAllMonster()) {
 			updateMonsterController((Monster) o);
 		}
-		for (final GameMapObject o : getMapObjectsInRange(	c.getPosition(),
+		for (final GameMapObject o : getMapObjectsInRange(c.getPosition(),
 															GameConstants
 																	.maxViewRangeSq(),
 															GameConstants.rangedMapObjectTypes)) {
@@ -1707,7 +1694,7 @@ public class GameMap {
 				player.removeVisibleMapObject(mo);
 			}
 		}
-		for (GameMapObject mo : getMapObjectsInRange(	player.getPosition(),
+		for (GameMapObject mo : getMapObjectsInRange(player.getPosition(),
 														GameConstants
 																.maxViewRangeSq())) {
 			if (!player.isMapObjectVisible(mo)) {
@@ -1774,7 +1761,7 @@ public class GameMap {
 		@Override
 		public final void sendPackets(ChannelClient c) {
 			// TODO: effect
-			c.write(MobPacket.spawnMonster(monster, -2, 0, oid)); 
+			c.write(MobPacket.spawnMonster(monster, -2, 0, oid));
 		}
 	}
 

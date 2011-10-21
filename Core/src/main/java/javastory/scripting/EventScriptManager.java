@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javastory.server.ChannelServer;
+import javastory.channel.ChannelServer;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;

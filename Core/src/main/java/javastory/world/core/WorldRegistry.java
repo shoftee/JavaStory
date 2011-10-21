@@ -32,10 +32,10 @@ import javastory.channel.MessengerMember;
 import javastory.channel.Party;
 import javastory.channel.PlayerBuffStorage;
 import javastory.channel.client.MemberRank;
+import javastory.config.ChannelInfo;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldChannelInterface;
-import javastory.server.ChannelInfo;
 
 import com.google.common.collect.ImmutableSet;
 

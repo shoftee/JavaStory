@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
-import javastory.db.DatabaseConnection;
+import javastory.config.ChannelInfo;
+import javastory.db.Database;
 import javastory.server.handling.PacketHandler;
 import javastory.rmi.LoginWorldInterface;
 import javastory.world.core.WorldLoginInterface;
 import javastory.server.GameService;
-import javastory.server.ChannelInfo;
 import javastory.server.TimerManager;
 
 public class LoginServer extends GameService {
@@ -92,7 +92,7 @@ public class LoginServer extends GameService {
         connectToWorld();
         loadSettings();
 
-        try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
+        try (PreparedStatement ps = Database.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
             ps.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException("[EXCEPTION] Please check if the SQL server is active.");

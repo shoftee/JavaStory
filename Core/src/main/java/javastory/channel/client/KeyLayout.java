@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.PacketBuilder;
 
 public class KeyLayout implements Serializable {
@@ -60,7 +60,7 @@ public class KeyLayout implements Serializable {
 
 	public static KeyLayout loadFromDb(int characterId) throws SQLException {
 
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 
 		KeyLayout instance = new KeyLayout();
 		try (PreparedStatement ps = con
@@ -85,7 +85,7 @@ public class KeyLayout implements Serializable {
 		if (!changed || keymap.isEmpty()) {
 			return;
 		}
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 
 		PreparedStatement ps = con
 				.prepareStatement("DELETE FROM keymap WHERE characterid = ?");

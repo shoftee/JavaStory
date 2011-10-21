@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.game.SkillLevelEntry;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
@@ -218,7 +218,7 @@ public final class LifeFactory {
             PreparedStatement ps = null;
             ResultSet rs = null;
             try {
-                Connection con = DatabaseConnection.getConnection();
+                Connection con = Database.getConnection();
                 ps = con.prepareStatement("SELECT * FROM playernpcs WHERE npcid = ?");
                 ps.setInt(1, nid);
 

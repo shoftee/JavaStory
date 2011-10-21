@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
+import javastory.channel.ChannelServer;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.anticheat.CheatingOffense;
@@ -48,7 +49,6 @@ import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.scripting.NpcScriptManager;
-import javastory.server.ChannelServer;
 import javastory.server.ItemInfoProvider;
 import javastory.server.StatValue;
 import javastory.tools.Pair;
@@ -606,7 +606,7 @@ public class InventoryHandler {
 				boolean warped = false;
 
 				for (int i = 390001000; i <= 390001004; i++) {
-					map = c.getChannelServer().getMapFactory(c.getWorldId())
+					map = c.getChannelServer().getMapFactory()
 							.getMap(i);
 
 					if (map.getCharactersSize() == 0) {
@@ -774,7 +774,7 @@ public class InventoryHandler {
 			if (player.getQuestStatus(questid).getState() == 1
 					&& quest.canComplete(player, npcid)) {
 				final GameMap map = c.getChannelServer()
-						.getMapFactory(player.getWorldId())
+						.getMapFactory()
 						.getMap(LifeFactory.getNPCLocation(npcid));
 				if (map.containsNPC(npcid) != -1) {
 					player.changeMap(map, map.getPortal(0));
@@ -789,7 +789,7 @@ public class InventoryHandler {
 		case 5040001: { // Teleport Coke
 			if (reader.readByte() == 0) { // Rocktype
 				final GameMap target = c.getChannelServer()
-						.getMapFactory(player.getWorldId())
+						.getMapFactory()
 						.getMap(reader.readInt());
 				if (!FieldLimitType.VipRock.check(player.getMap()
 						.getFieldLimit())) { // Makes sure this map doesn't have
@@ -803,7 +803,7 @@ public class InventoryHandler {
 						.getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
 					if (!FieldLimitType.VipRock.check(c.getChannelServer()
-							.getMapFactory(player.getWorldId())
+							.getMapFactory()
 							.getMap(victim.getMapId()).getFieldLimit())) {
 						if (itemId == 5041000 || (victim.getMapId()
 								/ 100000000) == (player.getMapId()

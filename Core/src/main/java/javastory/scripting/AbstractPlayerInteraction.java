@@ -6,7 +6,6 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
 import javastory.channel.Guild;
 import javastory.channel.PartyMember;
 import javastory.channel.client.Pet;
@@ -82,7 +81,7 @@ public class AbstractPlayerInteraction {
     }
 
     private GameMap getWarpMap(final int map) {
-        return ChannelManager.getInstance(client.getChannelId()).getMapFactory(client.getWorldId()).getMap(map);
+    	return client.getChannelServer().getMapFactory().getMap(map);
     }
 
     public final GameMap getMap() {
@@ -167,11 +166,11 @@ public class AbstractPlayerInteraction {
     }
 
     public final void removeNpc(final int mapid, final int npcId) {
-        client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid).removeNpc(npcId);
+        client.getChannelServer().getMapFactory().getMap(mapid).removeNpc(npcId);
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -183,7 +182,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -195,7 +194,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        GameMap map = client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid);
+        GameMap map = client.getChannelServer().getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -433,7 +432,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getMonsterCount(final int mapid) {
-        return client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid).getAllMonster().size();
+        return client.getChannelServer().getMapFactory().getMap(mapid).getAllMonster().size();
     }
 
     public final void teachSkill(final int id, final byte level, final byte masterlevel) {
@@ -441,7 +440,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getPlayerCount(final int mapid) {
-        return client.getChannelServer().getMapFactory(client.getWorldId()).getMap(mapid).getCharactersSize();
+        return client.getChannelServer().getMapFactory().getMap(mapid).getCharactersSize();
     }
 
     public final void dojo_getUp() {

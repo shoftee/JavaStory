@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
+import javastory.channel.ChannelServer;
 import javastory.channel.CharacterTransfer;
 import javastory.channel.GuildMember;
 import javastory.channel.Messenger;
@@ -13,31 +13,25 @@ import javastory.channel.MessengerMember;
 import javastory.channel.PartyMember;
 import javastory.channel.PlayerBuffValueHolder;
 import javastory.channel.client.BuddyListEntry;
-import javastory.channel.client.BuffStat;
 import javastory.channel.client.SkillFactory;
-import javastory.channel.maps.FieldLimitType;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.SavedLocationType;
-import javastory.channel.server.Trade;
-import javastory.channel.shops.PlayerShop;
 import javastory.client.SimpleCharacterInfo;
 import javastory.game.quest.QuestStatus;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.rmi.WorldChannelInterface;
-import javastory.server.ChannelServer;
 import javastory.server.channel.PlayerStorage;
 import javastory.tools.LogUtil;
 import javastory.tools.packets.ChannelPackets;
 import javastory.tools.packets.FamilyPacket;
 import javastory.world.core.CharacterIdChannelPair;
 import javastory.world.core.PartyOperation;
-import javastory.world.core.ServerStatus;
 
 public class InterServerHandler {
 
     public static void handleEnterMTS(final ChannelClient c) {
-        final GameMap map = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(910000000);
+        final GameMap map = c.getChannelServer().getMapFactory().getMap(910000000);
         final ChannelCharacter player = c.getPlayer();
         if ((player.getMapId() < 910000000) || (player.getMapId()
                 > 910000022)) {
@@ -157,65 +151,68 @@ public class InterServerHandler {
             c.write(ChannelPackets.enableActions());
             return;
         }
-        final int channel = reader.readByte() + 1;
-        final ChannelServer toch = ChannelManager.getInstance(channel);
-
-        if (FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit())
-                || channel == c.getChannelId()) {
-            c.disconnect();
-            return;
-        } else if (toch == null || toch.getStatus() != ServerStatus.ONLINE) {
-            c.write(ChannelPackets.serverBlocked(1));
-            return;
-        }
-
-        if (chr.getTrade() != null) {
-            Trade.cancelTrade(chr.getTrade());
-        }
-        if (chr.getPets() != null) {
-            chr.unequipAllPets();
-        }
-        if (chr.getCheatTracker() != null) {
-            chr.getCheatTracker().dispose();
-        }
-        if (chr.getBuffedValue(BuffStat.SUMMON) != null) {
-            chr.cancelEffectFromBuffStat(BuffStat.SUMMON);
-        }
-        if (chr.getBuffedValue(BuffStat.PUPPET) != null) {
-            chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
-        }
-        if (chr.getBuffedValue(BuffStat.MIRROR_TARGET) != null) {
-            chr.cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
-        }
-        final PlayerShop shop = chr.getPlayerShop();
-        if (shop != null) {
-            shop.removeVisitor(chr);
-            if (shop.isOwner(chr)) {
-                shop.setOpen(true);
-            }
-        }
-
-        final ChannelServer ch = c.getChannelServer();
-        try {
-            final WorldChannelInterface wci = ch.getWorldInterface();
-
-            if (chr.getMessenger() != null) {
-                wci.silentLeaveMessenger(chr.getMessenger().getId(), new MessengerMember(chr));
-            }
-            wci.addBuffsToStorage(chr.getId(), chr.getAllBuffs());
-            wci.addCooldownsToStorage(chr.getId(), chr.getAllCooldowns());
-            wci.addDiseaseToStorage(chr.getId(), chr.getAllDiseases());
-            wci.transfer(new CharacterTransfer(chr), chr.getId(), channel);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            c.getChannelServer().pingWorld();
-        }
-        ch.removePlayer(chr);
-
-        final String[] socket = ch.getIP(channel).split(":");
-        c.write(ChannelPackets.getChannelChange(Integer.parseInt(socket[1])));
-        chr.saveToDb(false);
-        chr.getMap().removePlayer(chr);
-        c.setPlayer(null);
+        final int targetChannelId = reader.readByte() + 1;
+        return;
+        // TODO: Whoops, we can't do it like this.
+//        final ChannelServer targetChannel = ChannelManager.getInstance(targetChannelId);
+//
+//        if (FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit())
+//                || targetChannelId == c.getChannelId()) {
+//            c.disconnect();
+//            return;
+//        } else if (targetChannel == null || targetChannel.getStatus() != ServerStatus.ONLINE) {
+//            c.write(ChannelPackets.serverBlocked(1));
+//            return;
+//        }
+//
+//        if (chr.getTrade() != null) {
+//            Trade.cancelTrade(chr.getTrade());
+//        }
+//        if (chr.getPets() != null) {
+//            chr.unequipAllPets();
+//        }
+//        if (chr.getCheatTracker() != null) {
+//            chr.getCheatTracker().dispose();
+//        }
+//        if (chr.getBuffedValue(BuffStat.SUMMON) != null) {
+//            chr.cancelEffectFromBuffStat(BuffStat.SUMMON);
+//        }
+//        if (chr.getBuffedValue(BuffStat.PUPPET) != null) {
+//            chr.cancelEffectFromBuffStat(BuffStat.PUPPET);
+//        }
+//        if (chr.getBuffedValue(BuffStat.MIRROR_TARGET) != null) {
+//            chr.cancelEffectFromBuffStat(BuffStat.MIRROR_TARGET);
+//        }
+//        
+//        final PlayerShop shop = chr.getPlayerShop();
+//        if (shop != null) {
+//            shop.removeVisitor(chr);
+//            if (shop.isOwner(chr)) {
+//                shop.setOpen(true);
+//            }
+//        }
+//
+//        final ChannelServer ch = c.getChannelServer();
+//        try {
+//            final WorldChannelInterface wci = ch.getWorldInterface();
+//
+//            if (chr.getMessenger() != null) {
+//                wci.silentLeaveMessenger(chr.getMessenger().getId(), new MessengerMember(chr));
+//            }
+//            wci.addBuffsToStorage(chr.getId(), chr.getAllBuffs());
+//            wci.addCooldownsToStorage(chr.getId(), chr.getAllCooldowns());
+//            wci.addDiseaseToStorage(chr.getId(), chr.getAllDiseases());
+//            wci.transfer(new CharacterTransfer(chr), chr.getId(), targetChannelId);
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//            c.getChannelServer().pingWorld();
+//        }
+//        ch.removePlayer(chr);
+//
+//        final String[] socket = ch.getIP(targetChannelId).split(":");
+//        c.write(ChannelPackets.getChannelChange(Integer.parseInt(socket[1])));
+//        chr.saveToDb(false);
+//        chr.getMap().removePlayer(chr);
+//        c.setPlayer(null);
     }
 }

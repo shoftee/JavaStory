@@ -32,8 +32,8 @@ import javastory.channel.PartyMember;
 import javastory.channel.client.BuddyAddResult;
 import javastory.channel.client.BuddyOperation;
 import javastory.channel.client.MemberRank;
+import javastory.config.ChannelInfo;
 import javastory.io.GamePacket;
-import javastory.server.ChannelInfo;
 import javastory.world.core.PartyOperation;
 import javastory.world.core.WorldChannelCommonOperations;
 

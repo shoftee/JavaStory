@@ -19,7 +19,7 @@ import javastory.client.IEquip;
 import javastory.client.IItem;
 import javastory.client.Item;
 import javastory.client.ItemType;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.db.DatabaseException;
 import javastory.game.GameConstants;
 import javastory.game.InventoryType;
@@ -45,7 +45,7 @@ public class Storage implements Serializable {
     }
 
     public static int create(int id) throws SQLException {
-        Connection connection = DatabaseConnection.getConnection();
+        Connection connection = Database.getConnection();
         PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO storages (accountid, slots, meso) VALUES (?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS);
@@ -71,7 +71,7 @@ public class Storage implements Serializable {
         Storage ret = null;
         int storeId;
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM storages WHERE accountid = ?");
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -141,7 +141,7 @@ public class Storage implements Serializable {
             return;
         }
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
 
             PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?");
             ps.setInt(1, slots);

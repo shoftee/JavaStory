@@ -17,7 +17,7 @@ import javastory.channel.packet.PlayerShopPacket;
 import javastory.client.Equip;
 import javastory.client.IItem;
 import javastory.client.ItemType;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.io.GamePacket;
 
 public abstract class AbstractPlayerShop extends AbstractGameMapObject
@@ -94,7 +94,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 	}
 
 	public boolean saveItems() {
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try {
 			PreparedStatement ps = con
 					.prepareStatement(	"INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)",

@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 public final class MonsterInfoProvider {
 
@@ -31,7 +31,7 @@ public final class MonsterInfoProvider {
 	}
 
 	private void retrieveGlobal() {
-		final Connection con = DatabaseConnection.getConnection();
+		final Connection con = Database.getConnection();
 
 		try (	PreparedStatement ps = con
 						.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
@@ -61,7 +61,7 @@ public final class MonsterInfoProvider {
 			return drops.get(monsterId);
 		}
 
-		final Connection con = DatabaseConnection
+		final Connection con = Database
 				.getConnection();
 
 		final List<MonsterDropEntry> ret = new LinkedList<>();

@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.server.InventoryManipulator;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 public class Ring implements Comparable<Ring> {
 
@@ -28,7 +28,7 @@ public class Ring implements Comparable<Ring> {
     }
 
     public static Ring loadFromDb(int ringId) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         Ring ret = null;
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM rings WHERE id = ?")) {
             ps.setInt(1, ringId);
@@ -53,7 +53,7 @@ public class Ring implements Comparable<Ring> {
             }
 
             int[] ringID = new int[2];
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, itemid);
             ps.setInt(2, partner2.getId());
@@ -153,7 +153,7 @@ public class Ring implements Comparable<Ring> {
 
     public static boolean checkRingDB(int characterId) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT id FROM rings WHERE partnerChrId = ?");
             ps.setInt(1, characterId);
             ResultSet rs = ps.executeQuery();
@@ -165,7 +165,7 @@ public class Ring implements Comparable<Ring> {
 
     public static void removeRingFromDb(int characterId) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             int otherId;
             PreparedStatement ps = con.prepareStatement("SELECT partnerRingId FROM rings WHERE partnerChrId = ?");
             ps.setInt(1, characterId);

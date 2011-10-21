@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 /**
  *
@@ -23,7 +23,7 @@ public final class Bans {
     public static boolean banByCharacterName(String name, String reason) {
         boolean success = false;
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps;
             ps = con.prepareStatement("SELECT accountid FROM characters WHERE name = ?");
             ps.setString(1, name);
@@ -46,7 +46,7 @@ public final class Bans {
     }
 
     public static boolean banBySessionIP(String ip, String reason) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
         if (!ip.matches("/[0-9]{1,3}\\..*")) {
             return false;
         }
@@ -64,7 +64,7 @@ public final class Bans {
     
     public static byte unban(String charname) {
         try {
-            Connection con = DatabaseConnection.getConnection();
+            Connection con = Database.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT accountid from characters where name = ?");
             ps.setString(1, charname);
 

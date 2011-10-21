@@ -205,7 +205,7 @@ public class MapScriptMethods {
                         c.write(UIPacket.IntroDisableUI(false));
                         c.write(UIPacket.IntroLock(false));
                         c.write(ChannelPackets.enableActions());
-                        final GameMap mapto = c.getChannelServer().getMapFactory(c.getWorldId()).getMap(910000000);
+                        final GameMap mapto = c.getChannelServer().getMapFactory().getMap(910000000);
                         player.changeMap(mapto, mapto.getPortal(0));
                         return;
                 }

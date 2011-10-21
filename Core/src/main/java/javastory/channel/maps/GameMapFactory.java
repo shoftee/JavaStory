@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javastory.channel.OdinSEA;
 import javastory.channel.life.AbstractLoadedGameLife;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
@@ -25,16 +24,6 @@ public class GameMapFactory {
     private static final WzData nameData = WzDataProviderFactory.getDataProvider("String.wz").getData("Map.img");
     private final Map<Integer, GameMap> maps = new HashMap<>();
     private final WeakHashMap<Integer, GameMap> instanceMap = new WeakHashMap<>();
-    private int channel;
-    private int world;
-
-    public int getWorld() {
-        return world;
-    }
-
-    public void setWorld(int world) {
-        this.world = world;
-    }
 
     public final GameMap getMap(final int mapid) {
         return getMap(mapid, true, true, true);
@@ -67,7 +56,7 @@ public class GameMapFactory {
                         monsterRate = ((Float) mobRate.getData()).floatValue();
                     }
                 }
-                map = new GameMap(mapid, channel, WzDataTool.getInt("info/returnMap", mapData), monsterRate, world);
+                map = new GameMap(mapid, WzDataTool.getInt("info/returnMap", mapData), monsterRate);
                 PortalFactory portalFactory = new PortalFactory();
                 for (WzData portal : mapData.getChildByPath("portal")) {
                     map.addPortal(portalFactory.makePortal(WzDataTool.getInt(portal.getChildByPath("pt")), portal));
@@ -141,12 +130,6 @@ public class GameMapFactory {
                         } else {
                             boolean bAdd = true;
                             final int idd = myLife.getId();
-                            for (byte t = 0; t < OdinSEA.BlockedNPC.length; t++) {
-                                if (idd == OdinSEA.BlockedNPC[t]) {
-                                    bAdd = false;
-                                    break;
-                                }
-                            }
                             if (bAdd) {
                                 map.addMapObject(myLife);
                             }
@@ -214,7 +197,7 @@ public class GameMapFactory {
                 monsterRate = ((Float) mobRate.getData()).floatValue();
             }
         }
-        GameMap map = new GameMap(mapid, channel, WzDataTool.getInt("info/returnMap", mapData), monsterRate, world);
+        GameMap map = new GameMap(mapid, WzDataTool.getInt("info/returnMap", mapData), monsterRate);
 
 
         PortalFactory portalFactory = new PortalFactory();
@@ -422,10 +405,6 @@ public class GameMapFactory {
         builder.append(mapid);
 
         return builder.toString();
-    }
-
-    public void setChannel(int channel) {
-        this.channel = channel;
     }
 
     private void addAreaBossSpawn(final GameMap map) {

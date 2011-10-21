@@ -80,7 +80,7 @@ import javastory.client.Inventory;
 import javastory.client.Item;
 import javastory.client.PlayerRandomStream;
 import javastory.client.Stat;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.db.DatabaseException;
 import javastory.game.GameConstants;
 import javastory.game.Gender;
@@ -309,8 +309,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 		ret.buddies = new BuddyList(ct.BuddyListCapacity);
 
-		final GameMapFactory mapFactory = client.getChannelServer()
-				.getMapFactory(ret.worldId);
+		final GameMapFactory mapFactory = client.getChannelServer().getMapFactory();
 		ret.map = mapFactory.getMap(ret.mapId);
 		if (ret.map == null) {
 			// char is on a map that doesn't exist warp it to henesys
@@ -397,7 +396,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		ret.client = client;
 		ret.id = characterId;
 
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
@@ -455,8 +454,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			ret.buddies = new BuddyList(rs.getInt("buddyCapacity"));
 
-			GameMapFactory mapFactory = client.getChannelServer()
-					.getMapFactory(ret.worldId);
+			GameMapFactory mapFactory = client.getChannelServer().getMapFactory();
 			ret.map = mapFactory.getMap(ret.mapId);
 			if (ret.map == null) {
 				// char is on a map that doesn't exist warp it to henesys
@@ -799,7 +797,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void saveToDb(boolean dc) {
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 
 		PreparedStatement ps = null;
 		PreparedStatement pse = null;
@@ -2181,7 +2179,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void changeMapBanish(final int mapid, final String portal,
 			final String msg) {
 		sendNotice(5, msg);
-		final GameMap newMap = client.getChannelServer().getMapFactory(worldId)
+		final GameMap newMap = client.getChannelServer().getMapFactory()
 				.getMap(mapid);
 		changeMap(newMap, newMap.getPortal(portal));
 	}
@@ -2518,17 +2516,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			final int channel = client.getChannelId();
 			for (PartyMember partychar : party.getMembers()) {
 				if (partychar.getMapId() == getMapId()
-						&& partychar.getChannel()
-							== channel) {
-					final ChannelCharacter other = ChannelManager
-							.getInstance(channel).getPlayerStorage()
-							.getCharacterByName(partychar.getName());
+						&& partychar.getChannel() == channel) {
+					final ChannelCharacter other = client.getChannelServer().getPlayerStorage().getCharacterByName(partychar.getName());
 					if (other != null) {
-						other.getClient()
-								.write(ChannelPackets
-										.updatePartyMemberHP(getId(),
-																stats.getHp(),
-																stats.getCurrentMaxHp()));
+						final GamePacket packet = ChannelPackets.updatePartyMemberHP(getId(), stats.getHp(), stats.getCurrentMaxHp());
+						other.getClient().write(packet);
 					}
 				}
 			}
@@ -2540,13 +2532,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		for (PartyMember partychar : party.getMembers()) {
 			if (partychar.getMapId() == getMapId() && partychar.getChannel()
 						== channel) {
-				ChannelCharacter other = ChannelManager.getInstance(channel)
-						.getPlayerStorage()
-						.getCharacterByName(partychar.getName());
+				final ChannelCharacter other = client.getChannelServer().getPlayerStorage().getCharacterByName(partychar.getName());
 				if (other != null) {
-					client.write(ChannelPackets.updatePartyMemberHP(other
-							.getId(), other.getStats().getHp(), other
-							.getStats().getCurrentMaxHp()));
+					final GamePacket packet = ChannelPackets.updatePartyMemberHP(other.getId(), other.getStats().getHp(), other.getStats().getCurrentMaxHp());
+					client.write(packet);
 				}
 			}
 		}
@@ -3162,7 +3151,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void temporaryBan(String reason, Calendar duration, int tempBanReason) {
 		try {
-			Connection con = DatabaseConnection.getConnection();
+			Connection con = Database.getConnection();
 			PreparedStatement ps = con
 					.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
 			ps.setString(1, client.getSessionIP());
@@ -3186,7 +3175,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public final boolean ban(String banReason, boolean isAutoban) {
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try (
 				PreparedStatement ps = con
 						.prepareStatement("UPDATE accounts SET banned = ?, banreason = ? WHERE id = ?")) {
@@ -3589,7 +3578,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void saveGuildStatus() {
-		Connection con = DatabaseConnection.getConnection();
+		Connection con = Database.getConnection();
 		try (
 				PreparedStatement ps = con
 						.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?")) {
@@ -3754,7 +3743,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 		} else {
 			try {
-				Connection con = DatabaseConnection.getConnection();
+				Connection con = Database.getConnection();
 				PreparedStatement ps = con
 						.prepareStatement("SELECT SkillID,StartTime,length FROM skills_cooldowns WHERE charid = ?");
 				ps.setInt(1, getId());

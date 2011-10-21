@@ -24,7 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.ChannelManager;
+import javastory.channel.ChannelServer;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
@@ -38,14 +38,13 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 
 	public ScheduledFuture<?> schedule;
 	private GameMap map;
-	private int channel, storeid;
+	private int storeid;
 	private long start;
 
 	public HiredMerchantStore(ChannelCharacter owner, int itemId, String desc) {
 		super(owner, itemId, desc);
 		start = System.currentTimeMillis();
 		this.map = owner.getMap();
-		this.channel = owner.getClient().getChannelId();
 		this.schedule = TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
@@ -60,8 +59,8 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 		return PlayerShop.HIRED_MERCHANT;
 	}
 
-	public final void setStoreid(final int storeid) {
-		this.storeid = storeid;
+	public final void setStoreid(final int storeId) {
+		this.storeid = storeId;
 	}
 
 	@Override
@@ -102,7 +101,7 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 			saveItems();
 		}
 		if (remove) {
-			ChannelManager.getInstance(channel).removeMerchant(this);
+			ChannelServer.getInstance().removeMerchant(this);
 			map.broadcastMessage(PlayerShopPacket
 					.destroyHiredMerchant(getOwnerId()));
 		}

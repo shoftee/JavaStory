@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 
 /**
  *
@@ -29,7 +29,7 @@ public final class FameLog {
 
     public static long getLastTimestamp(int famerId) {
 
-        Connection connection = DatabaseConnection.getConnection();
+        Connection connection = Database.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(SelectLastTimestampSql)) {
             long timestamp = 0;
             ps.setInt(1, famerId);
@@ -47,7 +47,7 @@ public final class FameLog {
 
     public static boolean hasFamedRecently(int famerId, int receiverId) {
         boolean success = true;
-        Connection connection = DatabaseConnection.getConnection();
+        Connection connection = Database.getConnection();
         try (PreparedStatement ps = connection.prepareStatement(CanFamePlayerSql)) {
             ps.setInt(1, famerId);
             ps.setInt(2, receiverId);
@@ -63,7 +63,7 @@ public final class FameLog {
     }
 
     public static long addEntry(int famerId, int receiverId) {
-            Connection connection = DatabaseConnection.getConnection();
+            Connection connection = Database.getConnection();
         try {
             try (PreparedStatement ps = connection.prepareStatement("INSERT INTO famelog (famer_id, receiver_id) VALUES (?, ?)")) {
                 ps.setInt(1, famerId);

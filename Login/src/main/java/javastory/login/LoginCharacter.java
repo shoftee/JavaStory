@@ -15,7 +15,7 @@ import javastory.client.IEquip;
 import javastory.client.IItem;
 import javastory.client.Inventory;
 import javastory.client.PlayerStats;
-import javastory.db.DatabaseConnection;
+import javastory.db.Database;
 import javastory.db.DatabaseException;
 import javastory.game.Gender;
 import javastory.game.InventoryType;
@@ -95,7 +95,7 @@ public class LoginCharacter implements GameCharacter {
             character.jobRank = charResultSet.getInt("jobRank");
             character.jobRankMove = charResultSet.getInt("jobRankMove");
 
-            selectEquips = DatabaseConnection.getConnection().prepareStatement(
+            selectEquips = Database.getConnection().prepareStatement(
                     "SELECT * FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING (inventoryitemid) "
                     + "WHERE `characterid` = ? AND `inventorytype` = -1");
             selectEquips.setInt(1, character.id);
@@ -128,7 +128,7 @@ public class LoginCharacter implements GameCharacter {
 
     public static Collection<LoginCharacter> loadCharacters(int accountId, int worldId) {
         List<LoginCharacter> characters = Lists.newLinkedList();
-        Connection connection = DatabaseConnection.getConnection();
+        Connection connection = Database.getConnection();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM `characters` WHERE `accountid` = ? AND `world` = ? ORDER BY `id` ASC")) {
             ps.setInt(1, accountId);
             ps.setInt(2, worldId);
@@ -165,7 +165,7 @@ public class LoginCharacter implements GameCharacter {
     }
 
     public static void saveNewCharacterToDb(final LoginCharacter chr, final int type, final boolean isDualBlader) {
-        Connection con = DatabaseConnection.getConnection();
+        Connection con = Database.getConnection();
 
         PreparedStatement ps = null;
         PreparedStatement pse = null;
