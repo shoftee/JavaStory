@@ -196,7 +196,7 @@ public class InterServerHandler {
 		//
 		// final ChannelServer ch = ChannelServer.getInstance();
 		// try {
-		// final WorldChannelInterface wci = ch.getWorldInterface();
+		// final WorldChannelInterface wci = ChannelServer.getWorldInterface();
 		//
 		// if (chr.getMessenger() != null) {
 		// wci.silentLeaveMessenger(chr.getMessenger().getId(), new
@@ -209,7 +209,7 @@ public class InterServerHandler {
 		// targetChannelId);
 		// } catch (RemoteException e) {
 		// e.printStackTrace();
-		// ChannelServer.getInstance().pingWorld();
+		// ChannelServer.pingWorld();
 		// }
 		// ch.removePlayer(chr);
 		//

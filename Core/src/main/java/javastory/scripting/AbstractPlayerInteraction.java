@@ -167,12 +167,10 @@ public class AbstractPlayerInteraction {
     }
 
     public final void removeNpc(final int mapid, final int npcId) {
-    	ChannelServer.getInstance();
 		ChannelServer.getMapFactory().getMap(mapid).removeNpc(npcId);
     }
 
     public final void forceStartReactor(final int mapid, final int id) {
-        ChannelServer.getInstance();
 		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
@@ -185,7 +183,6 @@ public class AbstractPlayerInteraction {
     }
 
     public final void destroyReactor(final int mapid, final int id) {
-        ChannelServer.getInstance();
 		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
@@ -198,8 +195,7 @@ public class AbstractPlayerInteraction {
     }
 
     public final void hitReactor(final int mapid, final int id) {
-        ChannelServer.getInstance();
-		GameMap map = ChannelServer.getMapFactory().getMap(mapid);
+    	GameMap map = ChannelServer.getMapFactory().getMap(mapid);
         Reactor react;
         for (final GameMapObject remo : map.getAllReactor()) {
             react = (Reactor) remo;
@@ -290,7 +286,6 @@ public class AbstractPlayerInteraction {
 
     public final Guild getGuild() {
         try {
-            ChannelServer.getInstance();
 			return ChannelServer.getWorldInterface().getGuild(getPlayer().getGuildId());
         } catch (final RemoteException ex) {
             System.err.println("Could not connect to World Server: " + ex);
@@ -438,7 +433,6 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getMonsterCount(final int mapid) {
-        ChannelServer.getInstance();
 		return ChannelServer.getMapFactory().getMap(mapid).getAllMonster().size();
     }
 
@@ -447,7 +441,6 @@ public class AbstractPlayerInteraction {
     }
 
     public final int getPlayerCount(final int mapid) {
-        ChannelServer.getInstance();
 		return ChannelServer.getMapFactory().getMap(mapid).getCharactersSize();
     }
 

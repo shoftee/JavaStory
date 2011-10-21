@@ -976,7 +976,6 @@ public class Monster extends AbstractLoadedGameLife {
 		public List<AttackingMapleCharacter> getAttackers() {
             final List<AttackingMapleCharacter> ret = new ArrayList<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> entry : attackers.entrySet()) {
-                ChannelServer.getInstance();
 				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(entry.getKey());
                 if (chr != null) {
                     ret.add(new AttackingMapleCharacter(chr, entry.getValue().lastAttackTime));
@@ -988,7 +987,6 @@ public class Monster extends AbstractLoadedGameLife {
         private Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
             final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<>(attackers.size());
             for (final Entry<Integer, OnePartyAttacker> aentry : attackers.entrySet()) {
-                ChannelServer.getInstance();
 				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(aentry.getKey());
                 if (chr != null) {
                     ret.put(chr, aentry.getValue());
@@ -1048,7 +1046,6 @@ public class Monster extends AbstractLoadedGameLife {
                 expApplicable = new ArrayList<>();
                 for (final PartyMember partychar : party.getMembers()) {
                     if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || stats.getLevel() - partychar.getLevel() <= 5) {
-                        ChannelServer.getInstance();
 						pchr = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
                         if (pchr != null) {
                             if (pchr.isAlive() && pchr.getMap() == map) {

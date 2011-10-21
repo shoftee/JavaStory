@@ -182,7 +182,6 @@ public class GuildHandler {
                 boolean success = false;
 
                 try {
-                    ChannelServer.getInstance();
 					success = ChannelServer.getWorldInterface().addGuildMember(player.getGuildMembership());
                 } catch (RemoteException e) {
                     System.err.println("RemoteException occurred while attempting to add character to guild" +
@@ -238,7 +237,6 @@ public class GuildHandler {
                     break;
                 }
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().leaveGuild(player.getGuildMembership());
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to leave guild" +
@@ -260,7 +258,6 @@ public class GuildHandler {
                     return;
                 }
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().expelMember(player.getGuildMembership(), targetId);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to change rank" +
@@ -280,7 +277,6 @@ public class GuildHandler {
                 }
 
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().changeRankTitle(player.getGuildId(), ranks);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);
@@ -306,7 +302,6 @@ public class GuildHandler {
                 }
 
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().changeRank(player.getGuildId(), targetId, newRank);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred while attempting to change rank" +
@@ -338,7 +333,6 @@ public class GuildHandler {
                 final byte logocolor = reader.readByte();
 
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().setGuildEmblem(player.getGuildId(), bg, bgcolor, logo, logocolor);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);
@@ -358,7 +352,6 @@ public class GuildHandler {
                     return;
                 }
                 try {
-                    ChannelServer.getInstance();
 					ChannelServer.getWorldInterface().setGuildNotice(player.getGuildId(), notice);
                 } catch (RemoteException re) {
                     System.err.println("RemoteException occurred" + re);

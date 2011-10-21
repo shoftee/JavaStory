@@ -84,7 +84,6 @@ public class BuddyListHandler {
 
     public static void handleBuddyOperation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
         final int mode = reader.readByte();
-        ChannelServer.getInstance();
 		final WorldChannelInterface worldInterface = ChannelServer.getWorldInterface();
         final ChannelCharacter player = c.getPlayer();
         final BuddyList buddylist = player.getBuddyList();
@@ -187,7 +186,6 @@ public class BuddyListHandler {
                     final int channel = worldInterface.find(otherCid);
                     String otherName = null;
                     int otherLevel = 0, otherJob = 0;
-                    ChannelServer.getInstance();
 					final ChannelCharacter otherChar = ChannelServer.getPlayerStorage().getCharacterById(otherCid);
                     if (otherChar == null) {
                         Connection con = Database.getConnection();
@@ -232,7 +230,6 @@ public class BuddyListHandler {
     }
 
     private static void notifyRemoteChannel(final ChannelClient c, final int remoteChannel, final int otherCid, final BuddyOperation operation) throws RemoteException {
-        ChannelServer.getInstance();
 		final WorldChannelInterface worldInterface = ChannelServer.getWorldInterface();
         final ChannelCharacter player = c.getPlayer();
 

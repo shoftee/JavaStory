@@ -35,7 +35,6 @@ public class ChatHandler {
 		final String message = reader.readLengthPrefixedString();
 
 		try {
-			ChannelServer.getInstance();
 			final WorldChannelInterface worldInterface = ChannelServer.getWorldInterface();
 			switch (type) {
 			case 0:
@@ -53,7 +52,6 @@ public class ChatHandler {
 				break;
 			}
 		} catch (RemoteException e) {
-			ChannelServer.getInstance();
 			ChannelServer.pingWorld();
 		}
 	}

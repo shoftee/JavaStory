@@ -427,7 +427,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExp(int mapId, int exp) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelServer.getInstance();
 			ChannelCharacter curChar = ChannelServer
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
@@ -443,7 +442,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
 		GameMap target = getMap(mapId);
 		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelServer.getInstance();
 			ChannelCharacter curChar = ChannelServer
 					.getPlayerStorage().getCharacterByName(chr.getName());
 			if ((curChar.getEventInstance() == null
@@ -577,7 +575,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			ChannelServer.getInstance();
 			ChannelServer.getWorldInterface()
 					.disbandGuild(gid);
 		} catch (RemoteException e) {
@@ -622,7 +619,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			return;
 		}
 		try {
-			ChannelServer.getInstance();
 			ChannelServer.getWorldInterface()
 					.increaseGuildCapacity(gid);
 		} catch (RemoteException e) {

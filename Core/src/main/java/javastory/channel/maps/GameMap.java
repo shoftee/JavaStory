@@ -1222,7 +1222,6 @@ public class GameMap {
 		final PartyMember member = character.getPartyMembership();
 		if (member != null) {
 			try {
-				ChannelServer.getInstance();
 				Party party = ChannelServer.getWorldInterface()
 						.getParty(member.getPartyId());
 				character.silentPartyUpdate();

@@ -606,7 +606,6 @@ public class InventoryHandler {
 				boolean warped = false;
 
 				for (int i = 390001000; i <= 390001004; i++) {
-					ChannelServer.getInstance();
 					map = ChannelServer.getMapFactory()
 							.getMap(i);
 
@@ -1371,9 +1370,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() > 0;
 
 				try {
-					ChannelServer.getInstance();
-					ChannelServer
-							.getWorldInterface()
+					ChannelServer							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
 									.tripleSmega(messages,
 													ear,
@@ -1406,7 +1403,6 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getInstance();
 					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
@@ -1442,7 +1438,6 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getInstance();
 					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
@@ -1475,7 +1470,6 @@ public class InventoryHandler {
 				sb.append(message);
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getInstance();
 					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
@@ -1518,7 +1512,6 @@ public class InventoryHandler {
 				}
 
 				try {
-					ChannelServer.getInstance();
 					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
@@ -1719,7 +1712,6 @@ public class InventoryHandler {
 				}
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getInstance();
 					ChannelServer
 							.getWorldInterface()
 							.broadcastSmega(ChannelPackets
