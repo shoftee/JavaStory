@@ -17,8 +17,6 @@ import javastory.channel.client.ISkill;
 import javastory.channel.client.KeyBinding;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.client.SkillMacro;
-import javastory.channel.life.MobAttackInfo;
-import javastory.channel.life.MobAttackInfoFactory;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.MobSkillFactory;
 import javastory.channel.life.Monster;
@@ -38,6 +36,8 @@ import javastory.client.Inventory;
 import javastory.game.AttackType;
 import javastory.game.GameConstants;
 import javastory.game.Skills;
+import javastory.game.data.MobAttackInfo;
+import javastory.game.data.MobAttackInfoFactory;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.ItemInfoProvider;
@@ -200,18 +200,18 @@ public class PlayerHandler {
                 return;
             }
             if (type != -1) { // Bump damage
-                final MobAttackInfo attackInfo = MobAttackInfoFactory.getInstance().getMobAttackInfo(attacker, type);
-                if (attackInfo.isDeadlyAttack()) {
+                final MobAttackInfo attackInfo = MobAttackInfoFactory.getInstance().getMobAttackInfo(attacker.getId(), type);
+                if (attackInfo.IsDeadlyAttack) {
                     isDeadlyAttack = true;
                     mpattack = stats.getMp() - 1;
                 } else {
-                    mpattack += attackInfo.getMpBurn();
+                    mpattack += attackInfo.MpBurn;
                 }
-                final MobSkill skill = MobSkillFactory.getMobSkill(attackInfo.getDiseaseSkill(), attackInfo.getDiseaseLevel());
+                final MobSkill skill = MobSkillFactory.getMobSkill(attackInfo.DiseaseSkill, attackInfo.DiseaseLevel);
                 if (skill != null && (damage == -1 || damage > 0)) {
                     skill.applyEffect(chr, attacker, false);
                 }
-                attacker.setMp(attacker.getMp() - attackInfo.getMpCon());
+                attacker.setMp(attacker.getMp() - attackInfo.MpCon);
             }
         }
 

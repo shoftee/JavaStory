@@ -116,8 +116,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
-		GameCharacter, Serializable {
+public class ChannelCharacter extends AbstractAnimatedGameMapObject implements GameCharacter, Serializable {
 
 	/**
 	 * 
@@ -145,10 +144,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	private transient Shop shop;
 	private transient Trade trade;
 	//
-	private transient ScheduledFuture<?> fullnessSchedule, fullnessSchedule_1,
-			fullnessSchedule_2, hpDecreaseTask;
-	private transient ScheduledFuture<?> beholderHealingSchedule,
-			beholderBuffSchedule, BerserkSchedule;
+	private transient ScheduledFuture<?> fullnessSchedule, fullnessSchedule_1, fullnessSchedule_2, hpDecreaseTask;
+	private transient ScheduledFuture<?> beholderHealingSchedule, beholderBuffSchedule, BerserkSchedule;
 	private transient ScheduledFuture<?> dragonBloodSchedule;
 	private transient ScheduledFuture<?> mapTimeLimitTask, fishing;
 	//
@@ -171,9 +168,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public int vpoints;
 	public int reborns;
 	//
-	private int accountId, meso, exp, mpApUsed, hpApUsed, remainingAp, mapId,
-			initialSpawnPoint, bookCover, dojo, fallcounter, maplePoints,
-			aCash, chair, itemEffect, subcategory;
+	private int accountId, meso, exp, mpApUsed, hpApUsed, remainingAp, mapId, initialSpawnPoint, bookCover, dojo, fallcounter, maplePoints, aCash, chair,
+		itemEffect, subcategory;
 	//
 	private int[] remainingSp = new int[10];
 	private int[] wishlist, teleportRocks, savedLocations;
@@ -255,8 +251,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 	}
 
-	public static ChannelCharacter reconstructCharacter(
-			final CharacterTransfer ct, final ChannelClient client) {
+	public static ChannelCharacter reconstructCharacter(final CharacterTransfer ct, final ChannelClient client) {
 		final ChannelCharacter ret = new ChannelCharacter();
 		ret.client = client;
 		ret.id = ct.CharacterId;
@@ -330,8 +325,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		int partyId = ct.PartyId;
 		if (partyId >= 0) {
 			try {
-				Party party = ChannelServer.getWorldInterface().getParty(
-						partyId);
+				Party party = ChannelServer.getWorldInterface().getParty(partyId);
 				if (party != null && party.getMemberById(ret.id) != null) {
 					ret.party = party;
 				}
@@ -379,8 +373,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		ret.vpoints = ct.vpoints;
 		ret.maplePoints = ct.MaplePoints;
 
-		ret.mount = new Mount(ret, ct.MountItemId, 1004, ct.MountFatigue,
-				ct.MountLevel, ct.MountExp);
+		ret.mount = new Mount(ret, ct.MountItemId, 1004, ct.MountFatigue, ct.MountLevel, ct.MountExp);
 
 		ret.stats.recalcLocalStats();
 		ret.silentEnforceMaxHpMp();
@@ -388,8 +381,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		return ret;
 	}
 
-	public static ChannelCharacter loadFromDb(int characterId,
-			ChannelClient client) {
+	public static ChannelCharacter loadFromDb(int characterId, ChannelClient client) {
 		final ChannelCharacter ret = new ChannelCharacter();
 		ret.client = client;
 		ret.id = characterId;
@@ -403,8 +395,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ps.setInt(1, characterId);
 			rs = ps.executeQuery();
 			if (!rs.next()) {
-				throw new RuntimeException(
-						"Loading the Char Failed (char not found)");
+				throw new RuntimeException("Loading the Char Failed (char not found)");
 			}
 			ret.name = rs.getString("name");
 			ret.level = rs.getShort("level");
@@ -468,8 +459,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			int partyid = rs.getInt("party");
 			if (partyid >= 0) {
 				try {
-					Party party = ChannelServer.getWorldInterface().getParty(
-							partyid);
+					Party party = ChannelServer.getWorldInterface().getParty(partyid);
 					if (party != null && party.getMemberById(ret.id) != null) {
 						ret.party = party;
 					}
@@ -480,11 +470,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			final int messengerId = rs.getInt("messengerid");
 			final int messengerPosition = rs.getInt("messengerposition");
-			if (messengerId > 0 && messengerPosition < 4
-					&& messengerPosition > -1) {
+			if (messengerId > 0 && messengerPosition < 4 && messengerPosition > -1) {
 				try {
-					WorldChannelInterface wci = ChannelServer
-							.getWorldInterface();
+					WorldChannelInterface wci = ChannelServer.getWorldInterface();
 					Messenger messenger = wci.getMessenger(messengerId);
 					if (messenger != null) {
 						ret.messenger = messenger;
@@ -512,8 +500,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			rs = ps.executeQuery();
 
 			if (!rs.next()) {
-				throw new RuntimeException(
-						"No Inventory slot column found in SQL. [inventoryslot]");
+				throw new RuntimeException("No Inventory slot column found in SQL. [inventoryslot]");
 			} else {
 				ret.getEquipInventory().setSlotLimit(rs.getByte("equip"));
 				ret.getUseInventory().setSlotLimit(rs.getByte("use"));
@@ -530,8 +517,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			while (rs.next()) {
 				final byte inventoryType = rs.getByte("inventorytype");
-				final InventoryType type = InventoryType
-						.fromByte(inventoryType);
+				final InventoryType type = InventoryType.fromByte(inventoryType);
 
 				final int itemId = rs.getInt("itemid");
 				final byte position = rs.getByte("position");
@@ -541,10 +527,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				final String owner = rs.getString("owner");
 				final String gmLog = rs.getString("GM_Log");
 
-				if (type.equals(InventoryType.EQUIP)
-						|| type.equals(InventoryType.EQUIPPED)) {
-					final Equip equip = new Equip(itemId, position,
-							rs.getInt("ringid"), flag);
+				if (type.equals(InventoryType.EQUIP) || type.equals(InventoryType.EQUIPPED)) {
+					final Equip equip = new Equip(itemId, position, rs.getInt("ringid"), flag);
 					equip.setOwner(owner);
 					equip.setQuantity(quantity);
 					equip.setExpiration(expiration);
@@ -582,8 +566,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 					if (rs.getInt("petid") > -1) {
 						final int petId = rs.getInt("petid");
-						final Pet pet = Pet.loadFromDb(item.getItemId(), petId,
-								item.getPosition());
+						final Pet pet = Pet.loadFromDb(item.getItemId(), petId, item.getPosition());
 						ret.pets.add(pet);
 						item.setPet(pet);
 					}
@@ -624,8 +607,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				if (GameConstants.isApplicableSkill(skillId)) {
 					final byte masterLevel = rs.getByte("masterlevel");
 					final byte skillLevel = rs.getByte("skilllevel");
-					final SkillEntry skillEntry = new SkillEntry(skillLevel,
-							masterLevel);
+					final SkillEntry skillEntry = new SkillEntry(skillLevel, masterLevel);
 					ret.skills.put(SkillFactory.getSkill(skillId), skillEntry);
 				}
 			}
@@ -647,8 +629,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					}
 					// }
 					ret.BlessOfFairy_Origin = rs.getString("name");
-					final SkillEntry skillEntry = new SkillEntry(maxlevel,
-							(byte) 0);
+					final SkillEntry skillEntry = new SkillEntry(maxlevel, (byte) 0);
 					final int skillId = Skills.getBlessOfFairyForJob(ret.jobId);
 					ret.skills.put(SkillFactory.getSkill(skillId), skillEntry);
 					break;
@@ -668,8 +649,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				final int skillId2 = rs.getInt("skill2");
 				final int skillId3 = rs.getInt("skill3");
 				final int shout = rs.getInt("shout");
-				final SkillMacro macro = new SkillMacro(skillId1, skillId2,
-						skillId3, rs.getString("name"), shout, position);
+				final SkillMacro macro = new SkillMacro(skillId1, skillId2, skillId3, rs.getString("name"), shout, position);
 				ret.skillMacros[position] = macro;
 			}
 			rs.close();
@@ -729,11 +709,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (!rs.next()) {
 				throw new RuntimeException("No mount data found on SQL column");
 			}
-			final IItem mount = ret.getEquippedItemsInventory().getItem(
-					(byte) -22);
-			ret.mount = new Mount(ret, mount != null ? mount.getItemId() : 0,
-					1004, rs.getInt("Fatigue"), rs.getInt("Level"),
-					rs.getInt("Exp"));
+			final IItem mount = ret.getEquippedItemsInventory().getItem((byte) -22);
+			ret.mount = new Mount(ret, mount != null ? mount.getItemId() : 0, 1004, rs.getInt("Fatigue"), rs.getInt("Level"), rs.getInt("Exp"));
 			ps.close();
 			rs.close();
 		} catch (SQLException ex) {
@@ -756,15 +733,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		return ret;
 	}
 
-	private static Map<Integer, QuestStatus> loadQuestData(final Connection c,
-			final int characterId) throws SQLException {
+	private static Map<Integer, QuestStatus> loadQuestData(final Connection c, final int characterId) throws SQLException {
 		Map<Integer, QuestStatus> quests = Maps.newHashMap();
-		try (final PreparedStatement statusQuery = c
-				.prepareStatement("SELECT * FROM queststatus WHERE characterid = ?")) {
+		try (final PreparedStatement statusQuery = c.prepareStatement("SELECT * FROM queststatus WHERE characterid = ?")) {
 			statusQuery.setInt(1, characterId);
-			try (final ResultSet statusResultSet = statusQuery.executeQuery();
-					final PreparedStatement mobsQuery = c
-							.prepareStatement("SELECT * FROM queststatusmobs WHERE queststatusid = ?")) {
+			try (	final ResultSet statusResultSet = statusQuery.executeQuery();
+					final PreparedStatement mobsQuery = c.prepareStatement("SELECT * FROM queststatusmobs WHERE queststatusid = ?")) {
 
 				while (statusResultSet.next()) {
 					final QuestStatus status = new QuestStatus(statusResultSet);
@@ -798,7 +772,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 			con.setAutoCommit(false);
 
-			ps = con.prepareStatement(
+			ps = con
+				.prepareStatement(
 					"UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?",
 					Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, level);
@@ -834,8 +809,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (map.getForcedReturnId() != 999999999) {
 				ps.setInt(20, map.getForcedReturnId());
 			} else {
-				ps.setInt(20,
-						stats.getHp() < 1 ? map.getReturnMapId() : map.getId());
+				ps.setInt(20, stats.getHp() < 1 ? map.getReturnMapId() : map.getId());
 			}
 			ps.setInt(21, meso);
 			ps.setInt(22, hpApUsed);
@@ -863,8 +837,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ps.setInt(34, id);
 
 			if (ps.executeUpdate() < 1) {
-				throw new DatabaseException("Character not in database (" + id
-						+ ")");
+				throw new DatabaseException("Character not in database (" + id + ")");
 			}
 			ps.close();
 
@@ -874,12 +847,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					pet.saveToDb();
 				}
 			}
-			deleteByCharacterId(con,
-					"DELETE FROM skillmacros WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM skillmacros WHERE characterid = ?");
 			for (int i = 0; i < 5; i++) {
 				final SkillMacro macro = skillMacros[i];
 				if (macro != null) {
-					ps = con.prepareStatement("INSERT INTO skillmacros (characterid, skill1, skill2, skill3, name, shout, position) VALUES (?, ?, ?, ?, ?, ?, ?)");
+					ps = con
+						.prepareStatement("INSERT INTO skillmacros (characterid, skill1, skill2, skill3, name, shout, position) VALUES (?, ?, ?, ?, ?, ?, ?)");
 					ps.setInt(1, id);
 					ps.setInt(2, macro.getSkill1());
 					ps.setInt(3, macro.getSkill2());
@@ -892,8 +865,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				}
 			}
 
-			deleteByCharacterId(con,
-					"DELETE FROM inventoryslot WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
 			ps = con.prepareStatement("INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)");
 			ps.setInt(1, id);
 			ps.setInt(2, getEquipInventory().getSlotLimit());
@@ -904,13 +876,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ps.execute();
 			ps.close();
 
-			deleteByCharacterId(con,
-					"DELETE FROM inventoryitems WHERE characterid = ?");
-			ps = con.prepareStatement(
+			deleteByCharacterId(con, "DELETE FROM inventoryitems WHERE characterid = ?");
+			ps = con
+				.prepareStatement(
 					"INSERT INTO inventoryitems (characterid, itemid, inventorytype, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
-			pse = con
-					.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 			for (final Inventory inv : this.inventory) {
 				ps.setInt(3, inv.getType().asByte());
@@ -921,8 +892,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					ps.setInt(5, item.getQuantity());
 					ps.setString(6, item.getOwner());
 					ps.setString(7, item.getGMLog());
-					ps.setInt(8, item.getPet() != null ? item.getPet()
-							.getUniqueId() : -1);
+					ps.setInt(8, item.getPet() != null ? item.getPet().getUniqueId() : -1);
 					ps.setLong(9, item.getExpiration());
 					ps.setByte(10, item.getFlag());
 					ps.executeUpdate();
@@ -935,8 +905,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 						throw new DatabaseException("Inserting char failed.");
 					}
 
-					if (inv.getType().equals(InventoryType.EQUIP)
-							|| inv.getType().equals(InventoryType.EQUIPPED)) {
+					if (inv.getType().equals(InventoryType.EQUIP) || inv.getType().equals(InventoryType.EQUIPPED)) {
 						pse.setInt(1, itemid);
 						IEquip equip = (IEquip) item;
 						pse.setInt(2, equip.getUpgradeSlots());
@@ -967,8 +936,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			ps.close();
 			pse.close();
 
-			deleteByCharacterId(con,
-					"DELETE FROM questinfo WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM questinfo WHERE characterid = ?");
 			ps = con.prepareStatement("INSERT INTO questinfo (`characterid`, `quest`, `data`) VALUES (?, ?, ?)");
 			ps.setInt(1, id);
 			for (final Entry<Integer, String> q : questInfo.entrySet()) {
@@ -978,13 +946,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			ps.close();
 
-			deleteByCharacterId(con,
-					"DELETE FROM queststatus WHERE characterid = ?");
-			ps = con.prepareStatement(
+			deleteByCharacterId(con, "DELETE FROM queststatus WHERE characterid = ?");
+			ps = con
+				.prepareStatement(
 					"INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
-			pse = con
-					.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
+			pse = con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
 			ps.setInt(1, id);
 			for (final QuestStatus q : quests.values()) {
 				ps.setInt(2, q.getQuestId());
@@ -1033,12 +1000,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				ps.close();
 			}
 
-			deleteByCharacterId(con,
-					"DELETE FROM savedlocations WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM savedlocations WHERE characterid = ?");
 			ps = con.prepareStatement("INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
 			ps.setInt(1, id);
-			for (final SavedLocationType savedLocationType : SavedLocationType
-					.values()) {
+			for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
 				if (savedLocations[savedLocationType.ordinal()] != -1) {
 					ps.setInt(2, savedLocationType.ordinal());
 					ps.setInt(3, savedLocations[savedLocationType.ordinal()]);
@@ -1047,8 +1012,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			ps.close();
 
-			deleteByCharacterId(con,
-					"DELETE FROM buddies WHERE characterid = ? AND pending = 0");
+			deleteByCharacterId(con, "DELETE FROM buddies WHERE characterid = ? AND pending = 0");
 			ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, 0)");
 			ps.setInt(1, id);
 			for (BuddyListEntry entry : buddies.getBuddies()) {
@@ -1074,8 +1038,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			mount.saveMount(id);
 			monsterBook.saveCards(id);
 
-			deleteByCharacterId(con,
-					"DELETE FROM wishlist WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
 			for (int i = 0; i < getWishlistSize(); i++) {
 				ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?) ");
 				ps.setInt(1, getId());
@@ -1084,8 +1047,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				ps.close();
 			}
 
-			deleteByCharacterId(con,
-					"DELETE FROM trocklocations WHERE characterid = ?");
+			deleteByCharacterId(con, "DELETE FROM trocklocations WHERE characterid = ?");
 			for (int i = 0; i < getRockSize(); i++) {
 				if (teleportRocks[i] != 999999999) {
 					ps = con.prepareStatement("INSERT INTO trocklocations(characterid, mapid) VALUES(?, ?) ");
@@ -1098,14 +1060,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 			con.commit();
 		} catch (SQLException | DatabaseException e) {
-			final String failMessage = ChannelClient.getLogMessage(this,
-					"[charsave] Error saving character data");
+			final String failMessage = ChannelClient.getLogMessage(this, "[charsave] Error saving character data");
 			System.err.println(failMessage + e);
 			try {
 				con.rollback();
 			} catch (SQLException ex) {
-				final String completelyFailMessage = ChannelClient
-						.getLogMessage(this, "[charsave] Error Rolling Back");
+				final String completelyFailMessage = ChannelClient.getLogMessage(this, "[charsave] Error Rolling Back");
 				System.err.println(completelyFailMessage + e);
 			}
 		} finally {
@@ -1122,14 +1082,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				con.setAutoCommit(true);
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 			} catch (SQLException e) {
-				System.err.println(ChannelClient.getLogMessage(this,
-						"[charsave] Error going back to autocommit mode") + e);
+				System.err.println(ChannelClient.getLogMessage(this, "[charsave] Error going back to autocommit mode") + e);
 			}
 		}
 	}
 
-	private void deleteByCharacterId(Connection con, String sql)
-			throws SQLException {
+	private void deleteByCharacterId(Connection con, String sql) throws SQLException {
 		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, id);
 			ps.executeUpdate();
@@ -1150,8 +1108,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 		for (final Entry<Integer, String> q : questInfo.entrySet()) {
 			builder.writeAsShort(q.getKey());
-			builder.writeLengthPrefixedString(q.getValue() == null ? "" : q
-					.getValue());
+			builder.writeLengthPrefixedString(q.getValue() == null ? "" : q.getValue());
 		}
 		builder.writeInt(0); // PQ rank and stuff
 	}
@@ -1212,10 +1169,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			client.write(ChannelPackets.forfeitQuest(this, questId));
 			break;
 		case 1:
-			client.write(ChannelPackets.startQuest(this, questId,
-					status.getCustomData()));
-			client.write(ChannelPackets.updateQuestInfo(this, questId,
-					status.getNpc(), (byte) 8));
+			client.write(ChannelPackets.startQuest(this, questId, status.getCustomData()));
+			client.write(ChannelPackets.updateQuestInfo(this, questId, status.getNpc(), (byte) 8));
 			break;
 		case 2:
 			client.write(ChannelPackets.completeQuest(questId));
@@ -1232,8 +1187,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public boolean isActiveBuffedValue(int skillid) {
-		LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects
-				.values());
+		LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 		for (BuffStatValueHolder value : allBuffs) {
 			if (value.effect.isSkill() && value.effect.getSourceId() == skillid) {
 				return true;
@@ -1276,8 +1230,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (value == null) {
 			return false;
 		}
-		return value.effect.isSkill()
-				&& value.effect.getSourceId() == skill.getId();
+		return value.effect.isSkill() && value.effect.getSourceId() == skill.getId();
 	}
 
 	public int getBuffSource(BuffStat stat) {
@@ -1286,8 +1239,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public int getItemQuantity(int itemId, boolean checkEquipped) {
-		int count = inventory.get(GameConstants.getInventoryType(itemId))
-				.countById(itemId);
+		int count = inventory.get(GameConstants.getInventoryType(itemId)).countById(itemId);
 		if (checkEquipped) {
 			count += inventory.get(InventoryType.EQUIPPED).countById(itemId);
 		}
@@ -1346,8 +1298,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (dragonBloodSchedule != null) {
 			dragonBloodSchedule.cancel(false);
 		}
-		dragonBloodSchedule = TimerManager.getInstance().register(
-				new DragonBloodRunnable(bloodEffect), 4000, 4000);
+		dragonBloodSchedule = TimerManager.getInstance().register(new DragonBloodRunnable(bloodEffect), 4000, 4000);
 
 	}
 
@@ -1366,34 +1317,29 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			} else {
 				addHP(-effect.getX());
 				final int bloodEffectSourceId = effect.getSourceId();
-				final GamePacket ownEffectPacket = ChannelPackets
-						.showOwnBuffEffect(bloodEffectSourceId, 5);
+				final GamePacket ownEffectPacket = ChannelPackets.showOwnBuffEffect(bloodEffectSourceId, 5);
 				client.write(ownEffectPacket);
-				final GamePacket otherEffectPacket = ChannelPackets
-						.showBuffeffect(getId(), bloodEffectSourceId, 5);
-				map.broadcastMessage(ChannelCharacter.this, otherEffectPacket,
-						false);
+				final GamePacket otherEffectPacket = ChannelPackets.showBuffeffect(getId(), bloodEffectSourceId, 5);
+				map.broadcastMessage(ChannelCharacter.this, otherEffectPacket, false);
 			}
 		}
 	}
 
-	public void startFullnessSchedule(final int decrease, final Pet pet,
-			int petSlot) {
-		ScheduledFuture<?> schedule = TimerManager.getInstance().register(
-				new Runnable() {
+	public void startFullnessSchedule(final int decrease, final Pet pet, int petSlot) {
+		ScheduledFuture<?> schedule = TimerManager.getInstance().register(new Runnable() {
 
-					@Override
-					public void run() {
-						int newFullness = pet.getFullness() - decrease;
-						if (newFullness <= 5) {
-							pet.setFullness(15);
-							unequipPet(pet, true, true);
-						} else {
-							pet.setFullness(newFullness);
-							client.write(PetPacket.updatePet(pet, true));
-						}
-					}
-				}, 60000, 60000);
+			@Override
+			public void run() {
+				int newFullness = pet.getFullness() - decrease;
+				if (newFullness <= 5) {
+					pet.setFullness(15);
+					unequipPet(pet, true, true);
+				} else {
+					pet.setFullness(newFullness);
+					client.write(PetPacket.updatePet(pet, true));
+				}
+			}
+		}, 60000, 60000);
 		switch (petSlot) {
 		case 0:
 			fullnessSchedule = schedule;
@@ -1452,11 +1398,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					cancelFishingTask();
 					return;
 				}
-				InventoryManipulator.removeById(client, getUseInventory(),
-						2300000, 1, false, false);
+				InventoryManipulator.removeById(client, getUseInventory(), 2300000, 1, false, false);
 
-				final int randval = RandomRewards.getInstance()
-						.getFishingReward();
+				final int randval = RandomRewards.getInstance().getFishingReward();
 
 				switch (randval) {
 				case 0: // Meso
@@ -1465,8 +1409,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					client.write(UIPacket.fishingUpdate((byte) 1, money));
 					break;
 				case 1: // EXP
-					final int experi = Randomizer.nextInt(GameConstants
-							.getExpNeededForLevel(level) / 200);
+					final int experi = Randomizer.nextInt(GameConstants.getExpNeededForLevel(level) / 200);
 					gainExp(experi, true, false, true);
 					client.write(UIPacket.fishingUpdate((byte) 2, experi));
 					break;
@@ -1492,12 +1435,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 	}
 
-	public void registerEffect(StatEffect effect, long starttime,
-			ScheduledFuture<?> schedule) {
+	public void registerEffect(StatEffect effect, long starttime, ScheduledFuture<?> schedule) {
 		if (effect.isHide()) {
 			this.hidden = true;
-			map.broadcastMessage(this,
-					ChannelPackets.removePlayerFromMap(getId()), false);
+			map.broadcastMessage(this, ChannelPackets.removePlayerFromMap(getId()), false);
 		} else if (effect.isDragonBlood()) {
 			prepareDragonBlood(effect);
 		} else if (effect.isBerserk()) {
@@ -1506,21 +1447,17 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			prepareBeholderEffect();
 		}
 		for (BuffStatValue statup : effect.getStatups()) {
-			effects.put(statup.stat, new BuffStatValueHolder(effect, starttime,
-					schedule, statup.value));
+			effects.put(statup.stat, new BuffStatValueHolder(effect, starttime, schedule, statup.value));
 		}
 		stats.recalcLocalStats();
 	}
 
-	public List<BuffStat> getBuffStats(final StatEffect effect,
-			final long startTime) {
+	public List<BuffStat> getBuffStats(final StatEffect effect, final long startTime) {
 		final List<BuffStat> bstats = new ArrayList<>();
 
-		for (Entry<BuffStat, BuffStatValueHolder> stateffect : effects
-				.entrySet()) {
+		for (Entry<BuffStat, BuffStatValueHolder> stateffect : effects.entrySet()) {
 			final BuffStatValueHolder value = stateffect.getValue();
-			if (value.effect.sameSource(effect)
-					&& (startTime == -1 || startTime == value.startTime)) {
+			if (value.effect.sameSource(effect) && (startTime == -1 || startTime == value.startTime)) {
 				bstats.add(stateffect.getKey());
 			}
 		}
@@ -1528,29 +1465,25 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	private void deregisterBuffStats(List<BuffStat> stats) {
-		List<BuffStatValueHolder> effectsToCancel = new ArrayList<>(
-				stats.size());
+		List<BuffStatValueHolder> effectsToCancel = new ArrayList<>(stats.size());
 		for (BuffStat stat : stats) {
 			final BuffStatValueHolder value = effects.get(stat);
 			if (value != null) {
 				effects.remove(stat);
 				boolean addMbsvh = true;
 				for (BuffStatValueHolder contained : effectsToCancel) {
-					if (value.startTime == contained.startTime
-							&& contained.effect == value.effect) {
+					if (value.startTime == contained.startTime && contained.effect == value.effect) {
 						addMbsvh = false;
 					}
 				}
 				if (addMbsvh) {
 					effectsToCancel.add(value);
 				}
-				if (stat == BuffStat.SUMMON || stat == BuffStat.PUPPET
-						|| stat == BuffStat.MIRROR_TARGET) {
+				if (stat == BuffStat.SUMMON || stat == BuffStat.PUPPET || stat == BuffStat.MIRROR_TARGET) {
 					final int summonId = value.effect.getSourceId();
 					final Summon summon = summons.get(summonId);
 					if (summon != null) {
-						map.broadcastMessage(ChannelPackets.removeSummon(
-								summon, true));
+						map.broadcastMessage(ChannelPackets.removeSummon(summon, true));
 						map.removeMapObject(summon);
 						removeVisibleMapObject(summon);
 						summons.remove(summonId);
@@ -1574,8 +1507,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 		}
 		for (BuffStatValueHolder cancelEffectCancelTasks : effectsToCancel) {
-			if (getBuffStats(cancelEffectCancelTasks.effect,
-					cancelEffectCancelTasks.startTime).isEmpty()) {
+			if (getBuffStats(cancelEffectCancelTasks.effect, cancelEffectCancelTasks.startTime).isEmpty()) {
 				if (cancelEffectCancelTasks.schedule != null) {
 					cancelEffectCancelTasks.schedule.cancel(false);
 				}
@@ -1590,8 +1522,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	 *            the StatEffect are deregistered
 	 * @param startTime
 	 */
-	public void cancelEffect(StatEffect effect, boolean overwrite,
-			long startTime) {
+	public void cancelEffect(StatEffect effect, boolean overwrite, long startTime) {
 		List<BuffStat> buffstats;
 		if (!overwrite) {
 			buffstats = getBuffStats(effect, startTime);
@@ -1607,12 +1538,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			// remove for all on maps
 			if (!getDoors().isEmpty()) {
 				final Door door = getDoors().iterator().next();
-				for (final ChannelCharacter chr : door.getTarget()
-						.getCharacters()) {
+				for (final ChannelCharacter chr : door.getTarget().getCharacters()) {
 					door.sendDestroyData(chr.getClient());
 				}
-				for (final ChannelCharacter chr : door.getTown()
-						.getCharacters()) {
+				for (final ChannelCharacter chr : door.getTown().getCharacters()) {
 					door.sendDestroyData(chr.getClient());
 				}
 				for (final Door destroyDoor : getDoors()) {
@@ -1632,11 +1561,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		// check if we are still logged in o.o
 		if (!overwrite) {
 			cancelPlayerBuffs(buffstats);
-			if (effect.isHide()
-					&& (ChannelCharacter) map.getMapObject(getObjectId()) != null) {
+			if (effect.isHide() && (ChannelCharacter) map.getMapObject(getObjectId()) != null) {
 				this.hidden = false;
-				map.broadcastMessage(this,
-						ChannelPackets.spawnPlayerMapObject(this), false);
+				map.broadcastMessage(this, ChannelPackets.spawnPlayerMapObject(this), false);
 
 				for (final Pet pet : pets) {
 					if (pet.isSummoned()) {
@@ -1666,15 +1593,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			} else {
 				stats.recalcLocalStats();
 				enforceMaxHpMp();
-				client.write(ChannelPackets.cancelBuff(buffstats,
-						buffstats.contains(BuffStat.MONSTER_RIDING)));
-				map.broadcastMessage(this,
-						ChannelPackets.cancelForeignBuff(getId(), buffstats),
-						false);
+				client.write(ChannelPackets.cancelBuff(buffstats, buffstats.contains(BuffStat.MONSTER_RIDING)));
+				map.broadcastMessage(this, ChannelPackets.cancelForeignBuff(getId(), buffstats), false);
 			}
 		}
-		if (buffstats.contains(BuffStat.MONSTER_RIDING) && Jobs.isEvan(jobId)
-				&& jobId >= 2200) {
+		if (buffstats.contains(BuffStat.MONSTER_RIDING) && Jobs.isEvan(jobId) && jobId >= 2200) {
 			makeDragon();
 			map.spawnDragon(dragon);
 		}
@@ -1682,11 +1605,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void dispel() {
 		if (!isHidden()) {
-			final LinkedList<BuffStatValueHolder> allBuffs = Lists
-					.newLinkedList(effects.values());
+			final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 			for (BuffStatValueHolder value : allBuffs) {
-				if (value.effect.isSkill() && value.schedule != null
-						&& !value.effect.isMorph()) {
+				if (value.effect.isSkill() && value.schedule != null && !value.effect.isMorph()) {
 					cancelEffect(value.effect, false, value.startTime);
 				}
 			}
@@ -1694,32 +1615,21 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void dispelSkill(int skillid) {
-		final LinkedList<BuffStatValueHolder> allBuffs = Lists
-				.newLinkedList(effects.values());
+		final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
 		for (BuffStatValueHolder value : allBuffs) {
 			if (skillid == 0) {
 				if (value.effect.isSkill()
-						&& (value.effect.getSourceId() == 1004
-								|| value.effect.getSourceId() == 10001004
-								|| value.effect.getSourceId() == 20001004
-								|| value.effect.getSourceId() == 20011004
-								|| value.effect.getSourceId() == 1321007
-								|| value.effect.getSourceId() == 2121005
-								|| value.effect.getSourceId() == 2221005
-								|| value.effect.getSourceId() == 2311006
-								|| value.effect.getSourceId() == 2321003
-								|| value.effect.getSourceId() == 3111002
-								|| value.effect.getSourceId() == 3111005
-								|| value.effect.getSourceId() == 3211002
-								|| value.effect.getSourceId() == 3211005 || value.effect
-								.getSourceId() == 4111002)) {
+					&& (value.effect.getSourceId() == 1004 || value.effect.getSourceId() == 10001004 || value.effect.getSourceId() == 20001004
+						|| value.effect.getSourceId() == 20011004 || value.effect.getSourceId() == 1321007 || value.effect.getSourceId() == 2121005
+						|| value.effect.getSourceId() == 2221005 || value.effect.getSourceId() == 2311006 || value.effect.getSourceId() == 2321003
+						|| value.effect.getSourceId() == 3111002 || value.effect.getSourceId() == 3111005 || value.effect.getSourceId() == 3211002
+						|| value.effect.getSourceId() == 3211005 || value.effect.getSourceId() == 4111002)) {
 					cancelEffect(value.effect, false, value.startTime);
 					break;
 				}
 			} else {
-				if (value.effect.isSkill()
-						&& value.effect.getSourceId() == skillid) {
+				if (value.effect.isSkill() && value.effect.getSourceId() == skillid) {
 					cancelEffect(value.effect, false, value.startTime);
 					break;
 				}
@@ -1732,8 +1642,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void cancelAllBuffs() {
-		final LinkedList<BuffStatValueHolder> allBuffs = Lists
-				.newLinkedList(effects.values());
+		final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
 		for (BuffStatValueHolder value : allBuffs) {
 			cancelEffect(value.effect, false, value.startTime);
@@ -1741,8 +1650,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void cancelMorphs() {
-		final LinkedList<BuffStatValueHolder> allBuffs = Lists
-				.newLinkedList(effects.values());
+		final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
 		for (BuffStatValueHolder value : allBuffs) {
 			switch (value.effect.getSourceId()) {
@@ -1761,8 +1669,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public int getMorphState() {
-		LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects
-				.values());
+		LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 		for (BuffStatValueHolder value : allBuffs) {
 			if (value.effect.isMorph()) {
 				return value.effect.getSourceId();
@@ -1786,8 +1693,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void cancelMagicDoor() {
-		final LinkedList<BuffStatValueHolder> allBuffs = Lists
-				.newLinkedList(effects.values());
+		final LinkedList<BuffStatValueHolder> allBuffs = Lists.newLinkedList(effects.values());
 
 		for (BuffStatValueHolder value : allBuffs) {
 			if (value.effect.isMagicDoor()) {
@@ -1811,17 +1717,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					if (energyLevel < 10000) {
 						energyLevel += (100 * targets);
 						setBuffedValue(BuffStat.ENERGY_CHARGE, energyLevel);
-						client.write(ChannelPackets
-								.giveEnergyChargeTest(energyLevel));
+						client.write(ChannelPackets.giveEnergyChargeTest(energyLevel));
 
 						if (energyLevel >= 10000) {
 							energyLevel = 10001;
 						}
 					} else if (energyLevel == 10001) {
-						echskill.getEffect(skilllevel).applyEnergyBuff(this,
-								false); // One
-										// with
-										// time
+						echskill.getEffect(skilllevel).applyEnergyBuff(this, false); // One
+																						// with
+																						// time
 						energyLevel = 10002;
 					}
 				}
@@ -1861,19 +1765,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					neworbcount++;
 				}
 			}
-			List<BuffStatValue> stat = Collections
-					.singletonList(new BuffStatValue(BuffStat.COMBO,
-							neworbcount));
+			List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.COMBO, neworbcount));
 			setBuffedValue(BuffStat.COMBO, neworbcount);
 			int duration = ceffect.getDuration();
-			duration += (int) ((getBuffedStartTime(BuffStat.COMBO) - System
-					.currentTimeMillis()));
+			duration += (int) ((getBuffedStartTime(BuffStat.COMBO) - System.currentTimeMillis()));
 
-			client.write(ChannelPackets.giveBuff(1111002, duration, stat,
-					ceffect));
-			map.broadcastMessage(this,
-					ChannelPackets.giveForeignBuff(getId(), stat, ceffect),
-					false);
+			client.write(ChannelPackets.giveBuff(1111002, duration, stat, ceffect));
+			map.broadcastMessage(this, ChannelPackets.giveForeignBuff(getId(), stat, ceffect), false);
 		}
 	}
 
@@ -1890,18 +1788,14 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			break;
 		}
 
-		StatEffect ceffect = comboSkill
-				.getEffect(getCurrentSkillLevel(comboSkill));
-		List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(
-				BuffStat.COMBO, 1));
+		StatEffect ceffect = comboSkill.getEffect(getCurrentSkillLevel(comboSkill));
+		List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.COMBO, 1));
 		setBuffedValue(BuffStat.COMBO, 1);
 		int duration = ceffect.getDuration();
-		duration += (int) ((getBuffedStartTime(BuffStat.COMBO) - System
-				.currentTimeMillis()));
+		duration += (int) ((getBuffedStartTime(BuffStat.COMBO) - System.currentTimeMillis()));
 
 		client.write(ChannelPackets.giveBuff(1111002, duration, stat, ceffect));
-		map.broadcastMessage(this,
-				ChannelPackets.giveForeignBuff(getId(), stat, ceffect), false);
+		map.broadcastMessage(this, ChannelPackets.giveForeignBuff(getId(), stat, ceffect), false);
 	}
 
 	private void silentEnforceMaxHpMp() {
@@ -2156,8 +2050,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		this.fame += famechange;
 	}
 
-	public void changeMapBanish(final int mapid, final String portal,
-			final String msg) {
+	public void changeMapBanish(final int mapid, final String portal, final String msg) {
 		sendNotice(5, msg);
 		final GameMap newMap = ChannelServer.getMapFactory().getMap(mapid);
 		changeMap(newMap, newMap.getPortal(portal));
@@ -2168,12 +2061,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void changeMap(final GameMap to, final Portal pto) {
-		changeMapInternal(to, pto.getPosition(),
-				ChannelPackets.getWarpToMap(to, pto.getId(), this));
+		changeMapInternal(to, pto.getPosition(), ChannelPackets.getWarpToMap(to, pto.getId(), this));
 	}
 
-	private void changeMapInternal(final GameMap to, final Point pos,
-			GamePacket warpPacket) {
+	private void changeMapInternal(final GameMap to, final Point pos, GamePacket warpPacket) {
 		if (eventInstance != null) {
 			eventInstance.changedMap(this, to.getId());
 		}
@@ -2200,13 +2091,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		cancelMapTimeLimitTask();
 	}
 
-	public void resetStats(final int str, final int dex, final int int_,
-			final int luk) {
+	public void resetStats(final int str, final int dex, final int int_, final int luk) {
 		List<StatValue> newStats = Lists.newArrayList();
 		final ChannelCharacter chr = this;
-		int total = chr.getStats().getStr() + chr.getStats().getDex()
-				+ chr.getStats().getLuk() + chr.getStats().getInt()
-				+ chr.getRemainingAp();
+		int total = chr.getStats().getStr() + chr.getStats().getDex() + chr.getStats().getLuk() + chr.getStats().getInt() + chr.getRemainingAp();
 		total -= str;
 		chr.getStats().setStr(str);
 		total -= dex;
@@ -2221,8 +2109,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		newStats.add(new StatValue(Stat.INT, int_));
 		newStats.add(new StatValue(Stat.LUK, luk));
 		newStats.add(new StatValue(Stat.AVAILABLE_AP, total));
-		client.write(ChannelPackets.updatePlayerStats(newStats, false,
-				chr.getJobId()));
+		client.write(ChannelPackets.updatePlayerStats(newStats, false, chr.getJobId()));
 	}
 
 	public void startHurtHp() {
@@ -2232,8 +2119,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			public void run() {
 				if (map.getHPDec() < 1 || !isAlive()) {
 					return;
-				} else if (getEquippedItemsInventory().findById(
-						map.getHPDecProtect()) == null) {
+				} else if (getEquippedItemsInventory().findById(map.getHPDecProtect()) == null) {
 					addHP(-map.getHPDec());
 				}
 			}
@@ -2331,8 +2217,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		statup.add(new StatValue(Stat.MAX_MP, Integer.valueOf(maxmp)));
 		stats.recalcLocalStats();
 		client.write(ChannelPackets.updatePlayerStats(statup, getJobId()));
-		map.broadcastMessage(this,
-				ChannelPackets.showForeignEffect(getId(), 8), false);
+		map.broadcastMessage(this, ChannelPackets.showForeignEffect(getId(), 8), false);
 		silentPartyUpdate();
 		updateJob();
 		if (dragon != null) {
@@ -2347,32 +2232,26 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			makeDragon();
 			map.spawnDragon(dragon);
 			if (newJob == 2217) {
-				for (int i : Skill.EVAN_SKILLS_1) {
-					final ISkill skil = SkillFactory.getSkill(i);
-					if (skil != null && getCurrentSkillLevel(skil) <= 0
-							&& getMasterSkillLevel(skil) <= 0) {
-						changeSkillLevel(skil, skil.getMaxLevel(),
-								skil.getMaxLevel());
+				for (int id : Skill.EVAN_SKILLS_1) {
+					final ISkill skill = SkillFactory.getSkill(id);
+					if (skill != null && getCurrentSkillLevel(skill) <= 0 && getMasterSkillLevel(skill) <= 0) {
+						changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel());
 					}
 				}
 			} else if (newJob == 2218) {
-				for (int i : Skill.EVAN_SKILLS_2) {
-					final ISkill skil = SkillFactory.getSkill(i);
-					if (skil != null && getCurrentSkillLevel(skil) <= 0
-							&& getMasterSkillLevel(skil) <= 0) {
-						changeSkillLevel(skil, skil.getMaxLevel(),
-								skil.getMaxLevel());
+				for (int id : Skill.EVAN_SKILLS_2) {
+					final ISkill skill = SkillFactory.getSkill(id);
+					if (skill != null && getCurrentSkillLevel(skill) <= 0 && getMasterSkillLevel(skill) <= 0) {
+						changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel());
 					}
 				}
 			}
 
 		} else if (newJob >= 431 && newJob <= 434) { // master skills
-			for (int i : Skill.DUALBLADE_SKILLS) {
-				final ISkill skil = SkillFactory.getSkill(i);
-				if (skil != null && getCurrentSkillLevel(skil) <= 0
-						&& getMasterSkillLevel(skil) <= 0) {
-					changeSkillLevel(skil, (byte) 0,
-							(byte) skil.getMasterLevel());
+			for (int id : Skill.DUALBLADE_SKILLS) {
+				final ISkill skill = SkillFactory.getSkill(id);
+				if (skill != null && getCurrentSkillLevel(skill) <= 0 && getMasterSkillLevel(skill) <= 0) {
+					changeSkillLevel(skill, (byte) 0, (byte) skill.getMasterLevel());
 				}
 			}
 		}
@@ -2397,11 +2276,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		client.write(UIPacket.getSPMsg((byte) sp));
 	}
 
-	public void changeSkillLevel(final ISkill skill, byte newLevel,
-			byte newMasterlevel) {
-		if (skill == null
-				|| (!GameConstants.isApplicableSkill(skill.getId()) && !GameConstants
-						.isApplicableSkill_(skill.getId()))) {
+	public void changeSkillLevel(final ISkill skill, byte newLevel, byte newMasterlevel) {
+		if (skill == null || (!GameConstants.isApplicableSkill(skill.getId()) && !GameConstants.isApplicableSkill_(skill.getId()))) {
 
 			return;
 
@@ -2424,8 +2300,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		} else if (Skills.isElementAmplification(skill.getId())) {
 			stats.recalcLocalStats();
 		}
-		client.write(ChannelPackets.updateSkill(skill.getId(), newLevel,
-				newMasterlevel));
+		client.write(ChannelPackets.updateSkill(skill.getId(), newLevel, newMasterlevel));
 	}
 
 	public void playerDead() {
@@ -2452,8 +2327,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (jobId != 0 && jobId != 1000 && jobId != 2000 && jobId != 2001) {
 			int charms = getItemQuantity(5130000, false);
 			if (charms > 0) {
-				InventoryManipulator.removeById(client, getCashInventory(),
-						5130000, 1, true, false);
+				InventoryManipulator.removeById(client, getCashInventory(), 5130000, 1, true, false);
 
 				charms--;
 				if (charms > 0xFF) {
@@ -2463,9 +2337,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			} else {
 				float diepercentage = 0.0f;
 				int expforlevel = GameConstants.getExpNeededForLevel(level);
-				if (map.isTown()
-						|| FieldLimitType.RegularExpLoss.check(map
-								.getFieldLimit())) {
+				if (map.isTown() || FieldLimitType.RegularExpLoss.check(map.getFieldLimit())) {
 					diepercentage = 0.01f;
 				} else {
 					float v8 = 0.0f;
@@ -2490,15 +2362,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (party != null) {
 			final int channel = client.getChannelId();
 			for (PartyMember partychar : party.getMembers()) {
-				if (partychar.getMapId() == getMapId()
-						&& partychar.getChannel() == channel) {
-					final ChannelCharacter other = ChannelServer
-							.getPlayerStorage().getCharacterByName(
-									partychar.getName());
+				if (partychar.getMapId() == getMapId() && partychar.getChannel() == channel) {
+					final ChannelCharacter other = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
 					if (other != null) {
-						final GamePacket packet = ChannelPackets
-								.updatePartyMemberHP(getId(), stats.getHp(),
-										stats.getCurrentMaxHp());
+						final GamePacket packet = ChannelPackets.updatePartyMemberHP(getId(), stats.getHp(), stats.getCurrentMaxHp());
 						other.getClient().write(packet);
 					}
 				}
@@ -2509,15 +2376,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void receivePartyMemberHP() {
 		int channel = client.getChannelId();
 		for (PartyMember partychar : party.getMembers()) {
-			if (partychar.getMapId() == getMapId()
-					&& partychar.getChannel() == channel) {
-				final ChannelCharacter other = ChannelServer.getPlayerStorage()
-						.getCharacterByName(partychar.getName());
+			if (partychar.getMapId() == getMapId() && partychar.getChannel() == channel) {
+				final ChannelCharacter other = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());
 				if (other != null) {
-					final GamePacket packet = ChannelPackets
-							.updatePartyMemberHP(other.getId(), other
-									.getStats().getHp(), other.getStats()
-									.getCurrentMaxHp());
+					final GamePacket packet = ChannelPackets.updatePartyMemberHP(other.getId(), other.getStats().getHp(), other.getStats().getCurrentMaxHp());
 					client.write(packet);
 				}
 			}
@@ -2528,7 +2390,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	 * Convenience function which adds the supplied parameter to the current hp
 	 * then directly does a updateSingleStat.
 	 * 
-	 * @see GameCharacter#setHp(int)
+	 * @see ChannelCharacter#setHp(int)
 	 * @param delta
 	 */
 	public void addHP(int delta) {
@@ -2541,7 +2403,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	 * Convenience function which adds the supplied parameter to the current mp
 	 * then directly does a updateSingleStat.
 	 * 
-	 * @see GameCharacter#setMp(int)
+	 * @see ChannelCharacter#setMp(int)
 	 * @param delta
 	 */
 	public void addMP(int delta) {
@@ -2583,12 +2445,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			return;
 		}
 		StatValue value = new StatValue(stat, Integer.valueOf(newval));
-		client.write(ChannelPackets.updatePlayerStats(
-				Collections.singletonList(value), itemReaction, getJobId()));
+		client.write(ChannelPackets.updatePlayerStats(Collections.singletonList(value), itemReaction, getJobId()));
 	}
 
-	public void gainExp(final int total, final boolean show,
-			final boolean inChat, final boolean white) {
+	public void gainExp(final int total, final boolean show, final boolean inChat, final boolean white) {
 		if (level == 200 || (Jobs.isCygnus(jobId) && level == 120)) {
 			final int needed = GameConstants.getExpNeededForLevel(level);
 			if (exp + total > needed) {
@@ -2619,14 +2479,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			updateSingleStat(Stat.EXP, getExp());
 			if (show) { // still show the expgain even if it's not there
-				client.write(ChannelPackets
-						.GainEXP_Others(total, inChat, white));
+				client.write(ChannelPackets.GainEXP_Others(total, inChat, white));
 			}
 		}
 	}
 
-	public void gainExpMonster(final int gain, final boolean show,
-			final boolean white, final byte partyMembers, final int CLASS_EXP) {
+	public void gainExpMonster(final int gain, final boolean show, final boolean white, final byte partyMembers, final int CLASS_EXP) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(TimeZone.getDefault());
 		int day = cal.get(Calendar.DAY_OF_WEEK);
@@ -2640,12 +2498,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		int rainbowExp = 0;
 
 		int baseExp = gain;
-		if ((haveItem(5210006, 1, false, true) && hour > 22 && hour < 2)
-				|| (haveItem(5210007, 1, false, true) && hour > 2 && hour < 6)
-				|| (haveItem(5210008, 1, false, true) && hour > 6 && hour < 10)
-				|| (haveItem(5210009, 1, false, true) && hour > 10 && hour < 14)
-				|| (haveItem(5210010, 1, false, true) && hour > 14 && hour < 18)
-				|| (haveItem(5210011, 1, false, true) && hour > 18 && hour < 22)) {
+		if ((haveItem(5210006, 1, false, true) && hour > 22 && hour < 2) || (haveItem(5210007, 1, false, true) && hour > 2 && hour < 6)
+			|| (haveItem(5210008, 1, false, true) && hour > 6 && hour < 10) || (haveItem(5210009, 1, false, true) && hour > 10 && hour < 14)
+			|| (haveItem(5210010, 1, false, true) && hour > 14 && hour < 18) || (haveItem(5210011, 1, false, true) && hour > 18 && hour < 22)) {
 			baseExp *= 2;
 		}
 
@@ -2672,9 +2527,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			if (exp + baseExp > needed) {
 				setExp(needed);
 			} else {
-				exp += baseExp + eventExp + weddingExp + partyRingExp
-						+ partyExp + premiumExp + itemExp + rainbowExp
-						+ CLASS_EXP;
+				exp += baseExp + eventExp + weddingExp + partyRingExp + partyExp + premiumExp + itemExp + rainbowExp + CLASS_EXP;
 			}
 		} else {
 			if (exp + baseExp >= GameConstants.getExpNeededForLevel(level)) {
@@ -2685,9 +2538,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					setExp(needed);
 				}
 			} else {
-				exp += baseExp + eventExp + weddingExp + partyRingExp
-						+ partyExp + premiumExp + itemExp + rainbowExp
-						+ CLASS_EXP;
+				exp += baseExp + eventExp + weddingExp + partyRingExp + partyExp + premiumExp + itemExp + rainbowExp + CLASS_EXP;
 			}
 		}
 		if (gain != 0) {
@@ -2702,9 +2553,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			updateSingleStat(Stat.EXP, getExp());
 			if (show) {
 				// still show the expgain even if it's not there
-				client.write(ChannelPackets.GainEXP_Monster(baseExp, white,
-						eventExp, weddingExp, partyRingExp, partyExp,
-						premiumExp, itemExp, rainbowExp, CLASS_EXP));
+				client.write(ChannelPackets.GainEXP_Monster(baseExp, white, eventExp, weddingExp, partyRingExp, partyExp, premiumExp, itemExp, rainbowExp,
+					CLASS_EXP));
 			}
 		}
 	}
@@ -2713,8 +2563,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (party != null) {
 			try {
 				PartyMember newMember = new PartyMember(party.getId(), this);
-				ChannelServer.getWorldInterface().updateParty(party.getId(),
-						PartyOperation.SILENT_UPDATE, newMember);
+				ChannelServer.getWorldInterface().updateParty(party.getId(), PartyOperation.SILENT_UPDATE, newMember);
 			} catch (RemoteException e) {
 				System.err.println("REMOTE THROW, silentPartyUpdate" + e);
 				ChannelServer.pingWorld();
@@ -2792,10 +2641,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 					if (ItemFlag.LOCK.check(flag)) {
 						if (currenttime > expiration) {
 							item.setExpiration(-1);
-							item.setFlag((byte) (flag - ItemFlag.LOCK
-									.getValue()));
-							client.write(ChannelPackets.updateSpecialItemUse(
-									item, item.getType().asByte()));
+							item.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
+							client.write(ChannelPackets.updateSpecialItemUse(item, item.getType().asByte()));
 						}
 					} else if (currenttime > expiration) {
 						client.write(MTSCSPacket.itemExpired(item.getItemId()));
@@ -2804,8 +2651,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				}
 			}
 			for (final IItem item : toberemove) {
-				InventoryManipulator.removeFromSlot(client, inv,
-						item.getPosition(), item.getQuantity(), false);
+				InventoryManipulator.removeFromSlot(client, inv, item.getPosition(), item.getQuantity(), false);
 			}
 		}
 	}
@@ -2847,8 +2693,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		gainMeso(gain, show, enableActions, false);
 	}
 
-	public void gainMeso(int gain, boolean show, boolean enableActions,
-			boolean inChat) {
+	public void gainMeso(int gain, boolean show, boolean enableActions, boolean inChat) {
 		if (meso + gain < 0) {
 			client.write(ChannelPackets.enableActions());
 			return;
@@ -2977,10 +2822,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 			maxhp += Randomizer.rand(10, 14);
 			maxmp += Randomizer.rand(22, 24);
-		} else if ((jobId >= 300 && jobId <= 322)
-				|| (jobId >= 400 && jobId <= 434)
-				|| (jobId >= 1300 && jobId <= 1311)
-				|| (jobId >= 1400 && jobId <= 1411)) {
+		} else if ((jobId >= 300 && jobId <= 322) || (jobId >= 400 && jobId <= 434) || (jobId >= 1300 && jobId <= 1311) || (jobId >= 1400 && jobId <= 1411)) {
 			// Bowman, Thief, Wind Breaker and Night Walker
 			maxhp += Randomizer.rand(20, 24);
 			maxmp += Randomizer.rand(14, 16);
@@ -3039,19 +2881,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (level == 200 && !isGM()) {
 			try {
 				final StringBuilder sb = new StringBuilder("[Congratulation] ");
-				final IItem medal = getEquippedItemsInventory().getItem(
-						(byte) -46);
+				final IItem medal = getEquippedItemsInventory().getItem((byte) -46);
 				if (medal != null) { // Medal
 					sb.append("<");
-					sb.append(ItemInfoProvider.getInstance().getName(
-							medal.getItemId()));
+					sb.append(ItemInfoProvider.getInstance().getName(medal.getItemId()));
 					sb.append("> ");
 				}
 				sb.append(getName());
 				sb.append(" has achieved Level 200. Let us Celebrate! Maplers!");
-				ChannelServer.getWorldInterface().broadcastMessage(
-						ChannelPackets.serverNotice(6, sb.toString())
-								.getBytes());
+				ChannelServer.getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(6, sb.toString()).getBytes());
 			} catch (RemoteException e) {
 				ChannelServer.pingWorld();
 			}
@@ -3085,8 +2923,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		stats.setHp(maxhp);
 		stats.setMp(maxmp);
 		client.write(ChannelPackets.updatePlayerStats(statup, getJobId()));
-		map.broadcastMessage(this,
-				ChannelPackets.showForeignEffect(getId(), 0), false);
+		map.broadcastMessage(this, ChannelPackets.showForeignEffect(getId(), 0), false);
 		stats.recalcLocalStats();
 		silentPartyUpdate();
 		updateLevel();
@@ -3121,8 +2958,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public void temporaryBan(String reason, Calendar duration, int tempBanReason) {
 		try {
 			Connection con = Database.getConnection();
-			PreparedStatement ps = con
-					.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
+			PreparedStatement ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?)");
 			ps.setString(1, client.getSessionIP());
 			ps.execute();
 			ps.close();
@@ -3145,8 +2981,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public final boolean ban(String banReason, boolean isAutoban) {
 		Connection con = Database.getConnection();
-		try (PreparedStatement ps = con
-				.prepareStatement("UPDATE accounts SET banned = ?, banreason = ? WHERE id = ?")) {
+		try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = ?, banreason = ? WHERE id = ?")) {
 			ps.setInt(1, isAutoban ? 2 : 1);
 			ps.setString(2, banReason);
 			ps.setInt(3, accountId);
@@ -3227,8 +3062,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (player.getMessenger() != null) {
 			WorldChannelInterface wci = ChannelServer.getWorldInterface();
 			try {
-				wci.updateMessenger(player.getMessenger().getId(),
-						player.getName(), client.getChannelId());
+				wci.updateMessenger(player.getMessenger().getId(), player.getName(), client.getChannelId());
 			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
 			}
@@ -3520,8 +3354,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void saveGuildStatus() {
 		Connection con = Database.getConnection();
-		try (PreparedStatement ps = con
-				.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?")) {
+		try (PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ? WHERE id = ?")) {
 			ps.setInt(1, guildId);
 			ps.setInt(2, guildRank.asNumber());
 			ps.setInt(3, id);
@@ -3569,8 +3402,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		}
 	}
 
-	public final boolean haveItem(int itemId, int quantity,
-			boolean checkEquipped, boolean greaterOrEquals) {
+	public final boolean haveItem(int itemId, int quantity, boolean checkEquipped, boolean greaterOrEquals) {
 		int count = getInventoryForItem(itemId).countById(itemId);
 		if (checkEquipped) {
 			count += inventory.get(InventoryType.EQUIPPED).countById(itemId);
@@ -3639,10 +3471,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		this.messengerPosition = position;
 	}
 
-	public void addCooldown(int skillId, long startTime, long length,
-			ScheduledFuture<?> timer) {
-		cooldowns.put(Integer.valueOf(skillId), new CooldownValueHolder(
-				skillId, startTime, length, timer));
+	public void addCooldown(int skillId, long startTime, long length, ScheduledFuture<?> timer) {
+		cooldowns.put(Integer.valueOf(skillId), new CooldownValueHolder(skillId, startTime, length, timer));
 	}
 
 	public void removeCooldown(int skillId) {
@@ -3657,44 +3487,34 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 	public void giveCooldowns(final int skillid, long starttime, long length) {
 		int time = (int) ((length + starttime) - System.currentTimeMillis());
-		ScheduledFuture<?> timer = TimerManager.getInstance().schedule(
-				new CancelCooldownAction(this, skillid), time);
+		ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, skillid), time);
 		addCooldown(skillid, System.currentTimeMillis(), time, timer);
 	}
 
-	public void giveCooldowns(
-			final Collection<PlayerCooldownValueHolder> cooldowns) {
+	public void giveCooldowns(final Collection<PlayerCooldownValueHolder> cooldowns) {
 		int time;
 		if (cooldowns != null) {
 			for (PlayerCooldownValueHolder cooldown : cooldowns) {
-				time = (int) ((cooldown.length + cooldown.startTime) - System
-						.currentTimeMillis());
-				ScheduledFuture<?> timer = TimerManager.getInstance().schedule(
-						new CancelCooldownAction(this, cooldown.skillId), time);
-				addCooldown(cooldown.skillId, System.currentTimeMillis(), time,
-						timer);
+				time = (int) ((cooldown.length + cooldown.startTime) - System.currentTimeMillis());
+				ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, cooldown.skillId), time);
+				addCooldown(cooldown.skillId, System.currentTimeMillis(), time, timer);
 			}
 		} else {
 			try {
 				Connection con = Database.getConnection();
-				PreparedStatement ps = con
-						.prepareStatement("SELECT SkillID,StartTime,length FROM skills_cooldowns WHERE charid = ?");
+				PreparedStatement ps = con.prepareStatement("SELECT SkillID,StartTime,length FROM skills_cooldowns WHERE charid = ?");
 				ps.setInt(1, getId());
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
-					if (rs.getLong("length") + rs.getLong("StartTime")
-							- System.currentTimeMillis() <= 0) {
+					if (rs.getLong("length") + rs.getLong("StartTime") - System.currentTimeMillis() <= 0) {
 						continue;
 					}
-					giveCooldowns(rs.getInt("SkillID"),
-							rs.getLong("StartTime"), rs.getLong("length"));
+					giveCooldowns(rs.getInt("SkillID"), rs.getLong("StartTime"), rs.getLong("length"));
 				}
-				deleteByCharacterId(con,
-						"DELETE FROM skills_cooldowns WHERE charid = ?");
+				deleteByCharacterId(con, "DELETE FROM skills_cooldowns WHERE charid = ?");
 
 			} catch (SQLException e) {
-				System.err
-						.println("Error while retriving cooldown from SQL storage");
+				System.err.println("Error while retriving cooldown from SQL storage");
 			}
 		}
 	}
@@ -3702,8 +3522,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	public List<PlayerCooldownValueHolder> getAllCooldowns() {
 		List<PlayerCooldownValueHolder> ret = new ArrayList<>();
 		for (CooldownValueHolder mcdvh : cooldowns.values()) {
-			ret.add(new PlayerCooldownValueHolder(mcdvh.skillId,
-					mcdvh.startTime, mcdvh.length));
+			ret.add(new PlayerCooldownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
 		}
 		return ret;
 	}
@@ -3714,8 +3533,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		DiseaseValueHolder vh;
 		for (Entry<Disease, DiseaseValueHolder> disease : diseases.entrySet()) {
 			vh = disease.getValue();
-			ret.add(new PlayerDiseaseValueHolder(disease.getKey(),
-					vh.startTime, vh.length));
+			ret.add(new PlayerDiseaseValueHolder(disease.getKey(), vh.startTime, vh.length));
 		}
 		return ret;
 	}
@@ -3730,8 +3548,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 	}
 
 	public void giveDebuff(final Disease disease, MobSkill skill) {
-		final List<DiseaseValue> debuff = Lists.newArrayList(new DiseaseValue(
-				disease, skill.getX()));
+		final List<DiseaseValue> debuff = Lists.newArrayList(new DiseaseValue(disease, skill.getX()));
 
 		if (!hasDisease(disease) && diseases.size() < 2) {
 			if (!(disease == Disease.SEDUCE || disease == Disease.STUN)) {
@@ -3747,34 +3564,25 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 				}
 			}, skill.getDuration());
 
-			diseases.put(
-					disease,
-					new DiseaseValueHolder(System.currentTimeMillis(), skill
-							.getDuration()));
+			diseases.put(disease, new DiseaseValueHolder(System.currentTimeMillis(), skill.getDuration()));
 			client.write(ChannelPackets.giveDebuff(debuff, skill));
-			map.broadcastMessage(this,
-					ChannelPackets.giveForeignDebuff(id, debuff, skill), false);
+			map.broadcastMessage(this, ChannelPackets.giveForeignDebuff(id, debuff, skill), false);
 		}
 	}
 
-	public final void giveSilentDebuff(
-			final Collection<PlayerDiseaseValueHolder> ld) {
+	public final void giveSilentDebuff(final Collection<PlayerDiseaseValueHolder> ld) {
 		if (ld != null) {
 			for (final PlayerDiseaseValueHolder disease : ld) {
 
-				TimerManager.getInstance().schedule(
-						new Runnable() {
+				TimerManager.getInstance().schedule(new Runnable() {
 
-							@Override
-							public void run() {
-								dispelDebuff(disease.disease);
-							}
-						},
-						(disease.length + disease.startTime)
-								- System.currentTimeMillis());
+					@Override
+					public void run() {
+						dispelDebuff(disease.disease);
+					}
+				}, (disease.length + disease.startTime) - System.currentTimeMillis());
 
-				diseases.put(disease.disease, new DiseaseValueHolder(
-						disease.startTime, disease.length));
+				diseases.put(disease.disease, new DiseaseValueHolder(disease.startTime, disease.length));
 			}
 		}
 	}
@@ -3783,8 +3591,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (hasDisease(debuff)) {
 			long mask = debuff.getValue();
 			client.write(ChannelPackets.cancelDebuff(mask));
-			map.broadcastMessage(this,
-					ChannelPackets.cancelForeignDebuff(id, mask), false);
+			map.broadcastMessage(this, ChannelPackets.cancelForeignDebuff(id, mask), false);
 
 			diseases.remove(debuff);
 		}
@@ -3882,18 +3689,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 			}
 
 			client.write(ChannelPackets.showOwnBerserk(skilllevel, berserk));
-			map.broadcastMessage(this,
-					ChannelPackets.showBerserk(getId(), skilllevel, berserk),
-					false);
+			map.broadcastMessage(this, ChannelPackets.showBerserk(getId(), skilllevel, berserk), false);
 
-			BerserkSchedule = TimerManager.getInstance().schedule(
-					new Runnable() {
+			BerserkSchedule = TimerManager.getInstance().schedule(new Runnable() {
 
-						@Override
-						public void run() {
-							checkBerserk();
-						}
-					}, 10000);
+				@Override
+				public void run() {
+					checkBerserk();
+				}
+			}, 10000);
 		}
 	}
 
@@ -3909,46 +3713,32 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		if (bHealingLvl > 0) {
 			final StatEffect healEffect = bHealing.getEffect(bHealingLvl);
 			int healInterval = healEffect.getX() * 1000;
-			beholderHealingSchedule = TimerManager.getInstance().register(
-					new Runnable() {
+			beholderHealingSchedule = TimerManager.getInstance().register(new Runnable() {
 
-						@Override
-						public void run() {
-							addHP(healEffect.getHp());
-							client.write(ChannelPackets.showOwnBuffEffect(
-									1321007, 2));
-							map.broadcastMessage(ChannelCharacter.this,
-									ChannelPackets.summonSkill(getId(),
-											1321007, 5), true);
-							map.broadcastMessage(ChannelCharacter.this,
-									ChannelPackets.showBuffeffect(getId(),
-											1321007, 2), false);
-						}
-					}, healInterval, healInterval);
+				@Override
+				public void run() {
+					addHP(healEffect.getHp());
+					client.write(ChannelPackets.showOwnBuffEffect(1321007, 2));
+					map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(getId(), 1321007, 5), true);
+					map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(getId(), 1321007, 2), false);
+				}
+			}, healInterval, healInterval);
 		}
 		ISkill bBuff = SkillFactory.getSkill(1320009);
 		int bBuffLvl = getCurrentSkillLevel(bBuff);
 		if (bBuffLvl > 0) {
 			final StatEffect buffEffect = bBuff.getEffect(bBuffLvl);
 			int buffInterval = buffEffect.getX() * 1000;
-			beholderBuffSchedule = TimerManager.getInstance().register(
-					new Runnable() {
+			beholderBuffSchedule = TimerManager.getInstance().register(new Runnable() {
 
-						@Override
-						public void run() {
-							buffEffect.applyTo(ChannelCharacter.this);
-							client.write(ChannelPackets.showOwnBuffEffect(
-									1321007, 2));
-							map.broadcastMessage(ChannelCharacter.this,
-									ChannelPackets.summonSkill(getId(),
-											1321007,
-											(int) (Math.random() * 3) + 6),
-									true);
-							map.broadcastMessage(ChannelCharacter.this,
-									ChannelPackets.showBuffeffect(getId(),
-											1321007, 2), false);
-						}
-					}, buffInterval, buffInterval);
+				@Override
+				public void run() {
+					buffEffect.applyTo(ChannelCharacter.this);
+					client.write(ChannelPackets.showOwnBuffEffect(1321007, 2));
+					map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(getId(), 1321007, (int) (Math.random() * 3) + 6), true);
+					map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(getId(), 1321007, 2), false);
+				}
+			}, buffInterval, buffInterval);
 		}
 	}
 
@@ -4102,22 +3892,16 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 		pendingCarnivalRequests = new LinkedList<>();
 	}
 
-	public void startMonsterCarnival(final int enemyavailable,
-			final int enemytotal) {
-		client.write(MonsterCarnivalPacket.startMonsterCarnival(this,
-				enemyavailable, enemytotal));
+	public void startMonsterCarnival(final int enemyavailable, final int enemytotal) {
+		client.write(MonsterCarnivalPacket.startMonsterCarnival(this, enemyavailable, enemytotal));
 	}
 
-	public void CPUpdate(final boolean party, final int available,
-			final int total, final int team) {
-		client.write(MonsterCarnivalPacket.CPUpdate(party, available, total,
-				team));
+	public void CPUpdate(final boolean party, final int available, final int total, final int team) {
+		client.write(MonsterCarnivalPacket.CPUpdate(party, available, total, team));
 	}
 
-	public void playerDiedCPQ(final String name, final int lostCP,
-			final int team) {
-		client.write(MonsterCarnivalPacket
-				.playerDiedMessage(name, lostCP, team));
+	public void playerDiedCPQ(final String name, final int lostCP, final int team) {
+		client.write(MonsterCarnivalPacket.playerDiedMessage(name, lostCP, team));
 	}
 
 	@Override
@@ -4157,8 +3941,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements
 
 		if (member != null) {
 			try {
-				return ChannelServer.getWorldInterface().getParty(
-						member.getPartyId());
+				return ChannelServer.getWorldInterface().getParty(member.getPartyId());
 			} catch (RemoteException e) {
 				ChannelServer.pingWorld();
 			}

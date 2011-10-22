@@ -387,13 +387,13 @@ public class EventInstanceManager {
     public final GameMap createInstanceMap(final int mapid) {
         int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
-        return mapFactory.CreateInstanceMap(mapid, true, true, true, assignedid);
+        return mapFactory.createInstanceMap(mapid, true, true, true, assignedid);
     }
 
     public final GameMap createInstanceMapS(final int mapid) {
         final int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
-        return mapFactory.CreateInstanceMap(mapid, false, false, false, assignedid);
+        return mapFactory.createInstanceMap(mapid, false, false, false, assignedid);
     }
 
     public final GameMapFactory getMapFactory() {

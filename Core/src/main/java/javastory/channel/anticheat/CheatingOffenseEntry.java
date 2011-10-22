@@ -25,15 +25,15 @@ public class CheatingOffenseEntry {
 
 	private CheatingOffense offense;
 	private int count = 0;
-	private int characterid;
+	private int characterId;
 	private long lastOffense;
 	private String param;
-	private int dbid = -1;
+	private int recordId = -1;
 
-	public CheatingOffenseEntry(CheatingOffense offense, int characterid) {
+	public CheatingOffenseEntry(CheatingOffense offense, int characterId) {
 		super();
 		this.offense = offense;
-		this.characterid = characterid;
+		this.characterId = characterId;
 	}
 
 	public CheatingOffense getOffense() {
@@ -45,7 +45,7 @@ public class CheatingOffenseEntry {
 	}
 
 	public int getChrfor() {
-		return characterid;
+		return characterId;
 	}
 
 	public void incrementCount() {
@@ -77,12 +77,12 @@ public class CheatingOffenseEntry {
 		return lastOffense;
 	}
 
-	public int getDbId() {
-		return dbid;
+	public int getRecordId() {
+		return recordId;
 	}
 
-	public void setDbId(int dbid) {
-		this.dbid = dbid;
+	public void setRecordId(int id) {
+		this.recordId = id;
 	}
 
 	/*

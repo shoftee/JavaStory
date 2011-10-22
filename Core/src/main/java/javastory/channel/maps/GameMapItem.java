@@ -68,7 +68,7 @@ public class GameMapItem extends AbstractGameMapObject {
 	public final int getOwner() {
 		return character_ownerid;
 	}
-   
+
 	public final int getMeso() {
 		return meso;
 	}

@@ -70,7 +70,7 @@ public class Skill implements ISkill {
         final int skillType = WzDataTool.getInt("skillType", data, -1);
         final String elem = WzDataTool.getString("elemAttr", data, null);
         if (elem != null) {
-            ret.element = Element.getFromChar(elem.charAt(0));
+            ret.element = Element.fromCharacter(elem.charAt(0));
         } else {
             ret.element = Element.NEUTRAL;
         }

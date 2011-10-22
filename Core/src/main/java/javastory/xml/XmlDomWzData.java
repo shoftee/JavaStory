@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -58,10 +56,8 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	public XmlDomWzData(final FileInputStream fis, final File imageDataDir) {
 		try {
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder documentBuilder = documentBuilderFactory
-					.newDocumentBuilder();
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			Document document = documentBuilder.parse(fis);
 			this.node = document.getFirstChild();
 
@@ -79,8 +75,7 @@ public class XmlDomWzData implements WzData, Serializable {
 	public WzData getChildByPath(final String path) {
 		final String segments[] = path.split("/");
 		if (segments[0].equals("..")) {
-			return ((WzData) getParent()).getChildByPath(path.substring(path
-					.indexOf("/") + 1));
+			return ((WzData) getParent()).getChildByPath(path.substring(path.indexOf("/") + 1));
 		}
 
 		Node myNode = node;
@@ -89,9 +84,7 @@ public class XmlDomWzData implements WzData, Serializable {
 			boolean foundChild = false;
 			for (int i = 0; i < childNodes.getLength(); i++) {
 				final Node childNode = childNodes.item(i);
-				if (childNode.getNodeType() == Node.ELEMENT_NODE
-						&& childNode.getAttributes().getNamedItem("name")
-								.getNodeValue().equals(segments[x])) {
+				if (childNode.getNodeType() == Node.ELEMENT_NODE && childNode.getAttributes().getNamedItem("name").getNodeValue().equals(segments[x])) {
 					myNode = childNode;
 					foundChild = true;
 					break;
@@ -102,8 +95,7 @@ public class XmlDomWzData implements WzData, Serializable {
 			}
 		}
 		final XmlDomWzData ret = new XmlDomWzData(myNode);
-		ret.imageDataDir = new File(imageDataDir, getName() + "/" + path)
-				.getParentFile();
+		ret.imageDataDir = new File(imageDataDir, getName() + "/" + path).getParentFile();
 		return ret;
 	}
 
@@ -127,40 +119,38 @@ public class XmlDomWzData implements WzData, Serializable {
 		final NamedNodeMap attributes = node.getAttributes();
 		final WzDataType type = getType();
 		switch (type) {
-		case DOUBLE: {
-			return Double.valueOf(Double.parseDouble(attributes
-					.getNamedItem("value").getNodeValue()));
-		}
-		case FLOAT: {
-			return Float.valueOf(Float.parseFloat(attributes
-					.getNamedItem("value").getNodeValue()));
-		}
-		case INT: {
-			return Integer.valueOf(Integer.parseInt(attributes
-					.getNamedItem("value").getNodeValue()));
-		}
-		case SHORT: {
-			return Short.valueOf(Short.parseShort(attributes
-					.getNamedItem("value").getNodeValue()));
-		}
+		case DOUBLE:
+			final double doubleValue = Double.parseDouble(attributes.getNamedItem("value").getNodeValue());
+			return Double.valueOf(doubleValue);
+		case FLOAT:
+			final float floatValue = Float.parseFloat(attributes.getNamedItem("value").getNodeValue());
+			return Float.valueOf(floatValue);
+		case INT:
+			final int intValue = Integer.parseInt(attributes.getNamedItem("value").getNodeValue());
+			return Integer.valueOf(intValue);
+		case SHORT:
+			final short shortValue = Short.parseShort(attributes.getNamedItem("value").getNodeValue());
+			return Short.valueOf(shortValue);
 		case STRING:
-		case UOL: {
+		case UOL:
 			return attributes.getNamedItem("value").getNodeValue();
-		}
-		case VECTOR: {
-			return new Point(Integer.parseInt(attributes.getNamedItem("x")
-					.getNodeValue()), Integer.parseInt(attributes
-					.getNamedItem("y").getNodeValue()));
-		}
-		case CANVAS: {
-			return new FileStoredPngWzCanvas(Integer.parseInt(attributes
-					.getNamedItem("width").getNodeValue()),
-												Integer.parseInt(attributes
-														.getNamedItem("height")
-														.getNodeValue()),
-												new File(imageDataDir,
-															getName() + ".png"));
-		}
+		case VECTOR:
+			final String xNode = attributes.getNamedItem("x").getNodeValue();
+			final String yNode = attributes.getNamedItem("y").getNodeValue();
+
+			final int x = Integer.parseInt(xNode);
+			final int y = Integer.parseInt(yNode);
+
+			return new Point(x, y);
+		case CANVAS:
+			final String widthNode = attributes.getNamedItem("width").getNodeValue();
+			final String heightNode = attributes.getNamedItem("height").getNodeValue();
+
+			final int width = Integer.parseInt(widthNode);
+			final int height = Integer.parseInt(heightNode);
+
+			final File file = new File(imageDataDir, getName() + ".png");
+			return new FileStoredPngWzCanvas(width, height, file);
 		}
 		return null;
 	}
@@ -168,32 +158,34 @@ public class XmlDomWzData implements WzData, Serializable {
 	@Override
 	public final WzDataType getType() {
 		final String nodeName = node.getNodeName();
-		if (nodeName.equals("imgdir")) {
+		switch (nodeName) {
+		case "imgdir":
 			return WzDataType.PROPERTY;
-		} else if (nodeName.equals("canvas")) {
+		case "canvas":
 			return WzDataType.CANVAS;
-		} else if (nodeName.equals("convex")) {
+		case "convex":
 			return WzDataType.CONVEX;
-		} else if (nodeName.equals("sound")) {
+		case "sound":
 			return WzDataType.SOUND;
-		} else if (nodeName.equals("uol")) {
+		case "uol":
 			return WzDataType.UOL;
-		} else if (nodeName.equals("double")) {
+		case "double":
 			return WzDataType.DOUBLE;
-		} else if (nodeName.equals("float")) {
+		case "float":
 			return WzDataType.FLOAT;
-		} else if (nodeName.equals("int")) {
+		case "int":
 			return WzDataType.INT;
-		} else if (nodeName.equals("short")) {
+		case "short":
 			return WzDataType.SHORT;
-		} else if (nodeName.equals("string")) {
+		case "string":
 			return WzDataType.STRING;
-		} else if (nodeName.equals("vector")) {
+		case "vector":
 			return WzDataType.VECTOR;
-		} else if (nodeName.equals("null")) {
+		case "null":
 			return WzDataType.IMG_0x00;
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override

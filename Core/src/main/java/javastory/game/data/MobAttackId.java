@@ -1,4 +1,4 @@
-package javastory.channel.life;
+package javastory.game.data;
 
 /**
  * 
@@ -6,12 +6,12 @@ package javastory.channel.life;
  */
 public class MobAttackId {
 
-	public int id;
-	public int attack;
+	public final int MobId;
+	public final int AttackId;
 
 	public MobAttackId(int id, int attack) {
-		this.id = id;
-		this.attack = attack;
+		this.MobId = id;
+		this.AttackId = attack;
 	}
 
 	@Override
@@ -26,14 +26,14 @@ public class MobAttackId {
 			return false;
 		}
 		MobAttackId other = (MobAttackId) obj;
-		return this.id == other.id && this.attack == other.attack;
+		return this.MobId == other.MobId && this.AttackId == other.AttackId;
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 71 * hash + this.id;
-		hash = 71 * hash + this.attack;
+		hash = 71 * hash + this.MobId;
+		hash = 71 * hash + this.AttackId;
 		return hash;
 	}
 

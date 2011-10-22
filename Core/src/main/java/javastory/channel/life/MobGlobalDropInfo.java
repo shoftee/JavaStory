@@ -20,19 +20,19 @@
  */
 package javastory.channel.life;
 
-public class MonsterGlobalDropEntry {
+public final class MobGlobalDropInfo {
 
-	public MonsterGlobalDropEntry(int itemId, int chance, int continent,
-			byte dropType, int Minimum, int Maximum, short questid) {
-		this.itemId = itemId;
-		this.chance = chance;
-		this.dropType = dropType;
-		this.questid = questid;
-		this.Minimum = Minimum;
-		this.Maximum = Maximum;
+	public final byte DropType;
+	public final short QuestId;
+	public final int ItemId, Chance, Minimum, Maximum;
+
+	public MobGlobalDropInfo(int itemId, int chance, int continent,
+			byte dropType, int minimum, int maximum, short questId) {
+		this.ItemId = itemId;
+		this.Chance = chance;
+		this.DropType = dropType;
+		this.QuestId = questId;
+		this.Minimum = minimum;
+		this.Maximum = maximum;
 	}
-
-	public byte dropType;
-	public short questid;
-	public int itemId, chance, Minimum, Maximum;
 }

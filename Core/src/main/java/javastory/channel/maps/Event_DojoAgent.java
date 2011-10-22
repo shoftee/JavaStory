@@ -13,8 +13,8 @@ public class Event_DojoAgent {
 
 	private final static int baseAgentMapId = 970030000; // 9500337 = mano
 	private final static Point point1 = new Point(140, 0),
-		point2 = new Point(-193, 0),
-		point3 = new Point(355, 0);
+			point2 = new Point(-193, 0),
+			point3 = new Point(355, 0);
 
 	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;
@@ -58,10 +58,10 @@ public class Event_DojoAgent {
 		for (int i = nextmapid; i < nextmapid + 7; i++) {
 			map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
-			clearMap(map, false);
-			c.changeMap(map, map.getPortal(0));
-			map.respawn(true);
-			return true;
+				clearMap(map, false);
+				c.changeMap(map, map.getPortal(0));
+				map.respawn(true);
+				return true;
 			}
 		}
 		return false;
@@ -120,10 +120,10 @@ public class Event_DojoAgent {
 		for (int i = nextmapid; i < nextmapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
-			clearMap(map, false);
-			c.changeMap(map, map.getPortal(0));
-			spawnMonster(map, thisStage + 1);
-			return true;
+				clearMap(map, false);
+				c.changeMap(map, map.getPortal(0));
+				spawnMonster(map, thisStage + 1);
+				return true;
 			}
 		}
 		return false;
@@ -132,7 +132,7 @@ public class Event_DojoAgent {
 	private static void clearMap(final GameMap map, final boolean check) {
 		if (check) {
 			if (map.getCharactersSize() != 0) {
-			return;
+				return;
 			}
 		}
 		map.killAllMonsters(false);
@@ -142,103 +142,103 @@ public class Event_DojoAgent {
 	private static void spawnMonster(final GameMap map, final int stage) {
 		final int mobid;
 		switch (stage) {
-			case 1:
+		case 1:
 			mobid = 9300184; // Mano
 			break;
-			case 2:
+		case 2:
 			mobid = 9300185; // Stumpy
 			break;
-			case 3:
+		case 3:
 			mobid = 9300186; // Dewu
 			break;
-			case 4:
+		case 4:
 			mobid = 9300187; // King Slime
 			break;
-			case 5:
+		case 5:
 			mobid = 9300188; // Giant Centipede
 			break;
-			case 7:
+		case 7:
 			mobid = 9300189; // Faust
 			break;
-			case 8:
+		case 8:
 			mobid = 9300190; // King Clang
 			break;
-			case 9:
+		case 9:
 			mobid = 9300191; // Mushmom
 			break;
-			case 10:
+		case 10:
 			mobid = 9300192; // Alishar
 			break;
-			case 11:
+		case 11:
 			mobid = 9300193; // Timer
 			break;
-			case 13:
+		case 13:
 			mobid = 9300194; // Dale
 			break;
-			case 14:
+		case 14:
 			mobid = 9300195; // Papa Pixie
 			break;
-			case 15:
+		case 15:
 			mobid = 9300196; // Zombie Mushmom
 			break;
-			case 16:
+		case 16:
 			mobid = 9300197; // Jeno
 			break;
-			case 17:
+		case 17:
 			mobid = 9300198; // Lord Pirate
 			break;
-			case 19:
+		case 19:
 			mobid = 9300199; // Old Fox
 			break;
-			case 20:
+		case 20:
 			mobid = 9300200; // Tae Roon
 			break;
-			case 21:
+		case 21:
 			mobid = 9300201; // Poison Golem
 			break;
-			case 22:
+		case 22:
 			mobid = 9300202; // Ghost Priest
 			break;
-			case 23:
+		case 23:
 			mobid = 9300203; // Jr. Balrog
 			break;
-			case 25:
+		case 25:
 			mobid = 9300204; // Eliza
 			break;
-			case 26:
+		case 26:
 			mobid = 9300205; // Frankenroid
 			break;
-			case 27:
+		case 27:
 			mobid = 9300206; // Chimera
 			break;
-			case 28:
+		case 28:
 			mobid = 9300207; // Snack Bar
 			break;
-			case 29:
+		case 29:
 			mobid = 9300208; // Snowman
 			break;
-			case 31:
+		case 31:
 			mobid = 9300209; // Blue Mushmom
 			break;
-			case 32:
+		case 32:
 			mobid = 9300210; // Crimson Balrog
 			break;
-			case 33:
+		case 33:
 			mobid = 9300211; // Manon
 			break;
-			case 34:
+		case 34:
 			mobid = 9300212; // Griffey
 			break;
-			case 35:
+		case 35:
 			mobid = 9300213; // Leviathan
 			break;
-			case 37:
+		case 37:
 			mobid = 9300214; // Papulatus
 			break;
-			case 38:
+		case 38:
 			mobid = 9300215; // Mu gong
 			break;
-			default:
+		default:
 			return;
 		}
 		if (mobid != 0) {

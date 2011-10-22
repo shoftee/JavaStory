@@ -146,7 +146,7 @@ public final class ChannelServer extends GameService {
 
 	public static void addPlayer(final ChannelCharacter chr) {
 		instance.players.registerPlayer(chr);
-		chr.getClient().write(ChannelPackets.serverMessage(instance.serverMessage));
+		chr.getClient().write(ChannelPackets.headerMessage(instance.serverMessage));
 	}
 
 	public static PlayerStorage getPlayerStorage() {
@@ -163,7 +163,7 @@ public final class ChannelServer extends GameService {
 
 	public void setServerMessage(final String newMessage) {
 		serverMessage = newMessage;
-		broadcastPacket(ChannelPackets.serverMessage(serverMessage));
+		broadcastPacket(ChannelPackets.headerMessage(serverMessage));
 	}
 
 	public void broadcastPacket(final GamePacket data) {

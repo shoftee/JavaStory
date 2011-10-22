@@ -12,31 +12,29 @@ import java.util.Map;
 
 import javastory.db.Database;
 
-public final class MonsterInfoProvider {
+public final class MobDropInfoProvider {
 
-	private static final MonsterInfoProvider instance = new MonsterInfoProvider();
-	private final Map<Integer, List<MonsterDropEntry>> drops = new HashMap<>();
-	private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
+	private static final MobDropInfoProvider instance = new MobDropInfoProvider();
+	private final Map<Integer, List<MobDropInfo>> drops = new HashMap<>();
+	private final List<MobGlobalDropInfo> globaldrops = new ArrayList<>();
 
-	private MonsterInfoProvider() {
+	private MobDropInfoProvider() {
 		retrieveGlobal();
 	}
 
-	public static MonsterInfoProvider getInstance() {
+	public static MobDropInfoProvider getInstance() {
 		return instance;
 	}
 
-	public List<MonsterGlobalDropEntry> getGlobalDrop() {
+	public List<MobGlobalDropInfo> getGlobalDrop() {
 		return globaldrops;
 	}
 
 	private void retrieveGlobal() {
 		final Connection con = Database.getConnection();
 
-		try (	PreparedStatement ps = con
-						.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
-				ResultSet rs = ps.executeQuery())
-		{
+		try (	PreparedStatement ps = con.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
+				ResultSet rs = ps.executeQuery()) {
 			while (rs.next()) {
 				final int itemId = rs.getInt("itemid");
 				final int chance = rs.getInt("chance");
@@ -45,10 +43,7 @@ public final class MonsterInfoProvider {
 				final int minQuantity = rs.getInt("minimum_quantity");
 				final int maxQuantity = rs.getInt("maximum_quantity");
 				final short questId = rs.getShort("questid");
-				final MonsterGlobalDropEntry entry =
-						new MonsterGlobalDropEntry(itemId, chance, continent,
-													type, minQuantity,
-													maxQuantity, questId);
+				final MobGlobalDropInfo entry = new MobGlobalDropInfo(itemId, chance, continent, type, minQuantity, maxQuantity, questId);
 				globaldrops.add(entry);
 			}
 		} catch (SQLException e) {
@@ -56,17 +51,15 @@ public final class MonsterInfoProvider {
 		}
 	}
 
-	public List<MonsterDropEntry> retrieveDrop(final int monsterId) {
+	public List<MobDropInfo> retrieveDrop(final int monsterId) {
 		if (drops.containsKey(monsterId)) {
 			return drops.get(monsterId);
 		}
 
-		final Connection con = Database
-				.getConnection();
+		final Connection con = Database.getConnection();
 
-		final List<MonsterDropEntry> ret = new LinkedList<>();
-		try (PreparedStatement ps = con
-				.prepareStatement("SELECT * FROM drop_data WHERE dropperid = ?")) {
+		final List<MobDropInfo> ret = new LinkedList<>();
+		try (PreparedStatement ps = con.prepareStatement("SELECT * FROM drop_data WHERE dropperid = ?")) {
 			ps.setInt(1, monsterId);
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
@@ -75,9 +68,7 @@ public final class MonsterInfoProvider {
 					final int minQuantity = rs.getInt("minimum_quantity");
 					final int maxQuantity = rs.getInt("maximum_quantity");
 					final short questId = rs.getShort("questid");
-					final MonsterDropEntry entry =
-							new MonsterDropEntry(itemId, chance, minQuantity,
-													maxQuantity, questId);
+					final MobDropInfo entry = new MobDropInfo(itemId, chance, minQuantity, maxQuantity, questId);
 					ret.add(entry);
 				}
 			}

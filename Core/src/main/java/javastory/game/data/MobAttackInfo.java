@@ -16,32 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.life;
+package javastory.game.data;
 
-public class OverrideMonsterStats {
-	private int exp, hp, mp;
+import javastory.wz.WzData;
+import javastory.wz.WzDataTool;
 
-	public int getExp() {
-		return exp;
-	}
+public final class MobAttackInfo {
 
-	public void setOExp(int exp) {
-		this.exp = exp;
-	}
+	public final boolean IsDeadlyAttack;
+	public final int MpBurn, MpCon;
+	public final int DiseaseSkill, DiseaseLevel;
 
-	public int getHp() {
-		return hp;
-	}
-
-	public void setOHp(int hp) {
-		this.hp = hp;
-	}
-
-	public int getMp() {
-		return mp;
-	}
-
-	public void setOMp(int mp) {
-		this.mp = mp;
+	public MobAttackInfo(WzData data) {
+		this.IsDeadlyAttack = data.getChildByPath("deadlyAttack") != null;
+		this.MpBurn = WzDataTool.getInt("mpBurn", data, 0);
+		this.DiseaseSkill = WzDataTool.getInt("disease", data, 0);
+		this.DiseaseLevel = WzDataTool.getInt("level", data, 0);
+		this.MpCon = WzDataTool.getInt("conMP", data, 0);
 	}
 }

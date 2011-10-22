@@ -775,7 +775,7 @@ public class InventoryHandler {
 					&& quest.canComplete(player, npcid)) {
 				final GameMap map = ChannelServer
 						.getMapFactory()
-						.getMap(LifeFactory.getNPCLocation(npcid));
+						.getMap(LifeFactory.getNpcLocation(npcid));
 				if (map.containsNPC(npcid) != -1) {
 					player.changeMap(map, map.getPortal(0));
 				}

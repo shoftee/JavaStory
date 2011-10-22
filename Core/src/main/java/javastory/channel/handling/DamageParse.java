@@ -16,7 +16,7 @@ import javastory.channel.client.MonsterStatusEffect;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.life.Element;
 import javastory.channel.life.Monster;
-import javastory.channel.life.MonsterStats;
+import javastory.channel.life.MobInfo;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapItem;
 import javastory.channel.maps.GameMapObject;
@@ -143,7 +143,7 @@ public final class DamageParse {
         byte overallAttackCount; // Tracking of Shadow Partner additional damage.
         double maxDamagePerHit = 0;
         Monster monster;
-        MonsterStats monsterstats;
+        MobInfo monsterstats;
         boolean Tempest;
 
         for (final AttackPair oned : attack.allDamage) {
@@ -485,7 +485,7 @@ public final class DamageParse {
         int totDamageToOneMonster, totDamage = 0, fixeddmg;
         byte overallAttackCount;
         boolean Tempest;
-        MonsterStats monsterstats;
+        MobInfo monsterstats;
 
         int CriticalDamage = stats.passive_sharpeye_percent();
         final Integer SharpEye = player.getBuffedSkill_Y(BuffStat.SHARP_EYES);
@@ -610,11 +610,11 @@ public final class DamageParse {
         }
     }
 
-    private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MonsterStats mobstats, final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
+    private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MobInfo mobstats, final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
         final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
         final int Accuracy = (int) (Math.floor((stats.getTotalInt() /
                 10)) + Math.floor((stats.getTotalLuk() / 10)));
-        final int MinAccuracy = mobstats.getEva() * (dLevel * 2 + 51) / 120;
+        final int MinAccuracy = mobstats.getEvasion() * (dLevel * 2 + 51) / 120;
         // FullAccuracy = Avoid * (dLevel * 2 + 51) / 50
 
         if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() !=
