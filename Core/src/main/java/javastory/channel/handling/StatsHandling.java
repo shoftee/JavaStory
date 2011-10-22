@@ -9,11 +9,11 @@ import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.AutobanManager;
-import javastory.client.Stat;
 import javastory.game.Skills;
+import javastory.game.Stat;
+import javastory.game.StatValue;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.server.StatValue;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 

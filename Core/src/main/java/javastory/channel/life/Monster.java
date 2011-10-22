@@ -319,7 +319,7 @@ public class Monster extends AbstractLoadedLife {
 	}
 
 	public final ChannelCharacter killBy(final ChannelCharacter killer) {
-		int totalBaseExp = (Math.min(Integer.MAX_VALUE, (getMobExp() * ChannelServer.getInstance().getExpRate())));
+		int totalBaseExp = (Math.min(Integer.MAX_VALUE, (int) (getMobExp() * ChannelServer.getInstance().getExpRate())));
 		AttackerEntry highest = null;
 		int highdamage = 0;
 		for (final AttackerEntry attackEntry : attackers) {

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.client.IItem;
+import javastory.game.IItem;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.Notes.Note;

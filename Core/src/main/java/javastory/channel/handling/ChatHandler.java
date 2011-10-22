@@ -120,9 +120,7 @@ public class ChatHandler {
 							c.write(ChannelPackets.messengerNote(input, 4, 0));
 						}
 					} else {
-						c.write(ChannelPackets.messengerChat(player.getName() +
-								" : " + input +
-								" is already using Maple Messenger"));
+						c.write(ChannelPackets.messengerChat(player.getName() + " : " + input + " is already using Maple Messenger"));
 					}
 				} else {
 					try {

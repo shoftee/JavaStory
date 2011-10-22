@@ -46,14 +46,12 @@ import javax.script.ScriptException;
 public class EventManager {
 
 	private Invocable invocable;
-	private ChannelServer cserv;
 	private WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<>();
 	private Properties props = new Properties();
 	private String name;
 
-	public EventManager(ChannelServer cserv, Invocable invocable, String name) {
+	public EventManager(Invocable invocable, String name) {
 		this.invocable = invocable;
-		this.cserv = cserv;
 		this.name = name;
 	}
 
@@ -119,10 +117,6 @@ public class EventManager {
 				}
 			}
 		}, timestamp);
-	}
-
-	public ChannelServer getChannelServer() {
-		return cserv;
 	}
 
 	public EventInstanceManager getInstance(String name) {
@@ -246,7 +240,7 @@ public class EventManager {
 	public void broadcastServerMsg(final int type, final String msg,
 			final boolean weather) {
 		if (!weather) {
-			cserv.broadcastPacket(ChannelPackets.serverNotice(type, msg));
+			ChannelServer.getInstance().broadcastPacket(ChannelPackets.serverNotice(type, msg));
 		} else {
 			for (Entry<Integer, GameMap> map : ChannelServer.getMapFactory()
 					.getMaps().entrySet()) {

@@ -5,7 +5,7 @@ import java.util.List;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.Pet;
 import javastory.channel.movement.LifeMovementFragment;
-import javastory.client.Stat;
+import javastory.game.Stat;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;

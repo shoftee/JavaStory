@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
-import javastory.client.IItem;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
 import javastory.game.ItemFlag;
 import javastory.tools.packets.ChannelPackets;
 

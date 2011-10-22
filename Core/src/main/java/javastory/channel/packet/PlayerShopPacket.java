@@ -25,7 +25,7 @@ import javastory.channel.shops.GenericPlayerStore;
 import javastory.channel.shops.HiredMerchantStore;
 import javastory.channel.shops.PlayerShop;
 import javastory.channel.shops.PlayerShopItem;
-import javastory.client.IItem;
+import javastory.game.IItem;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.MerchItemPackage;

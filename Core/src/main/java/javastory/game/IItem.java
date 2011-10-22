@@ -1,4 +1,4 @@
-package javastory.client;
+package javastory.game;
 
 import javastory.channel.client.Pet;
 

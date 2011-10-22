@@ -1,4 +1,4 @@
-package javastory.client;
+package javastory.game;
 
 public enum Stat {
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javastory.client.IItem;
+import javastory.game.IItem;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;

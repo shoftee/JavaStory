@@ -15,7 +15,7 @@ import javastory.channel.movement.AbsoluteLifeMovement;
 import javastory.channel.movement.LifeMovement;
 import javastory.channel.movement.LifeMovementFragment;
 import javastory.db.Database;
-import javastory.server.ItemInfoProvider;
+import javastory.game.ItemInfoProvider;
 
 public class Pet implements Serializable {
 

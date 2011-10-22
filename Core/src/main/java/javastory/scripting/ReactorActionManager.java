@@ -30,12 +30,12 @@ import javastory.channel.ChannelServer;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.maps.Reactor;
 import javastory.channel.maps.ReactorDropEntry;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.Item;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
 import javastory.game.InventoryType;
-import javastory.server.ItemInfoProvider;
+import javastory.game.Item;
+import javastory.game.ItemInfoProvider;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {
 
@@ -92,7 +92,9 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 		for (final ReactorDropEntry d : items) {
 			if (d.itemId == 0) {
 				range = maxMeso - minMeso;
-				mesoDrop = (int) (Math.random() * range) + minMeso * ChannelServer.getInstance().getMesoRate();
+				final double randomMeso = Math.random() * range + minMeso;
+				final float mesoRate = ChannelServer.getInstance().getMesoRate();
+				mesoDrop = (int) (randomMeso * mesoRate);
 				reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, reactor, getPlayer(), false, (byte) 0);
 			} else {
 				IItem drop;

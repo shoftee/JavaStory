@@ -21,6 +21,9 @@ import javastory.channel.server.AutobanManager;
 import javastory.channel.server.Squad;
 import javastory.channel.shops.HiredMerchantStore;
 import javastory.config.ChannelInfo;
+import javastory.config.WorldConfig;
+import javastory.config.WorldInfo;
+import javastory.game.ItemInfoProvider;
 import javastory.game.maker.ItemMakerFactory;
 import javastory.game.maker.RandomRewards;
 import javastory.io.GamePacket;
@@ -28,12 +31,13 @@ import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.WorldChannelInterface;
 import javastory.scripting.EventScriptManager;
 import javastory.server.GameService;
-import javastory.server.ItemInfoProvider;
 import javastory.server.TimerManager;
 import javastory.server.channel.PlayerStorage;
 import javastory.server.handling.PacketHandler;
 import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.ServerStatus;
+
+import com.google.common.collect.Lists;
 
 public final class ChannelServer extends GameService {
 
@@ -48,7 +52,7 @@ public final class ChannelServer extends GameService {
 	private final Map<String, Squad> mapleSquads = new HashMap<>();
 	private final Map<Integer, HiredMerchantStore> merchants = new HashMap<>();
 	private String serverMessage;
-	private byte expRate, mesoRate, dropRate;
+	private float expRate, mesoRate, itemRate;
 	private int channelId, currentMerchantId = 0;
 	private final ChannelInfo channelInfo;
 	private final Lock merchantMutex = new ReentrantLock();
@@ -78,7 +82,7 @@ public final class ChannelServer extends GameService {
 
 	public static void pingWorld() {
 		try {
-			instance.wci.isAvailable();
+			instance.wci.ping();
 		} catch (RemoteException ex) {
 			if (instance.isWorldReady.compareAndSet(true, false)) {
 				instance.connectToWorld();
@@ -90,6 +94,8 @@ public final class ChannelServer extends GameService {
 	protected void connectToWorld() {
 		try {
 			worldRegistry = super.getRegistry();
+
+			// TODO: implement the interface in this class.
 			cwi = new ChannelWorldInterfaceImpl(this);
 			wci = worldRegistry.registerChannelServer(this.channelInfo, cwi);
 			wci.serverReady();
@@ -101,10 +107,12 @@ public final class ChannelServer extends GameService {
 
 	@Override
 	protected final void loadSettings() {
-		// TODO: load settings from DB;
-		expRate = 1;
-		mesoRate = 1;
-		dropRate = 1;
+		WorldInfo info = WorldConfig.load(this.channelInfo.getWorldId());
+		expRate = (float) info.getExpRate() / 100;
+		mesoRate = (float) info.getMesoRate() / 100;
+		itemRate = (float) info.getItemRate() / 100;
+
+		// TODO: do this one in the DB too.
 		serverMessage = "";
 	}
 
@@ -112,9 +120,8 @@ public final class ChannelServer extends GameService {
 		connectToWorld();
 		loadSettings();
 
-		// TODO: load events from DB.
-		final String[] events = new String[0];
-		eventManager = new EventScriptManager(this, events);
+		List<String> events = loadEventsFromDb();
+		eventManager = new EventScriptManager(events);
 
 		TimerManager.getInstance().start();
 		TimerManager.getInstance().register(AutobanManager.getInstance(), 60000);
@@ -126,16 +133,14 @@ public final class ChannelServer extends GameService {
 		SkillFactory.getSkill(99999999);
 		players = new PlayerStorage();
 
-		final PacketHandler serverHandler =
-				new ChannelPacketHandler(this.channelId);
+		final PacketHandler serverHandler = new ChannelPacketHandler(this.channelId);
 		super.bind(serverHandler);
 		try {
 			wci.serverReady();
 		} catch (RemoteException ex) {
 			Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		System.out.printf(":: Channel %d : Listening on port %d ::",
-							this.getChannelId(), super.endpointInfo.getPort());
+		System.out.printf(":: Channel %d : Listening on port %d ::", this.getChannelId(), super.endpointInfo.getPort());
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownListener()));
 		eventManager.init();
 	}
@@ -219,34 +224,40 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final void reloadEvents() {
-		final String[] events = new String[0];
+		List<String> events = loadEventsFromDb();
 		eventManager.cancel();
-		eventManager = new EventScriptManager(this, events);
+		eventManager = new EventScriptManager(events);
 		eventManager.init();
 	}
 
-	public final byte getExpRate() {
+	private List<String> loadEventsFromDb() {
+		// TODO: load events from DB.
+		List<String> events = Lists.newArrayList();
+		return events;
+	}
+
+	public final float getExpRate() {
 		return expRate;
 	}
 
-	public final void setExpRate(final byte expRate) {
+	public final void setExpRate(final float expRate) {
 		this.expRate = expRate;
 	}
 
-	public final byte getMesoRate() {
+	public final float getMesoRate() {
 		return mesoRate;
 	}
 
-	public final void setMesoRate(final byte mesoRate) {
+	public final void setMesoRate(final float mesoRate) {
 		this.mesoRate = mesoRate;
 	}
 
-	public final byte getDropRate() {
-		return dropRate;
+	public final float getItemRate() {
+		return itemRate;
 	}
 
-	public final void setDropRate(final byte dropRate) {
-		this.dropRate = dropRate;
+	public final void setItemRate(final float dropRate) {
+		this.itemRate = dropRate;
 	}
 
 	public final Guild getGuild(final int guildId) {
@@ -268,15 +279,13 @@ public final class ChannelServer extends GameService {
 			return gsStore.get(guildId);
 		}
 		try {
-			final Guild guild =
-					ChannelServer.getWorldInterface().getGuild(guildId);
+			final Guild guild = ChannelServer.getWorldInterface().getGuild(guildId);
 			if (guild != null) {
 				gsStore.put(guildId, new GuildSummary(guild));
 			}
 			return gsStore.get(guildId);
 		} catch (RemoteException re) {
-			System.err.println("RemoteException while fetching GuildSummary."
-					+ re);
+			System.err.println("RemoteException while fetching GuildSummary." + re);
 			return null;
 		}
 	}
@@ -308,8 +317,7 @@ public final class ChannelServer extends GameService {
 
 	public final void closeAllMerchant() {
 		merchantMutex.lock();
-		final Iterator<HiredMerchantStore> iterator =
-				merchants.values().iterator();
+		final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
 		try {
 			while (iterator.hasNext()) {
 				HiredMerchantStore merchant = iterator.next();
@@ -347,8 +355,7 @@ public final class ChannelServer extends GameService {
 		boolean contains = false;
 		merchantMutex.lock();
 		try {
-			final Iterator<HiredMerchantStore> iterator =
-					merchants.values().iterator();
+			final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
 			while (iterator.hasNext()) {
 				HiredMerchantStore merchant = iterator.next();
 				if (merchant.getOwnerAccountId() == accountId) {
@@ -405,16 +412,13 @@ public final class ChannelServer extends GameService {
 		}
 		super.setStatus(ServerStatus.SHUTTING_DOWN);
 
-		System.out.printf("Channel %d, Saving hired merchants...",
-							this.channelId);
+		System.out.printf("Channel %d, Saving hired merchants...", this.channelId);
 		this.closeAllMerchant();
 
-		System.out.printf("Channel %d, Saving characters...",
-							this.channelId);
+		System.out.printf("Channel %d, Saving characters...", this.channelId);
 		this.players.disconnectAll();
 
-		System.out.printf("Channel %d, Unbinding ports...",
-							this.channelId);
+		System.out.printf("Channel %d, Unbinding ports...", this.channelId);
 		super.unbind();
 		super.setStatus(ServerStatus.OFFLINE);
 

@@ -10,14 +10,14 @@ import javastory.channel.ChannelClient;
 import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.BuffStat;
 import javastory.channel.client.Pet;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.Inventory;
-import javastory.client.Item;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
+import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.ItemFlag;
-import javastory.server.ItemInfoProvider;
+import javastory.game.ItemInfoProvider;
 import javastory.tools.packets.ChannelPackets;
 
 public final class InventoryManipulator {

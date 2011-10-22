@@ -9,16 +9,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javastory.client.Equip;
 import javastory.client.GameCharacter;
-import javastory.client.IEquip;
-import javastory.client.IItem;
-import javastory.client.Inventory;
-import javastory.client.PlayerStats;
 import javastory.db.Database;
 import javastory.db.DatabaseException;
+import javastory.game.Equip;
 import javastory.game.Gender;
+import javastory.game.IEquip;
+import javastory.game.IItem;
+import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.PlayerStats;
 import javastory.game.Skills;
 
 import com.google.common.collect.Lists;

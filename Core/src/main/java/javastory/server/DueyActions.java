@@ -1,6 +1,6 @@
 package javastory.server;
 
-import javastory.client.IItem;
+import javastory.game.IItem;
 
 public class DueyActions {
 

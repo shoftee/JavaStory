@@ -7,7 +7,7 @@ package javastory.channel.client;
 import java.util.Iterator;
 import java.util.Map;
 
-import javastory.client.Inventory;
+import javastory.game.Inventory;
 import javastory.game.InventoryType;
 
 import com.google.common.collect.Maps;

@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.client.GameCharacter;
-import javastory.client.IItem;
-import javastory.client.Inventory;
+import javastory.game.IItem;
+import javastory.game.Inventory;
 import javastory.game.Jobs;
 import javastory.io.PacketBuilder;
 

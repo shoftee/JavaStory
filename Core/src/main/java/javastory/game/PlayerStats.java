@@ -1,5 +1,6 @@
-package javastory.client;
+package javastory.game;
 
+import javastory.client.PacketWritable;
 import javastory.io.PacketBuilder;
 
 /**

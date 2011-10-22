@@ -29,8 +29,8 @@ import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
-import javastory.client.IItem;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
 import javastory.game.ItemFlag;
 import javastory.server.TimerManager;
 

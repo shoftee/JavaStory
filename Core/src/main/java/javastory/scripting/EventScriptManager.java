@@ -20,15 +20,14 @@
  */
 package javastory.scripting;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javastory.channel.ChannelServer;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+
+import com.google.common.collect.Maps;
 
 /**
  * 
@@ -53,14 +52,19 @@ public class EventScriptManager extends AbstractScriptManager {
 
 	}
 
-	private final Map<String, EventEntry> events = new LinkedHashMap<String, EventEntry>();
+	private final Map<String, EventEntry> events = Maps.newLinkedHashMap();
+
 	private final AtomicInteger runningInstanceMapId = new AtomicInteger(0);
 
 	public final int getNewInstanceMapId() {
 		return runningInstanceMapId.addAndGet(1);
 	}
-
-	public EventScriptManager(final ChannelServer cserv, final String[] scripts) {
+	
+	public EventScriptManager() {
+		super();
+	}
+	
+	public EventScriptManager(final Iterable<String> scripts) {
 		super();
 		for (final String script : scripts) {
 			if (!script.equals("")) {
@@ -68,7 +72,7 @@ public class EventScriptManager extends AbstractScriptManager {
 				final Invocable invocable = getInvocable(path, null);
 
 				if (invocable != null) {
-					final EventManager eventManager = new EventManager(cserv, invocable, script);
+					final EventManager eventManager = new EventManager(invocable, script);
 					final EventEntry eventEntry = new EventEntry(script, invocable, eventManager);
 					events.put(script, eventEntry);
 				}

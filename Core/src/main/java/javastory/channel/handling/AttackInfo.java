@@ -28,7 +28,6 @@ import javastory.channel.client.ISkill;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.server.StatEffect;
 import javastory.game.Skills;
-import javastory.tools.AttackPair;
 
 public class AttackInfo {
 

@@ -40,15 +40,15 @@ import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.channel.server.Portal;
 import javastory.channel.server.StatEffect;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.Item;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
 import javastory.game.InventoryType;
+import javastory.game.Item;
+import javastory.game.ItemInfoProvider;
 import javastory.game.Jobs;
 import javastory.io.GamePacket;
 import javastory.scripting.EventInstanceManager;
-import javastory.server.ItemInfoProvider;
 import javastory.tools.LogUtil;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
@@ -299,9 +299,21 @@ public class GameMap {
 		if (dropsDisabled || mob.dropsDisabled()) {
 			return;
 		}
+		
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-		final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFreeForAllLoot() ? 2 : chr.hasParty() ? 1 : 0);
-		final int mobpos = mob.getPosition().x, chServerrate = ChannelServer.getInstance().getDropRate();
+		final byte droptype;
+		if (mob.getStats().isExplosiveReward()) {
+			droptype = 3;
+		} else if (mob.getStats().isFreeForAllLoot()) {
+			droptype = 2;
+		} else if (chr.hasParty()) {
+			droptype = 1;
+		} else {
+			droptype = 0;
+		}
+		
+		final int mobpos = mob.getPosition().x;
+		final float globalItemRate = ChannelServer.getInstance().getItemRate();
 		IItem idrop;
 		byte d = 1;
 		Point pos = new Point(0, mob.getPosition().y);
@@ -309,19 +321,22 @@ public class GameMap {
 		final List<MobDropInfo> dropEntry = new ArrayList<>(mi.retrieveDrop(mob.getId()));
 		Collections.shuffle(dropEntry);
 		for (final MobDropInfo de : dropEntry) {
-			if (Randomizer.nextInt(999999) < de.Chance * chServerrate) {
+			if (Randomizer.nextInt(999999) < de.Chance * globalItemRate) {
 				if (droptype == 3) {
 					pos.x = (mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2))));
 				} else {
 					pos.x = (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
 				}
-				if (de.ItemId == 0) { // meso
+
+				if (de.ItemId == 0) {
+					// meso
 					int mesos = Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum;
 					if (mesos > 0) {
 						if (chr.getBuffedValue(BuffStat.MESOUP) != null) {
 							mesos = (int) (mesos * chr.getBuffedValue(BuffStat.MESOUP).doubleValue() / 100.0);
 						}
-						spawnMobMesoDrop(mesos * ChannelServer.getInstance().getMesoRate(), calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
+						final float mesoRate = ChannelServer.getInstance().getMesoRate();
+						spawnMobMesoDrop((int) (mesos * mesoRate), calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
 					}
 				} else {
 					if (GameConstants.getInventoryType(de.ItemId) == InventoryType.EQUIP) {

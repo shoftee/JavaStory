@@ -27,12 +27,12 @@ import javastory.channel.maps.Door;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.Reactor;
 import javastory.channel.server.InventoryManipulator;
-import javastory.client.IItem;
-import javastory.client.Stat;
+import javastory.game.IItem;
+import javastory.game.ItemInfoProvider;
+import javastory.game.Stat;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.FameLog;
-import javastory.server.ItemInfoProvider;
 import javastory.tools.FameResponse;
 import javastory.tools.packets.ChannelPackets;
 

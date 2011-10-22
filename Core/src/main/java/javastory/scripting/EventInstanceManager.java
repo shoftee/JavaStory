@@ -31,6 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.ChannelCharacter;
+import javastory.channel.ChannelServer;
 import javastory.channel.Party;
 import javastory.channel.PartyMember;
 import javastory.channel.life.Monster;
@@ -385,13 +386,13 @@ public class EventInstanceManager {
     }
 
     public final GameMap createInstanceMap(final int mapid) {
-        int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
+        int assignedid = ChannelServer.getInstance().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
         return mapFactory.createInstanceMap(mapid, true, true, true, assignedid);
     }
 
     public final GameMap createInstanceMapS(final int mapid) {
-        final int assignedid = eventManager.getChannelServer().getEventSM().getNewInstanceMapId();
+        final int assignedid = ChannelServer.getInstance().getEventSM().getNewInstanceMapId();
         mapIds.add(assignedid);
         return mapFactory.createInstanceMap(mapid, false, false, false, assignedid);
     }

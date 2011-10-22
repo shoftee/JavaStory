@@ -31,8 +31,8 @@ import java.util.Map.Entry;
 import javastory.client.GameClient;
 import javastory.db.Database;
 import javastory.game.GameConstants;
+import javastory.game.ItemInfoProvider;
 import javastory.io.PacketBuilder;
-import javastory.server.ItemInfoProvider;
 import javastory.tools.packets.MonsterBookPacket;
 
 import com.google.common.collect.Maps;

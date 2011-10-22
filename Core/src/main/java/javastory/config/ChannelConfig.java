@@ -35,10 +35,10 @@ public final class ChannelConfig {
 			if (!rs.next()) {
 				return null;
 			}
-			final String channelName = rs.getString("channel_name");
-			final String channelHost = rs.getString("channel_host");
-			final int channelPort = rs.getInt("channel_port");
-			return new ChannelInfo(worldId, channelId, channelName, channelHost, channelPort);
+			final String name = rs.getString("name");
+			final String host = rs.getString("host");
+			final int port = rs.getInt("port");
+			return new ChannelInfo(worldId, channelId, name, host, port);
 		} catch (SQLException ex) {
 			Logger.getLogger(ChannelConfig.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
@@ -52,9 +52,9 @@ public final class ChannelConfig {
 			while (rs.next()) {
 				final int worldId = rs.getInt("world_id");
 				final int channelId = rs.getInt("channel_id");
-				final String channelName = rs.getString("channel_name");
-				final String channelHost = rs.getString("channel_host");
-				final int channelPort = rs.getInt("channel_port");
+				final String channelName = rs.getString("name");
+				final String channelHost = rs.getString("host");
+				final int channelPort = rs.getInt("port");
 				final ChannelInfo channelInfo = new ChannelInfo(worldId, channelId, channelName, channelHost, channelPort);
 				builder.put(channelId, channelInfo);
 			}

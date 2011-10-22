@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javastory.client.Equip;
-import javastory.client.IItem;
+import javastory.game.Equip;
+import javastory.game.IItem;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
 import javastory.wz.WzDataFileEntry;

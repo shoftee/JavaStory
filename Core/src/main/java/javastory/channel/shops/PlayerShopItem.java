@@ -20,7 +20,7 @@
  */
 package javastory.channel.shops;
 
-import javastory.client.IItem;
+import javastory.game.IItem;
 
 public class PlayerShopItem {
 	public IItem item;

@@ -20,13 +20,13 @@ import javastory.channel.maps.Reactor;
 import javastory.channel.maps.SavedLocationType;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.Inventory;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IItem;
+import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.ItemInfoProvider;
 import javastory.game.quest.QuestStatus;
-import javastory.server.ItemInfoProvider;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 import javastory.tools.packets.UIPacket;
@@ -347,7 +347,7 @@ public class AbstractPlayerInteraction {
 
     public final void givePartyExp(final int amount, final List<ChannelCharacter> party) {
         for (final ChannelCharacter chr : party) {
-            chr.gainExp(amount * ChannelServer.getInstance().getExpRate(), true, true, true);
+            chr.gainExp((int) (amount * ChannelServer.getInstance().getExpRate()), true, true, true);
         }
     }
 

@@ -14,10 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.maps.AbstractGameMapObject;
 import javastory.channel.packet.PlayerShopPacket;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.ItemType;
 import javastory.db.Database;
+import javastory.game.Equip;
+import javastory.game.IItem;
+import javastory.game.ItemType;
 import javastory.io.GamePacket;
 
 public abstract class AbstractPlayerShop extends AbstractGameMapObject

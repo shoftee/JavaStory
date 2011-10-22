@@ -18,17 +18,56 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.tools;
+package javastory.game;
 
-import java.util.List;
+public interface IEquip extends IItem {
 
-public class AttackPair {
+	public static enum ScrollResult {
 
-	public int objectid;
-	public List<Integer> attack;
-
-	public AttackPair(int objectid, List<Integer> attack) {
-		this.objectid = objectid;
-		this.attack = attack;
+		SUCCESS,
+		FAIL,
+		CURSE
 	}
+
+	byte getUpgradeSlots();
+
+	byte getLevel();
+
+	public byte getViciousHammer();
+
+	public byte getItemLevel();
+
+	public short getItemEXP();
+
+	public int getRingId();
+
+	public short getStr();
+
+	public short getDex();
+
+	public short getInt();
+
+	public short getLuk();
+
+	public short getHp();
+
+	public short getMp();
+
+	public short getWatk();
+
+	public short getMatk();
+
+	public short getWdef();
+
+	public short getMdef();
+
+	public short getAcc();
+
+	public short getAvoid();
+
+	public short getHands();
+
+	public short getSpeed();
+
+	public short getJump();
 }

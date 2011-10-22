@@ -14,15 +14,15 @@ import java.util.List;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
-import javastory.client.Equip;
-import javastory.client.IEquip;
-import javastory.client.IItem;
-import javastory.client.Item;
-import javastory.client.ItemType;
 import javastory.db.Database;
 import javastory.db.DatabaseException;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IEquip;
+import javastory.game.IItem;
 import javastory.game.InventoryType;
+import javastory.game.Item;
+import javastory.game.ItemType;
 import javastory.tools.packets.ChannelPackets;
 
 import com.google.common.collect.Maps;

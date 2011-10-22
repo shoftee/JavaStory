@@ -19,7 +19,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package javastory.client;
+package javastory.game;
 
 import java.io.Serializable;
 

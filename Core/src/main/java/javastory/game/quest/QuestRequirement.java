@@ -27,7 +27,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.SkillFactory;
-import javastory.client.IItem;
+import javastory.game.IItem;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 

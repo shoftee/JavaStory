@@ -5,14 +5,14 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
-import javastory.client.IEquip;
-import javastory.client.IItem;
-import javastory.client.PlayerStats;
 import javastory.game.GameConstants;
+import javastory.game.IEquip;
+import javastory.game.IItem;
+import javastory.game.ItemInfoProvider;
 import javastory.game.Jobs;
+import javastory.game.PlayerStats;
 import javastory.game.Skills;
 import javastory.game.WeaponType;
-import javastory.server.ItemInfoProvider;
 
 public class ActivePlayerStats extends PlayerStats implements Serializable {
 

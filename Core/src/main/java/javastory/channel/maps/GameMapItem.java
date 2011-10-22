@@ -4,7 +4,7 @@ import java.awt.Point;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.client.IItem;
+import javastory.game.IItem;
 import javastory.tools.packets.ChannelPackets;
 
 public class GameMapItem extends AbstractGameMapObject {

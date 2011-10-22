@@ -18,56 +18,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.client;
+package javastory.channel.handling;
 
-public interface IEquip extends IItem {
+import java.util.List;
 
-	public static enum ScrollResult {
+public class AttackPair {
 
-		SUCCESS,
-		FAIL,
-		CURSE
+	public int objectid;
+	public List<Integer> attack;
+
+	public AttackPair(int objectId, List<Integer> attack) {
+		this.objectid = objectId;
+		this.attack = attack;
 	}
-
-	byte getUpgradeSlots();
-
-	byte getLevel();
-
-	public byte getViciousHammer();
-
-	public byte getItemLevel();
-
-	public short getItemEXP();
-
-	public int getRingId();
-
-	public short getStr();
-
-	public short getDex();
-
-	public short getInt();
-
-	public short getLuk();
-
-	public short getHp();
-
-	public short getMp();
-
-	public short getWatk();
-
-	public short getMatk();
-
-	public short getWdef();
-
-	public short getMdef();
-
-	public short getAcc();
-
-	public short getAvoid();
-
-	public short getHands();
-
-	public short getSpeed();
-
-	public short getJump();
 }

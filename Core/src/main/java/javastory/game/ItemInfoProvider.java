@@ -1,4 +1,4 @@
-package javastory.server;
+package javastory.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,16 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.channel.server.StatEffect;
-import javastory.client.Equip;
-import javastory.client.IItem;
-import javastory.client.ItemType;
-import javastory.game.GameConstants;
-import javastory.game.IdNameEntry;
-import javastory.game.IdProbabilityEntry;
-import javastory.game.InventoryType;
-import javastory.game.ItemConsumeType;
-import javastory.game.ItemFlag;
 import javastory.game.maker.RewardItemInfo;
+import javastory.server.EquipLevelInfo;
 import javastory.tools.Pair;
 import javastory.tools.Randomizer;
 import javastory.wz.WzData;

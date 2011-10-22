@@ -1,4 +1,4 @@
-package javastory.client;
+package javastory.game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javastory.game.GameConstants;
-import javastory.game.InventoryType;
 
 import com.google.common.collect.Maps;
 

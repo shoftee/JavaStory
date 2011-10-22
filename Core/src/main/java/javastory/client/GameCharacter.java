@@ -5,6 +5,8 @@
 package javastory.client;
 
 import javastory.game.Gender;
+import javastory.game.Inventory;
+import javastory.game.PlayerStats;
 
 /**
  * 

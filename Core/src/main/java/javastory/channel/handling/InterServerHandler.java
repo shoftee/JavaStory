@@ -33,8 +33,7 @@ public class InterServerHandler {
 	public static void handleEnterMTS(final ChannelClient c) {
 		final GameMap map = ChannelServer.getMapFactory().getMap(910000000);
 		final ChannelCharacter player = c.getPlayer();
-		if ((player.getMapId() < 910000000) || (player.getMapId()
-				> 910000022)) {
+		if ((player.getMapId() < 910000000) || (player.getMapId() > 910000022)) {
 			if (player.getLevel() >= 10) {
 				player.saveLocation(SavedLocationType.FREE_MARKET);
 				player.changeMap(map, map.getPortal("out00"));
@@ -102,8 +101,7 @@ public class InterServerHandler {
 			// Start of Messenger
 			final Messenger messenger = player.getMessenger();
 			final int messenger_pos = player.getMessengerPosition();
-			if (player.getMessenger() != null && messenger_pos < 4
-					&& messenger_pos > -1) {
+			if (player.getMessenger() != null && messenger_pos < 4 && messenger_pos > -1) {
 				MessengerMember messengerplayer = new MessengerMember(player, messenger_pos);
 				world.silentJoinMessenger(messenger.getId(), messengerplayer, messenger_pos);
 				world.updateMessenger(player.getMessenger().getId(), player.getName(), channelId);
@@ -133,8 +131,11 @@ public class InterServerHandler {
 		}
 		final SimpleCharacterInfo pendingBuddyRequest = player.getBuddyList().pollPendingRequest();
 		if (pendingBuddyRequest != null) {
-			player.getBuddyList().put(new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
-			client.write(ChannelPackets.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+			player.getBuddyList().put(
+				new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(),
+					pendingBuddyRequest.getJob()));
+			client.write(ChannelPackets.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(),
+				pendingBuddyRequest.getJob()));
 		}
 		player.expirationTask();
 		if (player.getJobId() == 132) { // DARKKNIGHT
