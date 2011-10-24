@@ -132,8 +132,7 @@ public class Mount implements Serializable {
 
     public void update() {
         final ChannelCharacter chr = owner.get();
-        if (chr != null && chr != null) {
-//	    cancelSchedule();
+        if (chr != null) {
             chr.getMap().broadcastMessage(ChannelPackets.updateMount(chr, false));
         }
     }

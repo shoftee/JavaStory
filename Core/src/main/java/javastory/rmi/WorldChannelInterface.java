@@ -19,7 +19,6 @@ import javastory.world.core.CharacterIdChannelPair;
 import javastory.world.core.PartyOperation;
 import javastory.world.core.PlayerCooldownValueHolder;
 import javastory.world.core.PlayerDiseaseValueHolder;
-import javastory.world.core.WorldChannelCommonOperations;
 
 public interface WorldChannelInterface extends RemotePingable, WorldChannelCommonOperations {
 

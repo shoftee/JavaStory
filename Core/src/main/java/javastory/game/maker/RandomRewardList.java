@@ -37,7 +37,7 @@ public class RandomRewardList {
         return new ConcreteRandomRewardFactory(entries);
     }
 
-    class ConcreteRandomRewardFactory implements RandomRewardFactory {
+    static class ConcreteRandomRewardFactory implements RandomRewardFactory {
 
         private List<RandomRewardEntry> entries;
         private int total;
@@ -46,6 +46,8 @@ public class RandomRewardList {
         	
             ArrayList<RandomRewardEntry> shuffledList = Lists.newArrayList(list);
             Collections.shuffle(shuffledList);
+            
+            this.entries = Lists.newArrayListWithExpectedSize(shuffledList.size());
             
             for(RandomRewardEntry entry : shuffledList) {
                 this.entries.add(entry);

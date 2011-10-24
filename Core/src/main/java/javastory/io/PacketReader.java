@@ -111,7 +111,7 @@ public final class PacketReader {
 		long number = 0;
 		for (int i = start; i < end; i++) {
 			number <<= 8;
-			number |= buffer[i];
+			number |= (buffer[i] & 0xFF);
 		}
 		return number;
 	}

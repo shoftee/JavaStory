@@ -29,11 +29,8 @@ public class StartChannel {
 	}
 
 	private static void showUsageInfo() {
-		System.out.println(
-				"Usage: <StartChannel> [world id] [channel id]");
-		System.out.println(
-				"       [world id]   - non-negative integer, the ID of the world to active a channel in.");
-		System.out.println(
-				"       [channel id] - non-negative integer, the ID of the channel to activate.");
+		System.out.println("Usage: <StartChannel> [world id] [channel id]");
+		System.out.println("       [world id]   - non-negative integer, the ID of the world to active a channel in.");
+		System.out.println("       [channel id] - non-negative integer, the ID of the channel to activate.");
 	}
 }

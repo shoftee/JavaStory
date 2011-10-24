@@ -78,9 +78,9 @@ public class ChatHandler {
 				} else { // join
 					try {
 						messenger = wci.getMessenger(messengerid);
-						final int position = messenger.getLowestPosition();
-						final MessengerMember messengerplayer = new MessengerMember(player, position);
 						if (messenger != null) {
+							final int position = messenger.getLowestPosition();
+							final MessengerMember messengerplayer = new MessengerMember(player, position);
 							if (messenger.getMembers().size() < 3) {
 								player.setMessenger(messenger);
 								player.setMessengerPosition(position);

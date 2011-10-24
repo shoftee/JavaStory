@@ -139,7 +139,7 @@ public class InventoryHandler {
 							if (GameConstants.getInventoryType(reward.itemid) == InventoryType.EQUIP) {
 								final IItem item = ii.getEquipById(reward.itemid);
 								if (reward.period != -1) {
-									item.setExpiration(System.currentTimeMillis() + (reward.period * 60 * 60 * 10));
+									item.setExpiration(System.currentTimeMillis() + (reward.period * 60 * 60 * 10L));
 								}
 								InventoryManipulator.addbyItem(c, item);
 							} else {
@@ -756,6 +756,7 @@ public class InventoryHandler {
 					 */player.getHpApUsed() <= 0 || player.getHpApUsed() >= 10000) {
 					used = false;
 				}
+				break;
 			case 8192: // mp
 				if (/*
 					 * playerst.getMaxMp() < ((c.getPlayer().getLevel() * 14) +
@@ -763,6 +764,7 @@ public class InventoryHandler {
 					 */player.getHpApUsed() <= 0 || player.getHpApUsed() >= 10000) {
 					used = false;
 				}
+				break;
 			}
 			if (used) {
 				switch (apto) { // AP to
@@ -846,39 +848,35 @@ public class InventoryHandler {
 
 					if (job == 0) { // Beginner
 						maxmp += Randomizer.rand(6, 8);
-					} else if (job >= 100 && job <= 132) { // Warrior
+					} else if (job >= 100 && job <= 132) {
 						maxmp += Randomizer.rand(2, 4);
-					} else if (job >= 200 && job <= 232) { // Magician
+					} else if (job >= 200 && job <= 232) {
 						ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
 						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(18, 20);
 						if (improvingMaxMPLevel >= 1) {
 							maxmp += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 						}
-					} else if (job >= 300 && job <= 322) { // Bowman
+					} else if (job >= 300 && job <= 322) {
 						maxmp += Randomizer.rand(10, 12);
-					} else if (job >= 400 && job <= 434) { // Thief
+					} else if (job >= 400 && job <= 434) {
 						maxmp += Randomizer.rand(10, 12);
-					} else if (job >= 500 && job <= 522) { // Pirate
+					} else if (job >= 500 && job <= 522) {
 						maxmp += Randomizer.rand(10, 12);
-					} else if (job >= 1100 && job <= 1111) { // Soul Master
+					} else if (job >= 1100 && job <= 1111) {
 						maxmp += Randomizer.rand(6, 9);
-					} else if (job >= 1200 && job <= 1211) { // Flame Wizard
+					} else if (job >= 1200 && job <= 1211) {
 						ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
 						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(33, 36);
 						if (improvingMaxMPLevel >= 1) {
 							maxmp += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 						}
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) { // Wind
-																								// Breaker
-																								// and
-																								// Night
-																								// Walker
+					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) {
 						maxmp += Randomizer.rand(21, 24);
-					} else if (job >= 2000 && job <= 2112) { // Aran
+					} else if (job >= 2000 && job <= 2112) {
 						maxmp += Randomizer.rand(4, 6);
-					} else { // GameMaster
+					} else {
 						maxmp += Randomizer.rand(50, 100);
 					}
 					maxmp = Math.min(30000, maxmp);
@@ -887,72 +885,83 @@ public class InventoryHandler {
 					statupdate.add(new StatValue(Stat.MP, maxmp));
 					break;
 				}
-				switch (apfrom) { // AP from
-				case 64: { // str
+				switch (apfrom) {
+				// AP from
+				case 64: {
+					// str
 					final int toSet = playerst.getStr() - 1;
 					playerst.setStr(toSet);
 					statupdate.add(new StatValue(Stat.STR, toSet));
 					break;
 				}
-				case 128: { // dex
+				case 128: {
+					// dex
 					final int toSet = playerst.getDex() - 1;
 					playerst.setDex(toSet);
 					statupdate.add(new StatValue(Stat.DEX, toSet));
 					break;
 				}
-				case 256: { // int
+				case 256: {
+					// int
 					final int toSet = playerst.getInt() - 1;
 					playerst.setInt(toSet);
 					statupdate.add(new StatValue(Stat.INT, toSet));
 					break;
 				}
-				case 512: { // luk
+				case 512: {
+					// luk
 					final int toSet = playerst.getLuk() - 1;
 					playerst.setLuk(toSet);
 					statupdate.add(new StatValue(Stat.LUK, toSet));
 					break;
 				}
-				case 2048: // HP
+				case 2048:
+					// HP
 					int maxhp = playerst.getMaxHp();
-					if (job == 0) { // Beginner
+					if (job == 0) {
+						// Beginner
 						maxhp -= 12;
-					} else if (job >= 100 && job <= 132) { // Warrior
+					} else if (job >= 100 && job <= 132) {
+						// Warrior
 						ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
 						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 24;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
-					} else if (job >= 200 && job <= 232) { // Magician
+					} else if (job >= 200 && job <= 232) {
+						// Magician
 						maxhp -= 10;
-					} else if (job >= 300 && job <= 322 || job >= 400 && job <= 434) { // Bowman,
-																						// Thief
+					} else if (job >= 300 && job <= 322 || job >= 400 && job <= 434) {
+						// Bowman, Thief
 						maxhp -= 15;
-					} else if (job >= 500 && job <= 522) { // Pirate
+					} else if (job >= 500 && job <= 522) {
+						// Pirate
 						ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
 						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 15;
 						if (improvingMaxHPLevel > 0) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
-					} else if (job >= 1100 && job <= 1111) { // Soul Master
+					} else if (job >= 1100 && job <= 1111) {
+						// Soul Master
 						ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
 						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 27;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
-					} else if (job >= 1200 && job <= 1211) { // Flame Wizard
+					} else if (job >= 1200 && job <= 1211) {
+						// Flame Wizard
 						maxhp -= 12;
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) { // Wind
-																								// Breaker
-																								// and
-																								// Night
-																								// Walker
+					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) {
+						// Wind	Breaker	and	Night Walker
 						maxhp -= 17;
-					} else if (job >= 2000 && job <= 2112) { // Aran
+					} else if (job >= 2000 && job <= 2112) {
+						// Aran
 						maxhp -= 20;
-					} else { // GameMaster
+					} else {
+						// GameMaster
 						maxhp -= 20;
 					}
 					player.setHpApUsed(player.getHpApUsed() - 1);

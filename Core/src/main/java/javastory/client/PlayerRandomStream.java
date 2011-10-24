@@ -25,7 +25,7 @@ import javastory.tools.Randomizer;
 
 public class PlayerRandomStream {
 
-	final class SeedPack {
+	final static class SeedPack {
 
 		public long seed1;
 		public long seed2;

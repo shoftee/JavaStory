@@ -35,7 +35,6 @@ import javastory.channel.client.MemberRank;
 import javastory.config.ChannelInfo;
 import javastory.io.GamePacket;
 import javastory.world.core.PartyOperation;
-import javastory.world.core.WorldChannelCommonOperations;
 
 public interface ChannelWorldInterface extends RemotePingable, WorldChannelCommonOperations {
 

@@ -60,7 +60,6 @@ public class MapTimer {
 		stpe.setKeepAliveTime(10, TimeUnit.MINUTES);
 		stpe.allowCoreThreadTimeOut(true);
 		stpe.setCorePoolSize(3);
-		stpe.setMaximumPoolSize(5);
 		stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 		ses = stpe;
 	}
@@ -85,7 +84,7 @@ public class MapTimer {
 		return schedule(r, timestamp - System.currentTimeMillis());
 	}
 
-	private class LoggingSaveRunnable implements Runnable {
+	private static class LoggingSaveRunnable implements Runnable {
 
 		Runnable r;
 

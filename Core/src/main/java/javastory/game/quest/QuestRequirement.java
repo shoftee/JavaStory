@@ -40,7 +40,7 @@ public class QuestRequirement implements Serializable {
     private String stringStore;
     private List<Entry> dataStore;
 
-    private class Entry {
+    private static class Entry {
 
         public int key;
         public int value;
@@ -233,7 +233,7 @@ public class QuestRequirement implements Serializable {
             case INTERVAL:
                 return c.getQuestStatus(questId).getState() != 2 ||
                         c.getQuestStatus(questId).getCompletionTime() <=
-                        System.currentTimeMillis() - intStore * 60 * 1000;
+                        System.currentTimeMillis() - intStore * 60 * 1000L;
 //			case PET:
 //			case MIN_PET_TAMENESS:
             default:

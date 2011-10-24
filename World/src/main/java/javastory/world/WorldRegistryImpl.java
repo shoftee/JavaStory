@@ -30,8 +30,8 @@ import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldChannelInterface;
+import javastory.rmi.WorldLoginInterface;
 import javastory.world.core.ServerStatus;
-import javastory.world.core.WorldLoginInterface;
 import javastory.world.core.WorldRegistry;
 
 import com.google.common.collect.ImmutableSet;

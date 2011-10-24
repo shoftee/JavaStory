@@ -23,8 +23,8 @@ import java.io.Serializable;
 public class Location implements Serializable {
 
 	private static final long serialVersionUID = 2226165329466413678L;
-	public int MapId;
-	public byte ChannelId;
+	public final int MapId;
+	public final byte ChannelId;
 
 	public Location(final int map, final byte channel) {
 		this.MapId = map;

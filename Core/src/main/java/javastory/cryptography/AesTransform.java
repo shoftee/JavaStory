@@ -183,7 +183,7 @@ public class AesTransform {
 	public byte[] constructHeader(final int length) {
 		checkArgument(length >= 2);
 
-		int encodedVersion = (((this.iv[2] << 8) | this.iv[3]) ^ this.version);
+		int encodedVersion = (((this.iv[2] << 8) | (this.iv[3] & 0xFF)) ^ this.version);
 		int encodedLength = encodedVersion ^
 				(((length & 0xFF) << 8) | (length >> 8));
 
@@ -297,8 +297,8 @@ public class AesTransform {
 		checkArgument(data.length >= 4,
 						"'data' must have at least 4 elements.");
 
-		short encodedVersion = (short) ((data[0] << 8) | data[1]);
-		short xorSegment = (short) ((iv[2] << 8) | iv[3]);
+		short encodedVersion = (short) ((data[0] << 8) | (data[1] & 0xFF));
+		short xorSegment = (short) ((iv[2] << 8) | (iv[3] & 0xFF));
 
 		return (short) (encodedVersion ^ xorSegment);
 	}

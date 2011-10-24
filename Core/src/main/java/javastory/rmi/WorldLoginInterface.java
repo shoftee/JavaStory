@@ -18,11 +18,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.world.core;
+package javastory.rmi;
 
 import java.rmi.RemoteException;
 
-import javastory.rmi.RemotePingable;
 
 import com.google.common.collect.ImmutableMap;
 

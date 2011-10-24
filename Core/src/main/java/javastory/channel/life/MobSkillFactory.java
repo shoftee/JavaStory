@@ -58,6 +58,8 @@ public final class MobSkillFactory {
 			while (summonData != null) {
 				final int id = WzDataTool.getInt(summonData);
 				summons.add(Integer.valueOf(id));
+				i++;
+				summonData = data.getChildByPath(String.valueOf(i));
 			}
 
 			// TS NOTE: I'll preserve the old code, to enable making fun of the

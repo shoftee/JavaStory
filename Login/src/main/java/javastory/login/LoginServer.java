@@ -14,7 +14,7 @@ import javastory.config.ChannelInfo;
 import javastory.db.Database;
 import javastory.server.handling.PacketHandler;
 import javastory.rmi.LoginWorldInterface;
-import javastory.world.core.WorldLoginInterface;
+import javastory.rmi.WorldLoginInterface;
 import javastory.server.GameService;
 import javastory.server.TimerManager;
 

@@ -90,7 +90,7 @@ public class ReactorInfo {
 		}
 	}
 
-	private class StateData {
+	private static class StateData {
 
 		private int type;
 		private Pair<Integer, Integer> reactItem;

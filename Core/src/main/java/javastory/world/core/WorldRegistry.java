@@ -36,6 +36,7 @@ import javastory.config.ChannelInfo;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldChannelInterface;
+import javastory.rmi.WorldLoginInterface;
 
 import com.google.common.collect.ImmutableSet;
 

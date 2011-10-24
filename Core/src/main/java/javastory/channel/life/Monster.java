@@ -853,7 +853,7 @@ public class Monster extends AbstractLoadedLife {
 		}
 	}
 
-	private class AttackingMapleCharacter {
+	private static class AttackingMapleCharacter {
 
 		private ChannelCharacter attacker;
 		private long lastAttackTime;

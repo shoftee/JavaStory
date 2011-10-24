@@ -35,7 +35,7 @@ import com.google.common.collect.Maps;
  */
 public class EventScriptManager extends AbstractScriptManager {
 
-	private class EventEntry {
+	private static class EventEntry {
 
 		public String script;
 		public Invocable invocable;

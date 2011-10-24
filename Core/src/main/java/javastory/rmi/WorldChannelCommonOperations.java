@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.world.core;
+package javastory.rmi;
 
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javastory.rmi.RemotePingable;
+import javastory.world.core.CheaterData;
 
 public interface WorldChannelCommonOperations extends RemotePingable {
 

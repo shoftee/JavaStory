@@ -21,12 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package javastory.world;
 
 import javastory.world.core.WorldRegistry;
-import javastory.world.core.WorldLoginInterface;
 import java.rmi.RemoteException;
 import com.google.common.collect.ImmutableMap;
 
 import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.ChannelWorldInterface;
+import javastory.rmi.WorldLoginInterface;
 
 public class WorldLoginInterfaceImpl extends GenericRemoteObject implements WorldLoginInterface {
 

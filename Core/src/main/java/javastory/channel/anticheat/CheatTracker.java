@@ -18,8 +18,7 @@ import com.google.common.collect.Maps;
 
 public class CheatTracker {
 
-	private final Map<CheatingOffense, CheatingOffenseEntry> offenses =
-			Maps.newConcurrentMap();
+	private final Map<CheatingOffense, CheatingOffenseEntry> offenses = Maps.newConcurrentMap();
 	private final WeakReference<ChannelCharacter> chr;
 	// For keeping track of speed attack hack.
 	private int lastAttackTickCount = 0;
@@ -40,8 +39,7 @@ public class CheatTracker {
 
 	public CheatTracker(final ChannelCharacter chr) {
 		this.chr = new WeakReference<>(chr);
-		invalidationTask = TimerManager.getInstance()
-				.register(new InvalidationTask(), 60000);
+		invalidationTask = TimerManager.getInstance().register(new InvalidationTask(), 60000);
 		takingDamageSince = System.currentTimeMillis();
 	}
 
@@ -86,7 +84,7 @@ public class CheatTracker {
 		if (lastDamageTakenTime - takingDamageSince / 500 < numSequentialDamage) {
 			registerOffense(CheatingOffense.FAST_TAKE_DAMAGE);
 		}
-		if (lastDamageTakenTime - lastDamageTakenTime > 4500) {
+		if (lastDamageTakenTime - takingDamageSince > 4500) {
 			takingDamageSince = lastDamageTakenTime;
 			numSequentialDamage = 0;
 		}
@@ -115,8 +113,7 @@ public class CheatTracker {
 
 			if (numSameDamage > 5) {
 				numSameDamage = 0;
-				registerOffense(CheatingOffense.SAME_DAMAGE, numSameDamage +
-						" times: " + dmg);
+				registerOffense(CheatingOffense.SAME_DAMAGE, numSameDamage + " times: " + dmg);
 			}
 		} else {
 			lastDamage = dmg;
@@ -168,8 +165,7 @@ public class CheatTracker {
 		registerOffense(offense, null);
 	}
 
-	public final void registerOffense(final CheatingOffense offense,
-			final String param) {
+	public final void registerOffense(final CheatingOffense offense, final String param) {
 		final ChannelCharacter character = chr.get();
 		if (character == null || !offense.isEnabled()) {
 			return;
@@ -195,8 +191,7 @@ public class CheatTracker {
 				if (!character.isGM()) {
 					// chrhardref.getClient().disconnect();
 				} else {
-					character.sendNotice(5, "[WARNING] D/c triggred : " +
-							offense.toString());
+					character.sendNotice(5, "[WARNING] D/c triggred : " + offense.toString());
 				}
 			}
 			return;
@@ -212,10 +207,8 @@ public class CheatTracker {
 	public final int getPoints() {
 		int ret = 0;
 		CheatingOffenseEntry[] offenses_copy;
-		synchronized (offenses) {
-			offenses_copy = offenses.values()
-					.toArray(new CheatingOffenseEntry[offenses.size()]);
-		}
+		offenses_copy = offenses.values().toArray(new CheatingOffenseEntry[offenses.size()]);
+
 		for (final CheatingOffenseEntry entry : offenses_copy) {
 			if (entry.isExpired()) {
 				expireEntry(entry);
@@ -233,29 +226,25 @@ public class CheatTracker {
 	public final String getSummary() {
 		final StringBuilder ret = new StringBuilder();
 		final List<CheatingOffenseEntry> offenseList = new ArrayList<>();
-		synchronized (offenses) {
-			for (final CheatingOffenseEntry entry : offenses.values()) {
-				if (!entry.isExpired()) {
-					offenseList.add(entry);
-				}
+
+		for (final CheatingOffenseEntry entry : offenses.values()) {
+			if (!entry.isExpired()) {
+				offenseList.add(entry);
 			}
 		}
+
 		Collections.sort(offenseList, new Comparator<CheatingOffenseEntry>() {
 
 			@Override
-			public final int compare(final CheatingOffenseEntry o1,
-					final CheatingOffenseEntry o2) {
+			public final int compare(final CheatingOffenseEntry o1, final CheatingOffenseEntry o2) {
 				final int thisVal = o1.getPoints();
 				final int anotherVal = o2.getPoints();
-				return (thisVal < anotherVal ? 1 : (thisVal == anotherVal
-						? 0
-						: -1));
+				return (thisVal < anotherVal ? 1 : (thisVal == anotherVal ? 0 : -1));
 			}
 		});
 		final int to = Math.min(offenseList.size(), 4);
 		for (int x = 0; x < to; x++) {
-			ret.append(StringUtil.makeEnumHumanReadable(offenseList.get(x)
-					.getOffense().name()));
+			ret.append(StringUtil.makeEnumHumanReadable(offenseList.get(x).getOffense().name()));
 			ret.append(": ");
 			ret.append(offenseList.get(x).getCount());
 			if (x != to - 1) {
@@ -278,8 +267,7 @@ public class CheatTracker {
 		public final void run() {
 			CheatingOffenseEntry[] offenses_copy;
 			synchronized (offenses) {
-				offenses_copy = offenses.values()
-						.toArray(new CheatingOffenseEntry[offenses.size()]);
+				offenses_copy = offenses.values().toArray(new CheatingOffenseEntry[offenses.size()]);
 			}
 			for (CheatingOffenseEntry offense : offenses_copy) {
 				if (offense.isExpired()) {

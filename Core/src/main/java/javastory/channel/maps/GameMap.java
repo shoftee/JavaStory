@@ -1591,7 +1591,7 @@ public class GameMap {
 		return spawnedMonstersOnMap.get();
 	}
 
-	private final class MonsterSpawnTask implements DelayedPacketCreation {
+	private static final class MonsterSpawnTask implements DelayedPacketCreation {
 		private final int oid;
 		private final Monster monster;
 

@@ -317,8 +317,8 @@ public final class ChannelServer extends GameService {
 
 	public final void closeAllMerchant() {
 		merchantMutex.lock();
-		final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
 		try {
+			final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
 			while (iterator.hasNext()) {
 				HiredMerchantStore merchant = iterator.next();
 				merchant.closeShop(true, false);

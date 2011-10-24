@@ -231,6 +231,7 @@ public class MapScriptMethods {
 			c.write(UIPacket.IntroDisableUI(false));
 			c.write(UIPacket.IntroLock(false));
 			c.write(ChannelPackets.enableActions());
+			break;
 		case go20000:
 		case go30000:
 		case go40000:

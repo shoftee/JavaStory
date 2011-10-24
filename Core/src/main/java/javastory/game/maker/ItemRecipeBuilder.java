@@ -28,7 +28,7 @@ public class ItemRecipeBuilder {
         return new ConcreteItemRecipe(entries);
     }
 
-    private class ConcreteItemRecipe implements ItemRecipe {
+    private static class ConcreteItemRecipe implements ItemRecipe {
 
         public List<ItemRecipeEntry> entries;
         
