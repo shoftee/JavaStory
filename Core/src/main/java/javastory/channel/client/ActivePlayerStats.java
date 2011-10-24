@@ -21,14 +21,12 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 	private transient WeakReference<ChannelCharacter> character;
 	private transient float shouldHealHP, shouldHealMP;
 	private transient short passive_sharpeye_percent, passive_sharpeye_rate;
-	private transient int localmaxhp, localmaxmp, localSTR, localDEX, localLUK,
-			localint_;
+	private transient int localmaxhp, localmaxmp, localSTR, localDEX, localLUK, localint_;
 	private transient int magic, watk, hands, accuracy;
 	private transient float speedMod, jumpMod, localmaxbasedamage;
 	// Elemental properties
 	public transient int element_amp_percent;
-	public transient int def, element_ice, element_fire, element_light,
-			element_psn;
+	public transient int def, element_ice, element_fire, element_light, element_psn;
 
 	public ActivePlayerStats(final ChannelCharacter chr) {
 		// TODO, move str/dex/int etc here -_-
@@ -179,8 +177,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 
 			if (equip.getPosition() == -11) {
 				if (GameConstants.isMagicWeapon(equip.getItemId())) {
-					final Map<String, Integer> eqstat = ItemInfoProvider
-							.getInstance().getEquipStats(equip.getItemId());
+					final Map<String, Integer> eqstat = ItemInfoProvider.getInstance().getEquipStats(equip.getItemId());
 
 					element_fire = eqstat.get("incRMAF");
 					element_ice = eqstat.get("incRMAI");
@@ -302,8 +299,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			break;
 		}
 		}
-		final ISkill blessoffairy = SkillFactory.getSkill(Skills
-				.getBlessOfFairyForJob(chra.getJobId()));
+		final ISkill blessoffairy = SkillFactory.getSkill(Skills.getBlessOfFairyForJob(chra.getJobId()));
 		final int boflevel = chra.getCurrentSkillLevel(blessoffairy);
 		if (boflevel > 0) {
 			watk += blessoffairy.getEffect(boflevel).getX();
@@ -365,9 +361,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 				speedMod = 1.8f;
 				break;
 			default:
-				System.err.println(
-						"Unhandeled monster riding level, Speedmod = "
-								+ speedMod + "");
+				System.err.println("Unhandeled monster riding level, Speedmod = " + speedMod + "");
 			}
 		}
 		hands = this.localDEX + this.localint_ + this.localLUK;
@@ -392,10 +386,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(4100001);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -406,10 +398,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(14100001);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -419,10 +409,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(5110000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -432,10 +420,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(15110000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -446,10 +432,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(21110000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(critSkill.getEffect(critlevel).getDamage());
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (critSkill.getEffect(critlevel).getDamage());
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -464,10 +448,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(3000001);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -479,10 +461,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(13000000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -495,10 +475,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(22140000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent =
-						(short) (critSkill.getEffect(critlevel).getDamage() - 100);
-				this.passive_sharpeye_rate =
-						critSkill.getEffect(critlevel).getProb();
+				this.passive_sharpeye_percent = (short) (critSkill.getEffect(critlevel).getDamage() - 100);
+				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
 			break;
@@ -525,13 +503,11 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 		if (watk == 0) {
 			maxBaseDamage = 1;
 		} else {
-			final IItem weapon_item =
-					chra.getEquippedItemsInventory().getItem((byte) -11);
+			final IItem weapon_item = chra.getEquippedItemsInventory().getItem((byte) -11);
 
 			if (weapon_item != null) {
 				final int job = chra.getJobId();
-				final WeaponType weapon =
-						GameConstants.getWeaponType(weapon_item.getItemId());
+				final WeaponType weapon = GameConstants.getWeaponType(weapon_item.getItemId());
 				int primary, secondary;
 
 				switch (weapon) {
@@ -542,8 +518,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 					break;
 				case CLAW:
 				case DAGGER:
-					if ((job >= 400 && job <= 422)
-							|| (job >= 1400 && job <= 1412)) {
+					if ((job >= 400 && job <= 422) || (job >= 1400 && job <= 1412)) {
 						primary = localLUK;
 						secondary = localDEX + localSTR;
 					} else { // Non Thieves
@@ -560,8 +535,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 					secondary = localSTR;
 					break;
 				case NOT_A_WEAPON:
-					if ((job >= 500 && job <= 522)
-							|| (job >= 1500 && job <= 1512)) {
+					if ((job >= 500 && job <= 522) || (job >= 1500 && job <= 1512)) {
 						primary = localSTR;
 						secondary = localDEX;
 					} else {
@@ -574,8 +548,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 					secondary = localDEX;
 					break;
 				}
-				maxBaseDamage = ((weapon.getMaxDamageMultiplier() * primary) + secondary)
-						* watk / 100;
+				maxBaseDamage = ((weapon.getMaxDamageMultiplier() * primary) + secondary) * watk / 100;
 			} else {
 				maxBaseDamage = 0;
 			}
@@ -603,9 +576,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 
 		if (Jobs.isJobFamily(200, jobId)) {
 			// Improving MP recovery
-			shouldHealMP += (((float) chra
-					.getCurrentSkillLevel(SkillFactory.getSkill(2000000)) / 10) * chra
-					.getLevel());
+			shouldHealMP += (((float) chra.getCurrentSkillLevel(SkillFactory.getSkill(2000000)) / 10) * chra.getLevel());
 		} else if (Jobs.isJobFamily(111, jobId)) {
 			final ISkill effect = SkillFactory.getSkill(1110000);
 			// Improving MP Recovery

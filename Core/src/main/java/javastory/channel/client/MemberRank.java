@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package javastory.channel.client;
 
 /**
@@ -10,11 +6,7 @@ package javastory.channel.client;
  */
 public enum MemberRank {
 
-	MASTER(1),
-	JR_MASTER(2),
-	MEMBER_HIGH(3),
-	MEMBER_MIDDLE(4),
-	MEMBER_LOW(5);
+	MASTER(1), JR_MASTER(2), MEMBER_HIGH(3), MEMBER_MIDDLE(4), MEMBER_LOW(5);
 	private byte ordinal;
 
 	private MemberRank(int ordinal) {
@@ -32,8 +24,7 @@ public enum MemberRank {
 	}
 
 	public boolean isMaster() {
-		return this.equals(MemberRank.JR_MASTER)
-				|| this.equals(MemberRank.MASTER);
+		return this.equals(MemberRank.JR_MASTER) || this.equals(MemberRank.MASTER);
 	}
 
 	public static MemberRank fromNumber(int ordinal) {

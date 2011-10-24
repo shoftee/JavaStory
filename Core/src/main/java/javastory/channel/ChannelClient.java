@@ -22,8 +22,7 @@ public final class ChannelClient extends GameClient {
 	private boolean transition = false;
 	private Map<String, ScriptEngine> engines = new HashMap<>();
 
-	public ChannelClient(AesTransform clientCrypto, AesTransform serverCrypto,
-			IoSession session) {
+	public ChannelClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
 		super(clientCrypto, serverCrypto, session);
 	}
 
@@ -100,33 +99,24 @@ public final class ChannelClient extends GameClient {
 			final ChannelServer channel = ChannelServer.getInstance();
 			try {
 				if (this.player.getMessenger() != null) {
-					ChannelServer.getWorldInterface().leaveMessenger(
-							this.player.getMessenger().getId(),
-							new MessengerMember(this.player));
+					ChannelServer.getWorldInterface().leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
 					this.player.setMessenger(null);
 				}
 				PartyMember partyMember = this.player.getPartyMembership();
 				if (partyMember != null) {
 					partyMember.setOnline(false);
-					ChannelServer.getWorldInterface().updateParty(
-							partyMember.getPartyId(), PartyOperation.LOG_ONOFF,
-							partyMember);
+					ChannelServer.getWorldInterface().updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
 				}
 				if (!this.transition) {
-					ChannelServer.getWorldInterface().loggedOff(
-							this.player.getName(), this.player.getId(),
-							super.getChannelId(),
-							this.player.getBuddyList().getBuddyIds());
+					ChannelServer.getWorldInterface().loggedOff(this.player.getName(), this.player.getId(), super.getChannelId(),
+						this.player.getBuddyList().getBuddyIds());
 				} else {
 					// Change channel
-					ChannelServer.getWorldInterface().loggedOn(
-							this.player.getName(), this.player.getId(),
-							super.getChannelId(),
-							this.player.getBuddyList().getBuddyIds());
+					ChannelServer.getWorldInterface().loggedOn(this.player.getName(), this.player.getId(), super.getChannelId(),
+						this.player.getBuddyList().getBuddyIds());
 				}
 				if (this.player.getGuildId() > 0) {
-					ChannelServer.getWorldInterface().setGuildMemberOnline(
-							this.player.getGuildMembership(), false, -1);
+					ChannelServer.getWorldInterface().setGuildMemberOnline(this.player.getGuildMembership(), false, -1);
 				}
 			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
@@ -143,13 +133,11 @@ public final class ChannelClient extends GameClient {
 		super.getSession().close(immediately);
 	}
 
-	public static String getLogMessage(final ChannelClient cfor,
-			final String message) {
+	public static String getLogMessage(final ChannelClient cfor, final String message) {
 		return getLogMessage(cfor, message, new Object[0]);
 	}
 
-	public static String getLogMessage(final ChannelClient cfor,
-			final String message, final Object... parms) {
+	public static String getLogMessage(final ChannelClient cfor, final String message, final Object... parms) {
 		final StringBuilder builder = new StringBuilder();
 		if (cfor != null) {
 			final ChannelCharacter player = cfor.getPlayer();
@@ -175,15 +163,12 @@ public final class ChannelClient extends GameClient {
 		return builder.toString();
 	}
 
-	public static String getLogMessage(final ChannelCharacter cfor,
-			final String message) {
+	public static String getLogMessage(final ChannelCharacter cfor, final String message) {
 		return getLogMessage(cfor == null ? null : cfor.getClient(), message);
 	}
 
-	public static String getLogMessage(final ChannelCharacter cfor,
-			final String message, final Object... parms) {
-		return getLogMessage(cfor == null ? null : cfor.getClient(), message,
-				parms);
+	public static String getLogMessage(final ChannelCharacter cfor, final String message, final Object... parms) {
+		return getLogMessage(cfor == null ? null : cfor.getClient(), message, parms);
 	}
 
 }

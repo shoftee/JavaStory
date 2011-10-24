@@ -27,14 +27,8 @@ import com.google.common.collect.Lists;
 public class PacketHelper {
 
 	private static final long FT_UT_OFFSET = 116444592000000000L; // EDT
-	public static final byte unk1[] = new byte[] {
-		(byte) 0x00, (byte) 0x40,
-		(byte) 0xE0, (byte) 0xFD
-	};
-	public static final byte unk2[] = new byte[] {
-		(byte) 0x3B, (byte) 0x37,
-		(byte) 0x4F, (byte) 0x01
-	};
+	public static final byte unk1[] = new byte[] { (byte) 0x00, (byte) 0x40, (byte) 0xE0, (byte) 0xFD };
+	public static final byte unk2[] = new byte[] { (byte) 0x3B, (byte) 0x37, (byte) 0x4F, (byte) 0x01 };
 
 	public static long getFiletimeFromMillis(final long realTimestamp) {
 		long time = (realTimestamp / 1000 / 60); // convert to minutes
@@ -46,14 +40,12 @@ public class PacketHelper {
 		return ((time * 10000000) + FT_UT_OFFSET);
 	}
 
-	public static void addQuestInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addQuestInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		final List<QuestStatus> started = chr.getStartedQuests();
 		builder.writeAsShort(started.size());
 		for (final QuestStatus q : started) {
 			builder.writeAsShort(q.getQuestId());
-			builder.writeLengthPrefixedString(q.getCustomData() != null ? q
-					.getCustomData() : "");
+			builder.writeLengthPrefixedString(q.getCustomData() != null ? q.getCustomData() : "");
 		}
 		final List<QuestStatus> completed = chr.getCompletedQuests();
 		long time;
@@ -65,8 +57,7 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addSkillInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addSkillInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		final Map<ISkill, SkillEntry> skills = chr.getSkills();
 		builder.writeAsShort(skills.size());
 		for (final Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
@@ -79,18 +70,15 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addCoolDownInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addCoolDownInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		builder.writeAsShort(chr.getAllCooldowns().size());
 		for (final PlayerCooldownValueHolder cooling : chr.getAllCooldowns()) {
 			builder.writeInt(cooling.skillId);
-			builder.writeAsShort((int) (cooling.length + cooling.startTime - System
-					.currentTimeMillis()) / 1000);
+			builder.writeAsShort((int) (cooling.length + cooling.startTime - System.currentTimeMillis()) / 1000);
 		}
 	}
 
-	public static void addRocksInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addRocksInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		builder.writeInt(999999999); // Teleport maps (TODO)
 		builder.writeInt(999999999);
 		builder.writeInt(999999999);
@@ -102,15 +90,13 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addMonsterBookInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addMonsterBookInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		builder.writeInt(chr.getMonsterBookCover());
 		builder.writeAsByte(0);
 		chr.getMonsterBook().addCardPacket(builder);
 	}
 
-	public static void addRingInfo(final PacketBuilder builder,
-			final ChannelCharacter chr) {
+	public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		List<Ring> rings = new ArrayList<>();
 		final Inventory equipped = chr.getEquippedItemsInventory();
 		for (final IItem item : equipped) {
@@ -130,9 +116,8 @@ public class PacketHelper {
 		boolean FR_last = false;
 		for (final Ring ring : rings) {
 			final int ringItemId = ring.getItemId();
-			if ((ringItemId >= 1112800 && ringItemId <= 1112803
-					|| ringItemId <= 1112806 || ringItemId <= 1112807 || ringItemId <= 1112809)
-					&& rings.indexOf(ring) == 0) {
+			if ((ringItemId >= 1112800 && ringItemId <= 1112803 || ringItemId <= 1112806 || ringItemId <= 1112807 || ringItemId <= 1112809)
+				&& rings.indexOf(ring) == 0) {
 				builder.writeAsShort(0);
 			}
 			builder.writeAsShort(0);
@@ -142,9 +127,7 @@ public class PacketHelper {
 			builder.writeInt(ring.getRingId());
 			builder.writeInt(0);
 			builder.writeInt(ring.getPartnerRingId());
-			if (ringItemId >= 1112800 && ringItemId <= 1112803
-					|| ringItemId <= 1112806 || ringItemId <= 1112807
-					|| ringItemId <= 1112809) {
+			if (ringItemId >= 1112800 && ringItemId <= 1112803 || ringItemId <= 1112806 || ringItemId <= 1112807 || ringItemId <= 1112809) {
 				FR_last = true;
 				builder.writeInt(0);
 				builder.writeInt(ringItemId);
@@ -161,8 +144,7 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addInventoryInfo(PacketBuilder builder,
-			ChannelCharacter chr) {
+	public static void addInventoryInfo(PacketBuilder builder, ChannelCharacter chr) {
 		builder.writeInt(chr.getMeso()); // mesos
 		builder.writeByte(chr.getEquipInventory().getSlotLimit()); // equip
 																	// slots
@@ -217,8 +199,7 @@ public class PacketHelper {
 		builder.writeAsByte(0);
 	}
 
-	public static void addExpirationTime(final PacketBuilder builder,
-			final long time) {
+	public static void addExpirationTime(final PacketBuilder builder, final long time) {
 		if (time != -1) {
 			builder.writeLong(FiletimeUtil.getFiletime(time));
 		} else {
@@ -226,14 +207,11 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addItemInfo(final PacketBuilder builder,
-			final IItem item, final boolean zeroPosition, final boolean leaveOut) {
+	public static void addItemInfo(final PacketBuilder builder, final IItem item, final boolean zeroPosition, final boolean leaveOut) {
 		addItemInfo(builder, item, zeroPosition, leaveOut, false);
 	}
 
-	public static void addItemInfo(final PacketBuilder builder,
-			final IItem item, final boolean zeroPosition,
-			final boolean leaveOut, final boolean trade) {
+	public static void addItemInfo(final PacketBuilder builder, final IItem item, final boolean zeroPosition, final boolean leaveOut, final boolean trade) {
 		short pos = item.getPosition();
 		if (zeroPosition) {
 			if (!leaveOut) {
@@ -317,8 +295,7 @@ public class PacketHelper {
 				builder.writeLengthPrefixedString(item.getOwner());
 				builder.writeAsShort(item.getFlag());
 
-				if (GameConstants.isThrowingStar(item.getItemId())
-						|| GameConstants.isBullet(item.getItemId())) {
+				if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 					builder.writeInt(2);
 					builder.writeAsShort(0x54);
 					builder.writeAsByte(0);
@@ -328,8 +305,7 @@ public class PacketHelper {
 		}
 	}
 
-	public static void serializeMovementList(final PacketBuilder lew,
-			final List<LifeMovementFragment> moves) {
+	public static void serializeMovementList(final PacketBuilder lew, final List<LifeMovementFragment> moves) {
 		lew.writeAsByte(moves.size());
 		for (LifeMovementFragment move : moves) {
 			move.serialize(lew);

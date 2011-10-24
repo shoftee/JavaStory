@@ -299,7 +299,7 @@ public class GameMap {
 		if (dropsDisabled || mob.dropsDisabled()) {
 			return;
 		}
-		
+
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 		final byte droptype;
 		if (mob.getStats().isExplosiveReward()) {
@@ -311,7 +311,7 @@ public class GameMap {
 		} else {
 			droptype = 0;
 		}
-		
+
 		final int mobpos = mob.getPosition().x;
 		final float globalItemRate = ChannelServer.getInstance().getItemRate();
 		IItem idrop;

@@ -1,6 +1,5 @@
 package javastory.client;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +13,6 @@ import javastory.server.TimerManager;
 import javastory.server.handling.ServerPacketOpcode;
 
 import org.apache.mina.core.session.IoSession;
-
 
 /**
  * 
@@ -35,8 +33,7 @@ public abstract class GameClient {
 	private final transient IoSession session;
 	private final transient String ip;
 
-	public GameClient(AesTransform clientCrypto, AesTransform serverCrypto,
-			IoSession session) {
+	public GameClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
 		this.clientCrypto = clientCrypto;
 		this.serverCrypto = serverCrypto;
 		this.session = session;
@@ -126,8 +123,7 @@ public abstract class GameClient {
 	public void unban() {
 		try {
 			Connection con = Database.getConnection();
-			PreparedStatement ps = con
-					.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
+			PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
 			ps.setInt(1, getAccountId());
 			ps.executeUpdate();
 			ps.close();
@@ -168,8 +164,7 @@ public abstract class GameClient {
 		if (loggedIn) {
 			try {
 				Connection con = Database.getConnection();
-				PreparedStatement ps = con
-						.prepareStatement("UPDATE `accounts` SET `loggedin` = ? WHERE `id` = ?");
+				PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `loggedin` = ? WHERE `id` = ?");
 				ps.setBoolean(1, false);
 				ps.setInt(2, getAccountId());
 				ps.executeUpdate();

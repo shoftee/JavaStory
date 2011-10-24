@@ -14,13 +14,13 @@ public class WorldInfo extends EndpointInfo {
 	private final int expRate;
 	private final int mesoRate;
 	private final int itemRate;
-	
+
 	public WorldInfo(int id, String name, int expRate, int mesoRate, int itemRate, String host, int port) {
 		super(host, port);
-		
+
 		this.worldId = id;
 		this.name = name;
-		
+
 		this.expRate = expRate;
 		this.mesoRate = mesoRate;
 		this.itemRate = itemRate;
@@ -29,7 +29,7 @@ public class WorldInfo extends EndpointInfo {
 	public int getWorldId() {
 		return worldId;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

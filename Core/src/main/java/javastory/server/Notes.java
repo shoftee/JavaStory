@@ -65,6 +65,7 @@ public final class Notes {
 	private Notes() {
 	}
 
+	// TODO: Extract prepare statement call into method.
 	public static ImmutableList<Note> loadReceived(String recepient) {
 		List<Note> list = Lists.newArrayList();
 		try {

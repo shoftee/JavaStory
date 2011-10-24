@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -47,14 +45,12 @@ public class XmlWzFile implements WzDataProvider {
 			String fileName = file.getName();
 
 			if (file.isDirectory() && !fileName.endsWith(".img")) {
-				WzDirectoryEntry newDir = new WzDirectoryEntry(fileName, 0, 0,
-																wzdir);
+				WzDirectoryEntry newDir = new WzDirectoryEntry(fileName, 0, 0, wzdir);
 				wzdir.addDirectory(newDir);
 				fillMapleDataEntitys(file, newDir);
 
 			} else if (fileName.endsWith(".xml")) { // get the real size here?
-				wzdir.addFile(new WzFileEntry(fileName.substring(0, fileName
-						.length() - 4), 0, 0, wzdir));
+				wzdir.addFile(new WzFileEntry(fileName.substring(0, fileName.length() - 4), 0, 0, wzdir));
 			}
 		}
 	}
@@ -73,8 +69,7 @@ public class XmlWzFile implements WzDataProvider {
 		try {
 			fis = new FileInputStream(dataFile);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Datafile " + path
-					+ " does not exist in " + root.getAbsolutePath());
+			throw new RuntimeException("Datafile " + path + " does not exist in " + root.getAbsolutePath());
 		}
 		final XmlDomWzData domMapleData;
 		try {

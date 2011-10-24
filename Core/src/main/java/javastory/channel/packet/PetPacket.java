@@ -17,8 +17,7 @@ public class PetPacket {
 	public static final GamePacket updatePet(final Pet pet, final boolean alive) {
 		final PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(0);
 		builder.writeAsByte(2);
 		builder.writeAsByte(3);
@@ -38,8 +37,7 @@ public class PetPacket {
 
 		builder.writeInt(pet.getUniqueId());
 		builder.writeInt(0);
-		builder.writeBytes(HexTool
-				.getByteArrayFromHexString("00 80 F9 58 8D 3B C7 24"));
+		builder.writeBytes(HexTool.getByteArrayFromHexString("00 80 F9 58 8D 3B C7 24"));
 		builder.writePaddedString(pet.getName(), 13);
 		builder.writeAsByte(pet.getLevel());
 		builder.writeAsShort(pet.getCloseness());
@@ -60,8 +58,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPet(final ChannelCharacter chr,
-			final Pet pet) {
+	public static final GamePacket showPet(final ChannelCharacter chr, final Pet pet) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
@@ -82,8 +79,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removePet(final ChannelCharacter chr,
-			final Pet pet, final boolean hunger) {
+	public static GamePacket removePet(final ChannelCharacter chr, final Pet pet, final boolean hunger) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PET.getValue());
@@ -95,8 +91,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket movePet(final int characterId, final int petId,
-			final byte slot, final List<LifeMovementFragment> moves) {
+	public static final GamePacket movePet(final int characterId, final int petId, final byte slot, final List<LifeMovementFragment> moves) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MOVE_PET.getValue());
@@ -108,8 +103,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket petChat(final int cid, final int un,
-			final String text, final byte slot) {
+	public static final GamePacket petChat(final int cid, final int un, final String text, final byte slot) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PET_CHAT.getValue());
@@ -123,9 +117,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket commandResponse(final int cid,
-			final byte command, final byte slot, final boolean success,
-			final boolean food) {
+	public static final GamePacket commandResponse(final int cid, final byte command, final byte slot, final boolean success, final boolean food) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PET_COMMAND.getValue());
@@ -145,8 +137,7 @@ public class PetPacket {
 	public static final GamePacket showOwnPetLevelUp(final byte index) {
 		final PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(4);
 		builder.writeAsByte(0);
 		builder.writeByte(index); // Pet Index
@@ -154,8 +145,7 @@ public class PetPacket {
 		return builder.getPacket();
 	}
 
-	public static final GamePacket showPetLevelUp(final ChannelCharacter chr,
-			final byte index) {
+	public static final GamePacket showPetLevelUp(final ChannelCharacter chr, final byte index) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());

@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -33,13 +31,12 @@ public class BuddyListEntry {
 	 * @param characterId
 	 *            The ID of the buddy character.
 	 * @param channel
-	 *            The current channel of the buddy character,
-	 *            or -1 if they're offline.
+	 *            The current channel of the buddy character, or -1 if they're
+	 *            offline.
 	 * @param visible
 	 *            Whether the buddy character is visible by the player or not.
 	 */
-	public BuddyListEntry(String name, int characterId, String group,
-			int channel, boolean visible, int level, int job) {
+	public BuddyListEntry(String name, int characterId, String group, int channel, boolean visible, int level, int job) {
 		super();
 		this.name = name;
 		this.characterId = characterId;

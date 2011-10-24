@@ -38,13 +38,13 @@ public enum ElementalEffectiveness {
 			throw new IllegalArgumentException("Unkown effectiveness: " + value);
 		}
 	}
-	
+
 	public static EnumMap<Element, ElementalEffectiveness> fromString(String elementalAttributes) {
 		EnumMap<Element, ElementalEffectiveness> map = Maps.newEnumMap(Element.class);
 		for (int i = 0; i < elementalAttributes.length(); i += 2) {
 			final char elementChar = elementalAttributes.charAt(i);
 			final Element element = Element.fromCharacter(elementChar);
-			
+
 			final int effectivenessId = elementalAttributes.charAt(i + 1) - '0';
 			final ElementalEffectiveness effectiveness = ElementalEffectiveness.fromNumber(effectivenessId);
 			map.put(element, effectiveness);

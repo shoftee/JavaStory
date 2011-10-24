@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -36,12 +34,10 @@ public class MonsterCarnivalPacket {
 	 * MONSTER_CARNIVAL_DIED = 0xE7
 	 */
 
-	public static GamePacket startMonsterCarnival(final ChannelCharacter chr,
-			final int enemyavailable, final int enemytotal) {
+	public static GamePacket startMonsterCarnival(final ChannelCharacter chr, final int enemyavailable, final int enemytotal) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());
 		final CarnivalParty friendly = chr.getCarnivalParty();
 		builder.writeAsByte(friendly.getTeam());
 		builder.writeAsShort(chr.getAvailableCP());
@@ -59,8 +55,7 @@ public class MonsterCarnivalPacket {
 	public static GamePacket playerDiedMessage(String name, int lostCP, int team) { // CPQ
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_DIED
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_DIED.getValue());
 		builder.writeAsByte(team); // team
 		builder.writeLengthPrefixedString(name);
 		builder.writeAsByte(lostCP);
@@ -68,15 +63,12 @@ public class MonsterCarnivalPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket CPUpdate(boolean party, int curCP, int totalCP,
-			int team) {
+	public static GamePacket CPUpdate(boolean party, int curCP, int totalCP, int team) {
 		PacketBuilder builder = new PacketBuilder();
 		if (!party) {
-			builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP
-					.getValue());
+			builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
 		} else {
-			builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_PARTY_CP
-					.getValue());
+			builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
 			builder.writeAsByte(team);
 		}
 		builder.writeAsShort(curCP);
@@ -88,8 +80,7 @@ public class MonsterCarnivalPacket {
 	public static GamePacket playerSummoned(String name, int tab, int number) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_SUMMON
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
 		builder.writeAsByte(tab);
 		builder.writeAsByte(number);
 		builder.writeLengthPrefixedString(name);

@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -29,7 +27,6 @@ import java.util.Properties;
 
 import javastory.tools.HexTool;
 
-
 public class ExternalCodeTableGetter {
 
 	Properties props;
@@ -38,8 +35,7 @@ public class ExternalCodeTableGetter {
 		props = properties;
 	}
 
-	private static <T extends Enum<? extends IntValueHolder> & IntValueHolder> T valueOf(
-			String name, T[] values) {
+	private static <T extends Enum<? extends IntValueHolder> & IntValueHolder> T valueOf(String name, T[] values) {
 		for (T val : values) {
 			if (val.name().equals(name)) {
 				return val;
@@ -48,8 +44,7 @@ public class ExternalCodeTableGetter {
 		return null;
 	}
 
-	private <T extends Enum<? extends IntValueHolder> & IntValueHolder> int getValue(
-			String name, T[] values, int def) {
+	private <T extends Enum<? extends IntValueHolder> & IntValueHolder> int getValue(String name, T[] values, int def) {
 		String prop = props.getProperty(name);
 		if (prop != null && prop.length() > 0) {
 			String trimmed = prop.trim();
@@ -74,8 +69,7 @@ public class ExternalCodeTableGetter {
 		return def;
 	}
 
-	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(
-			T[] enumeration) {
+	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(T[] enumeration) {
 		StringBuilder enumVals = new StringBuilder();
 		List<T> all = new ArrayList<>(); // need a mutable list plawks
 		all.addAll(Arrays.asList(enumeration));
@@ -98,8 +92,7 @@ public class ExternalCodeTableGetter {
 		return enumVals.toString();
 	}
 
-	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> void populateValues(
-			Properties properties, T[] values) {
+	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> void populateValues(Properties properties, T[] values) {
 		ExternalCodeTableGetter exc = new ExternalCodeTableGetter(properties);
 		for (T code : values) {
 			code.setValue(exc.getValue(code.name(), values, -2));

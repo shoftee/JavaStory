@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
 package javastory.cryptography;
 
@@ -11,13 +11,12 @@ package javastory.cryptography;
  */
 public enum VersionType {
 	/**
-	 * Regular version representation.
-	 * The version is used as-is.
+	 * Regular version representation. The version is used as-is.
 	 */
 	REGULAR,
 	/**
-	 * One's complement version representation.
-	 * The bit-wise NOT of the version is used.
+	 * One's complement version representation. The bit-wise NOT of the version
+	 * is used.
 	 */
 	COMPLEMENT;
 }

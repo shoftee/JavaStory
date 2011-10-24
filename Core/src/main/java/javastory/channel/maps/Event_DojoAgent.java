@@ -12,9 +12,7 @@ import javastory.tools.packets.ChannelPackets;
 public class Event_DojoAgent {
 
 	private final static int baseAgentMapId = 970030000; // 9500337 = mano
-	private final static Point point1 = new Point(140, 0),
-			point2 = new Point(-193, 0),
-			point3 = new Point(355, 0);
+	private final static Point point1 = new Point(140, 0), point2 = new Point(-193, 0), point3 = new Point(355, 0);
 
 	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;

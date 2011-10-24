@@ -18,12 +18,11 @@ public class MapScriptMethods {
 
 	private static final Point witchTowerPos = new Point(-60, 184);
 	private static final String[] mulungEffects = {
-		"I have been waiting for you! If you have an ounce of courage in you, you'll be walking in that door right now!",
-		"How brave of you to take on Mu Lung Training Tower!",
-		"I will make sure you will regret taking on Mu Lung Training Tower!",
-		"I do like your intestinal fortitude! But don't confuse your courage with recklessness!",
-		"If you want to step on the path to failure, by all means to do so!"
-	};
+													"I have been waiting for you! If you have an ounce of courage in you, you'll be walking in that door right now!",
+													"How brave of you to take on Mu Lung Training Tower!",
+													"I will make sure you will regret taking on Mu Lung Training Tower!",
+													"I do like your intestinal fortitude! But don't confuse your courage with recklessness!",
+													"If you want to step on the path to failure, by all means to do so!" };
 
 	private static enum onFirstUserEnter {
 

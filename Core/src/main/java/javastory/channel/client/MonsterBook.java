@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -48,13 +46,11 @@ public class MonsterBook implements Serializable {
 		return specialCardCount + normalCardCount;
 	}
 
-	public static MonsterBook loadFromDb(final int characterId)
-			throws SQLException {
+	public static MonsterBook loadFromDb(final int characterId) throws SQLException {
 		final Connection connection = Database.getConnection();
 
 		final MonsterBook instance = new MonsterBook();
-		try (PreparedStatement ps = connection
-				.prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
+		try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
 			ps.setInt(1, characterId);
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
@@ -80,8 +76,7 @@ public class MonsterBook implements Serializable {
 			return;
 		}
 		final Connection con = Database.getConnection();
-		PreparedStatement ps = con
-				.prepareStatement("DELETE FROM monsterbook WHERE charid = ?");
+		PreparedStatement ps = con.prepareStatement("DELETE FROM monsterbook WHERE charid = ?");
 		ps.setInt(1, charid);
 		ps.execute();
 		ps.close();
@@ -129,8 +124,7 @@ public class MonsterBook implements Serializable {
 		}
 	}
 
-	public final void addCharInfoPacket(final int bookcover,
-			final PacketBuilder builder) {
+	public final void addCharInfoPacket(final int bookcover, final PacketBuilder builder) {
 		builder.writeInt(bookLevel);
 		builder.writeInt(normalCardCount);
 		builder.writeInt(specialCardCount);
@@ -149,11 +143,9 @@ public class MonsterBook implements Serializable {
 			if (all.getKey() == cardid) {
 
 				if (all.getValue() >= 5) {
-					c.write(MonsterBookPacket.addCard(true, cardid, all
-							.getValue()));
+					c.write(MonsterBookPacket.addCard(true, cardid, all.getValue()));
 				} else {
-					c.write(MonsterBookPacket.addCard(false, cardid, all
-							.getValue()));
+					c.write(MonsterBookPacket.addCard(false, cardid, all.getValue()));
 					c.write(MonsterBookPacket.showGainCard(cardid));
 					all.setValue(all.getValue() + 1);
 					calculateLevel();

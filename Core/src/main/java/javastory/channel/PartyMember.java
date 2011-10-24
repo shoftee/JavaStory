@@ -4,96 +4,96 @@ import java.io.Serializable;
 
 public class PartyMember implements Serializable {
 
-    private static final long serialVersionUID = 6215463252132450750L;
-    private int partyId;
-    private int characterId;
-    private String name;
-    private int level;
-    private int channelId;
-    private int mapId;
-    private int jobId;
-    private boolean isOnline;
-    private boolean isLeader;
+	private static final long serialVersionUID = 6215463252132450750L;
+	private int partyId;
+	private int characterId;
+	private String name;
+	private int level;
+	private int channelId;
+	private int mapId;
+	private int jobId;
+	private boolean isOnline;
+	private boolean isLeader;
 
-    public PartyMember(int partyId, ChannelCharacter character) {
-        this.partyId = partyId;
-        this.characterId = character.getId();
-        this.name = character.getName();
-        this.channelId = character.getClient().getChannelId();
-        this.mapId = character.getMapId();
-        this.level = character.getLevel();
-        this.jobId = character.getJobId();
-        this.isOnline = true;
-    }
+	public PartyMember(int partyId, ChannelCharacter character) {
+		this.partyId = partyId;
+		this.characterId = character.getId();
+		this.name = character.getName();
+		this.channelId = character.getClient().getChannelId();
+		this.mapId = character.getMapId();
+		this.level = character.getLevel();
+		this.jobId = character.getJobId();
+		this.isOnline = true;
+	}
 
-    public PartyMember() {
-        this.name = "";
-        //default values for everything
-    }
+	public PartyMember() {
+		this.name = "";
+		//default values for everything
+	}
 
-    public int getLevel() {
-        return level;
-    }
+	public int getLevel() {
+		return level;
+	}
 
-    public int getChannel() {
-        return channelId;
-    }
-    
-    public boolean isLeader() {
-        return isLeader;
-    }
-    
-    public void setLeader(boolean isLeader) {
-        this.isLeader = isLeader;
-    }
+	public int getChannel() {
+		return channelId;
+	}
 
-    public boolean isOnline() {
-        return isOnline;
-    }
+	public boolean isLeader() {
+		return isLeader;
+	}
 
-    public void setOnline(boolean online) {
-        this.isOnline = online;
-    }
-    
-    public int getPartyId() {
-        return partyId;
-    }
+	public void setLeader(boolean isLeader) {
+		this.isLeader = isLeader;
+	}
 
-    public int getMapId() {
-        return mapId;
-    }
+	public boolean isOnline() {
+		return isOnline;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setOnline(boolean online) {
+		this.isOnline = online;
+	}
 
-    public int getCharacterId() {
-        return characterId;
-    }
+	public int getPartyId() {
+		return partyId;
+	}
 
-    public int getJobId() {
-        return jobId;
-    }
+	public int getMapId() {
+		return mapId;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 59 * hash + this.characterId;
-        return hash;
-    }
+	public String getName() {
+		return name;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final PartyMember other = (PartyMember) obj;
-        return this.characterId == other.characterId;
-    }
+	public int getCharacterId() {
+		return characterId;
+	}
+
+	public int getJobId() {
+		return jobId;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 59 * hash + this.characterId;
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PartyMember other = (PartyMember) obj;
+		return this.characterId == other.characterId;
+	}
 }

@@ -36,8 +36,7 @@ public final class Database implements ConnectionPool {
 	}
 
 	private void loadDbProperties() {
-		String dbConfigFilename =
-				System.getProperty("dbConfigFilename", "database.properties");
+		String dbConfigFilename = System.getProperty("dbConfigFilename", "database.properties");
 		Properties properties = new Properties();
 
 		InputStreamReader reader = null;
@@ -65,7 +64,7 @@ public final class Database implements ConnectionPool {
 
 	private synchronized Connection getConnectionInternal() {
 		if (connections.isEmpty()) {
-			Connection result = null; 
+			Connection result = null;
 			try {
 				final Connection connection = DriverManager.getConnection(url, username, password);
 				result = new PooledConnection(connection, this);
@@ -73,9 +72,9 @@ public final class Database implements ConnectionPool {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exception);
 			}
 			return result;
-		}	else {
-		return connections.remove();
-	}
+		} else {
+			return connections.remove();
+		}
 	}
 
 	@Override

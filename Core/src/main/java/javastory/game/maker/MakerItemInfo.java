@@ -3,7 +3,6 @@ package javastory.game.maker;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MakerItemInfo {
 
 	public final int ReqLevel;
@@ -12,8 +11,7 @@ public class MakerItemInfo {
 	private ItemRecipe recipe;
 	private List<Integer> reqEquips = new ArrayList<Integer>();
 
-	public MakerItemInfo(ItemRecipe recipe, int cost, int reqLevel,
-			byte reqMakerLevel, int quantity, byte tuc, int stimulator) {
+	public MakerItemInfo(ItemRecipe recipe, int cost, int reqLevel, byte reqMakerLevel, int quantity, byte tuc, int stimulator) {
 		this.recipe = recipe;
 
 		this.Cost = cost;

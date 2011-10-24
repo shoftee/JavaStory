@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -37,8 +35,7 @@ public final class PlayerShopPacket {
 	private PlayerShopPacket() {
 	}
 
-	private static void addAnnounceBox(final PacketBuilder builder,
-			final PlayerShop shop) {
+	private static void addAnnounceBox(final PacketBuilder builder, final PlayerShop shop) {
 		builder.writeAsByte(4);
 		builder.writeInt(((GenericPlayerStore) shop).getObjectId());
 		builder.writeLengthPrefixedString(shop.getDescription());
@@ -88,8 +85,7 @@ public final class PlayerShopPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getHiredMerch(final ChannelCharacter chr,
-			final HiredMerchantStore merch, final boolean firstTime) {
+	public static GamePacket getHiredMerch(final ChannelCharacter chr, final HiredMerchantStore merch, final boolean firstTime) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -131,8 +127,7 @@ public final class PlayerShopPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getPlayerStore(final ChannelCharacter chr,
-			final boolean firstTime) {
+	public static GamePacket getPlayerStore(final ChannelCharacter chr, final boolean firstTime) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -157,8 +152,7 @@ public final class PlayerShopPacket {
 		}
 		builder.writeAsShort(ips.getVisitorSlot(chr));
 
-		GameCharacterPacket.addCharLook(builder, ((GenericPlayerStore) ips)
-				.getMCOwner(), false);
+		GameCharacterPacket.addCharLook(builder, ((GenericPlayerStore) ips).getMCOwner(), false);
 		builder.writeLengthPrefixedString(ips.getOwnerName());
 
 		int i = 1;
@@ -226,8 +220,7 @@ public final class PlayerShopPacket {
 	public static GamePacket destroyHiredMerchant(final int id) {
 		final PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.DESTROY_HIRED_MERCHANT
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.DESTROY_HIRED_MERCHANT.getValue());
 		builder.writeInt(id);
 
 		return builder.getPacket();
@@ -252,8 +245,7 @@ public final class PlayerShopPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket shopVisitorAdd(final ChannelCharacter chr,
-			final int slot) {
+	public static GamePacket shopVisitorAdd(final ChannelCharacter chr, final int slot) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -290,8 +282,7 @@ public final class PlayerShopPacket {
 	public static GamePacket updateHiredMerchant(final HiredMerchantStore shop) {
 		final PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.UPDATE_HIRED_MERCHANT
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.UPDATE_HIRED_MERCHANT.getValue());
 		builder.writeInt(shop.getOwnerId());
 		builder.writeAsByte(0x05);
 		builder.writeInt(shop.getObjectId());

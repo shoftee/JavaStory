@@ -65,8 +65,7 @@ public final class ChannelConfig {
 
 	private static PreparedStatement getSelectByWorldId(final int worldId) throws SQLException {
 		final Connection connection = Database.getConnection();
-		final String sql =
-				"SELECT * FROM `channel_config` WHERE `world_id` = ?";
+		final String sql = "SELECT * FROM `channel_config` WHERE `world_id` = ?";
 		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, worldId);
 		return ps;
@@ -74,8 +73,7 @@ public final class ChannelConfig {
 
 	private static PreparedStatement getSelectByIds(final int worldId, final int channelId) throws SQLException {
 		final Connection connection = Database.getConnection();
-		final String sql =
-				"SELECT * FROM `channel_config` WHERE `world_id` = ? AND `channel_id` = ?";
+		final String sql = "SELECT * FROM `channel_config` WHERE `world_id` = ? AND `channel_id` = ?";
 		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, worldId);
 		ps.setInt(2, channelId);

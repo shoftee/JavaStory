@@ -13,15 +13,10 @@ public class AramiaFireWorks {
 
 	private short kegs = 0;
 	private static final AramiaFireWorks instance = new AramiaFireWorks();
-	private static final int[] arrayMob = {
-		9500168, 9500169, 9500170, 9500171, 9500173, 9500174, 9500175, 9500176, 9500170, 9500171, 9500172, 9500173, 9500174, 9500175, 9400569
-	};
-	private static final int[] arrayX = {
-		2100, 2605, 1800, 2600, 3120, 2700, 2320, 2062, 2800, 3100, 2300, 2840, 2700, 2320, 1950
-	};
-	private static final int[] arrayY = {
-		574, 364, 574, 316, 574, 574, 403, 364, 574, 574, 403, 574, 574, 403, 574
-	};
+	private static final int[] arrayMob = { 9500168, 9500169, 9500170, 9500171, 9500173, 9500174, 9500175, 9500176, 9500170, 9500171, 9500172, 9500173,
+											9500174, 9500175, 9400569 };
+	private static final int[] arrayX = { 2100, 2605, 1800, 2600, 3120, 2700, 2320, 2062, 2800, 3100, 2300, 2840, 2700, 2320, 1950 };
+	private static final int[] arrayY = { 574, 364, 574, 316, 574, 574, 403, 364, 574, 574, 403, 574, 574, 403, 574 };
 
 	public static final AramiaFireWorks getInstance() {
 		return instance;
@@ -41,7 +36,9 @@ public class AramiaFireWorks {
 
 	private void broadcastEvent(final ChannelCharacter c) {
 		try {
-			ChannelServer.getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!").getBytes());
+			ChannelServer.getWorldInterface().broadcastMessage(
+				ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!")
+					.getBytes());
 		} catch (RemoteException e) {
 			ChannelServer.pingWorld();
 		}

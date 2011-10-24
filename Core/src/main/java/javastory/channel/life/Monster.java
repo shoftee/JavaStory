@@ -278,7 +278,7 @@ public class Monster extends AbstractLoadedLife {
 		}
 		if (broadcast) {
 			map.broadcastMessage(MobPacket.healMonster(getObjectId(), hp));
-		} else if (sponge != null) { 
+		} else if (sponge != null) {
 			// else if, since only sponge doesn't broadcast
 			sponge.hp += hp;
 		}

@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -83,8 +81,7 @@ public class EventManager {
 		}, delay);
 	}
 
-	public void schedule(final String methodName, long delay,
-			final EventInstanceManager eim) {
+	public void schedule(final String methodName, long delay, final EventInstanceManager eim) {
 		TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
@@ -102,8 +99,7 @@ public class EventManager {
 		}, delay);
 	}
 
-	public ScheduledFuture<?> scheduleAtTimestamp(final String methodName,
-			long timestamp) {
+	public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, long timestamp) {
 		return TimerManager.getInstance().scheduleAtTimestamp(new Runnable() {
 
 			@Override
@@ -165,8 +161,7 @@ public class EventManager {
 
 	public void startInstance(ChannelCharacter character) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable
-					.invokeFunction("setup", (Object) null));
+			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
 			eim.registerPlayer(character);
 		} catch (ScriptException ex) {
 			ex.printStackTrace();
@@ -178,8 +173,7 @@ public class EventManager {
 	// PQ method: starts a PQ
 	public void startInstance(Party party, GameMap map) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable
-					.invokeFunction("setup", (Object) null));
+			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
 			eim.registerParty(party, map);
 		} catch (ScriptException ex) {
 			ex.printStackTrace();
@@ -202,8 +196,7 @@ public class EventManager {
 
 	public void startInstance(Squad squad, GameMap map) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable
-					.invokeFunction("setup", squad.getLeader().getId()));
+			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", squad.getLeader().getId()));
 			eim.registerSquad(squad, map);
 		} catch (ScriptException ex) {
 			ex.printStackTrace();
@@ -214,8 +207,7 @@ public class EventManager {
 
 	public void warpAllPlayer(int from, int to) {
 		final GameMap tomap = ChannelServer.getMapFactory().getMap(to);
-		for (GameMapObject mmo : ChannelServer.getMapFactory().getMap(from)
-				.getAllPlayer()) {
+		for (GameMapObject mmo : ChannelServer.getMapFactory().getMap(from).getAllPlayer()) {
 			((ChannelCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 		}
 	}
@@ -233,17 +225,14 @@ public class EventManager {
 	}
 
 	public void broadcastShip(final int mapid, final int effect) {
-		ChannelServer.getMapFactory().getMap(mapid)
-				.broadcastMessage(ChannelPackets.boatPacket(effect));
+		ChannelServer.getMapFactory().getMap(mapid).broadcastMessage(ChannelPackets.boatPacket(effect));
 	}
 
-	public void broadcastServerMsg(final int type, final String msg,
-			final boolean weather) {
+	public void broadcastServerMsg(final int type, final String msg, final boolean weather) {
 		if (!weather) {
 			ChannelServer.getInstance().broadcastPacket(ChannelPackets.serverNotice(type, msg));
 		} else {
-			for (Entry<Integer, GameMap> map : ChannelServer.getMapFactory()
-					.getMaps().entrySet()) {
+			for (Entry<Integer, GameMap> map : ChannelServer.getMapFactory().getMaps().entrySet()) {
 				final GameMap load = map.getValue();
 				if (load.getCharactersSize() > 0) {
 					load.startMapEffect(msg, type);

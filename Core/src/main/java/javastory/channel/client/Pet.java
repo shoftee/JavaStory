@@ -22,8 +22,7 @@ public class Pet implements Serializable {
 	private static final long serialVersionUID = 9179541993413738569L;
 
 	private String name;
-	private int foothold = 0, stance = 0, fullness = 100, level = 1, closeness = 0,
-			uniqueId, petItemId;
+	private int foothold = 0, stance = 0, fullness = 100, level = 1, closeness = 0, uniqueId, petItemId;
 	private Point pos;
 	private short inventoryPosition = 0;
 	private boolean summoned;
@@ -32,24 +31,21 @@ public class Pet implements Serializable {
 		this.petItemId = itemId;
 	}
 
-	private Pet(final int petItemId, final int uniqueId,
-			final short inventorypos) {
+	private Pet(final int petItemId, final int uniqueId, final short inventorypos) {
 		this.petItemId = petItemId;
 		this.uniqueId = uniqueId;
 		this.summoned = false;
 		this.inventoryPosition = inventorypos;
 	}
 
-	public static Pet loadFromDb(final int itemId, final int petid,
-			final short inventorypos) {
+	public static Pet loadFromDb(final int itemId, final int petid, final short inventorypos) {
 		try {
 			final Pet ret = new Pet(itemId, petid, inventorypos);
 
-			Connection con = Database.getConnection(); 
-			
+			Connection con = Database.getConnection();
+
 			// Get pet details..
-			PreparedStatement ps = con
-					.prepareStatement("SELECT * FROM pets WHERE petid = ?"); 
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM pets WHERE petid = ?");
 			ps.setInt(1, petid);
 
 			final ResultSet rs = ps.executeQuery();
@@ -72,9 +68,8 @@ public class Pet implements Serializable {
 
 	public final void saveToDb() {
 		try {
-			final PreparedStatement ps = Database
-					.getConnection()
-					.prepareStatement(	"UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ? WHERE petid = ?");
+			final PreparedStatement ps = Database.getConnection().prepareStatement(
+				"UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ? WHERE petid = ?");
 			ps.setString(1, name); // Set name
 			ps.setInt(2, level); // Set Level
 			ps.setInt(3, closeness); // Set Closeness
@@ -90,10 +85,8 @@ public class Pet implements Serializable {
 	public static Pet createPet(final int petItemId) {
 		int ret;
 		try { // Commit to db first
-			final PreparedStatement ps = Database
-					.getConnection()
-					.prepareStatement(	"INSERT INTO pets (name, level, closeness, fullness) VALUES (?, ?, ?, ?)",
-										Statement.RETURN_GENERATED_KEYS);
+			final PreparedStatement ps = Database.getConnection().prepareStatement("INSERT INTO pets (name, level, closeness, fullness) VALUES (?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, ItemInfoProvider.getInstance().getName(petItemId));
 			ps.setInt(2, 1);
 			ps.setInt(3, 0);

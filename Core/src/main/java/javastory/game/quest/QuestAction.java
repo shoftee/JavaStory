@@ -160,7 +160,7 @@ public class QuestAction implements Serializable {
 					//}
 					c.getClient().write(ChannelPackets.getShowItemGain(id, count, true));
 				} else { // add items
-				//			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
+					//			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
 					InventoryManipulator.addById(c.getClient(), id, count/*, "", -1, 0*/);
 					c.getClient().write(ChannelPackets.getShowItemGain(id, count, true));
 				}
@@ -382,7 +382,7 @@ public class QuestAction implements Serializable {
 					InventoryManipulator.removeById(c.getClient(), c.getInventoryForItem(id), id, (count * -1), true, false);
 					c.getClient().write(ChannelPackets.getShowItemGain(id, count, true));
 				} else { // add items
-				//			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
+					//			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
 					InventoryManipulator.addById(c.getClient(), id, count, ""/*, -1, period * 60 * 1000*/);
 					c.getClient().write(ChannelPackets.getShowItemGain(id, count, true));
 				}

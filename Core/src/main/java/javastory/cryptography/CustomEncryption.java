@@ -11,8 +11,7 @@ public class CustomEncryption {
 	}
 
 	/**
-	 * Encrypts a byte array.
-	 * The specified array will be modified.
+	 * Encrypts a byte array. The specified array will be modified.
 	 * 
 	 * @param data
 	 *            the array to encrypt
@@ -34,8 +33,7 @@ public class CustomEncryption {
 		}
 	}
 
-	private static void oddEncryptTransform(final byte[] data,
-			final int length, byte lengthByte) {
+	private static void oddEncryptTransform(final byte[] data, final int length, byte lengthByte) {
 		byte remember = 0;
 		for (int i = length - 1; i >= 0; i--) {
 			byte current = rollLeft(data[i], 4);
@@ -52,8 +50,7 @@ public class CustomEncryption {
 		}
 	}
 
-	private static void evenEncryptTransform(final byte[] data,
-			final int length, byte lengthByte) {
+	private static void evenEncryptTransform(final byte[] data, final int length, byte lengthByte) {
 		byte remember = 0;
 		for (int i = 0; i < length; i++) {
 			byte current = rollLeft(data[i], 3);
@@ -72,8 +69,7 @@ public class CustomEncryption {
 	}
 
 	/**
-	 * Decrypts a byte array.
-	 * The specified array will be modified.
+	 * Decrypts a byte array. The specified array will be modified.
 	 * 
 	 * @param data
 	 *            the array to decrypt
@@ -95,8 +91,7 @@ public class CustomEncryption {
 		}
 	}
 
-	private static void oddDecryptTransform(final byte[] data,
-			final int length, byte lengthByte) {
+	private static void oddDecryptTransform(final byte[] data, final int length, byte lengthByte) {
 		byte remember = 0;
 		for (int i = length - 1; i >= 0; i--) {
 			byte current = rollLeft(data[i], 3);
@@ -113,8 +108,7 @@ public class CustomEncryption {
 		}
 	}
 
-	private static void evenDecryptTransform(final byte[] data,
-			final int length, byte lengthByte) {
+	private static void evenDecryptTransform(final byte[] data, final int length, byte lengthByte) {
 		byte remember = 0;
 		for (int i = 0; i < length; i++) {
 			byte current = data[i];

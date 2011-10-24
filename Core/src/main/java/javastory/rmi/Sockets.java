@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package javastory.rmi;
 
 import java.rmi.server.RMIClientSocketFactory;
@@ -11,21 +7,19 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 /**
- *
+ * 
  * @author shoftee
  */
 public final class Sockets {
 
-    private final static RMIServerSocketFactory serverFactory =
-            new SslRMIServerSocketFactory();
-    private final static RMIClientSocketFactory clientFactory =
-            new SslRMIClientSocketFactory();
+	private final static RMIServerSocketFactory serverFactory = new SslRMIServerSocketFactory();
+	private final static RMIClientSocketFactory clientFactory = new SslRMIClientSocketFactory();
 
-    public static RMIServerSocketFactory getServerFactory() {
-        return serverFactory;
-    }
+	public static RMIServerSocketFactory getServerFactory() {
+		return serverFactory;
+	}
 
-    public static RMIClientSocketFactory getClientFactory() {
-        return clientFactory;
-    }
+	public static RMIClientSocketFactory getClientFactory() {
+		return clientFactory;
+	}
 }

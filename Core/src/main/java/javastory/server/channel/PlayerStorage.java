@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,6 +18,8 @@ import javastory.server.TimerManager;
 import javastory.world.core.CheaterData;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.MapEvictionListener;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 
 public class PlayerStorage {
@@ -26,16 +30,14 @@ public class PlayerStorage {
 	private final Map<String, ChannelCharacter> nameToChar = Maps.newHashMap();
 	private final Map<Integer, ChannelCharacter> idToChar = Maps.newHashMap();
 	private final Map<Integer, String> sessions = Maps.newHashMap();
-	private final Map<Integer, CharacterTransfer> pendingTransfers = Maps
-			.newHashMap();
+	
+	private final Map<Integer, CharacterTransfer> pendingTransfers;
 
 	public PlayerStorage() {
-		// Prune once every 15 minutes
-		TimerManager.getInstance().schedule(new PersistingTask(), 900000);
+		pendingTransfers = new MapMaker().expireAfterWrite(1, TimeUnit.MINUTES).evictionListener(new EvictionListener()).makeMap();
 	}
 
-	public final boolean registerSession(final int characterId,
-			final String sessionIP) {
+	public final boolean registerSession(final int characterId, final String sessionIP) {
 		Preconditions.checkNotNull(sessionIP);
 
 		sessionsLock.lock();
@@ -59,8 +61,7 @@ public class PlayerStorage {
 		}
 	}
 
-	public final boolean checkSession(final int characterId,
-			final String sessionIP) {
+	public final boolean checkSession(final int characterId, final String sessionIP) {
 		Preconditions.checkNotNull(sessionIP);
 
 		sessionsLock.lock();
@@ -71,8 +72,7 @@ public class PlayerStorage {
 		}
 	}
 
-	public final void registerTransfer(final CharacterTransfer chr,
-			final int characterId) {
+	public final void registerTransfer(final CharacterTransfer chr, final int characterId) {
 		pendingPlayerLock.lock();
 		try {
 			pendingTransfers.put(characterId, chr);
@@ -135,8 +135,7 @@ public class PlayerStorage {
 
 		activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values()
-					.iterator();
+			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -149,8 +148,7 @@ public class PlayerStorage {
 				final String summary = chr.getCheatTracker().getSummary();
 				final String readableName = chr.getName().toUpperCase();
 
-				final String description = String.format("%s (%d) %s",
-						readableName, points, summary);
+				final String description = String.format("%s (%d) %s", readableName, points, summary);
 
 				cheaters.add(new CheaterData(points, description));
 			}
@@ -163,8 +161,7 @@ public class PlayerStorage {
 	public final void disconnectAll() {
 		activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values()
-					.iterator();
+			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -185,8 +182,7 @@ public class PlayerStorage {
 		if (byGM) {
 			activePlayerLock.lock();
 			try {
-				final Iterator<ChannelCharacter> itr = nameToChar.values()
-						.iterator();
+				final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 				ChannelCharacter character = itr.next();
 				while (itr.hasNext()) {
 					sb.append(character.getWorldName().toUpperCase());
@@ -198,8 +194,7 @@ public class PlayerStorage {
 		} else {
 			activePlayerLock.lock();
 			try {
-				final Iterator<ChannelCharacter> itr = nameToChar.values()
-						.iterator();
+				final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 				ChannelCharacter chr;
 				while (itr.hasNext()) {
 					chr = itr.next();
@@ -218,8 +213,7 @@ public class PlayerStorage {
 	public final void broadcastPacket(final GamePacket data) {
 		activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values()
-					.iterator();
+			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 			while (itr.hasNext()) {
 				itr.next().getClient().write(data);
 			}
@@ -231,8 +225,7 @@ public class PlayerStorage {
 	public final void broadcastSmegaPacket(final GamePacket data) {
 		activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values()
-					.iterator();
+			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -249,14 +242,12 @@ public class PlayerStorage {
 	public final void broadcastGMPacket(final GamePacket data) {
 		activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values()
-					.iterator();
+			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
 
-				if (chr.getClient().isLoggedIn() && chr.isGM()
-						&& chr.isCallGM()) {
+				if (chr.getClient().isLoggedIn() && chr.isGM() && chr.isCallGM()) {
 					chr.getClient().write(data);
 				}
 			}
@@ -265,30 +256,10 @@ public class PlayerStorage {
 		}
 	}
 
-	public class PersistingTask implements Runnable {
-
+	private final class EvictionListener implements MapEvictionListener<Integer, CharacterTransfer> {
 		@Override
-		public void run() {
-			pendingPlayerLock.lock();
-			try {
-				final long currenttime = System.currentTimeMillis();
-				final Iterator<Map.Entry<Integer, CharacterTransfer>> itr = pendingTransfers
-						.entrySet().iterator();
-
-				while (itr.hasNext()) {
-					final Entry<Integer, CharacterTransfer> current = itr
-							.next();
-					if (currenttime - current.getValue().TranferTime > 40000) { // 40
-																				// sec
-						itr.remove();
-						deregisterSession(current.getKey());
-					}
-				}
-				TimerManager.getInstance().schedule(new PersistingTask(),
-						900000);
-			} finally {
-				pendingPlayerLock.unlock();
-			}
+		public void onEviction(Integer key, CharacterTransfer value) {
+			deregisterSession(key);
 		}
 	}
 

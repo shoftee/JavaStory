@@ -27,13 +27,13 @@ public final class MapNameInfoProvider {
 	public MapNameInfo getInfo(int mapId) {
 		final String path = getMapAreaDataPath(mapId);
 		final WzData data = nameData.getChildByPath(path);
-		
+
 		if (data == null) {
 			return null;
 		}
-		
+
 		MapNameInfo info = new MapNameInfo(data);
-		
+
 		this.cache.put(Integer.valueOf(mapId), info);
 		return info;
 	}

@@ -177,11 +177,9 @@ public enum ServerPacketOpcode implements WritableIntValueHolder {
 		return code;
 	}
 
-	public static Properties getDefaultProperties()
-			throws FileNotFoundException, IOException {
+	public static Properties getDefaultProperties() throws FileNotFoundException, IOException {
 		Properties props = new Properties();
-		FileInputStream fileInputStream =
-				new FileInputStream("serveropcodes.properties");
+		FileInputStream fileInputStream = new FileInputStream("serveropcodes.properties");
 		props.load(fileInputStream);
 		fileInputStream.close();
 		return props;
@@ -193,9 +191,7 @@ public enum ServerPacketOpcode implements WritableIntValueHolder {
 
 	public static final void reloadValues() {
 		try {
-			ExternalCodeTableGetter.populateValues(
-													getDefaultProperties(),
-													values());
+			ExternalCodeTableGetter.populateValues(getDefaultProperties(), values());
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load server op codes", e);
 		}

@@ -37,8 +37,7 @@ import javastory.world.core.WorldRegistry;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
-public class WorldRegistryImpl extends GenericRemoteObject implements
-		WorldRegistry {
+public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegistry {
 
 	private static final long serialVersionUID = -5170574938159280746L;
 	private static WorldRegistryImpl instance = null;
@@ -63,8 +62,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		super();
 
 		Connection con = Database.getConnection();
-		try (PreparedStatement ps = con
-				.prepareStatement("SELECT MAX(party)+1 FROM characters");
+		try (	PreparedStatement ps = con.prepareStatement("SELECT MAX(party)+1 FROM characters");
 				ResultSet rs = ps.executeQuery()) {
 			rs.next();
 			runningPartyId.set(rs.getInt(1));
@@ -110,12 +108,10 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		return status;
 	}
 
-	public WorldChannelInterface registerChannelServer(ChannelInfo info,
-			final ChannelWorldInterface channel) throws RemoteException {
+	public WorldChannelInterface registerChannelServer(ChannelInfo info, final ChannelWorldInterface channel) throws RemoteException {
 		int id = info.getId();
 		if (isChannelActive(id)) {
-			throw new IllegalStateException(
-					"The specified channel slot is already active.");
+			throw new IllegalStateException("The specified channel slot is already active.");
 		}
 		channels.put(id, channel);
 		WorldChannelInterface ret = new WorldChannelInterfaceImpl(channel, id);
@@ -124,8 +120,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 
 	public void deregisterChannelServer(int channelId) throws RemoteException {
 		if (!isChannelActive(channelId)) {
-			throw new IllegalStateException(
-					"The specified channel slot is not currently active.");
+			throw new IllegalStateException("The specified channel slot is not currently active.");
 		}
 
 		channels.remove(channelId);
@@ -137,11 +132,9 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		System.out.println("Channel " + channelId + " is offline.");
 	}
 
-	public WorldLoginInterface registerLoginServer(
-			final LoginWorldInterface login) throws RemoteException {
+	public WorldLoginInterface registerLoginServer(final LoginWorldInterface login) throws RemoteException {
 		if (isLoginActive()) {
-			throw new IllegalStateException(
-					"The login server is already active.");
+			throw new IllegalStateException("The login server is already active.");
 		}
 		WorldLoginInterface ret = new WorldLoginInterfaceImpl();
 
@@ -153,11 +146,9 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		return ret;
 	}
 
-	public void deregisterLoginServer(LoginWorldInterface cb)
-			throws RemoteException {
+	public void deregisterLoginServer(LoginWorldInterface cb) throws RemoteException {
 		if (!isLoginActive()) {
-			throw new IllegalStateException(
-					"The login server is not currently active.");
+			throw new IllegalStateException("The login server is not currently active.");
 		}
 		logins.remove(cb);
 	}
@@ -195,14 +186,13 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 
 	public final String getStatus() throws RemoteException {
 		StringBuilder ret = new StringBuilder();
-		List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(
-				channels.entrySet());
+		List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(channels.entrySet());
 		int totalUsers = 0;
 		for (final Entry<Integer, ChannelWorldInterface> cs : channelServers) {
 			ret.append("Channel ");
 			ret.append(cs.getKey());
 			try {
-				cs.getValue().isAvailable();
+				cs.getValue().ping();
 				ret.append(": online, ");
 				int channelUsers = cs.getValue().getConnected();
 				totalUsers += channelUsers;
@@ -254,10 +244,8 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		return guild;
 	}
 
-	public void setGuildMemberOnline(final GuildMember mgc,
-			final boolean bOnline, final int channel) {
-		getGuild(mgc.getGuildId()).setOnline(mgc.getCharacterId(), bOnline,
-				channel);
+	public void setGuildMemberOnline(final GuildMember mgc, final boolean bOnline, final int channel) {
+		getGuild(mgc.getGuildId()).setOnline(mgc.getCharacterId(), bOnline, channel);
 	}
 
 	public final boolean addGuildMember(final GuildMember mgc) {
@@ -272,65 +260,56 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		}
 	}
 
-	public void guildChat(final int gid, final String name, final int cid,
-			final String msg) throws RemoteException {
+	public void guildChat(final int gid, final String name, final int cid, final String msg) throws RemoteException {
 		final Guild guild = guilds.get(gid);
 		if (guild != null) {
 			guild.guildChat(name, cid, msg);
 		}
 	}
 
-	public void changeRank(final int gid, final int cid,
-			final MemberRank newRank) throws RemoteException {
+	public void changeRank(final int gid, final int cid, final MemberRank newRank) throws RemoteException {
 		final Guild guild = guilds.get(gid);
 		if (guild != null) {
 			guild.changeRank(cid, newRank);
 		}
 	}
 
-	public void expelMember(final GuildMember initiator, final int cid)
-			throws RemoteException {
+	public void expelMember(final GuildMember initiator, final int cid) throws RemoteException {
 		final Guild guild = guilds.get(initiator.getGuildId());
 		if (guild != null) {
 			guild.expelMember(initiator, cid);
 		}
 	}
 
-	public void setGuildNotice(final int gid, final String notice)
-			throws RemoteException {
+	public void setGuildNotice(final int gid, final String notice) throws RemoteException {
 		final Guild guild = guilds.get(gid);
 		if (guild != null) {
 			guild.setGuildNotice(notice);
 		}
 	}
 
-	public void updateGuildMemberLevel(int guildId, int characterId, int level)
-			throws RemoteException {
+	public void updateGuildMemberLevel(int guildId, int characterId, int level) throws RemoteException {
 		final Guild guild = guilds.get(guildId);
 		if (guild != null) {
 			guild.updateMemberLevel(characterId, level);
 		}
 	}
 
-	public void updateGuildMemberJob(int guildId, int characterId, int jobId)
-			throws RemoteException {
+	public void updateGuildMemberJob(int guildId, int characterId, int jobId) throws RemoteException {
 		final Guild guild = guilds.get(guildId);
 		if (guild != null) {
 			guild.updateMemberJob(characterId, jobId);
 		}
 	}
 
-	public void changeRankTitle(final int gid, final String[] ranks)
-			throws RemoteException {
+	public void changeRankTitle(final int gid, final String[] ranks) throws RemoteException {
 		final Guild guild = guilds.get(gid);
 		if (guild != null) {
 			guild.changeRankTitle(ranks);
 		}
 	}
 
-	public void setGuildEmblem(final int gid, final short bg,
-			final byte bgcolor, final short logo, final byte logocolor)
-			throws RemoteException {
+	public void setGuildEmblem(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) throws RemoteException {
 		final Guild guild = guilds.get(gid);
 		if (guild != null) {
 			guild.setGuildEmblem(bg, bgcolor, logo, logocolor);
@@ -347,8 +326,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		}
 	}
 
-	public final boolean increaseGuildCapacity(final int guildId)
-			throws RemoteException {
+	public final boolean increaseGuildCapacity(final int guildId) throws RemoteException {
 		final Guild guild = guilds.get(guildId);
 		if (guild != null) {
 			return guild.increaseCapacity();
@@ -356,29 +334,25 @@ public class WorldRegistryImpl extends GenericRemoteObject implements
 		return false;
 	}
 
-	public void gainGP(final int guildId, final int amount)
-			throws RemoteException {
+	public void gainGP(final int guildId, final int amount) throws RemoteException {
 		final Guild guild = guilds.get(guildId);
 		if (guild != null) {
 			guild.gainGuildPoints(amount);
 		}
 	}
 
-	public final Messenger createMessenger(final MessengerMember chrfor)
-			throws RemoteException {
+	public final Messenger createMessenger(final MessengerMember chrfor) throws RemoteException {
 		final int messengerid = runningMessengerId.getAndIncrement();
 		final Messenger messenger = new Messenger(messengerid, chrfor);
 		messengers.put(messenger.getId(), messenger);
 		return messenger;
 	}
 
-	public final Messenger getMessenger(final int messengerid)
-			throws RemoteException {
+	public final Messenger getMessenger(final int messengerid) throws RemoteException {
 		return messengers.get(messengerid);
 	}
 
-	public final PlayerBuffStorage getPlayerBuffStorage()
-			throws RemoteException {
+	public final PlayerBuffStorage getPlayerBuffStorage() throws RemoteException {
 		return buffStorage;
 	}
 }

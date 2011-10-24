@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -39,7 +37,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 
 	// Since player can have more than 1 summon [Pirate]
 	// Let's put it here instead of cheat tracker
-	
+
 	// TS NOTE: Yes, let's make the code worse. Jackass.
 	private int lastSummonTickCount;
 	private byte Summon_tickResetCount;
@@ -57,7 +55,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 		setPosition(pos);
 
 		// Safe up 12 bytes of data, since puppet doesn't attack.
-		if (!isPuppet()) { 
+		if (!isPuppet()) {
 			// TS NOTE: These are 13 bytes. And they're automatically initialized to 0 anyways. Moron.
 			lastSummonTickCount = 0;
 			Summon_tickResetCount = 0;

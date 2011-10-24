@@ -2,7 +2,7 @@ package javastory.server;
 
 public class CashItemInfo {
 	private int itemId, count, price, period;
-	
+
 	public CashItemInfo(int itemId, int count, int price, int period) {
 		this.itemId = itemId;
 		this.count = count;

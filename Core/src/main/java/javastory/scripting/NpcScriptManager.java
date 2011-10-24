@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -54,8 +52,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 				if (iv == null) {
 					return;
 				}
-				final NpcConversationManager cm =
-						new NpcConversationManager(c, npc, -1, (byte) -1);
+				final NpcConversationManager cm = new NpcConversationManager(c, npc, -1, (byte) -1);
 				managers.put(c, cm);
 				scriptengine.put("cm", cm);
 
@@ -72,21 +69,18 @@ public final class NpcScriptManager extends AbstractScriptManager {
 			}
 		} catch (final ScriptException | NoSuchMethodException e) {
 			e.printStackTrace();
-			System.err.println("Error executing NPC script, NPC ID : " + npc +
-					"." + e);
+			System.err.println("Error executing NPC script, NPC ID : " + npc + "." + e);
 			dispose(c);
 		}
 	}
 
-	public final void action(final ChannelClient c, final byte mode,
-			final byte type, final int selection) {
+	public final void action(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		if (mode != -1) {
 			try {
 				if (managers.get(c).isPendingDisposal()) {
 					dispose(c);
 				} else {
-					scripts.get(c).invokeFunction("action", mode, type,
-													selection);
+					scripts.get(c).invokeFunction("action", mode, type, selection);
 				}
 			} catch (final ScriptException | NoSuchMethodException e) {
 				e.printStackTrace();
@@ -96,8 +90,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 		}
 	}
 
-	public final void startQuest(final ChannelClient c, final int npc,
-			final int quest) {
+	public final void startQuest(final ChannelClient c, final int npc, final int quest) {
 		if (!QuestInfoProvider.getInfo(quest).canStart(c.getPlayer(), npc)) {
 			return;
 		}
@@ -108,11 +101,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 				if (iv == null) {
 					return;
 				}
-				final NpcConversationManager cm = new NpcConversationManager(
-																				c,
-																				npc,
-																				quest,
-																				(byte) 0);
+				final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 0);
 				managers.put(c, cm);
 				scriptengine.put("qm", cm);
 
@@ -125,14 +114,12 @@ public final class NpcScriptManager extends AbstractScriptManager {
 																	// something
 			}
 		} catch (final Exception e) {
-			System.err.println("Error executing Quest script. (" + quest + ")" +
-					e);
+			System.err.println("Error executing Quest script. (" + quest + ")" + e);
 			dispose(c);
 		}
 	}
 
-	public final void startQuest(final ChannelClient c, final byte mode,
-			final byte type, final int selection) {
+	public final void startQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		try {
 			if (managers.get(c).isPendingDisposal()) {
 				dispose(c);
@@ -144,8 +131,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 		}
 	}
 
-	public final void endQuest(final ChannelClient c, final int npc,
-			final int quest, final boolean customEnd) {
+	public final void endQuest(final ChannelClient c, final int npc, final int quest, final boolean customEnd) {
 		QuestInfo info = QuestInfoProvider.getInfo(quest);
 		boolean canComplete = info.canComplete(c.getPlayer(), npc);
 		if (!customEnd && canComplete) {
@@ -158,11 +144,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 				if (iv == null) {
 					return;
 				}
-				final NpcConversationManager cm = new NpcConversationManager(
-																				c,
-																				npc,
-																				quest,
-																				(byte) 1);
+				final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 1);
 				managers.put(c, cm);
 				scriptengine.put("qm", cm);
 
@@ -175,15 +157,13 @@ public final class NpcScriptManager extends AbstractScriptManager {
 																	// something
 			}
 		} catch (ScriptException | NoSuchMethodException e) {
-			System.err.println("Error executing Quest script. (" + quest + ")" +
-					e);
+			System.err.println("Error executing Quest script. (" + quest + ")" + e);
 		} finally {
 			dispose(c);
 		}
 	}
 
-	public final void endQuest(final ChannelClient c, final byte mode,
-			final byte type, final int selection) {
+	public final void endQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		try {
 			if (managers.get(c).isPendingDisposal()) {
 				dispose(c);
@@ -204,11 +184,9 @@ public final class NpcScriptManager extends AbstractScriptManager {
 			scripts.remove(manager.getClient());
 
 			if (manager.getType() == -1) {
-				c.removeScriptEngine("scripts/npc/" + manager.getNpcId()
-						+ ".js");
+				c.removeScriptEngine("scripts/npc/" + manager.getNpcId() + ".js");
 			} else {
-				c.removeScriptEngine("scripts/quest/" + manager.getQuest() +
-						".js");
+				c.removeScriptEngine("scripts/quest/" + manager.getQuest() + ".js");
 			}
 		}
 		if (c.getPlayer().getConversationState() == 1) {
@@ -216,8 +194,7 @@ public final class NpcScriptManager extends AbstractScriptManager {
 		}
 	}
 
-	public final NpcConversationManager getConversationManager(
-			final ChannelClient client) {
+	public final NpcConversationManager getConversationManager(final ChannelClient client) {
 		return managers.get(client);
 	}
 }

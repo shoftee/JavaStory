@@ -39,7 +39,7 @@ public class Foothold implements Comparable<Foothold> {
 		this.p2 = new Point(x2, y2);
 
 		this.id = Integer.parseInt(data.getName());
-		
+
 		this.nextId = (short) WzDataTool.getInt("next", data);
 		this.prevId = (short) WzDataTool.getInt("prev", data);
 	}

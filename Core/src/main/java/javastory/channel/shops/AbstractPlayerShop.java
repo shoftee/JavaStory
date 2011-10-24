@@ -1,6 +1,5 @@
 package javastory.channel.shops;
 
-
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,8 +19,7 @@ import javastory.game.IItem;
 import javastory.game.ItemType;
 import javastory.io.GamePacket;
 
-public abstract class AbstractPlayerShop extends AbstractGameMapObject
-		implements PlayerShop {
+public abstract class AbstractPlayerShop extends AbstractGameMapObject implements PlayerShop {
 
 	private boolean open;
 	private String ownerName, des;
@@ -96,9 +94,8 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 	public boolean saveItems() {
 		Connection con = Database.getConnection();
 		try {
-			PreparedStatement ps = con
-					.prepareStatement(	"INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)",
-										Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = con.prepareStatement("INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, ownerId);
 			ps.setInt(2, owneraccount);
 			ps.setInt(3, meso.get());
@@ -122,7 +119,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 
 				if (item.getType() == ItemType.EQUIP) { // equips
 					ps2 = con
-							.prepareStatement("INSERT INTO hiredmerchitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+						.prepareStatement("INSERT INTO hiredmerchitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 					final Equip eq = (Equip) item;
 					ps2.setInt(1, packageid);
 					ps2.setInt(2, eq.getItemId());
@@ -153,7 +150,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 					ps2.setInt(27, eq.getItemEXP());
 				} else {
 					ps2 = con
-							.prepareStatement("INSERT INTO hiredmerchitems (PackageId, itemid, quantity, owner, GM_Log, flag, expiredate) VALUES (?, ?, ?, ?, ?, ?, ?)");
+						.prepareStatement("INSERT INTO hiredmerchitems (PackageId, itemid, quantity, owner, GM_Log, flag, expiredate) VALUES (?, ?, ?, ?, ?, ?, ?)");
 					ps2.setInt(1, packageid);
 					ps2.setInt(2, item.getItemId());
 					ps2.setInt(3, pItems.bundles * item.getQuantity());
@@ -189,16 +186,10 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 			if (i == 3) {
 				if (getShopType() == 1) {
 					final HiredMerchantStore hiredMerchant = (HiredMerchantStore) this;
-					(hiredMerchant)
-							.getMap()
-							.broadcastMessage(	PlayerShopPacket
-														.updateHiredMerchant(hiredMerchant));
+					(hiredMerchant).getMap().broadcastMessage(PlayerShopPacket.updateHiredMerchant(hiredMerchant));
 				} else {
-					final ChannelCharacter owner = ((GenericPlayerStore) this)
-							.getMCOwner();
-					owner.getMap()
-							.broadcastMessage(	PlayerShopPacket
-														.sendPlayerShopBox(owner));
+					final ChannelCharacter owner = ((GenericPlayerStore) this).getMCOwner();
+					owner.getMap().broadcastMessage(PlayerShopPacket.sendPlayerShopBox(owner));
 				}
 			}
 		}
@@ -215,16 +206,10 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 			if (shouldUpdate) {
 				if (getShopType() == 1) {
 					final HiredMerchantStore hiredMerchant = (HiredMerchantStore) this;
-					hiredMerchant
-							.getMap()
-							.broadcastMessage(	PlayerShopPacket
-														.updateHiredMerchant(hiredMerchant));
+					hiredMerchant.getMap().broadcastMessage(PlayerShopPacket.updateHiredMerchant(hiredMerchant));
 				} else {
-					final ChannelCharacter owner = ((GenericPlayerStore) this)
-							.getMCOwner();
-					owner.getMap()
-							.broadcastMessage(	PlayerShopPacket
-														.sendPlayerShopBox(owner));
+					final ChannelCharacter owner = ((GenericPlayerStore) this).getMCOwner();
+					owner.getMap().broadcastMessage(PlayerShopPacket.sendPlayerShopBox(owner));
 				}
 			}
 		}
@@ -248,9 +233,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject
 			ChannelCharacter visitor = getVisitor(i);
 			if (visitor != null) {
 				if (type != -1) {
-					visitor.getClient()
-							.write(	PlayerShopPacket.shopErrorMessage(	error,
-																		type));
+					visitor.getClient().write(PlayerShopPacket.shopErrorMessage(error, type));
 				}
 				visitor.setPlayerShop(null);
 				visitors[i - 1] = new WeakReference<>(null);

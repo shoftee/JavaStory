@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -30,8 +28,8 @@ import java.util.Random;
  * Provides cryptographic functions for password hashing.
  * 
  * Legacy purpose as the method done here is insecure by hashing multiple times
- * and overly complicated. Will go away
- * when/if official oms has no more users with legacy passhashes.
+ * and overly complicated. Will go away when/if official oms has no more users
+ * with legacy passhashes.
  * 
  * @author Nol888
  * @version 0.1
@@ -103,8 +101,7 @@ public class LoginCryptoLegacy {
 	 * @return The salted SHA1 hash of password.
 	 * @throws RuntimeException
 	 */
-	private static final String myCrypt(String password, String seed)
-			throws RuntimeException {
+	private static final String myCrypt(String password, String seed) throws RuntimeException {
 		String out = null;
 		int count = 8;
 		MessageDigest digester;
@@ -126,16 +123,12 @@ public class LoginCryptoLegacy {
 		try {
 			digester = MessageDigest.getInstance("SHA-1");
 
-			digester.update((salt + password).getBytes("iso-8859-1"), 0,
-							(salt + password).length());
+			digester.update((salt + password).getBytes("iso-8859-1"), 0, (salt + password).length());
 			sha1Hash = digester.digest();
 			do {
-				byte[] CombinedBytes = new byte[sha1Hash.length
-						+ password.length()];
+				byte[] CombinedBytes = new byte[sha1Hash.length + password.length()];
 				System.arraycopy(sha1Hash, 0, CombinedBytes, 0, sha1Hash.length);
-				System.arraycopy(	password.getBytes("iso-8859-1"), 0,
-									CombinedBytes, sha1Hash.length, password
-											.getBytes("iso-8859-1").length);
+				System.arraycopy(password.getBytes("iso-8859-1"), 0, CombinedBytes, sha1Hash.length, password.getBytes("iso-8859-1").length);
 				digester.update(CombinedBytes, 0, CombinedBytes.length);
 				sha1Hash = digester.digest();
 			} while (--count > 0);
@@ -184,8 +177,7 @@ public class LoginCryptoLegacy {
 		return buf.toString();
 	}
 
-	public static final String encodeSHA1(final String text)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static final String encodeSHA1(final String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		final MessageDigest md = MessageDigest.getInstance("SHA-1");
 		byte[] sha1hash = new byte[40];
 		md.update(text.getBytes("iso-8859-1"), 0, text.length());

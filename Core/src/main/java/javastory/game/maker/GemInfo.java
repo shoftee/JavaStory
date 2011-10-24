@@ -1,6 +1,5 @@
 package javastory.game.maker;
 
-
 public class GemInfo {
 
 	private int reqLevel, reqMakerLevel;
@@ -8,8 +7,7 @@ public class GemInfo {
 	private RandomRewardFactory rewards;
 	private ItemRecipe recipe;
 
-	public GemInfo(RandomRewardFactory rewards, ItemRecipe recipe,
-			int cost, int reqLevel, int reqMakerLevel, int quantity) {
+	public GemInfo(RandomRewardFactory rewards, ItemRecipe recipe, int cost, int reqLevel, int reqMakerLevel, int quantity) {
 		this.rewards = rewards;
 		this.recipe = recipe;
 

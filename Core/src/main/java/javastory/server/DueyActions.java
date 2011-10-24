@@ -4,50 +4,50 @@ import javastory.game.IItem;
 
 public class DueyActions {
 
-    private String sender = null;
-    private IItem item = null;
-    private int mesos = 0;
-    private int quantity = 1;
-    private long sentTime;
-    private int packageId = 0;
+	private String sender = null;
+	private IItem item = null;
+	private int mesos = 0;
+	private int quantity = 1;
+	private long sentTime;
+	private int packageId = 0;
 
-    public DueyActions(int pId, IItem item) {
-        this.item = item;
-        this.quantity = item.getQuantity();
-        packageId = pId;
-    }
+	public DueyActions(int pId, IItem item) {
+		this.item = item;
+		this.quantity = item.getQuantity();
+		packageId = pId;
+	}
 
-    public DueyActions(int pId) { // meso only package
-        this.packageId = pId;
-    }
+	public DueyActions(int pId) { // meso only package
+		this.packageId = pId;
+	}
 
-    public String getSender() {
-        return sender;
-    }
+	public String getSender() {
+		return sender;
+	}
 
-    public void setSender(String name) {
-        sender = name;
-    }
+	public void setSender(String name) {
+		sender = name;
+	}
 
-    public IItem getItem() {
-        return item;
-    }
+	public IItem getItem() {
+		return item;
+	}
 
-    public int getMesos() {
-        return mesos;
-    }
+	public int getMesos() {
+		return mesos;
+	}
 
-    public void setMesos(int set) {
-        mesos = set;
-    }
+	public void setMesos(int set) {
+		mesos = set;
+	}
 
-    public int getQuantity() {
-        return quantity;
-    }
+	public int getQuantity() {
+		return quantity;
+	}
 
-    public int getPackageId() {
-        return packageId;
-    }
+	public int getPackageId() {
+		return packageId;
+	}
 
 /*    public boolean isExpired() {
         Calendar cal1 = Calendar.getInstance();
@@ -63,11 +63,11 @@ public class DueyActions {
         return cal.getTimeInMillis();
     }*/
 
-    public void setSentTime(long sentTime) {
-	this.sentTime = sentTime;
-    }
+	public void setSentTime(long sentTime) {
+		this.sentTime = sentTime;
+	}
 
-    public long getSentTime() {
-	return sentTime;
-    }
+	public long getSentTime() {
+		return sentTime;
+	}
 }

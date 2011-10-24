@@ -87,7 +87,8 @@ public final class AutobanManager implements Runnable {
 				sb.append(", ");
 			}
 			try {
-				ChannelServer.getWorldInterface().broadcastMessage(ChannelPackets.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
+				ChannelServer.getWorldInterface().broadcastMessage(
+					ChannelPackets.serverNotice(0, "[Autoban] " + player.getName() + " banned by the system (Last reason: " + reason + ")").getBytes());
 			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
 			}

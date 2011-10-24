@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -39,16 +37,14 @@ public class ReactorFactory {
 		ReactorInfo stats = reactorStats.get(Integer.valueOf(rid));
 		if (stats == null) {
 			int infoId = rid;
-			WzData reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) +
-					".img", '0', 11));
+			WzData reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
 			WzData link = reactorData.getChildByPath("info/link");
 			if (link != null) {
 				infoId = WzDataTool.getIntConvert("info/link", reactorData);
 				stats = reactorStats.get(Integer.valueOf(infoId));
 			}
 			if (stats == null) {
-				reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) +
-						".img", '0', 11));
+				reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
 				WzData reactorInfoData = reactorData.getChildByPath("0/event/0");
 				stats = new ReactorInfo();
 
@@ -59,9 +55,8 @@ public class ReactorFactory {
 						Pair<Integer, Integer> reactItem = null;
 						int type = WzDataTool.getIntConvert("type", reactorInfoData);
 						if (type == 100) { // reactor waits for item
-							reactItem = new Pair<Integer, Integer>(
-																	WzDataTool.getIntConvert("0", reactorInfoData),
-																	WzDataTool.getIntConvert("1", reactorInfoData));
+							reactItem = new Pair<Integer, Integer>(WzDataTool.getIntConvert("0", reactorInfoData), WzDataTool.getIntConvert("1",
+								reactorInfoData));
 							if (!areaSet) { // only set area of effect for
 											// item-triggered reactors once
 								stats.setTopLeft(WzDataTool.getPoint("lt", reactorInfoData));
@@ -71,8 +66,7 @@ public class ReactorFactory {
 						}
 						stats.addState((byte) i, type, reactItem, (byte) WzDataTool.getIntConvert("state", reactorInfoData));
 						i++;
-						reactorInfoData = reactorData.getChildByPath(i +
-								"/event/0");
+						reactorInfoData = reactorData.getChildByPath(i + "/event/0");
 					}
 				} else { // sit there and look pretty; likely a reactor such as
 							// Zakum/Papulatus doors that shows if player can

@@ -1,6 +1,5 @@
 package javastory.channel.packet;
 
-
 import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +26,7 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket damageFriendlyMob(final Monster mob,
-			final int damage) {
+	public static GamePacket damageFriendlyMob(final Monster mob, final int damage) {
 		PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DAMAGE_MONSTER.getValue());
@@ -87,9 +85,8 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveMonster(boolean useskill, int skill,
-			int skill1, int skill2, int skill3, int skill4, int oid,
-			Point startPos, List<LifeMovementFragment> moves) {
+	public static GamePacket moveMonster(boolean useskill, int skill, int skill1, int skill2, int skill3, int skill4, int oid, Point startPos,
+		List<LifeMovementFragment> moves) {
 		PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MOVE_MONSTER.getValue());
@@ -109,16 +106,14 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	private static void serializeMovementList(PacketBuilder builder,
-			List<LifeMovementFragment> moves) {
+	private static void serializeMovementList(PacketBuilder builder, List<LifeMovementFragment> moves) {
 		builder.writeAsByte(moves.size());
 		for (LifeMovementFragment move : moves) {
 			move.serialize(builder);
 		}
 	}
 
-	public static GamePacket spawnMonster(Monster life, int spawnType,
-			int effect, int link) {
+	public static GamePacket spawnMonster(Monster life, int spawnType, int effect, int link) {
 		PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER.getValue());
@@ -150,12 +145,10 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket controlMonster(Monster life, boolean newSpawn,
-			boolean aggro) {
+	public static GamePacket controlMonster(Monster life, boolean newSpawn, boolean aggro) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
 		builder.writeAsByte(aggro ? 2 : 1);
 		builder.writeInt(life.getObjectId());
 		builder.writeAsByte(1); // 1 = Control normal, 5 = Control none
@@ -178,8 +171,7 @@ public class MobPacket {
 	public static GamePacket stopControllingMonster(int oid) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
 		builder.writeAsByte(0);
 		builder.writeInt(oid);
 
@@ -189,8 +181,7 @@ public class MobPacket {
 	public static GamePacket makeMonsterInvisible(Monster life) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
 		builder.writeAsByte(0);
 		builder.writeInt(life.getObjectId());
 
@@ -218,12 +209,10 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveMonsterResponse(int objectid, short moveid,
-			int currentMp, boolean useSkills, int skillId, int skillLevel) {
+	public static GamePacket moveMonsterResponse(int objectid, short moveid, int currentMp, boolean useSkills, int skillId, int skillLevel) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.MOVE_MONSTER_RESPONSE
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.MOVE_MONSTER_RESPONSE.getValue());
 		builder.writeInt(objectid);
 		builder.writeAsShort(moveid);
 		builder.writeAsByte(useSkills ? 1 : 0);
@@ -254,21 +243,18 @@ public class MobPacket {
 		return mask;
 	}
 
-	private static void writeIntMask(PacketBuilder builder,
-			Map<MonsterStatus, Integer> stats) {
+	private static void writeIntMask(PacketBuilder builder, Map<MonsterStatus, Integer> stats) {
 		builder.writeLong(getSpecialLongMask(stats.keySet()));
 		builder.writeLong(getLongMask(stats.keySet()));
 	}
 
-	public static GamePacket applyMonsterStatus(final int oid,
-			final MonsterStatusEffect mse) {
+	public static GamePacket applyMonsterStatus(final int oid, final MonsterStatusEffect mse) {
 		PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.APPLY_MONSTER_STATUS.getValue());
 		builder.writeInt(oid);
 		writeIntMask(builder, mse.getEffects());
-		for (Map.Entry<MonsterStatus, Integer> stat : mse.getEffects()
-				.entrySet()) {
+		for (Map.Entry<MonsterStatus, Integer> stat : mse.getEffects().entrySet()) {
 			builder.writeAsShort(stat.getValue());
 			if (mse.isMonsterSkill()) {
 				builder.writeAsShort(mse.getMobSkill().getSkillId());
@@ -286,15 +272,13 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket applyMonsterStatus(final int oid,
-			final MonsterStatusEffect mse, final List<Integer> reflection) {
+	public static GamePacket applyMonsterStatus(final int oid, final MonsterStatusEffect mse, final List<Integer> reflection) {
 		PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.APPLY_MONSTER_STATUS.getValue());
 		builder.writeInt(oid);
 		writeIntMask(builder, mse.getEffects());
-		for (Map.Entry<MonsterStatus, Integer> stat : mse.getEffects()
-				.entrySet()) {
+		for (Map.Entry<MonsterStatus, Integer> stat : mse.getEffects().entrySet()) {
 			builder.writeAsShort(stat.getValue());
 			if (mse.isMonsterSkill()) {
 				builder.writeAsShort(mse.getMobSkill().getSkillId());
@@ -321,12 +305,10 @@ public class MobPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelMonsterStatus(int oid,
-			Map<MonsterStatus, Integer> stats) {
+	public static GamePacket cancelMonsterStatus(int oid, Map<MonsterStatus, Integer> stats) {
 		PacketBuilder builder = new PacketBuilder();
 
-		builder.writeAsShort(ServerPacketOpcode.CANCEL_MONSTER_STATUS
-				.getValue());
+		builder.writeAsShort(ServerPacketOpcode.CANCEL_MONSTER_STATUS.getValue());
 		builder.writeInt(oid);
 		writeIntMask(builder, stats);
 		builder.writeAsByte(1); // reflector is 3~!??

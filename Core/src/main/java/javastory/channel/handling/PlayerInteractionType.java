@@ -32,7 +32,7 @@ public enum PlayerInteractionType {
 	public byte toNumber() {
 		return value;
 	}
-	
+
 	public static PlayerInteractionType fromNumber(byte number) {
 		for (PlayerInteractionType type : PlayerInteractionType.values()) {
 			if (type.value == number) {

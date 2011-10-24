@@ -24,8 +24,7 @@ public final class ItemMakerFactory {
 		// 0 = Item upgrade crystals
 		// 1 / 2/ 4/ 8 = Item creation
 
-		final WzData info = WzDataProviderFactory.getDataProvider("Etc.wz")
-				.getData("ItemMake.img");
+		final WzData info = WzDataProviderFactory.getDataProvider("Etc.wz").getData("ItemMake.img");
 
 		for (WzData directory : info.getChildren()) {
 			int type = Integer.parseInt(directory.getName());
@@ -49,8 +48,7 @@ public final class ItemMakerFactory {
 		int reqLevel, cost, quantity;
 		for (WzData gemDirectory : directory.getChildren()) {
 			reqLevel = WzDataTool.getInt("reqLevel", gemDirectory, 0);
-			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel",
-														gemDirectory, 0);
+			reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", gemDirectory, 0);
 			cost = WzDataTool.getInt("meso", gemDirectory, 0);
 			quantity = WzDataTool.getInt("itemNum", gemDirectory, 0);
 
@@ -60,42 +58,31 @@ public final class ItemMakerFactory {
 				for (WzData ind : gemInfo.getChildren()) {
 					switch (gemInfo.getName()) {
 					case "randomReward":
-						rewards.addEntry(WzDataTool.getInt("prob", ind, 0),
-											WzDataTool.getInt("item", ind, 0));
+						rewards.addEntry(WzDataTool.getInt("prob", ind, 0), WzDataTool.getInt("item", ind, 0));
 						break;
 					case "recipe":
-						recipe.addEntry(WzDataTool.getInt("item", ind, 0),
-										WzDataTool.getInt("count", ind, 0));
+						recipe.addEntry(WzDataTool.getInt("item", ind, 0), WzDataTool.getInt("count", ind, 0));
 						break;
 					}
 				}
 			}
-			final GemInfo gemInfo = new GemInfo(rewards.build(),
-												recipe.build(), cost,
-												reqLevel, reqMakerLevel,
-												quantity);
+			final GemInfo gemInfo = new GemInfo(rewards.build(), recipe.build(), cost, reqLevel, reqMakerLevel, quantity);
 			gemCache.put(Integer.parseInt(gemDirectory.getName()), gemInfo);
 		}
 	}
 
 	private void cacheItems(WzData directory) {
 		for (WzData itemFolder : directory.getChildren()) {
-			final int reqLevel =
-					WzDataTool.getInt("reqLevel", itemFolder, 0);
+			final int reqLevel = WzDataTool.getInt("reqLevel", itemFolder, 0);
 
-			final byte reqMakerLevel = (byte) WzDataTool
-					.getInt("reqSkillLevel", itemFolder, 0);
+			final byte reqMakerLevel = (byte) WzDataTool.getInt("reqSkillLevel", itemFolder, 0);
 
-			final int cost =
-					WzDataTool.getInt("meso", itemFolder, 0);
+			final int cost = WzDataTool.getInt("meso", itemFolder, 0);
 
-			final int quantity =
-					WzDataTool.getInt("itemNum", itemFolder, 0);
+			final int quantity = WzDataTool.getInt("itemNum", itemFolder, 0);
 
-			final byte totalupgrades =
-					(byte) WzDataTool.getInt("tuc", itemFolder, 0);
-			final int stimulator =
-					WzDataTool.getInt("catalyst", itemFolder, 0);
+			final byte totalupgrades = (byte) WzDataTool.getInt("tuc", itemFolder, 0);
+			final int stimulator = WzDataTool.getInt("catalyst", itemFolder, 0);
 
 			ItemRecipeBuilder recipe = new ItemRecipeBuilder();
 
@@ -108,10 +95,7 @@ public final class ItemMakerFactory {
 					}
 				}
 			}
-			final MakerItemInfo makerItemInfo =
-					new MakerItemInfo(recipe.build(), cost, reqLevel,
-										reqMakerLevel, quantity,
-										totalupgrades, stimulator);
+			final MakerItemInfo makerItemInfo = new MakerItemInfo(recipe.build(), cost, reqLevel, reqMakerLevel, quantity, totalupgrades, stimulator);
 			final int itemId = Integer.parseInt(itemFolder.getName());
 			itemCache.put(itemId, makerItemInfo);
 		}

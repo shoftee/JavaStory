@@ -1,19 +1,17 @@
 /*
- * This file is part of the OdinMS Maple Story Server
- * Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
- * Matthias Butz <matze@odinms.de>
- * Jan Christian Meyer <vimes@odinms.de>
+ * This file is part of the OdinMS Maple Story Server Copyright (C) 2008 ~ 2010
+ * Patrick Huy <patrick.huy@frz.cc> Matthias Butz <matze@odinms.de> Jan
+ * Christian Meyer <vimes@odinms.de>
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation. You may not use, modify
- * or distribute this program under any other version of the
- * GNU Affero General Public License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation. You may not use, modify or distribute this
+ * program under any other version of the GNU Affero General Public License.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -41,10 +39,7 @@ public class EventScriptManager extends AbstractScriptManager {
 		public Invocable invocable;
 		public EventManager eventManager;
 
-		public EventEntry(
-				final String script,
-				final Invocable invocable,
-				final EventManager eventManager) {
+		public EventEntry(final String script, final Invocable invocable, final EventManager eventManager) {
 			this.script = script;
 			this.invocable = invocable;
 			this.eventManager = eventManager;
@@ -59,11 +54,11 @@ public class EventScriptManager extends AbstractScriptManager {
 	public final int getNewInstanceMapId() {
 		return runningInstanceMapId.addAndGet(1);
 	}
-	
+
 	public EventScriptManager() {
 		super();
 	}
-	
+
 	public EventScriptManager(final Iterable<String> scripts) {
 		super();
 		for (final String script : scripts) {
