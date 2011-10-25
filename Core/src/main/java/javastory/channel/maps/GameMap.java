@@ -430,8 +430,7 @@ public class GameMap {
 			try {
 				ChannelServer.getWorldInterface().broadcastMessage(
 					ChannelPackets.serverNotice(6,
-						"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!")
-						.getBytes());
+						"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!"));
 			} catch (RemoteException e) {
 				ChannelServer.pingWorld();
 			}
@@ -439,7 +438,7 @@ public class GameMap {
 		} else if (mobid == 8820001) {
 			try {
 				ChannelServer.getWorldInterface().broadcastMessage(
-					ChannelPackets.serverNotice(6, "Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!").getBytes());
+					ChannelPackets.serverNotice(6, "Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!"));
 			} catch (RemoteException e) {
 				ChannelServer.pingWorld();
 			}

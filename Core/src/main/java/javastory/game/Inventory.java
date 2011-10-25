@@ -121,7 +121,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		} else if (target.getItemId() == source.getItemId()
 				&& !GameConstants.isThrowingStar(source.getItemId())
 				&& !GameConstants.isBullet(source.getItemId())) {
-			if (type.asByte() == InventoryType.EQUIP.asByte()) {
+			if (type.asNumber() == InventoryType.EQUIP.asNumber()) {
 				swap(target, source);
 			}
 			if (source.getQuantity() + target.getQuantity() > slotMax) {

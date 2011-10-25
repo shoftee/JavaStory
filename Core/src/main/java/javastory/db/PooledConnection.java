@@ -86,7 +86,7 @@ class PooledConnection implements Connection {
 	public void close() throws SQLException {
 		isInUse = false;
 		connection.clearWarnings();
-		pool.release(this);
+		pool.reclaim(this);
 	}
 
 	@Override

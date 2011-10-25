@@ -6,18 +6,19 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.collect.Maps;
 import com.mysql.jdbc.Driver;
 
 public final class Database implements ConnectionPool {
 
 	private static final Database instance = new Database();
-	private final Queue<Connection> connections;
+	private final ConcurrentLinkedQueue<Connection> connections;
 	private String url;
 	private String username;
 	private String password;
@@ -30,12 +31,16 @@ public final class Database implements ConnectionPool {
 			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
-		this.connections = new LinkedList<>();
+		this.connections = new ConcurrentLinkedQueue<>();
 
-		this.loadDbProperties();
+		Map<String, String> properties = this.loadDbProperties();
+
+		this.url = properties.get("url");
+		this.username = properties.get("username");
+		this.password = properties.get("password");
 	}
 
-	private void loadDbProperties() {
+	private Map<String, String> loadDbProperties() {
 		String dbConfigFilename = System.getProperty("dbConfigFilename", "database.properties");
 		Properties properties = new Properties();
 
@@ -52,10 +57,8 @@ public final class Database implements ConnectionPool {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
-
-		this.url = properties.getProperty("url");
-		this.username = properties.getProperty("username");
-		this.password = properties.getProperty("password");
+		
+		return Maps.fromProperties(properties);
 	}
 
 	public static Connection getConnection() {
@@ -63,22 +66,20 @@ public final class Database implements ConnectionPool {
 	}
 
 	private synchronized Connection getConnectionInternal() {
-		if (connections.isEmpty()) {
-			Connection result = null;
+		Connection fromQueue = connections.poll();
+		if (fromQueue == null) {
 			try {
-				final Connection connection = DriverManager.getConnection(url, username, password);
-				result = new PooledConnection(connection, this);
+				final Connection newConnection = DriverManager.getConnection(url, username, password);
+				return new PooledConnection(newConnection, this);
 			} catch (SQLException exception) {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exception);
 			}
-			return result;
-		} else {
-			return connections.remove();
 		}
+		return fromQueue;
 	}
 
 	@Override
-	public synchronized void release(PooledConnection connection) throws SQLException {
+	public synchronized void reclaim(PooledConnection connection) throws SQLException {
 		if (this.connections.size() >= POOLING_CAPACITY) {
 			connection.getInnerConnection().close();
 			return;

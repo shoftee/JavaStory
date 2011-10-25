@@ -30,10 +30,6 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 
 	@Override
 	public final void messageSent(final IoSession session, final Object message) throws Exception {
-		final Runnable r = ((GamePacket) message).getOnSend();
-		if (r != null) {
-			r.run();
-		}
 		super.messageSent(session, message);
 	}
 

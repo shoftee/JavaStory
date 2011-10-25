@@ -243,7 +243,7 @@ public class LoginCharacter implements GameCharacter {
             IEquip equip;
 
             ps.setInt(1, chr.id);
-            ps.setInt(2, chr.equips.getType().asByte());
+            ps.setInt(2, chr.equips.getType().asNumber());
             for (final IItem item : chr.equips) {
                 ps.setInt(3, item.getItemId());
                 ps.setInt(4, item.getPosition());

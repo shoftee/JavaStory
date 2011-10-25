@@ -92,8 +92,8 @@ public final class ChannelClient extends GameClient {
 	}
 
 	@Override
-	public final void disconnect(boolean immediately) {
-		if (!immediately) {
+	public final void disconnect(boolean force) {
+		if (!force) {
 			this.removalTask();
 			this.player.saveToDb(true);
 			final ChannelServer channel = ChannelServer.getInstance();
@@ -130,7 +130,7 @@ public final class ChannelClient extends GameClient {
 				this.player = null;
 			}
 		}
-		super.getSession().close(immediately);
+		super.getSession().close(force);
 	}
 
 	public static String getLogMessage(final ChannelClient cfor, final String message) {

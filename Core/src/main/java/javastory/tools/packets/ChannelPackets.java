@@ -49,6 +49,7 @@ import javastory.channel.server.StatEffect;
 import javastory.channel.server.Trade;
 import javastory.game.GameConstants;
 import javastory.game.IEquip;
+import javastory.game.IEquip.ScrollResult;
 import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
@@ -57,9 +58,7 @@ import javastory.game.ItemType;
 import javastory.game.Jobs;
 import javastory.game.Stat;
 import javastory.game.StatValue;
-import javastory.game.IEquip.ScrollResult;
 import javastory.game.quest.QuestStatus;
-import javastory.io.ByteArrayGamePacket;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.BuffStatValue;
@@ -123,7 +122,7 @@ public final class ChannelPackets {
 		PacketHelper.addRingInfo(builder, chr);
 		PacketHelper.addRocksInfo(builder, chr);
 		PacketHelper.addMonsterBookInfo(builder, chr);
-		chr.QuestInfoPacket(builder); // for every questinfo: int16_t questid,
+		chr.writeQuestInfoPacket(builder); // for every questinfo: int16_t questid,
 										// string questdata
 		builder.writeAsShort(0); // PQ rank
 		builder.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
@@ -584,7 +583,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getPacketFromHexString(String hex) {
-		return new ByteArrayGamePacket(HexTool.getByteArrayFromHexString(hex));
+		return GamePacket.wrapperOf(HexTool.getByteArrayFromHexString(hex));
 	}
 
 	public static GamePacket GainEXP_Monster(final int gain, final boolean white, final int Event_EXP, final int Wedding_EXP, final int Party_Ring_EXP,
@@ -1108,7 +1107,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(fromDrop);
 		builder.writeAsShort(1); // add mode
-		builder.writeByte(type.asByte()); // iv type
+		builder.writeByte(type.asNumber()); // iv type
 		builder.writeAsByte(item.getPosition()); // slot id
 		PacketHelper.addItemInfo(builder, item, true, false);
 
@@ -1123,7 +1122,7 @@ public final class ChannelPackets {
 		// builder.writeAsByte((slot2 > 0 ? 1 : 0) + 1);
 		builder.writeAsByte(1);
 		builder.writeAsByte(1);
-		builder.writeByte(type.asByte()); // iv type
+		builder.writeByte(type.asNumber()); // iv type
 		builder.writeAsShort(item.getPosition()); // slot id
 		builder.writeAsShort(item.getQuantity());
 		/*
@@ -1143,7 +1142,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 02"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(src);
 		builder.writeAsShort(dst);
 		if (equipIndicator != -1) {
@@ -1157,10 +1156,10 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 03"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(src);
 		builder.writeAsByte(1); // merge mode?
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(dst);
 		builder.writeAsShort(total);
 
@@ -1172,11 +1171,11 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 01"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(src);
 		builder.writeAsShort(srcQ);
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(dst);
 		builder.writeAsShort(dstQ);
 
@@ -1189,7 +1188,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(fromDrop);
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 03"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(slot);
 
 		return builder.getPacket();
@@ -1228,7 +1227,7 @@ public final class ChannelPackets {
 		builder.writeAsByte(1); // fromdrop always true
 		builder.writeAsByte(destroyed ? 2 : 3);
 		builder.writeAsByte(scroll.getQuantity() > 0 ? 1 : 3);
-		builder.writeByte(GameConstants.getInventoryType(scroll.getItemId()).asByte());
+		builder.writeByte(GameConstants.getInventoryType(scroll.getItemId()).asNumber());
 		builder.writeAsShort(scroll.getPosition());
 
 		if (scroll.getQuantity() > 0) {
@@ -1236,11 +1235,11 @@ public final class ChannelPackets {
 		}
 		builder.writeAsByte(3);
 		if (!destroyed) {
-			builder.writeByte(InventoryType.EQUIP.asByte());
+			builder.writeByte(InventoryType.EQUIP.asNumber());
 			builder.writeAsShort(item.getPosition());
 			builder.writeAsByte(0);
 		}
-		builder.writeByte(InventoryType.EQUIP.asByte());
+		builder.writeByte(InventoryType.EQUIP.asNumber());
 		builder.writeAsShort(item.getPosition());
 		if (!destroyed) {
 			PacketHelper.addItemInfo(builder, item, true, true);
@@ -1372,7 +1371,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 03"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(src);
 		if (src < 0) {
 			builder.writeAsByte(1);
@@ -1385,7 +1384,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 01"));
-		builder.writeByte(type.asByte());
+		builder.writeByte(type.asNumber());
 		builder.writeAsShort(item.getPosition());
 		builder.writeAsShort(item.getQuantity());
 

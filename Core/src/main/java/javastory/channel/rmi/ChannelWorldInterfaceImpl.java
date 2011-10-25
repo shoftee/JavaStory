@@ -24,7 +24,6 @@ import javastory.channel.client.BuddyOperation;
 import javastory.channel.client.MemberRank;
 import javastory.config.ChannelInfo;
 import javastory.db.Database;
-import javastory.io.ByteArrayGamePacket;
 import javastory.io.GamePacket;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
@@ -60,18 +59,18 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 	}
 
 	@Override
-	public void broadcastMessage(byte[] message) throws RemoteException {
-		server.broadcastPacket(new ByteArrayGamePacket(message));
+	public void broadcastMessage(GamePacket packet) throws RemoteException {
+		server.broadcastPacket(packet);
 	}
 
 	@Override
-	public void broadcastSmega(byte[] message) throws RemoteException {
-		server.broadcastSmegaPacket(new ByteArrayGamePacket(message));
+	public void broadcastSmega(GamePacket packet) throws RemoteException {
+		server.broadcastSmegaPacket(packet);
 	}
 
 	@Override
-	public void broadcastGMMessage(byte[] message) throws RemoteException {
-		server.broadcastGMPacket(new ByteArrayGamePacket(message));
+	public void broadcastGMMessage(GamePacket packet) throws RemoteException {
+		server.broadcastGMPacket(packet);
 	}
 
 	@Override

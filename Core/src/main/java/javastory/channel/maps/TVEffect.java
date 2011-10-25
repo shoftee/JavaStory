@@ -66,8 +66,8 @@ public class TVEffect {
 		WorldChannelInterface wci = ChannelServer.getWorldInterface();
 		try {
 			if (isActive) {
-				wci.broadcastMessage(ChannelPackets.enableTV().getBytes());
-				wci.broadcastMessage(startTV().getBytes());
+				wci.broadcastMessage(ChannelPackets.enableTV());
+				wci.broadcastMessage(startTV());
 
 				TimerManager.getInstance().schedule(new Runnable() {
 
@@ -78,7 +78,7 @@ public class TVEffect {
 				}, getDelayTime(type));
 
 			} else {
-				wci.broadcastMessage(removeTV().getBytes());
+				wci.broadcastMessage(removeTV());
 			}
 		} catch (RemoteException e) {
 		}

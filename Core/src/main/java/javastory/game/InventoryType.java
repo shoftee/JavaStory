@@ -2,20 +2,14 @@ package javastory.game;
 
 public enum InventoryType {
 
-	UNDEFINED(0),
-	EQUIP(1),
-	USE(2),
-	SETUP(3),
-	ETC(4),
-	CASH(5),
-	EQUIPPED(-1);
+	UNDEFINED(0), EQUIP(1), USE(2), SETUP(3), ETC(4), CASH(5), EQUIPPED(-1);
 	final byte type;
 
 	private InventoryType(int type) {
 		this.type = (byte) type;
 	}
 
-	public byte asByte() {
+	public byte asNumber() {
 		return type;
 	}
 
@@ -23,10 +17,10 @@ public enum InventoryType {
 		return (short) (2 << type);
 	}
 
-	public static InventoryType fromByte(byte type) {
-		for (InventoryType l : InventoryType.values()) {
-			if (l.asByte() == type) {
-				return l;
+	public static InventoryType fromNumber(byte type) {
+		for (InventoryType item : InventoryType.values()) {
+			if (item.asNumber() == type) {
+				return item;
 			}
 		}
 		return null;

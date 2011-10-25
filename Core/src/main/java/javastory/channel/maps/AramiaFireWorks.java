@@ -37,8 +37,7 @@ public class AramiaFireWorks {
 	private void broadcastEvent(final ChannelCharacter c) {
 		try {
 			ChannelServer.getWorldInterface().broadcastMessage(
-				ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!")
-					.getBytes());
+				ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!"));
 		} catch (RemoteException e) {
 			ChannelServer.pingWorld();
 		}

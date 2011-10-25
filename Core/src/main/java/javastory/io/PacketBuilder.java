@@ -145,7 +145,7 @@ public class PacketBuilder {
 		// Finally copy the current buffer separately (it may be incomplete)
 		System.arraycopy(currentBuffer, 0, total, index, currentPosition);
 
-		return new ByteArrayGamePacket(total);
+		return GamePacket.wrapperOf(total);
 	}
 
 	/**

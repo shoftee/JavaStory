@@ -267,7 +267,7 @@ public class NpcHandler {
 	private static void handleStorageTakeOutItem(final PacketReader reader, final Storage storage, final ChannelClient c, final ChannelCharacter chr)
 		throws PacketFormatException {
 		final byte type = reader.readByte();
-		final byte slot = storage.getSlot(InventoryType.fromByte(type), reader.readByte());
+		final byte slot = storage.getSlot(InventoryType.fromNumber(type), reader.readByte());
 		final IItem item = storage.takeOut(slot);
 		if (item != null) {
 			if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {

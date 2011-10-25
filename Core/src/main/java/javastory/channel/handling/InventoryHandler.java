@@ -615,7 +615,7 @@ public class InventoryHandler {
 			if (GameConstants.gachaponRareItem(item.getItemId()) > 0) {
 				try {
 					ChannelServer.getWorldInterface().broadcastMessage(
-						ChannelPackets.getGachaponMega(c.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, (byte) 2).getBytes());
+						ChannelPackets.getGachaponMega(c.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, (byte) 2));
 				} catch (RemoteException e) {
 					ChannelServer.pingWorld();
 				}
@@ -1067,7 +1067,7 @@ public class InventoryHandler {
 					}
 					item.setFlag(flag);
 
-					c.write(ChannelPackets.updateSpecialItemUse(item, inventory.getType().asByte()));
+					c.write(ChannelPackets.updateSpecialItemUse(item, inventory.getType().asNumber()));
 					used = true;
 				}
 			}
@@ -1197,7 +1197,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() > 0;
 
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.tripleSmega(messages, ear, c.getChannelId()).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.tripleSmega(messages, ear, c.getChannelId()));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, triple megaphone");
@@ -1223,7 +1223,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(9, c.getChannelId(), sb.toString(), ear).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(9, c.getChannelId(), sb.toString(), ear));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, heart megaphone");
@@ -1249,7 +1249,7 @@ public class InventoryHandler {
 				final boolean ear = reader.readByte() != 0;
 
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(10, c.getChannelId(), sb.toString(), ear).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(10, c.getChannelId(), sb.toString(), ear));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, skull megaphone");
@@ -1272,7 +1272,7 @@ public class InventoryHandler {
 				sb.append(message);
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(3, c.getChannelId(), sb.toString(), ear).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(3, c.getChannelId(), sb.toString(), ear));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, super megaphone");
@@ -1305,7 +1305,7 @@ public class InventoryHandler {
 				}
 
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.itemMegaphone(sb.toString(), ear, c.getChannelId(), item).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.itemMegaphone(sb.toString(), ear, c.getChannelId(), item));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, item megaphone");
@@ -1473,7 +1473,7 @@ public class InventoryHandler {
 				}
 				final boolean ear = reader.readByte() != 0;
 				try {
-					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.getAvatarMega(player, c.getChannelId(), itemId, text, ear).getBytes());
+					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.getAvatarMega(player, c.getChannelId(), itemId, text, ear));
 					used = true;
 				} catch (RemoteException e) {
 					System.out.println("RemoteException occured, TV megaphone");

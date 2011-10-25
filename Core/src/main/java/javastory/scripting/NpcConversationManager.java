@@ -241,8 +241,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (rareness > 0) {
 			try {
 				ChannelServer.getWorldInterface().broadcastMessage(
-					ChannelPackets.getGachaponMega(super.client.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, rareness)
-						.getBytes());
+					ChannelPackets.getGachaponMega(super.client.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, rareness));
 			} catch (RemoteException e) {
 				ChannelServer.pingWorld();
 			}

@@ -87,7 +87,7 @@ public class Storage implements Serializable {
 				ps.setInt(1, storeId);
 				rs = ps.executeQuery();
 				while (rs.next()) {
-					InventoryType type = InventoryType.fromByte((byte) rs.getInt("inventorytype"));
+					InventoryType type = InventoryType.fromNumber((byte) rs.getInt("inventorytype"));
 					if (type.equals(InventoryType.EQUIP) || type.equals(InventoryType.EQUIPPED)) {
 						int itemid = rs.getInt("itemid");
 						Equip equip = new Equip(itemid, rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
@@ -266,7 +266,7 @@ public class Storage implements Serializable {
 			public int compare(IItem item1, IItem item2) {
 				final InventoryType item1Type = GameConstants.getInventoryType(item1.getItemId());
 				final InventoryType item2Type = GameConstants.getInventoryType(item2.getItemId());
-				if (item1Type.asByte() < item2Type.asByte()) {
+				if (item1Type.asNumber() < item2Type.asNumber()) {
 					return -1;
 				} else if (item1Type == item2Type) {
 					return 0;

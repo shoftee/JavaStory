@@ -21,16 +21,17 @@ package javastory.rmi;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import javastory.io.GamePacket;
 import javastory.world.core.CheaterData;
 
 public interface WorldChannelCommonOperations extends RemotePingable {
 
 	// TODO: Broadcasts should be more generic.
-	public void broadcastMessage(byte[] message) throws RemoteException;
+	public void broadcastMessage(GamePacket packet) throws RemoteException;
 
-	public void broadcastSmega(byte[] message) throws RemoteException;
+	public void broadcastSmega(GamePacket packet) throws RemoteException;
 
-	public void broadcastGMMessage(byte[] message) throws RemoteException;
+	public void broadcastGMMessage(GamePacket packet) throws RemoteException;
 
 	public void whisper(String sender, String target, int channel, String message) throws RemoteException;
 

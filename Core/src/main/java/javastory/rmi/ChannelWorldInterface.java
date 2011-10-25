@@ -80,7 +80,6 @@ public interface ChannelWorldInterface extends RemotePingable, WorldChannelCommo
 	public void ChannelChange_Data(CharacterTransfer transfer, int characterid) throws RemoteException;
 
 	// TODO: Use int[] instead of Collection<Integer> here. Much more efficient.
-	// TODO: Use byte[] instead of GamePacket here. Much more efficient.
 	public void sendPacket(Collection<Integer> targetIds, GamePacket packet, int exception) throws RemoteException;
 
 	// TODO: This method is only called from find(), which will be obsoleted with LocationRegistry.

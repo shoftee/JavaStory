@@ -128,7 +128,7 @@ public class GameConstants {
 		if (type < 1 || type > 5) {
 			return InventoryType.UNDEFINED;
 		}
-		return InventoryType.fromByte(type);
+		return InventoryType.fromNumber(type);
 	}
 
 	public static WeaponType getWeaponType(final int itemId) {

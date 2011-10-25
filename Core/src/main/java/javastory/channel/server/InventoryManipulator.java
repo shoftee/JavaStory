@@ -559,7 +559,7 @@ public final class InventoryManipulator {
 			if (!ItemFlag.UNTRADEABLE.check(flag)) {
 				flag |= ItemFlag.UNTRADEABLE.getValue();
 				source.setFlag(flag);
-				c.write(ChannelPackets.updateSpecialItemUse(target, GameConstants.getInventoryType(source.getItemId()).asByte()));
+				c.write(ChannelPackets.updateSpecialItemUse(target, GameConstants.getInventoryType(source.getItemId()).asNumber()));
 			}
 		}
 	}

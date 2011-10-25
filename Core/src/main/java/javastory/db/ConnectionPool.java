@@ -7,5 +7,5 @@ import java.sql.SQLException;
  * @author shoftee
  */
 interface ConnectionPool {
-	public void release(PooledConnection connection) throws SQLException;
+	public void reclaim(PooledConnection connection) throws SQLException;
 }
