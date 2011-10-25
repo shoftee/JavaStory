@@ -6,10 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.google.common.base.Preconditions;
-
-import javastory.channel.ChannelCharacter;
-import javastory.channel.server.InventoryManipulator;
 import javastory.db.Database;
 
 public class Ring implements Comparable<Ring> {
