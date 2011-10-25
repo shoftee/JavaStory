@@ -8,6 +8,7 @@ import javastory.channel.server.Trade;
 import javastory.channel.shops.PlayerShop;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
+import javastory.rmi.WorldChannelInterface;
 import javastory.scripting.NpcScriptManager;
 import javastory.tools.LogUtil;
 import javastory.world.core.PartyOperation;
@@ -67,7 +68,7 @@ public final class ChannelClient extends GameClient {
 		}
 	}
 
-	public final void DebugMessage(final StringBuilder sb) {
+	public final void getDebugMessage(final StringBuilder sb) {
 		sb.append(getSession().getRemoteAddress());
 		sb.append(" Connected: ");
 		sb.append(getSession().isConnected());
@@ -98,25 +99,26 @@ public final class ChannelClient extends GameClient {
 			this.player.saveToDb(true);
 			final ChannelServer channel = ChannelServer.getInstance();
 			try {
+				final WorldChannelInterface world = ChannelServer.getWorldInterface();
 				if (this.player.getMessenger() != null) {
-					ChannelServer.getWorldInterface().leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
+					world.leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
 					this.player.setMessenger(null);
 				}
 				PartyMember partyMember = this.player.getPartyMembership();
 				if (partyMember != null) {
 					partyMember.setOnline(false);
-					ChannelServer.getWorldInterface().updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
+					world.updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
 				}
 				if (!this.transition) {
-					ChannelServer.getWorldInterface().loggedOff(this.player.getName(), this.player.getId(), super.getChannelId(),
+					world.loggedOff(this.player.getName(), this.player.getId(), super.getChannelId(),
 						this.player.getBuddyList().getBuddyIds());
 				} else {
 					// Change channel
-					ChannelServer.getWorldInterface().loggedOn(this.player.getName(), this.player.getId(), super.getChannelId(),
+					world.loggedOn(this.player.getName(), this.player.getId(), super.getChannelId(),
 						this.player.getBuddyList().getBuddyIds());
 				}
 				if (this.player.getGuildId() > 0) {
-					ChannelServer.getWorldInterface().setGuildMemberOnline(this.player.getGuildMembership(), false, -1);
+					world.setGuildMemberOnline(this.player.getGuildMembership(), false, -1);
 				}
 			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
