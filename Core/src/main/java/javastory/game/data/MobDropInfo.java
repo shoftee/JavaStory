@@ -1,4 +1,4 @@
-package javastory.channel.life;
+package javastory.game.data;
 
 public final class MobDropInfo {
 

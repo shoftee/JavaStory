@@ -21,6 +21,7 @@ package javastory.channel.maps;
 import java.awt.Rectangle;
 
 import javastory.channel.ChannelClient;
+import javastory.game.data.ReactorInfo;
 import javastory.scripting.ReactorScriptManager;
 import javastory.tools.Pair;
 import javastory.tools.packets.ChannelPackets;

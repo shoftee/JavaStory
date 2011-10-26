@@ -19,8 +19,8 @@
 package javastory.channel.client;
 
 import javastory.channel.ChannelCharacter;
-import javastory.channel.life.Element;
 import javastory.channel.server.StatEffect;
+import javastory.game.Element;
 
 public interface ISkill {
 

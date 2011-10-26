@@ -16,11 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.client;
+package javastory.game.data;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javastory.channel.client.PetCommand;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;

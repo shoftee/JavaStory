@@ -12,6 +12,8 @@ import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.server.Portal;
 import javastory.channel.server.PortalFactory;
+import javastory.game.data.ReactorFactory;
+import javastory.game.data.ReactorInfo;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

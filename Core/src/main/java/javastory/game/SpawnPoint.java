@@ -16,11 +16,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.life;
+package javastory.game;
 
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javastory.channel.life.Monster;
+import javastory.channel.life.MonsterListener;
+import javastory.channel.life.Spawns;
 import javastory.channel.maps.GameMap;
 import javastory.tools.packets.ChannelPackets;
 

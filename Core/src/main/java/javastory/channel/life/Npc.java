@@ -21,6 +21,7 @@ package javastory.channel.life;
 import javastory.channel.ChannelClient;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.server.ShopFactory;
+import javastory.game.data.NpcInfo;
 import javastory.tools.packets.ChannelPackets;
 
 public class Npc extends AbstractLoadedLife {

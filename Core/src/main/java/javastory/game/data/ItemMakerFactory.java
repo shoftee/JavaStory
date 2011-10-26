@@ -1,4 +1,4 @@
-package javastory.game.maker;
+package javastory.game.data;
 
 import java.util.Map;
 

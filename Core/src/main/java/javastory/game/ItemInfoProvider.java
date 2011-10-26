@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.channel.server.StatEffect;
-import javastory.game.maker.RewardItemInfo;
+import javastory.game.data.RewardItemInfo;
 import javastory.server.EquipLevelInfo;
 import javastory.tools.Pair;
 import javastory.tools.Randomizer;

@@ -1,4 +1,4 @@
-package javastory.game.maker;
+package javastory.game.data;
 
 import java.util.Iterator;
 import java.util.List;

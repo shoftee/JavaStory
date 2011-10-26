@@ -44,8 +44,8 @@ import javastory.game.ItemInfoProvider;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.IEquip.ScrollResult;
-import javastory.game.maker.RandomRewards;
-import javastory.game.maker.RewardItemInfo;
+import javastory.game.data.RandomRewards;
+import javastory.game.data.RewardItemInfo;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketFormatException;
@@ -657,16 +657,8 @@ public class InventoryHandler {
 		case 5040001: { // Teleport Coke
 			if (reader.readByte() == 0) { // Rocktype
 				final GameMap target = ChannelServer.getMapFactory().getMap(reader.readInt());
-				if (!FieldLimitType.VipRock.check(player.getMap().getFieldLimit())) { // Makes
-																						// sure
-																						// this
-																						// map
-																						// doesn't
-																						// have
-																						// a
-																						// forced
-																						// return
-																						// map
+				if (!FieldLimitType.VipRock.check(player.getMap().getFieldLimit())) { 
+					// Makes sure this map doesn't have a forced return map
 					player.changeMap(target, target.getPortal(0));
 					used = true;
 				}
@@ -674,10 +666,8 @@ public class InventoryHandler {
 				final ChannelCharacter victim = ChannelServer.getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
 					if (!FieldLimitType.VipRock.check(ChannelServer.getMapFactory().getMap(victim.getMapId()).getFieldLimit())) {
-						if (itemId == 5041000 || (victim.getMapId() / 100000000) == (player.getMapId() / 100000000)) { // Viprock
-																														// or
-																														// same
-																														// continent
+						if (itemId == 5041000 || (victim.getMapId() / 100000000) == (player.getMapId() / 100000000)) { 
+							// Viprock or same continent
 							player.changeMap(victim.getMap(), victim.getMap().findClosestSpawnpoint(victim.getPosition()));
 							used = true;
 						}
@@ -723,10 +713,12 @@ public class InventoryHandler {
 				if (playerst.getMaxHp() >= 30000) {
 					used = false;
 				}
+				break;
 			case 8192: // mp
 				if (playerst.getMaxMp() >= 30000) {
 					used = false;
 				}
+				break;
 			}
 			switch (apfrom) { // AP to
 			case 64: // str

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.life;
+package javastory.game.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javastory.game.BanishInfo;
+import javastory.game.Element;
+import javastory.game.ElementalEffectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.life;
+package javastory.game.data;
 
 import java.awt.Point;
 import java.util.List;
 import java.util.Map;
 
+import javastory.channel.life.MobSkill;
 import javastory.game.SkillLevelEntry;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

@@ -16,16 +16,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.maps;
+package javastory.game;
 
-public class ReactorDropEntry {
+public enum Element {
+	NEUTRAL, PHYSICAL, FIRE, ICE, LIGHTING, POISON, HOLY, DARKNESS;
 
-	public ReactorDropEntry(int itemId, int chance, int questId) {
-		this.itemId = itemId;
-		this.chance = chance;
-		this.questid = questId;
+	public static Element fromCharacter(char c) {
+		switch (Character.toUpperCase(c)) {
+		case 'F':
+			return FIRE;
+		case 'I':
+			return ICE;
+		case 'L':
+			return LIGHTING;
+		case 'S':
+			return POISON;
+		case 'H':
+			return HOLY;
+		case 'P':
+			return PHYSICAL;
+		case 'D':
+			return DARKNESS;
+		default:
+			return null;
+		}
 	}
-
-	public int itemId, chance, questid;
-	public int assignedRangeStart, assignedRangeLength;
 }

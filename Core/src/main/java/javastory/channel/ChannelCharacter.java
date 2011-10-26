@@ -90,7 +90,7 @@ import javastory.game.Jobs;
 import javastory.game.Skills;
 import javastory.game.Stat;
 import javastory.game.StatValue;
-import javastory.game.maker.RandomRewards;
+import javastory.game.data.RandomRewards;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.game.quest.QuestStatus;
@@ -971,27 +971,27 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			ps.setInt(17, jobId);
 			ps.setInt(18, hairId);
 			ps.setInt(19, faceId);
-			
+
 			if (map.getForcedReturnId() != 999999999) {
 				ps.setInt(20, map.getForcedReturnId());
 			} else {
 				ps.setInt(20, stats.getHp() < 1 ? map.getReturnMapId() : map.getId());
 			}
-			
+
 			ps.setInt(21, meso);
 			ps.setInt(22, hpApUsed);
 			ps.setInt(23, mpApUsed);
-			
+
 			if (map == null) {
 				ps.setInt(24, 0);
 			} else {
 				final Portal closest = map.findClosestSpawnpoint(getPosition());
 				ps.setInt(24, closest != null ? closest.getId() : 0);
 			}
-			
+
 			ps.setInt(25, party != null ? party.getId() : -1);
 			ps.setInt(26, buddies.getCapacity());
-			
+
 			if (messenger != null) {
 				ps.setInt(27, messenger.getId());
 				ps.setInt(28, messengerPosition);
@@ -999,7 +999,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 				ps.setInt(27, 0);
 				ps.setInt(28, 4);
 			}
-			
+
 			ps.setInt(29, bookCover);
 			ps.setInt(30, dojo);
 			ps.setInt(31, dojoRecord);
@@ -1726,15 +1726,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 						map.removeMapObject(summon);
 						removeVisibleMapObject(summon);
 						summons.remove(summonId);
-					}
-					if (summon.getSkill() == 1321007) {
-						if (beholderHealingSchedule != null) {
-							beholderHealingSchedule.cancel(false);
-							beholderHealingSchedule = null;
-						}
-						if (beholderBuffSchedule != null) {
-							beholderBuffSchedule.cancel(false);
-							beholderBuffSchedule = null;
+						if (summon.getSkill() == 1321007) {
+							if (beholderHealingSchedule != null) {
+								beholderHealingSchedule.cancel(false);
+								beholderHealingSchedule = null;
+							}
+							if (beholderBuffSchedule != null) {
+								beholderBuffSchedule.cancel(false);
+								beholderBuffSchedule = null;
+							}
 						}
 					}
 				} else if (stat == BuffStat.DRAGONBLOOD) {

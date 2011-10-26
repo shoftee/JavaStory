@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javastory.db.Database;
+import javastory.game.data.MobInfo;
+import javastory.game.data.NpcInfo;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

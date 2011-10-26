@@ -32,6 +32,7 @@ import javastory.channel.client.MonsterStatus;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.maps.Mist;
+import javastory.game.BanishInfo;
 
 import com.google.common.collect.Maps;
 

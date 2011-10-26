@@ -1,4 +1,4 @@
-package javastory.channel.life;
+package javastory.game.data;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
