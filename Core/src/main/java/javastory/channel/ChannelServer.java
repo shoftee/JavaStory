@@ -23,7 +23,7 @@ import javastory.channel.shops.HiredMerchantStore;
 import javastory.config.ChannelInfo;
 import javastory.config.WorldConfig;
 import javastory.config.WorldInfo;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.ItemMakerFactory;
 import javastory.game.data.RandomRewards;
 import javastory.io.GamePacket;

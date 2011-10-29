@@ -8,11 +8,11 @@ import javastory.channel.ChannelCharacter;
 import javastory.game.GameConstants;
 import javastory.game.IEquip;
 import javastory.game.IItem;
-import javastory.game.ItemInfoProvider;
 import javastory.game.Jobs;
 import javastory.game.PlayerStats;
 import javastory.game.Skills;
 import javastory.game.WeaponType;
+import javastory.game.data.ItemInfoProvider;
 
 public class ActivePlayerStats extends PlayerStats implements Serializable {
 

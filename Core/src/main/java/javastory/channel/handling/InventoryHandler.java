@@ -40,10 +40,10 @@ import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.ItemConsumeType;
 import javastory.game.ItemFlag;
-import javastory.game.ItemInfoProvider;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.IEquip.ScrollResult;
+import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
 import javastory.game.data.RewardItemInfo;
 import javastory.game.quest.QuestInfoProvider;
@@ -300,19 +300,9 @@ public class InventoryHandler {
 		if (scrollSuccess == IEquip.ScrollResult.CURSE) {
 			c.write(ChannelPackets.scrolledItem(scroll, toScroll, true));
 			if (dst < 0) {
-				if (toScroll.getItemId() != ItemInfoProvider.UNLIMITED_SLOT_ITEM) { // unlimited
-																					// slot
-																					// item
-																					// check
-					equippedInventory.removeItem(toScroll.getPosition());
-				}
+				equippedInventory.removeItem(toScroll.getPosition());
 			} else {
-				if (toScroll.getItemId() != ItemInfoProvider.UNLIMITED_SLOT_ITEM) { // unlimited
-																					// slot
-																					// item
-																					// check
-					equipInventory.removeItem(toScroll.getPosition());
-				}
+				equipInventory.removeItem(toScroll.getPosition());
 			}
 		} else {
 			c.write(ChannelPackets.scrolledItem(scroll, scrolled, false));
@@ -657,7 +647,7 @@ public class InventoryHandler {
 		case 5040001: { // Teleport Coke
 			if (reader.readByte() == 0) { // Rocktype
 				final GameMap target = ChannelServer.getMapFactory().getMap(reader.readInt());
-				if (!FieldLimitType.VipRock.check(player.getMap().getFieldLimit())) { 
+				if (!FieldLimitType.VipRock.check(player.getMap().getFieldLimit())) {
 					// Makes sure this map doesn't have a forced return map
 					player.changeMap(target, target.getPortal(0));
 					used = true;
@@ -666,7 +656,7 @@ public class InventoryHandler {
 				final ChannelCharacter victim = ChannelServer.getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
 					if (!FieldLimitType.VipRock.check(ChannelServer.getMapFactory().getMap(victim.getMapId()).getFieldLimit())) {
-						if (itemId == 5041000 || (victim.getMapId() / 100000000) == (player.getMapId() / 100000000)) { 
+						if (itemId == 5041000 || (victim.getMapId() / 100000000) == (player.getMapId() / 100000000)) {
 							// Viprock or same continent
 							player.changeMap(victim.getMap(), victim.getMap().findClosestSpawnpoint(victim.getPosition()));
 							used = true;

@@ -7,7 +7,7 @@ import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
 import javastory.channel.client.SkillFactory;
 import javastory.channel.life.LifeFactory;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;
 import javastory.tools.Randomizer;

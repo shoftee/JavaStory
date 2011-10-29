@@ -32,8 +32,8 @@ import com.google.common.collect.Multimap;
 
 public final class Guild {
 
-	private final int GUILD_CAPACITY_MAX = 100;
-	private final int GUILD_CAPACITY_STEP = 5;
+	private final static int GUILD_CAPACITY_MAX = 100;
+	private final static int GUILD_CAPACITY_STEP = 5;
 	//
 	private boolean rebuildIndex = true;
 	// Guild information fields:

@@ -60,6 +60,9 @@ public final class GamePacket implements Externalizable {
 
 	private byte[] bytes;
 
+	private GamePacket() {
+	}
+
 	private GamePacket(byte[] bytes) {
 		this.bytes = bytes;
 	}

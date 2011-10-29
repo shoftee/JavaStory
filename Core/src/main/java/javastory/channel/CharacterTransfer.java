@@ -22,6 +22,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.EnumMap;
 import java.util.Map;
 
 import javastory.channel.client.BuddyListEntry;
@@ -33,6 +34,7 @@ import javastory.channel.client.Mount;
 import javastory.channel.client.MultiInventory;
 import javastory.channel.client.SkillEntry;
 import javastory.channel.client.SkillMacro;
+import javastory.channel.maps.SavedLocationType;
 import javastory.channel.server.Storage;
 import javastory.client.SimpleCharacterInfo;
 import javastory.game.Gender;
@@ -58,7 +60,8 @@ public class CharacterTransfer implements Externalizable {
 	public MultiInventory Inventories;
 	public SkillMacro[] SkillMacros;
 	public KeyLayout KeyLayout;
-	public int[] SavedLocations;
+	public EnumMap<SavedLocationType, Integer> SavedLocations;
+
 	public Storage Storage;
 	public int[] TeleportRocks;
 	public int[] Wishlist;
@@ -203,7 +206,7 @@ public class CharacterTransfer implements Externalizable {
 
 		this.SkillMacros = (SkillMacro[]) in.readObject();
 		this.KeyLayout = (KeyLayout) in.readObject();
-		this.SavedLocations = (int[]) in.readObject();
+		this.SavedLocations = (EnumMap<SavedLocationType, Integer>) in.readObject();
 		this.LastFameTime = in.readLong();
 		this.Storage = (Storage) in.readObject();
 		this.TeleportRocks = (int[]) in.readObject();

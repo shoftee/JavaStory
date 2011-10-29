@@ -20,7 +20,7 @@ import javastory.game.GameConstants;
 import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.ItemFlag;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.packets.ChannelPackets;

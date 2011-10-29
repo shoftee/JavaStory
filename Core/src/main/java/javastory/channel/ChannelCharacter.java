@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -85,11 +86,11 @@ import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.ItemFlag;
-import javastory.game.ItemInfoProvider;
 import javastory.game.Jobs;
 import javastory.game.Skills;
 import javastory.game.Stat;
 import javastory.game.StatValue;
+import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
@@ -124,86 +125,150 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	 */
 	private static final long serialVersionUID = 2519039181363990945L;
 
-	public static int damageCap = 100000000; // Global damage cap
-	public static int magicCap = 999999999;//
-	//
+	// TODO: Global Damage caps should not be here.
+	public static int damageCap = 100000000;
+	public static int magicCap = 999999999;
+	
 	private transient int linkedMonsterId = 0;
+
 	private transient Dragon dragon;
-	private transient AtomicInteger conversationState;
-	private transient List<LifeMovementFragment> lastres;
+	
+	private transient List<LifeMovementFragment> lastMovement;
+
 	private transient Set<Monster> controlledMonsters;
 	private transient Set<GameMapObject> visibleMapObjects;
+
 	private transient Map<Integer, Summon> summons;
+	
+	// TODO: Create a class for these triplet.
 	private transient Map<Integer, CooldownValueHolder> cooldowns;
 	private transient Map<Disease, DiseaseValueHolder> diseases;
 	private transient Map<BuffStat, BuffStatValueHolder> effects;
+
+	// TODO: Find a better place for these two.
 	private transient Deque<CarnivalChallenge> pendingCarnivalRequests;
-	private transient EventInstanceManager eventInstance;
 	private transient CarnivalParty carnivalParty;
+
 	private transient CheatTracker cheatTracker;
+
+	private transient AtomicInteger conversationState;
+	private transient EventInstanceManager eventInstance;
+	
+	// TODO: Either add an interface for the map or for the character, circular dependency bad!
 	private transient GameMap map;
+	
+	// TODO: This can likely be generalized into a playerInteraction thingie?
 	private transient Shop shop;
+	
+	// TODO: This can likely be generalized into a PlayerIntraction thingie?
 	private transient Trade trade;
-	//
+
+	// TODO: Move fullness schedules to Pet class.
 	private transient ScheduledFuture<?> fullnessSchedule, fullnessSchedule_1, fullnessSchedule_2, hpDecreaseTask;
+
+	// TODO: Surely these should be buff tasks?
 	private transient ScheduledFuture<?> beholderHealingSchedule, beholderBuffSchedule, BerserkSchedule;
 	private transient ScheduledFuture<?> dragonBloodSchedule;
 	private transient ScheduledFuture<?> mapTimeLimitTask, fishing;
-	//
+
+	// TODO: Use skill checking instead?
 	private boolean canDoor, berserk, smega, hidden;
+
+	// TODO: Are these really necessary?
 	private boolean ondmg = true, callgm = true;
-	//
-	private byte dojoRecord;// Make this a quest record, TODO : Transfer it
-							// somehow with the current data
+
+	// Make this a quest record, 
+	// TODO : Transfer it somehow with the current data
+	private byte dojoRecord;
+
 	//
 	private int id;
 	private Gender gender;
 	private byte gmLevel;
-	public int worldId;
-	//
 	private int hairId, faceId, skinColorId;
-	//
 	private int level, jobId, fame;
-	//
+
+	// TODO: WorldId is obsolete here.
+	public int worldId;
+
 	private short mulung_energy, combo, availableCP, totalCP;
+
+	// TODO: Move into Account class.
 	public int vpoints;
+	public int accountId;
+	public int maplePoints;
+	public int aCash;
+
+	// TODO: Create classes for these arrays.
+	private int[] wishlist, teleportRocks;
+	
+	private EnumMap<SavedLocationType, Integer> savedLocations;
+	
 	public int reborns;
-	//
-	private int accountId, meso, exp, mpApUsed, hpApUsed, remainingAp, mapId, initialSpawnPoint, bookCover, dojo, fallcounter, maplePoints, aCash, chair,
-		itemEffect, subcategory;
-	//
+
+	// TODO: Subcategory should be in the Job class.
+	private int subcategory;
+
+	// TODO: Extract HP AP Used, MP AP Used, remaining AP into another class.
+	private int mpApUsed, hpApUsed, remainingAp;
+	
+	private int meso, exp, mapId, initialSpawnPoint, bookCover, dojo, fallcounter, chair, itemEffect;
+	
+	// TODO: Extract SP logic into class.
 	private int[] remainingSp = new int[10];
-	private int[] wishlist, teleportRocks, savedLocations;
+
 	private long lastCombo, lastFameTime, keydown_skill;
 	private String name, chalktext, BlessOfFairy_Origin;
+
 	//
 	private Map<Integer, QuestStatus> quests;
 	private Map<Integer, String> questInfo;
+
 	private final Map<ISkill, SkillEntry> skills;
+
+	// TODO: Surely this shouldn't be here?
 	private final List<Door> doors;
+
 	private final List<Pet> pets;
+
+	// TODO: Extract SkillMacro list into a class. 
 	private SkillMacro[] skillMacros = new SkillMacro[5];
-	//
+
+	// TODO: This stuff should be in GuildMember
 	private int guildId;
 	private MemberRank guildRank;
+
 	private GuildMember guildMember;
+
 	//
 	private BuddyList buddies;
+
 	private MonsterBook monsterBook;
+
 	private ActivePlayerStats stats;
-	private PlayerRandomStream randomStream;
+
 	private Storage storage;
+
 	private Mount mount;
-	//
+
+	// TODO: MessengerMember instead.
 	private Messenger messenger;
 	private int messengerPosition;
-	//
+
+	// TODO: Probably not the best place.
 	private PlayerShop playerShop;
+
+	// TODO: Remove Party uses from this class completely.
 	private PartyMember partyMember;
 	private Party party;
+
 	private KeyLayout keylayout;
+	
 	private MultiInventory inventory;
+
 	private ChannelClient client;
+
+	private PlayerRandomStream randomStream;
 
 	private ChannelCharacter() {
 		setStance(0);
@@ -234,22 +299,28 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		stats = new ActivePlayerStats(this);
 		cheatTracker = new CheatTracker(this);
 
+		cooldowns = Maps.newLinkedHashMap();
 		effects = Maps.newEnumMap(BuffStat.class);
 		diseases = Maps.newEnumMap(Disease.class);
+
 		doors = Lists.newArrayList();
+		
 		pets = Lists.newArrayList();
+		
 		pendingCarnivalRequests = Lists.newLinkedList();
+		
 		controlledMonsters = Sets.newLinkedHashSet();
 		visibleMapObjects = Sets.newLinkedHashSet();
-		quests = Maps.newLinkedHashMap(); // Stupid erev quest.
-		summons = Maps.newLinkedHashMap();
-		skills = Maps.newLinkedHashMap();
-		cooldowns = Maps.newLinkedHashMap();
+		
+		quests = Maps.newLinkedHashMap();
 		questInfo = Maps.newLinkedHashMap();
-		savedLocations = new int[SavedLocationType.values().length];
-		for (int i = 0; i < SavedLocationType.values().length; i++) {
-			savedLocations[i] = -1;
-		}
+		
+		summons = Maps.newLinkedHashMap();
+		
+		skills = Maps.newLinkedHashMap();
+		
+		// TODO: Get rid of arrays.
+		savedLocations = Maps.newEnumMap(SavedLocationType.class);
 	}
 
 	public static ChannelCharacter reconstructCharacter(final CharacterTransfer ct, final ChannelClient client) {
@@ -485,7 +556,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			while (rs.next()) {
 				final int locationType = rs.getInt("locationtype");
 				final int savedMapId = rs.getInt("map");
-				this.savedLocations[locationType] = savedMapId;
+				this.savedLocations.put(SavedLocationType.fromNumber(locationType), savedMapId);
 			}
 		}
 	}
@@ -1077,12 +1148,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	private void saveSavedLocations(final Connection con) throws SQLException {
 		try (final PreparedStatement ps = getInsertSavedLocation(con)) {
-			for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
-				if (savedLocations[savedLocationType.ordinal()] != -1) {
-					ps.setInt(2, savedLocationType.ordinal());
-					ps.setInt(3, savedLocations[savedLocationType.ordinal()]);
-					ps.execute();
-				}
+			for (final Map.Entry<SavedLocationType, Integer> entry : this.savedLocations.entrySet()) {
+				ps.setInt(2, entry.getKey().asNumber());
+				ps.setInt(3, entry.getValue());
+				ps.execute();
 			}
 		}
 	}
@@ -2908,20 +2977,20 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		return meso;
 	}
 
-	public final int[] getSavedLocations() {
-		return savedLocations;
+	public final EnumMap<SavedLocationType, Integer> getSavedLocations() {
+		return Maps.newEnumMap(this.savedLocations);
 	}
 
 	public int getSavedLocation(final SavedLocationType type) {
-		return savedLocations[type.ordinal()];
+		return savedLocations.get(type).intValue();
 	}
 
 	public void saveLocation(final SavedLocationType type) {
-		savedLocations[type.ordinal()] = getMapId();
+		savedLocations.put(type, this.mapId);
 	}
 
 	public void clearSavedLocation(final SavedLocationType type) {
-		savedLocations[type.ordinal()] = -1;
+		savedLocations.remove(type);
 	}
 
 	public void gainMeso(final int gain, final boolean show) {
@@ -4062,11 +4131,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public List<LifeMovementFragment> getLastRes() {
-		return lastres;
+		return lastMovement;
 	}
 
 	public void setLastRes(final List<LifeMovementFragment> lastres) {
-		this.lastres = lastres;
+		this.lastMovement = lastres;
 	}
 
 	public void setMonsterBookCover(final int bookCover) {

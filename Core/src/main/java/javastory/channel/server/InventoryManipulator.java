@@ -17,7 +17,7 @@ import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.ItemFlag;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.tools.packets.ChannelPackets;
 
 public final class InventoryManipulator {

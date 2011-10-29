@@ -32,7 +32,7 @@ import javastory.game.GameConstants;
 import javastory.game.IItem;
 import javastory.game.InventoryType;
 import javastory.game.Item;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.ReactorDropEntry;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {

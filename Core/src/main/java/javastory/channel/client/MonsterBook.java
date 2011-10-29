@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import javastory.client.GameClient;
 import javastory.db.Database;
 import javastory.game.GameConstants;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.io.PacketBuilder;
 import javastory.tools.packets.MonsterBookPacket;
 

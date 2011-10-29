@@ -25,7 +25,7 @@ import javastory.game.GameConstants;
 import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
-import javastory.game.ItemInfoProvider;
+import javastory.game.data.ItemInfoProvider;
 import javastory.game.quest.QuestStatus;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;

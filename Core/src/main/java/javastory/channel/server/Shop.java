@@ -19,8 +19,8 @@ import javastory.game.GameConstants;
 import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
-import javastory.game.ItemInfoProvider;
 import javastory.game.Skills;
+import javastory.game.data.ItemInfoProvider;
 import javastory.server.ShopItem;
 import javastory.tools.packets.ChannelPackets;
 

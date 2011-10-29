@@ -22,7 +22,6 @@ import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.server.StatEffect;
 import javastory.game.AttackType;
 import javastory.game.Element;
-import javastory.game.ItemInfoProvider;
 import javastory.game.Skills;
 import javastory.game.data.MobInfo;
 import javastory.io.PacketFormatException;
@@ -256,7 +255,7 @@ public final class DamageParse {
 							// HACK
 							// Damage formula
 							totDamageToOneMonster = Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster
-								* (player.getStats().getTotalWatk() / 50) * (player.haveItem(ItemInfoProvider.UNLIMITED_SLOT_ITEM, 1, true, true) ? 2 : 1)));
+								* (player.getStats().getTotalWatk() / 50)));
 							if (player.isOnDMG()) {
 								player.sendNotice(5, "Damage: " + totDamageToOneMonster);
 							}
@@ -591,7 +590,7 @@ public final class DamageParse {
 						// HACK
 						// Damage Formula
 						totDamageToOneMonster = Math.min(ChannelCharacter.damageCap, Math.max(totDamageToOneMonster, totDamageToOneMonster
-							* (player.getStats().getTotalMagic() / 50) * (player.haveItem(ItemInfoProvider.UNLIMITED_SLOT_ITEM, 1, true, true) ? 2 : 1)));
+							* (player.getStats().getTotalMagic() / 50)));
 						if (player.isOnDMG()) {
 							player.sendNotice(5, "Damage: " + totDamageToOneMonster);
 						}

@@ -1,41 +1,45 @@
 package javastory.game.data;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javastory.wz.WzData;
 import javastory.wz.WzDataProviderFactory;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public final class MapNameInfoProvider {
+
+	private final class MapNameLoader extends CacheLoader<Integer, MapNameInfo> {
+		@Override
+		public MapNameInfo load(Integer mapId) throws Exception {
+			final String path = getMapAreaDataPath(mapId.intValue());
+			final WzData data = nameData.getChildByPath(path);
+
+			if (data == null) {
+				return null;
+			}
+
+			MapNameInfo info = new MapNameInfo(data);
+			return info;
+		}
+	}
 
 	private static final WzData nameData = WzDataProviderFactory.getDataProvider("String.wz").getData("Map.img");
 
 	private static final MapNameInfoProvider instance = new MapNameInfoProvider();
 
-	public final Map<Integer, MapNameInfo> cache;
+	public final Cache<Integer, MapNameInfo> cache;
 
 	private MapNameInfoProvider() {
-		this.cache = new MapMaker().expireAfterAccess(10, TimeUnit.MINUTES).makeMap();
+		this.cache = CacheBuilder.newBuilder()
+			.expireAfterAccess(10, TimeUnit.MINUTES)
+			.build(new MapNameLoader());
 	}
 
 	public static MapNameInfoProvider getInstance() {
 		return instance;
-	}
-
-	public MapNameInfo getInfo(int mapId) {
-		final String path = getMapAreaDataPath(mapId);
-		final WzData data = nameData.getChildByPath(path);
-
-		if (data == null) {
-			return null;
-		}
-
-		MapNameInfo info = new MapNameInfo(data);
-
-		this.cache.put(Integer.valueOf(mapId), info);
-		return info;
 	}
 
 	private String getMapAreaDataPath(int mapId) {
