@@ -3,19 +3,19 @@ package javastory.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import javastory.game.IItem;
+import javastory.game.Item;
 
 public class MerchItemPackage {
 
 	private long sentTime;
 	private int mesos = 0, packageid;
-	private List<IItem> items = new ArrayList<IItem>();
+	private List<Item> items = new ArrayList<Item>();
 
-	public void setItems(final List<IItem> items) {
+	public void setItems(final List<Item> items) {
 		this.items = items;
 	}
 
-	public List<IItem> getItems() {
+	public List<Item> getItems() {
 		return this.items;
 	}
 

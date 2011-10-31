@@ -22,9 +22,9 @@ import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.quest.QuestStatus;
 import javastory.tools.Randomizer;
@@ -237,7 +237,7 @@ public class AbstractPlayerInteraction {
 				return;
 			}
 			if (inventory.getType().equals(InventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
-				final IItem item = randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id)) : ii.getEquipById(id);
+				final Item item = randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id)) : ii.getEquipById(id);
 				if (period > 0) {
 					item.setExpiration(System.currentTimeMillis() + period);
 				}

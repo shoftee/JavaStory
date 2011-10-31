@@ -1,17 +1,17 @@
 package javastory.server;
 
-import javastory.game.IItem;
+import javastory.game.Item;
 
 public class DueyActions {
 
 	private String sender = null;
-	private IItem item = null;
+	private Item item = null;
 	private int mesos = 0;
 	private int quantity = 1;
 	private long sentTime;
 	private int packageId = 0;
 
-	public DueyActions(final int pId, final IItem item) {
+	public DueyActions(final int pId, final Item item) {
 		this.item = item;
 		this.quantity = item.getQuantity();
 		this.packageId = pId;
@@ -29,7 +29,7 @@ public class DueyActions {
 		this.sender = name;
 	}
 
-	public IItem getItem() {
+	public Item getItem() {
 		return this.item;
 	}
 

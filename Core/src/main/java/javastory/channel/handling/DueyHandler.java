@@ -15,7 +15,6 @@ import javastory.client.GameCharacterUtil;
 import javastory.db.Database;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.Item;
 import javastory.game.ItemFlag;
@@ -84,7 +83,7 @@ public class DueyHandler {
 
 						if (inventoryId > 0) {
 							final Inventory inventory = player.getInventoryByTypeByte(inventoryId);
-							final IItem item = inventory.getItem((byte) itemPos);
+							final Item item = inventory.getItem((byte) itemPos);
 							if (item == null) {
 								c.write(ChannelPackets.sendDuey((byte) 17, null)); // Unsuccessfull
 								return;
@@ -212,7 +211,7 @@ public class DueyHandler {
 		}
 	}
 
-	private static boolean addItemToDB(final IItem item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
+	private static boolean addItemToDB(final Item item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
 		final Connection con = Database.getConnection();
 		try {
 			final String insertPackage = "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";

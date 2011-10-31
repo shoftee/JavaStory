@@ -28,7 +28,7 @@ import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.ItemFlag;
 import javastory.server.TimerManager;
 
@@ -64,8 +64,8 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	@Override
 	public void buy(final ChannelClient c, final int item, final short quantity) {
 		final PlayerShopItem pItem = this.items.get(item);
-		final IItem shopItem = pItem.item;
-		final IItem newItem = shopItem.copy();
+		final Item shopItem = pItem.item;
+		final Item newItem = shopItem.copy();
 		final short perbundle = newItem.getQuantity();
 
 		newItem.setQuantity((short) (quantity * perbundle));

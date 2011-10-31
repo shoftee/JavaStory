@@ -31,8 +31,8 @@ import javastory.channel.server.Squad;
 import javastory.db.Database;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
@@ -233,7 +233,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public int gainGachaponItem(final int id, final int quantity) {
-		final IItem item = InventoryManipulator.addbyId_Gachapon(super.client, id, (short) quantity);
+		final Item item = InventoryManipulator.addbyId_Gachapon(super.client, id, (short) quantity);
 		if (item == null) {
 			return -1;
 		}
@@ -297,7 +297,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		final Inventory equipped = this.getPlayer().getEquippedItemsInventory();
 		final Inventory equip = this.getPlayer().getEquipInventory();
 		final List<Short> ids = new LinkedList<>();
-		for (final IItem item : equipped) {
+		for (final Item item : equipped) {
 			ids.add(item.getPosition());
 		}
 		for (final short id : ids) {

@@ -23,7 +23,7 @@ package javastory.game;
 
 import java.io.Serializable;
 
-public class Equip extends Item implements IEquip, Serializable {
+public class Equip extends Item implements Serializable {
 
 	/**
 	 * 
@@ -47,7 +47,7 @@ public class Equip extends Item implements IEquip, Serializable {
 	}
 
 	@Override
-	public IItem copy() {
+	public Item copy() {
 		final Equip ret = new Equip(this.getItemId(), this.getPosition(), this.ringid, this.getFlag());
 		ret.STR = this.STR;
 		ret.DEX = this.DEX;
@@ -80,87 +80,70 @@ public class Equip extends Item implements IEquip, Serializable {
 		return ItemType.EQUIP;
 	}
 
-	@Override
 	public byte getUpgradeSlots() {
 		return this.upgradeSlots;
 	}
 
-	@Override
 	public int getRingId() {
 		return this.ringid;
 	}
 
-	@Override
 	public short getStr() {
 		return this.STR;
 	}
 
-	@Override
 	public short getDex() {
 		return this.DEX;
 	}
 
-	@Override
 	public short getInt() {
 		return this.INT;
 	}
 
-	@Override
 	public short getLuk() {
 		return this.LUK;
 	}
 
-	@Override
 	public short getHp() {
 		return this.hp;
 	}
 
-	@Override
 	public short getMp() {
 		return this.mp;
 	}
 
-	@Override
 	public short getWatk() {
 		return this.physicalAttack;
 	}
 
-	@Override
 	public short getMatk() {
 		return this.magicAttack;
 	}
 
-	@Override
 	public short getWdef() {
 		return this.physicalDefense;
 	}
 
-	@Override
 	public short getMdef() {
 		return this.magicDefense;
 	}
 
-	@Override
 	public short getAcc() {
 		return this.acc;
 	}
 
-	@Override
 	public short getAvoid() {
 		return this.avoid;
 	}
 
-	@Override
 	public short getHands() {
 		return this.hands;
 	}
 
-	@Override
 	public short getSpeed() {
 		return this.speed;
 	}
 
-	@Override
 	public short getJump() {
 		return this.jump;
 	}
@@ -282,7 +265,6 @@ public class Equip extends Item implements IEquip, Serializable {
 		this.upgradeSlots = upgradeSlots;
 	}
 
-	@Override
 	public byte getLevel() {
 		return this.level;
 	}
@@ -291,7 +273,6 @@ public class Equip extends Item implements IEquip, Serializable {
 		this.level = level;
 	}
 
-	@Override
 	public byte getViciousHammer() {
 		return this.vicioushammer;
 	}
@@ -300,7 +281,6 @@ public class Equip extends Item implements IEquip, Serializable {
 		this.vicioushammer = ham;
 	}
 
-	@Override
 	public byte getItemLevel() {
 		return this.itemLevel;
 	}
@@ -312,7 +292,6 @@ public class Equip extends Item implements IEquip, Serializable {
 		this.itemLevel = itemLevel;
 	}
 
-	@Override
 	public short getItemEXP() {
 		return this.itemEXP;
 	}

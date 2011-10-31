@@ -4,18 +4,18 @@ import java.awt.Point;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.tools.packets.ChannelPackets;
 
 public class GameMapItem extends AbstractGameMapObject {
 
-	protected IItem item;
+	protected Item item;
 	protected GameMapObject dropper;
 	protected int character_ownerid, meso, questid = -1;
 	protected byte type;
 	protected boolean pickedUp = false, playerDrop;
 
-	public GameMapItem(final IItem item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
+	public GameMapItem(final Item item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
 		this.setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
@@ -25,7 +25,7 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.playerDrop = playerDrop;
 	}
 
-	public GameMapItem(final IItem item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop, final int questid) {
+	public GameMapItem(final Item item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop, final int questid) {
 		this.setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
@@ -46,7 +46,7 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.playerDrop = playerDrop;
 	}
 
-	public final IItem getItem() {
+	public final Item getItem() {
 		return this.item;
 	}
 

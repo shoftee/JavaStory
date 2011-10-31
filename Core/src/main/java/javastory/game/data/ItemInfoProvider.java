@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import javastory.channel.server.StatEffect;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.IdNameEntry;
 import javastory.game.IdProbabilityEntry;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.ItemConsumeType;
 import javastory.game.ItemFlag;
 import javastory.game.ItemType;
@@ -446,7 +446,7 @@ public final class ItemInfoProvider {
 		return ret;
 	}
 
-	public final IItem scrollEquipWithId(final IItem equipItem, final int scrollId, final boolean ws) {
+	public final Item scrollEquipWithId(final Item equipItem, final int scrollId, final boolean ws) {
 		if (equipItem.getType() == ItemType.EQUIP) {
 			final Equip equip = (Equip) equipItem;
 			final Map<String, Integer> stats = this.getEquipStats(scrollId);
@@ -603,11 +603,11 @@ public final class ItemInfoProvider {
 		}
 	}
 
-	public final IItem getEquipById(final int equipId) {
+	public final Item getEquipById(final int equipId) {
 		return this.getEquipById(equipId, -1);
 	}
 
-	public final IItem getEquipById(final int equipId, final int ringId) {
+	public final Item getEquipById(final int equipId, final int ringId) {
 		final Equip nEquip = new Equip(equipId, (byte) 0, ringId, (byte) 0);
 		nEquip.setQuantity((short) 1);
 		final Map<String, Integer> stats = this.getEquipStats(equipId);

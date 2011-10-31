@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class Inventory implements Iterable<IItem>, Serializable {
+public class Inventory implements Iterable<Item>, Serializable {
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 
 	private static final int MAX_CAPACITY = 96;
 	//
-	private final Map<Short, IItem> inventory;
+	private final Map<Short, Item> inventory;
 	private byte capacity = 0;
 	private final InventoryType type;
 
@@ -47,8 +47,8 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		this.capacity = slot;
 	}
 
-	public IItem findById(final int itemId) {
-		for (final IItem item : this.inventory.values()) {
+	public Item findById(final int itemId) {
+		for (final Item item : this.inventory.values()) {
 			if (item.getItemId() == itemId) {
 				return item;
 			}
@@ -58,7 +58,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 
 	public int countById(final int itemId) {
 		int quantity = 0;
-		for (final IItem item : this.inventory.values()) {
+		for (final Item item : this.inventory.values()) {
 			if (item.getItemId() == itemId) {
 				quantity += item.getQuantity();
 			}
@@ -66,9 +66,9 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		return quantity;
 	}
 
-	public List<IItem> listById(final int itemId) {
-		final List<IItem> ret = new ArrayList<>();
-		for (final IItem item : this.inventory.values()) {
+	public List<Item> listById(final int itemId) {
+		final List<Item> ret = new ArrayList<>();
+		for (final Item item : this.inventory.values()) {
 			if (item.getItemId() == itemId) {
 				ret.add(item);
 			}
@@ -85,7 +85,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		return ret;
 	}
 
-	public short addItem(final IItem item) {
+	public short addItem(final Item item) {
 		final short slotId = this.getNextFreeSlot();
 		if (slotId < 0) {
 			return -1;
@@ -95,7 +95,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		return slotId;
 	}
 
-	public void addFromDb(final IItem item) {
+	public void addFromDb(final Item item) {
 		if (item.getPosition() < 0 && !this.type.equals(InventoryType.EQUIPPED)) {
 			// This causes a lot of stuck problem, until we are done with
 			// position checking
@@ -108,8 +108,8 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		if (dSlot > this.capacity) {
 			return;
 		}
-		final Item source = (Item) this.inventory.get(sSlot);
-		final Item target = (Item) this.inventory.get(dSlot);
+		final Item source = this.inventory.get(sSlot);
+		final Item target = this.inventory.get(dSlot);
 		if (source == null) {
 			throw new IllegalStateException("The source slot is empty.");
 		}
@@ -137,7 +137,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		}
 	}
 
-	private void swap(final IItem source, final IItem target) {
+	private void swap(final Item source, final Item target) {
 		this.inventory.remove(source.getPosition());
 		this.inventory.remove(target.getPosition());
 		final short swapPos = source.getPosition();
@@ -147,7 +147,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 		this.inventory.put(target.getPosition(), target);
 	}
 
-	public IItem getItem(final short slot) {
+	public Item getItem(final short slot) {
 		return this.inventory.get(slot);
 	}
 
@@ -156,7 +156,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 	}
 
 	public void removeItem(final short slot, final short quantity, final boolean allowZero) {
-		final IItem item = this.inventory.get(slot);
+		final Item item = this.inventory.get(slot);
 		if (item == null) { // TODO is it ok not to throw an exception here?
 			return;
 		}
@@ -211,7 +211,7 @@ public class Inventory implements Iterable<IItem>, Serializable {
 	}
 
 	@Override
-	public Iterator<IItem> iterator() {
+	public Iterator<Item> iterator() {
 		return Collections.unmodifiableCollection(this.inventory.values())
 				.iterator();
 	}

@@ -46,11 +46,11 @@ import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.PacketHelper;
 import javastory.channel.server.StatEffect;
 import javastory.channel.server.Trade;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.ItemType;
 import javastory.game.Jobs;
 import javastory.game.ScrollResult;
@@ -390,7 +390,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getGachaponMega(final String name, final String message, final IItem item, final byte rareness) {
+	public static GamePacket getGachaponMega(final String name, final String message, final Item item, final byte rareness) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
@@ -438,7 +438,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket itemMegaphone(final String msg, final boolean whisperEnabled, final int channel, final IItem item) {
+	public static GamePacket itemMegaphone(final String msg, final boolean whisperEnabled, final int channel, final Item item) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
@@ -828,7 +828,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(0);
 
 		if (chr.getBuffedValue(BuffStat.MONSTER_RIDING) != null) {
-			final IItem mount = chr.getEquippedItemsInventory().getItem((byte) -22);
+			final Item mount = chr.getEquippedItemsInventory().getItem((byte) -22);
 			if (mount != null) {
 				builder.writeInt(mount.getItemId());
 				builder.writeInt(1004);
@@ -1097,11 +1097,11 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket addInventorySlot(final InventoryType type, final IItem item) {
+	public static GamePacket addInventorySlot(final InventoryType type, final Item item) {
 		return addInventorySlot(type, item, false);
 	}
 
-	public static GamePacket addInventorySlot(final InventoryType type, final IItem item, final boolean fromDrop) {
+	public static GamePacket addInventorySlot(final InventoryType type, final Item item, final boolean fromDrop) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -1114,7 +1114,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateInventorySlot(final InventoryType type, final IItem item, final boolean fromDrop) {
+	public static GamePacket updateInventorySlot(final InventoryType type, final Item item, final boolean fromDrop) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -1194,7 +1194,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateSpecialItemUse(final IItem item, final byte type) {
+	public static GamePacket updateSpecialItemUse(final Item item, final byte type) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -1220,7 +1220,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket scrolledItem(final IItem scroll, final IItem item, final boolean destroyed) {
+	public static GamePacket scrolledItem(final Item scroll, final Item item, final boolean destroyed) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -1336,12 +1336,12 @@ public final class ChannelPackets {
 		GameCharacterPacket.addCharLook(builder, chr, false);
 
 		final Inventory iv = chr.getEquippedItemsInventory();
-		final List<IItem> equipped = Lists.newLinkedList(iv);
+		final List<Item> equipped = Lists.newLinkedList(iv);
 		Collections.sort(equipped);
 
 		final List<Ring> rings = new ArrayList<>();
-		for (final IItem item : equipped) {
-			final IEquip equip = (IEquip) item;
+		for (final Item item : equipped) {
+			final Equip equip = (Equip) item;
 			if (equip.getRingId() > -1) {
 				rings.add(Ring.loadFromDb(equip.getRingId()));
 			}
@@ -1379,7 +1379,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket dropInventoryItemUpdate(final InventoryType type, final IItem item) {
+	public static GamePacket dropInventoryItemUpdate(final InventoryType type, final Item item) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
@@ -1502,7 +1502,7 @@ public final class ChannelPackets {
 		}
 		builder.writeAsByte(0);
 		final Inventory equippedItemsInventory = chr.getEquippedItemsInventory();
-		final IItem inv = equippedItemsInventory.getItem((byte) -114);
+		final Item inv = equippedItemsInventory.getItem((byte) -114);
 		final int peteqid = inv != null ? inv.getItemId() : 0;
 		for (final Pet pet : chr.getPets()) {
 			if (pet.isSummoned()) {
@@ -1947,7 +1947,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradeItemAdd(final byte number, final IItem item) {
+	public static GamePacket getTradeItemAdd(final byte number, final Item item) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
@@ -2313,7 +2313,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getStorage(final int npcId, final byte slots, final Collection<IItem> items, final int meso) {
+	public static GamePacket getStorage(final int npcId, final byte slots, final Collection<Item> items, final int meso) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
@@ -2326,7 +2326,7 @@ public final class ChannelPackets {
 		builder.writeInt(meso);
 		builder.writeAsShort(0);
 		builder.writeByte((byte) items.size());
-		for (final IItem item : items) {
+		for (final Item item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		builder.writeAsShort(0);
@@ -2358,7 +2358,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket storeStorage(final byte slots, final InventoryType type, final Collection<IItem> items) {
+	public static GamePacket storeStorage(final byte slots, final InventoryType type, final Collection<Item> items) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
@@ -2368,13 +2368,13 @@ public final class ChannelPackets {
 		builder.writeAsShort(0);
 		builder.writeInt(0);
 		builder.writeAsByte(items.size());
-		for (final IItem item : items) {
+		for (final Item item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		return builder.getPacket();
 	}
 
-	public static GamePacket takeOutStorage(final byte slots, final InventoryType type, final Collection<IItem> items) {
+	public static GamePacket takeOutStorage(final byte slots, final InventoryType type, final Collection<Item> items) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
@@ -2384,7 +2384,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(0);
 		builder.writeInt(0);
 		builder.writeAsByte(items.size());
-		for (final IItem item : items) {
+		for (final Item item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		return builder.getPacket();

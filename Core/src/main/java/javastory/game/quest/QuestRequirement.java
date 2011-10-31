@@ -25,7 +25,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.SkillFactory;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 
@@ -178,7 +178,7 @@ public class QuestRequirement implements Serializable {
 			for (final Entry entry : this.dataStore) {
 				itemId = entry.key;
 				quantity = 0;
-				for (final IItem item : c.getInventoryForItem(itemId).listById(itemId)) {
+				for (final Item item : c.getInventoryForItem(itemId).listById(itemId)) {
 					quantity += item.getQuantity();
 				}
 				final int count = entry.value;

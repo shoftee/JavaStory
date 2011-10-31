@@ -13,8 +13,8 @@ import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
@@ -30,7 +30,7 @@ public class PetHandler {
 		reader.skip(4);
 		final byte slot = reader.readByte();
 		final Inventory cashInventory = chr.getCashInventory();
-		final IItem item = cashInventory.getItem(slot);
+		final Item item = cashInventory.getItem(slot);
 
 		switch (item.getItemId()) {
 		case 5000047:
@@ -80,7 +80,7 @@ public class PetHandler {
 		reader.skip(13);
 		final byte slot = reader.readByte();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (!chr.isAlive() || toUse == null || toUse.getQuantity() < 1) {
 			c.write(ChannelPackets.enableActions());

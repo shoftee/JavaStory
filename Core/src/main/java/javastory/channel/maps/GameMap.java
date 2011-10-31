@@ -38,7 +38,6 @@ import javastory.channel.server.Portal;
 import javastory.channel.server.StatEffect;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.Jobs;
@@ -320,7 +319,7 @@ public class GameMap {
 
 		final int mobpos = mob.getPosition().x;
 		final float globalItemRate = ChannelServer.getInstance().getItemRate();
-		IItem idrop;
+		Item idrop;
 		byte d = 1;
 		final Point pos = new Point(0, mob.getPosition().y);
 		final MobDropInfoProvider mi = MobDropInfoProvider.getInstance();
@@ -931,7 +930,7 @@ public class GameMap {
 		}, duration);
 	}
 
-	public final void disappearingItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, final Point pos) {
+	public final void disappearingItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final Item item, final Point pos) {
 		final Point droppos = this.calcDropPos(pos, pos);
 		final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 1, false);
 		this.broadcastMessage(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
@@ -966,7 +965,7 @@ public class GameMap {
 		MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
 	}
 
-	private void spawnMobDrop(final IItem idrop, final Point dropPos, final Monster mob, final ChannelCharacter chr, final byte droptype, final short questid) {
+	private void spawnMobDrop(final Item idrop, final Point dropPos, final Monster mob, final ChannelCharacter chr, final byte droptype, final short questid) {
 		final GameMapItem mdrop = new GameMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
 		this.spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
@@ -981,7 +980,7 @@ public class GameMap {
 		this.activateItemReactors(mdrop, chr.getClient());
 	}
 
-	public final void spawnItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, final Point pos, final boolean ffaDrop,
+	public final void spawnItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final Item item, final Point pos, final boolean ffaDrop,
 		final boolean playerDrop) {
 		final Point droppos = this.calcDropPos(pos, pos);
 		final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 0, playerDrop);
@@ -1000,7 +999,7 @@ public class GameMap {
 	}
 
 	private void activateItemReactors(final GameMapItem drop, final ChannelClient c) {
-		final IItem item = drop.getItem();
+		final Item item = drop.getItem();
 
 		for (final GameMapObject o : this.getAllReactor()) {
 			final Reactor react = (Reactor) o;

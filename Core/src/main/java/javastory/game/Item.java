@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javastory.channel.client.Pet;
 import javastory.tools.Randomizer;
 
-public class Item implements IItem, Serializable {
+public class Item implements Serializable, Comparable<Item> {
 
 	/**
 	 * 
@@ -38,8 +38,7 @@ public class Item implements IItem, Serializable {
 		this.flag = flag;
 	}
 
-	@Override
-	public IItem copy() {
+	public Item copy() {
 		final Item ret = new Item(this.id, this.position, this.quantity, this.flag);
 		ret.petId = this.petId;
 		ret.pet = this.pet;
@@ -49,7 +48,6 @@ public class Item implements IItem, Serializable {
 		return ret;
 	}
 
-	@Override
 	public final void setPosition(final short position) {
 		this.position = position;
 		if (this.pet != null) {
@@ -57,82 +55,66 @@ public class Item implements IItem, Serializable {
 		}
 	}
 
-	@Override
 	public void setQuantity(final short quantity) {
 		this.quantity = quantity;
 	}
 
-	@Override
 	public final int getItemId() {
 		return this.id;
 	}
 
-	@Override
 	public final short getPosition() {
 		return this.position;
 	}
 
-	@Override
 	public final byte getFlag() {
 		return this.flag;
 	}
 
-	@Override
 	public final short getQuantity() {
 		return this.quantity;
 	}
 
-	@Override
 	public ItemType getType() {
 		return ItemType.NORMAL_ITEM; // An Item
 	}
 
-	@Override
 	public final String getOwner() {
 		return this.owner;
 	}
 
-	@Override
 	public final void setOwner(final String owner) {
 		this.owner = owner;
 	}
 
-	@Override
 	public final void setFlag(final byte flag) {
 		this.flag = flag;
 	}
 
-	@Override
 	public final long getExpiration() {
 		return this.expiration;
 	}
 
-	@Override
 	public final void setExpiration(final long expire) {
 		this.expiration = expire;
 	}
 
-	@Override
 	public final String getGMLog() {
 		return this.GameMaster_log;
 	}
 
-	@Override
 	public void setGMLog(final String GameMaster_log) {
 		this.GameMaster_log = GameMaster_log;
 	}
 
-	@Override
 	public final int getUniqueId() {
 		return this.uniqueid;
 	}
 
-	@Override
 	public final void setUniqueId(final int id) {
 		this.uniqueid = id;
 	}
 
-	@Override
 	public final Pet getPet() {
 		return this.pet;
 	}
@@ -142,7 +124,7 @@ public class Item implements IItem, Serializable {
 	}
 
 	@Override
-	public int compareTo(final IItem other) {
+	public int compareTo(final Item other) {
 		final int absPosition = Math.abs(this.position);
 		final int otherAbsPosition = Math.abs(other.getPosition());
 		if (absPosition < otherAbsPosition) {
@@ -159,7 +141,6 @@ public class Item implements IItem, Serializable {
 		return "Item: " + this.id + " quantity: " + this.quantity;
 	}
 
-	@Override
 	public int getCashId() {
 		if (this.cashId == 0) {
 			this.cashId = Randomizer.nextInt(Integer.MAX_VALUE) + 1;

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.game.Equip;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
 import javastory.wz.WzDataFileEntry;
@@ -93,7 +93,7 @@ public final class LoginInfoProvider {
         return ret;
     }
 
-    public final IItem getEquipById(final int equipId) {
+    public final Item getEquipById(final int equipId) {
         final Equip equip = new Equip(equipId, (byte) 0, -1, (byte) 0);
         equip.setQuantity((short) 1);
         final Map<String, Integer> stats = this.equipStatsCache.get(equipId);

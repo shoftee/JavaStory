@@ -4,7 +4,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.server.Notes.Note;
@@ -194,7 +194,7 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket transferFromCSToInv(final IItem item, final int position) {
+	public static GamePacket transferFromCSToInv(final Item item, final int position) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
@@ -205,7 +205,7 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket transferFromInvToCS(final IItem item, final int accountId) {
+	public static GamePacket transferFromInvToCS(final Item item, final int accountId) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());

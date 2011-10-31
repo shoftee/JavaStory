@@ -80,8 +80,6 @@ import javastory.db.DatabaseException;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
 import javastory.game.Gender;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.Item;
@@ -515,7 +513,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			if (!rs.next()) {
 				throw new RuntimeException("No mount data found on SQL column");
 			}
-			final IItem mount = this.getEquippedItemsInventory().getItem((byte) -22);
+			final Item mount = this.getEquippedItemsInventory().getItem((byte) -22);
 			this.mount = new Mount(this, mount != null ? mount.getItemId() : 0, 1004, rs.getInt("Fatigue"), rs.getInt("Level"), rs.getInt("Exp"));
 		}
 	}
@@ -1280,13 +1278,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private void saveItemInventory(final PreparedStatement statement, final Inventory inventory) throws SQLException {
 		statement.setInt(1, this.id);
 		statement.setInt(2, inventory.getType().asNumber());
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			this.setItemData(statement, item);
 			statement.executeUpdate();
 		}
 	}
 
-	private void setItemData(final PreparedStatement statement, final IItem item) throws SQLException {
+	private void setItemData(final PreparedStatement statement, final Item item) throws SQLException {
 		statement.setInt(3, item.getItemId());
 		statement.setInt(4, item.getPosition());
 		statement.setInt(5, item.getQuantity());
@@ -1300,7 +1298,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private void saveEquipInventory(final PreparedStatement itemStatement, final PreparedStatement equipStatement, final Inventory inventory)
 		throws SQLException {
 		itemStatement.setInt(3, inventory.getType().asNumber());
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			this.setItemData(itemStatement, item);
 			itemStatement.executeUpdate();
 
@@ -1314,13 +1312,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 			if (inventory.getType().equals(InventoryType.EQUIP) || inventory.getType().equals(InventoryType.EQUIPPED)) {
 				equipStatement.setInt(1, itemid);
-				this.setEquipData(equipStatement, (IEquip) item);
+				this.setEquipData(equipStatement, (Equip) item);
 				equipStatement.executeUpdate();
 			}
 		}
 	}
 
-	private void setEquipData(final PreparedStatement statement, final IEquip equip) throws SQLException {
+	private void setEquipData(final PreparedStatement statement, final Equip equip) throws SQLException {
 		statement.setInt(2, equip.getUpgradeSlots());
 		statement.setInt(3, equip.getLevel());
 		statement.setInt(4, equip.getStr());
@@ -2935,11 +2933,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	public final void expirationTask() {
 		long expiration;
 		final long currenttime = System.currentTimeMillis();
-		final List<IItem> toberemove = new ArrayList<>(); // This is here to
+		final List<Item> toberemove = new ArrayList<>(); // This is here to
 															// prevent deadlock.
 
 		for (final Inventory inv : this.inventory) {
-			for (final IItem item : inv) {
+			for (final Item item : inv) {
 				expiration = item.getExpiration();
 
 				if (expiration != -1 && !GameConstants.isPet(item.getItemId())) {
@@ -2957,7 +2955,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 					}
 				}
 			}
-			for (final IItem item : toberemove) {
+			for (final Item item : toberemove) {
 				InventoryManipulator.removeFromSlot(this.client, inv, item.getPosition(), item.getQuantity(), false);
 			}
 		}
@@ -3188,7 +3186,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		if (this.level == 200 && !this.isGM()) {
 			try {
 				final StringBuilder sb = new StringBuilder("[Congratulation] ");
-				final IItem medal = this.getEquippedItemsInventory().getItem((byte) -46);
+				final Item medal = this.getEquippedItemsInventory().getItem((byte) -46);
 				if (medal != null) { // Medal
 					sb.append("<");
 					sb.append(ItemInfoProvider.getInstance().getName(medal.getItemId()));

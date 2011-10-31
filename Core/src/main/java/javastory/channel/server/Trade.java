@@ -5,15 +5,15 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.ItemFlag;
 import javastory.tools.packets.ChannelPackets;
 
 public final class Trade {
 
 	private Trade partner = null;
-	private final List<IItem> items = new LinkedList<>();
-	private List<IItem> exchangeItems;
+	private final List<Item> items = new LinkedList<>();
+	private List<Item> exchangeItems;
 	private int meso = 0, exchangeMeso = 0;
 	private boolean locked = false;
 	private final ChannelCharacter chr;
@@ -25,7 +25,7 @@ public final class Trade {
 	}
 
 	public void CompleteTrade() {
-		for (final IItem item : this.exchangeItems) {
+		for (final Item item : this.exchangeItems) {
 			final byte flag = item.getFlag();
 
 			if (ItemFlag.KARMA_EQ.check(flag)) {
@@ -45,7 +45,7 @@ public final class Trade {
 	}
 
 	public void cancel() {
-		for (final IItem item : this.items) {
+		for (final Item item : this.items) {
 			InventoryManipulator.addFromDrop(this.chr.getClient(), item, false);
 		}
 		if (this.meso > 0) {
@@ -76,7 +76,7 @@ public final class Trade {
 		}
 	}
 
-	public void addItem(final IItem item) {
+	public void addItem(final Item item) {
 		if (this.locked || this.partner == null) {
 			return;
 		}
@@ -114,7 +114,7 @@ public final class Trade {
 			return false;
 		}
 		byte eq = 0, use = 0, setup = 0, etc = 0;
-		for (final IItem item : this.exchangeItems) {
+		for (final Item item : this.exchangeItems) {
 			switch (GameConstants.getInventoryType(item.getItemId())) {
 			case EQUIP:
 				eq++;

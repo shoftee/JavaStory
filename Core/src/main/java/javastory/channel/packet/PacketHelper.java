@@ -12,10 +12,10 @@ import javastory.channel.client.Pet;
 import javastory.channel.client.Ring;
 import javastory.channel.client.SkillEntry;
 import javastory.channel.movement.LifeMovementFragment;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.ItemType;
 import javastory.game.quest.QuestStatus;
 import javastory.io.PacketBuilder;
@@ -99,15 +99,15 @@ public class PacketHelper {
 	public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		final List<Ring> rings = new ArrayList<>();
 		final Inventory equipped = chr.getEquippedItemsInventory();
-		for (final IItem item : equipped) {
-			final IEquip equip = (IEquip) item;
+		for (final Item item : equipped) {
+			final Equip equip = (Equip) item;
 			if (equip.getRingId() > -1) {
 				rings.add(Ring.loadFromDb(equip.getRingId()));
 			}
 		}
 		final Inventory equips = chr.getEquipInventory();
-		for (final IItem item : equips) {
-			final IEquip equip = (IEquip) item;
+		for (final Item item : equips) {
+			final Equip equip = (Equip) item;
 			if (equip.getRingId() > -1) {
 				rings.add(Ring.loadFromDb(equip.getRingId()));
 			}
@@ -156,16 +156,16 @@ public class PacketHelper {
 		builder.writeBytes(unk1);
 		builder.writeBytes(unk2);
 		Inventory inventory = chr.getEquippedItemsInventory();
-		final List<IItem> equipped = Lists.newArrayList(inventory);
+		final List<Item> equipped = Lists.newArrayList(inventory);
 
 		Collections.sort(equipped);
-		for (final IItem item : equipped) {
+		for (final Item item : equipped) {
 			if (item.getPosition() < 0 && item.getPosition() > -100) {
 				addItemInfo(builder, item, false, false);
 			}
 		}
 		builder.writeAsShort(0); // start of equipped nx
-		for (final IItem item : equipped) {
+		for (final Item item : equipped) {
 			if (item.getPosition() < -100) {
 				addItemInfo(builder, item, false, false);
 			}
@@ -173,27 +173,27 @@ public class PacketHelper {
 
 		builder.writeAsShort(0); // start of equip inventory
 		inventory = chr.getEquipInventory();
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeInt(0); // start of use inventory
 		inventory = chr.getUseInventory();
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of set-up inventory
 		inventory = chr.getSetupInventory();
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of etc inventory
 		inventory = chr.getEtcInventory();
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of cash inventory
 		inventory = chr.getCashInventory();
-		for (final IItem item : inventory) {
+		for (final Item item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0);
@@ -207,11 +207,11 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addItemInfo(final PacketBuilder builder, final IItem item, final boolean zeroPosition, final boolean leaveOut) {
+	public static void addItemInfo(final PacketBuilder builder, final Item item, final boolean zeroPosition, final boolean leaveOut) {
 		addItemInfo(builder, item, zeroPosition, leaveOut, false);
 	}
 
-	public static void addItemInfo(final PacketBuilder builder, final IItem item, final boolean zeroPosition, final boolean leaveOut, final boolean trade) {
+	public static void addItemInfo(final PacketBuilder builder, final Item item, final boolean zeroPosition, final boolean leaveOut, final boolean trade) {
 		short pos = item.getPosition();
 		if (zeroPosition) {
 			if (!leaveOut) {
@@ -259,7 +259,7 @@ public class PacketHelper {
 			addExpirationTime(builder, item.getExpiration());
 
 			if (item.getType() == ItemType.EQUIP) {
-				final IEquip equip = (IEquip) item;
+				final Equip equip = (Equip) item;
 				builder.writeByte(equip.getUpgradeSlots());
 				builder.writeByte(equip.getLevel());
 				builder.writeAsShort(equip.getStr());

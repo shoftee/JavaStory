@@ -18,14 +18,14 @@
  */
 package javastory.channel.shops;
 
-import javastory.game.IItem;
+import javastory.game.Item;
 
 public class PlayerShopItem {
-	public IItem item;
+	public Item item;
 	public short bundles;
 	public int price;
 
-	public PlayerShopItem(final IItem item, final short bundles, final int price) {
+	public PlayerShopItem(final Item item, final short bundles, final int price) {
 		this.item = item;
 		this.bundles = bundles;
 		this.price = price;

@@ -33,11 +33,10 @@ import javastory.channel.server.ShopFactory;
 import javastory.client.GameCharacterUtil;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.IdProbabilityEntry;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.ItemConsumeType;
 import javastory.game.ItemFlag;
 import javastory.game.ScrollResult;
@@ -108,9 +107,9 @@ public class InventoryHandler {
 		 * 5) { return; } Inventory Inv =
 		 * c.getPlayer().getInventory(InventoryType.getByType(mode));
 		 * ArrayList<Item> itemarray = new ArrayList<Item>(); for
-		 * (Iterator<IItem> it = Inv.iterator(); it.hasNext();) { Item item =
+		 * (Iterator<Item> it = Inv.iterator(); it.hasNext();) { Item item =
 		 * (Item) it.next(); itemarray.add((Item) (item.copy())); }
-		 * Collections.sort(itemarray); for (IItem item : itemarray) {
+		 * Collections.sort(itemarray); for (Item item : itemarray) {
 		 * MapleInventoryManipulator.removeById(c,
 		 * InventoryType.getByType(mode), item.getItemId(), item.getQuantity(),
 		 * false, false); } for (Item i : itemarray) {
@@ -124,7 +123,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = c.getPlayer().getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
 			if (chr.getEquipInventory().getNextFreeSlot() > -1 && chr.getUseInventory().getNextFreeSlot() > -1
@@ -137,7 +136,7 @@ public class InventoryHandler {
 						if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) { // Total
 																					// prob
 							if (GameConstants.getInventoryType(reward.itemid) == InventoryType.EQUIP) {
-								final IItem item = ii.getEquipById(reward.itemid);
+								final Item item = ii.getEquipById(reward.itemid);
 								if (reward.period != -1) {
 									item.setExpiration(System.currentTimeMillis() + reward.period * 60 * 60 * 10L);
 								}
@@ -169,7 +168,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
 			c.write(ChannelPackets.enableActions());
@@ -193,7 +192,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
 			c.write(ChannelPackets.enableActions());
@@ -224,14 +223,14 @@ public class InventoryHandler {
 			whiteScroll = true;
 		}
 
-		IEquip toScroll;
+		Equip toScroll;
 		final Inventory equippedInventory = chr.getEquippedItemsInventory();
 		final Inventory equipInventory = chr.getEquipInventory();
 		if (dst < 0) {
-			toScroll = (IEquip) equippedInventory.getItem(dst);
+			toScroll = (Equip) equippedInventory.getItem(dst);
 		} else { // legendary spirit
 			legendarySpirit = true;
-			toScroll = (IEquip) equipInventory.getItem(dst);
+			toScroll = (Equip) equipInventory.getItem(dst);
 		}
 		final byte oldLevel = toScroll.getLevel();
 		final byte oldFlag = toScroll.getFlag();
@@ -243,8 +242,8 @@ public class InventoryHandler {
 			}
 		}
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem scroll = useInventory.getItem(slot);
-		IItem wscroll = null;
+		final Item scroll = useInventory.getItem(slot);
+		Item wscroll = null;
 
 		// Anti cheat and validation
 		final List<Integer> scrollReqs = ii.getScrollReqs(scroll.getItemId());
@@ -277,7 +276,7 @@ public class InventoryHandler {
 		}
 
 		// Scroll Success/ Failure/ Curse
-		final IEquip scrolled = (IEquip) ii.scrollEquipWithId(toScroll, scroll.getItemId(), whiteScroll);
+		final Equip scrolled = (Equip) ii.scrollEquipWithId(toScroll, scroll.getItemId(), whiteScroll);
 		ScrollResult scrollSuccess;
 		if (scrolled == null) {
 			scrollSuccess = ScrollResult.CURSE;
@@ -321,7 +320,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
 			return;
@@ -372,7 +371,7 @@ public class InventoryHandler {
 		final int itemid = reader.readInt();
 		final Monster mob = chr.getMap().getMonsterByOid(reader.readInt());
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemid && mob != null) {
 			switch (itemid) {
@@ -430,7 +429,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemid = reader.readInt(); // 2260000 usually
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 		final Mount mount = chr.getMount();
 
 		if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemid && mount != null) {
@@ -458,7 +457,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
 			switch (toUse.getItemId()) {
@@ -527,7 +526,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final Inventory useInventory = chr.getUseInventory();
-		final IItem toUse = useInventory.getItem(slot);
+		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
 
@@ -559,7 +558,7 @@ public class InventoryHandler {
 		final int itemid = reader.readInt();
 		final Inventory etcInventory = chr.getEtcInventory();
 
-		final IItem toUse = etcInventory.getItem((byte) slot);
+		final Item toUse = etcInventory.getItem((byte) slot);
 		if (toUse == null || toUse.getQuantity() <= 0 || toUse.getItemId() != itemid) {
 			c.write(ChannelPackets.enableActions());
 			return;
@@ -593,7 +592,7 @@ public class InventoryHandler {
 		}
 		final Inventory cashInventory = chr.getCashInventory();
 		if (cashInventory.countById(keyIDforRemoval) > 0) {
-			final IItem item = InventoryManipulator.addbyId_Gachapon(c, reward, (short) amount);
+			final Item item = InventoryManipulator.addbyId_Gachapon(c, reward, (short) amount);
 			if (item == null) {
 				chr.sendNotice(5, "Please check your item inventory and see if you have a Master Key, or if the inventory is full.");
 				c.write(ChannelPackets.enableActions());
@@ -621,7 +620,7 @@ public class InventoryHandler {
 		final byte slot = (byte) reader.readShort();
 		final int itemId = reader.readInt();
 		final ChannelCharacter player = c.getPlayer();
-		final IItem toUse = player.getCashInventory().getItem(slot);
+		final Item toUse = player.getCashInventory().getItem(slot);
 		if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
 			c.write(ChannelPackets.enableActions());
 			return;
@@ -1024,7 +1023,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5060000: { // Item Tag
-			final IItem item = player.getEquippedItemsInventory().getItem(reader.readByte());
+			final Item item = player.getEquippedItemsInventory().getItem(reader.readByte());
 
 			if (item != null && item.getOwner().equals("")) {
 				item.setOwner(player.getName());
@@ -1037,7 +1036,7 @@ public class InventoryHandler {
 			// Karma
 			final byte mode = (byte) reader.readInt();
 			final Inventory inventory = player.getInventoryByTypeByte(mode);
-			final IItem item = inventory.getItem((byte) reader.readInt());
+			final Item item = inventory.getItem((byte) reader.readInt());
 
 			if (item != null) {
 				if (ItemInfoProvider.getInstance().isKarmaEnabled(item.getItemId(), itemId)) {
@@ -1079,7 +1078,7 @@ public class InventoryHandler {
 			// Sealing Lock
 			final byte inventoryType = (byte) reader.readInt();
 			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
-			final IItem item = inventory.getItem((byte) reader.readInt());
+			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
 				byte flag = item.getFlag();
@@ -1094,7 +1093,7 @@ public class InventoryHandler {
 		case 5061000: { // Sealing Lock 7 days
 			final byte inventoryType = (byte) reader.readInt();
 			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
-			final IItem item = inventory.getItem((byte) reader.readInt());
+			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
 				byte flag = item.getFlag();
@@ -1110,7 +1109,7 @@ public class InventoryHandler {
 		case 5061001: { // Sealing Lock 30 days
 			final byte inventoryType = (byte) reader.readInt();
 			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
-			final IItem item = inventory.getItem((byte) reader.readInt());
+			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
 				byte flag = item.getFlag();
@@ -1127,7 +1126,7 @@ public class InventoryHandler {
 		case 5061002: { // Sealing Lock 90 days
 			final byte inventoryType = (byte) reader.readInt();
 			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
-			final IItem item = inventory.getItem((byte) reader.readInt());
+			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
 				byte flag = item.getFlag();
@@ -1279,7 +1278,7 @@ public class InventoryHandler {
 
 				final boolean ear = reader.readByte() > 0;
 
-				IItem item = null;
+				Item item = null;
 				if (reader.readByte() == 1) { // item
 					final byte invType = (byte) reader.readInt();
 					final byte pos = (byte) reader.readInt();
@@ -1649,7 +1648,7 @@ public class InventoryHandler {
 	}
 
 	private static void addMedalString(final ChannelCharacter c, final StringBuilder sb) {
-		final IItem medal = c.getEquippedItemsInventory().getItem((byte) -46);
+		final Item medal = c.getEquippedItemsInventory().getItem((byte) -46);
 		if (medal != null) { // Medal
 			sb.append("<");
 			sb.append(ItemInfoProvider.getInstance().getName(medal.getItemId()));

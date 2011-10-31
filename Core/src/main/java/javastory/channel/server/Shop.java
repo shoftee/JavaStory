@@ -16,9 +16,9 @@ import javastory.channel.client.Pet;
 import javastory.channel.client.SkillFactory;
 import javastory.db.Database;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.Skills;
 import javastory.game.data.ItemInfoProvider;
 import javastory.server.ShopItem;
@@ -117,7 +117,7 @@ public class Shop {
 		if (quantity == 0xFFFF || quantity == 0) {
 			quantity = 1;
 		}
-		final IItem item = inventory.getItem(slot);
+		final Item item = inventory.getItem(slot);
 
 		if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 			quantity = item.getQuantity();
@@ -150,7 +150,7 @@ public class Shop {
 
 	public void recharge(final ChannelClient c, final byte slot) {
 		final ChannelCharacter player = c.getPlayer();
-		final IItem item = player.getUseInventory().getItem(slot);
+		final Item item = player.getUseInventory().getItem(slot);
 
 		if (item == null || !GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId())) {
 			return;

@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.client.GameCharacter;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Jobs;
 import javastory.io.PacketBuilder;
 
@@ -68,7 +68,7 @@ public final class GameCharacterPacket {
 		final Inventory equip = chr.getEquippedItemsInventory();
 
 		// masking items
-		for (final IItem item : equip) {
+		for (final Item item : equip) {
 			byte pos = (byte) (item.getPosition() * -1);
 			if (pos < 100 && myEquip.get(pos) == null) {
 				myEquip.put(pos, item.getItemId());
@@ -97,7 +97,7 @@ public final class GameCharacterPacket {
 		// ending regular items
 		builder.writeAsByte(0xFF);
 
-		final IItem cWeapon = equip.getItem((byte) -111);
+		final Item cWeapon = equip.getItem((byte) -111);
 		builder.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);
 		builder.writeInt(0);
 		builder.writeLong(0);

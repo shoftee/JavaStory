@@ -8,9 +8,9 @@ import javastory.channel.server.InventoryManipulator;
 import javastory.channel.server.Shop;
 import javastory.channel.server.Storage;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketBuilder;
@@ -238,7 +238,7 @@ public class NpcHandler {
 			chr.sendNotice(1, "You don't have enough mesos to store the item");
 		} else {
 			final Inventory inventory = chr.getInventoryForItem(itemId);
-			final IItem item = inventory.getItem(slot).copy();
+			final Item item = inventory.getItem(slot).copy();
 			if (GameConstants.isPet(item.getItemId())) {
 				c.write(ChannelPackets.enableActions());
 				return;
@@ -268,7 +268,7 @@ public class NpcHandler {
 		throws PacketFormatException {
 		final byte type = reader.readByte();
 		final byte slot = storage.getSlot(InventoryType.fromNumber(type), reader.readByte());
-		final IItem item = storage.takeOut(slot);
+		final Item item = storage.takeOut(slot);
 		if (item != null) {
 			if (InventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
 				InventoryManipulator.addFromDrop(c, item, false);

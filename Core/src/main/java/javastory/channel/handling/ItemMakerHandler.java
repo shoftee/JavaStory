@@ -8,8 +8,8 @@ import javastory.channel.client.SkillFactory;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Jobs;
 import javastory.game.data.GemInfo;
 import javastory.game.data.ItemInfoProvider;
@@ -47,7 +47,7 @@ public class ItemMakerHandler {
 		final byte slot = (byte) reader.readInt();
 		final ChannelCharacter player = c.getPlayer();
 		final Inventory equipInventory = player.getEquipInventory();
-		final IItem toUse = equipInventory.getItem(slot);
+		final Item toUse = equipInventory.getItem(slot);
 		if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
 			return true;
 		}

@@ -17,8 +17,8 @@ import javastory.channel.shops.HiredMerchantStore;
 import javastory.channel.shops.PlayerShop;
 import javastory.channel.shops.PlayerShopItem;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.ItemFlag;
 import javastory.game.data.ItemInfoProvider;
 import javastory.io.PacketFormatException;
@@ -255,7 +255,7 @@ public class PlayerInteractionHandler {
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 		final byte typeByte = reader.readByte();
 		final Inventory inventory = chr.getInventoryByTypeByte(typeByte);
-		final IItem item = inventory.getItem((byte) reader.readShort());
+		final Item item = inventory.getItem((byte) reader.readShort());
 		final short quantity = reader.readShort();
 		final byte targetSlot = reader.readByte();
 
@@ -273,7 +273,7 @@ public class PlayerInteractionHandler {
 						return;
 					}
 				}
-				final IItem tradeItem = item.copy();
+				final Item tradeItem = item.copy();
 				if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 					tradeItem.setQuantity(item.getQuantity());
 					InventoryManipulator.removeFromSlot(c, inventory, item.getPosition(), item.getQuantity(), true);
@@ -324,7 +324,7 @@ public class PlayerInteractionHandler {
 		if (shop == null || !shop.isOwner(chr)) {
 			return;
 		}
-		final IItem ivItem = inventory.getItem(slot);
+		final Item ivItem = inventory.getItem(slot);
 
 		if (ivItem != null) {
 			final short bundles_perbundle = (short) (bundles * perBundle);
@@ -348,12 +348,12 @@ public class PlayerInteractionHandler {
 					// Ignore the bundles
 					InventoryManipulator.removeFromSlot(c, inventory, slot, ivItem.getQuantity(), true);
 
-					final IItem sellItem = ivItem.copy();
+					final Item sellItem = ivItem.copy();
 					shop.addItem(new PlayerShopItem(sellItem, (short) 1, price));
 				} else {
 					InventoryManipulator.removeFromSlot(c, inventory, slot, bundles_perbundle, true);
 
-					final IItem sellItem = ivItem.copy();
+					final Item sellItem = ivItem.copy();
 					sellItem.setQuantity(perBundle);
 					shop.addItem(new PlayerShopItem(sellItem, bundles, price));
 				}
@@ -393,7 +393,7 @@ public class PlayerInteractionHandler {
 
 		if (item != null) {
 			if (item.bundles > 0) {
-				final IItem item_get = item.item.copy();
+				final Item item_get = item.item.copy();
 				item_get.setQuantity((short) (item.bundles * item.item.getQuantity()));
 				if (InventoryManipulator.addFromDrop(c, item_get, false)) {
 					item.bundles = 0;
@@ -452,7 +452,7 @@ public class PlayerInteractionHandler {
 				if (merchant.getItems().size() > 0) {
 					for (final PlayerShopItem items : merchant.getItems()) {
 						if (items.bundles > 0) {
-							final IItem item_get = items.item.copy();
+							final Item item_get = items.item.copy();
 							item_get.setQuantity((short) (items.bundles * items.item.getQuantity()));
 							if (InventoryManipulator.addFromDrop(c, item_get, false)) {
 								items.bundles = 0;

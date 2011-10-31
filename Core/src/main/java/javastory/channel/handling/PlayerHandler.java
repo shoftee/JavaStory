@@ -32,8 +32,8 @@ import javastory.channel.server.Portal;
 import javastory.channel.server.StatEffect;
 import javastory.game.AttackType;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Skills;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.MobAttackInfo;
@@ -109,14 +109,14 @@ public class PlayerHandler {
 	}
 
 	public static void handleUseChair(final int itemId, final ChannelClient c, final ChannelCharacter chr) {
-		final IItem toUse = chr.getSetupInventory().findById(itemId);
+		final Item toUse = chr.getSetupInventory().findById(itemId);
 
 		if (toUse == null || toUse.getItemId() != itemId) {
 			chr.getCheatTracker().registerOffense(CheatingOffense.USING_UNAVAILABLE_ITEM, Integer.toString(itemId));
 			return;
 		}
 		if (itemId == 3011000) {
-			for (final IItem item : c.getPlayer().getCashInventory()) {
+			for (final Item item : c.getPlayer().getCashInventory()) {
 				if (item.getItemId() == 5340000) {
 					chr.startFishingTask(false);
 					break;
@@ -353,7 +353,7 @@ public class PlayerHandler {
 	}
 
 	public static void handleUseItemEffect(final int itemId, final ChannelClient c, final ChannelCharacter chr) {
-		final IItem toUse = chr.getCashInventory().findById(itemId);
+		final Item toUse = chr.getCashInventory().findById(itemId);
 		if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
 			c.write(ChannelPackets.enableActions());
 			return;

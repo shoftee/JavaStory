@@ -29,8 +29,8 @@ import javastory.channel.maps.Mist;
 import javastory.channel.maps.Summon;
 import javastory.channel.maps.SummonMovementType;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.Inventory;
+import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.server.BuffStatValue;
@@ -659,7 +659,7 @@ public class StatEffect implements Serializable {
 			applyto.getMonsterBook().addCard(applyto.getClient(), this.sourceid);
 		} else if (this.isSpiritClaw()) {
 			final Inventory use = applyto.getUseInventory();
-			IItem item;
+			Item item;
 			for (int i = 0; i < use.getSlotLimit(); i++) { // impose order...
 				item = use.getItem((byte) i);
 				if (item != null) {
@@ -993,7 +993,7 @@ public class StatEffect implements Serializable {
 		case 10001004:
 		case 20001004:
 		case 20011004:
-			final IItem item = player.getEquippedItemsInventory().getItem((byte) -22);
+			final Item item = player.getEquippedItemsInventory().getItem((byte) -22);
 			if (item != null) {
 				return item.getItemId();
 			}

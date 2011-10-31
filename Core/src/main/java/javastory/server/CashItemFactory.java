@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
@@ -56,11 +56,11 @@ public class CashItemFactory {
 		return packageItems;
 	}
 
-	public void addToInventory(final IItem item) {
+	public void addToInventory(final Item item) {
 		//inventory.add(item);
 	}
 
-	public void removeFromInventory(final IItem item) {
+	public void removeFromInventory(final Item item) {
 		//inventory.remove(item);
 	}
 }

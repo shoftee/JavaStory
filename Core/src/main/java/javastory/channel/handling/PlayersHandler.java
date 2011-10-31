@@ -25,7 +25,7 @@ import javastory.channel.maps.Door;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.Reactor;
 import javastory.channel.server.InventoryManipulator;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.data.ItemInfoProvider;
 import javastory.io.PacketFormatException;
@@ -122,7 +122,7 @@ public final class PlayersHandler {
 		final int itemId = reader.readInt();
 		final String target = reader.readLengthPrefixedString().toLowerCase();
 
-		final IItem toUse = c.getPlayer().getUseInventory().getItem(slot);
+		final Item toUse = c.getPlayer().getUseInventory().getItem(slot);
 
 		if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId) {
 			c.write(ChannelPackets.enableActions());

@@ -18,7 +18,7 @@ import javastory.client.LoginCrypto;
 import javastory.cryptography.AesTransform;
 import javastory.db.Database;
 import javastory.game.Gender;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.Inventory;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
@@ -427,7 +427,7 @@ public final class LoginClient extends GameClient {
         newchar.setSkinColorId(skinColorId);
         final Inventory equip = newchar.getEquippedItemsInventory();
         final LoginInfoProvider li = LoginInfoProvider.getInstance();
-        IItem item = li.getEquipById(top);
+        Item item = li.getEquipById(top);
         item.setPosition((byte) -5);
         equip.addFromDb(item);
         item = li.getEquipById(bottom);

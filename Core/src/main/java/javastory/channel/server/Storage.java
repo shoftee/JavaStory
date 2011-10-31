@@ -18,8 +18,6 @@ import javastory.db.Database;
 import javastory.db.DatabaseException;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.ItemType;
@@ -31,11 +29,11 @@ public class Storage implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
 	private final int id;
-	private final List<IItem> items;
+	private final List<Item> items;
 	private int meso;
 	private byte slots;
 	private boolean hasChanged = false;
-	private final Map<InventoryType, List<IItem>> typeItems = Maps.newEnumMap(InventoryType.class);
+	private final Map<InventoryType, List<Item>> typeItems = Maps.newEnumMap(InventoryType.class);
 
 	private Storage(final int id, final byte slots, final int meso) {
 		this.id = id;
@@ -163,7 +161,7 @@ public class Storage implements Serializable {
 			final PreparedStatement pse = con
 				.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-			for (final IItem item : this.items) {
+			for (final Item item : this.items) {
 				ps.setInt(1, this.id);
 				ps.setInt(2, item.getItemId());
 				ps.setInt(3, item.getType().asByte()); // type.getType()
@@ -184,7 +182,7 @@ public class Storage implements Serializable {
 				}
 				if (item.getType() == ItemType.EQUIP) {
 					pse.setInt(1, itemid);
-					final IEquip equip = (IEquip) item;
+					final Equip equip = (Equip) item;
 					pse.setInt(2, equip.getUpgradeSlots());
 					pse.setInt(3, equip.getLevel());
 					pse.setInt(4, equip.getStr());
@@ -216,29 +214,29 @@ public class Storage implements Serializable {
 		}
 	}
 
-	public IItem takeOut(final byte slot) {
+	public Item takeOut(final byte slot) {
 		this.hasChanged = true;
-		final IItem ret = this.items.remove(slot);
+		final Item ret = this.items.remove(slot);
 		final InventoryType type = GameConstants.getInventoryType(ret.getItemId());
 		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
 		return ret;
 	}
 
-	public void store(final IItem item) {
+	public void store(final Item item) {
 		this.hasChanged = true;
 		this.items.add(item);
 		final InventoryType type = GameConstants.getInventoryType(item.getItemId());
 		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
 	}
 
-	public List<IItem> getItems() {
+	public List<Item> getItems() {
 		return Collections.unmodifiableList(this.items);
 	}
 
-	private List<IItem> filterItems(final InventoryType type) {
-		final List<IItem> ret = new LinkedList<>();
+	private List<Item> filterItems(final InventoryType type) {
+		final List<Item> ret = new LinkedList<>();
 
-		for (final IItem item : this.items) {
+		for (final Item item : this.items) {
 			if (GameConstants.getInventoryType(item.getItemId()) == type) {
 				ret.add(item);
 			}
@@ -249,7 +247,7 @@ public class Storage implements Serializable {
 	public byte getSlot(final InventoryType type, final byte slot) {
 		// MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
 		byte ret = 0;
-		for (final IItem item : this.items) {
+		for (final Item item : this.items) {
 			if (item == this.typeItems.get(type).get(slot)) {
 				return ret;
 			}
@@ -260,10 +258,10 @@ public class Storage implements Serializable {
 
 	public void sendStorage(final ChannelClient c, final int npcId) {
 		// sort by inventorytype to avoid confusion
-		Collections.sort(this.items, new Comparator<IItem>() {
+		Collections.sort(this.items, new Comparator<Item>() {
 
 			@Override
-			public int compare(final IItem item1, final IItem item2) {
+			public int compare(final Item item1, final Item item2) {
 				final InventoryType item1Type = GameConstants.getInventoryType(item1.getItemId());
 				final InventoryType item2Type = GameConstants.getInventoryType(item2.getItemId());
 				if (item1Type.asNumber() < item2Type.asNumber()) {

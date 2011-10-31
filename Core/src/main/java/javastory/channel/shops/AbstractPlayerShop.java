@@ -15,7 +15,7 @@ import javastory.channel.maps.AbstractGameMapObject;
 import javastory.channel.packet.PlayerShopPacket;
 import javastory.db.Database;
 import javastory.game.Equip;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.ItemType;
 import javastory.io.GamePacket;
 
@@ -115,7 +115,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 				if (pItems.bundles <= 0) {
 					continue;
 				}
-				final IItem item = pItems.item;
+				final Item item = pItems.item;
 
 				if (item.getType() == ItemType.EQUIP) { // equips
 					ps2 = con

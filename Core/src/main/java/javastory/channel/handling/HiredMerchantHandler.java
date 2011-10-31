@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
@@ -16,12 +15,13 @@ import javastory.channel.server.InventoryManipulator;
 import javastory.db.Database;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IItem;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.MerchItemPackage;
+
+import com.google.common.collect.Lists;
 
 public final class HiredMerchantHandler {
 
@@ -121,7 +121,7 @@ public final class HiredMerchantHandler {
 			}
 			if (deletePackage(player.getId())) {
 				player.gainMeso(pack.getMesos(), false);
-				for (final IItem item : pack.getItems()) {
+				for (final Item item : pack.getItems()) {
 					InventoryManipulator.addFromDrop(c, item, false);
 				}
 				c.write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
@@ -142,7 +142,7 @@ public final class HiredMerchantHandler {
 			return false;
 		}
 		byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
-		for (final IItem item : pack.getItems()) {
+		for (final Item item : pack.getItems()) {
 			final InventoryType invtype = GameConstants.getInventoryType(item.getItemId());
 			if (invtype == InventoryType.EQUIP) {
 				eq++;
@@ -202,7 +202,7 @@ public final class HiredMerchantHandler {
 			ps.close();
 			rs.close();
 
-			final List<IItem> items = new ArrayList<IItem>();
+			final List<Item> items = Lists.newArrayList();
 
 			final PreparedStatement ps2 = con.prepareStatement("SELECT * from hiredmerchitems where PackageId = ?");
 			ps2.setInt(1, packageid);
@@ -242,7 +242,7 @@ public final class HiredMerchantHandler {
 
 					items.add(equip);
 				} else {
-					final IItem item = new Item(rs2.getInt("itemid"), (byte) 0, rs2.getShort("quantity"), rs2.getByte("flag"));
+					final Item item = new Item(rs2.getInt("itemid"), (byte) 0, rs2.getShort("quantity"), rs2.getByte("flag"));
 					item.setOwner(rs2.getString("owner"));
 					item.setFlag(rs2.getByte("flag"));
 					item.setExpiration(rs2.getLong("expiredate"));

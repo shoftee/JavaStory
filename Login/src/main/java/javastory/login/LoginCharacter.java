@@ -14,10 +14,9 @@ import javastory.db.Database;
 import javastory.db.DatabaseException;
 import javastory.game.Equip;
 import javastory.game.Gender;
-import javastory.game.IEquip;
-import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
+import javastory.game.Item;
 import javastory.game.PlayerStats;
 import javastory.game.Skills;
 
@@ -240,11 +239,11 @@ public class LoginCharacter implements GameCharacter {
             ps.close();
             ps = con.prepareStatement("INSERT INTO inventoryitems (characterid, inventorytype, itemid, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             pse = con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            IEquip equip;
+            Equip equip;
 
             ps.setInt(1, chr.id);
             ps.setInt(2, chr.equips.getType().asNumber());
-            for (final IItem item : chr.equips) {
+            for (final Item item : chr.equips) {
                 ps.setInt(3, item.getItemId());
                 ps.setInt(4, item.getPosition());
                 ps.setInt(5, item.getQuantity());
@@ -265,7 +264,7 @@ public class LoginCharacter implements GameCharacter {
                 rs.close();
 
                 pse.setInt(1, newItemId);
-                equip = (IEquip) item;
+                equip = (Equip) item;
                 pse.setInt(2, equip.getUpgradeSlots());
                 pse.setInt(3, equip.getLevel());
                 pse.setInt(4, equip.getStr());

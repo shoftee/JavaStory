@@ -5,9 +5,9 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
+import javastory.game.Equip;
 import javastory.game.GameConstants;
-import javastory.game.IEquip;
-import javastory.game.IItem;
+import javastory.game.Item;
 import javastory.game.Jobs;
 import javastory.game.PlayerStats;
 import javastory.game.Skills;
@@ -172,8 +172,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 		int jump = 100;
 		this.magic = this.localint_;
 		this.watk = 0;
-		for (final IItem item : chra.getEquippedItemsInventory()) {
-			final IEquip equip = (IEquip) item;
+		for (final Item item : chra.getEquippedItemsInventory()) {
+			final Equip equip = (Equip) item;
 
 			if (equip.getPosition() == -11) {
 				if (GameConstants.isMagicWeapon(equip.getItemId())) {
@@ -503,7 +503,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 		if (watk == 0) {
 			maxBaseDamage = 1;
 		} else {
-			final IItem weapon_item = chra.getEquippedItemsInventory().getItem((byte) -11);
+			final Item weapon_item = chra.getEquippedItemsInventory().getItem((byte) -11);
 
 			if (weapon_item != null) {
 				final int job = chra.getJobId();
