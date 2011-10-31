@@ -44,9 +44,9 @@ public final class MobAttackInfoFactory {
 		this.mobAttacks = Maps.newHashMap();
 	}
 
-	public MobAttackInfo getMobAttackInfo(int mobId, int attackId) {
+	public MobAttackInfo getMobAttackInfo(final int mobId, final int attackId) {
 		final MobAttackId mobAttackId = new MobAttackId(mobId, attackId);
-		MobAttackInfo ret = mobAttacks.get(mobAttackId);
+		MobAttackInfo ret = this.mobAttacks.get(mobAttackId);
 		if (ret != null) {
 			return ret;
 		}
@@ -56,11 +56,11 @@ public final class MobAttackInfoFactory {
 			return null;
 		}
 
-		WzData infoData = mobData.getChildByPath("info/link");
+		final WzData infoData = mobData.getChildByPath("info/link");
 
 		if (infoData != null) {
-			String linkedId = WzDataTool.getString("info/link", mobData);
-			String paddedId = StringUtil.getLeftPaddedStr(linkedId, '0', 7);
+			final String linkedId = WzDataTool.getString("info/link", mobData);
+			final String paddedId = StringUtil.getLeftPaddedStr(linkedId, '0', 7);
 			mobData = dataRoot.getData(paddedId);
 		}
 
@@ -70,7 +70,7 @@ public final class MobAttackInfoFactory {
 		}
 
 		ret = new MobAttackInfo(attackData);
-		mobAttacks.put(mobAttackId, ret);
+		this.mobAttacks.put(mobAttackId, ret);
 
 		return ret;
 	}

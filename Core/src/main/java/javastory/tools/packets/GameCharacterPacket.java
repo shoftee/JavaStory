@@ -65,7 +65,7 @@ public final class GameCharacterPacket {
 
 		final Map<Byte, Integer> myEquip = new LinkedHashMap<>();
 		final Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
-		Inventory equip = chr.getEquippedItemsInventory();
+		final Inventory equip = chr.getEquippedItemsInventory();
 
 		// masking items
 		for (final IItem item : equip) {

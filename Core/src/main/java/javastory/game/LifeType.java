@@ -5,7 +5,7 @@ public enum LifeType {
 
 	private char typeChar;
 
-	private LifeType(char c) {
+	private LifeType(final char c) {
 		this.typeChar = c;
 	}
 
@@ -13,7 +13,7 @@ public enum LifeType {
 		return this.typeChar;
 	}
 
-	public static LifeType fromChar(char c) {
+	public static LifeType fromChar(final char c) {
 		switch (c) {
 		case 'n':
 			return NPC;

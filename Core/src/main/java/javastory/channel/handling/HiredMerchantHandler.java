@@ -43,7 +43,7 @@ public final class HiredMerchantHandler {
 				boolean merch = true;
 				try {
 					merch = ChannelServer.getWorldInterface().hasMerchant(c.getAccountId());
-				} catch (RemoteException re) {
+				} catch (final RemoteException re) {
 					ChannelServer.pingWorld();
 				}
 				if (!merch) {
@@ -63,9 +63,9 @@ public final class HiredMerchantHandler {
 	}
 
 	private static byte checkExistance(final int accid) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where accountid = ?");
+			final PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where accountid = ?");
 			ps.setInt(1, accid);
 
 			if (ps.executeQuery().next()) {
@@ -74,7 +74,7 @@ public final class HiredMerchantHandler {
 			}
 			ps.close();
 			return 0;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			return -1;
 		}
 	}
@@ -121,7 +121,7 @@ public final class HiredMerchantHandler {
 			}
 			if (deletePackage(player.getId())) {
 				player.gainMeso(pack.getMesos(), false);
-				for (IItem item : pack.getItems()) {
+				for (final IItem item : pack.getItems()) {
 					InventoryManipulator.addFromDrop(c, item, false);
 				}
 				c.write(PlayerShopPacket.merchItem_Message((byte) 0x1d));
@@ -142,7 +142,7 @@ public final class HiredMerchantHandler {
 			return false;
 		}
 		byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
-		for (IItem item : pack.getItems()) {
+		for (final IItem item : pack.getItems()) {
 			final InventoryType invtype = GameConstants.getInventoryType(item.getItemId());
 			if (invtype == InventoryType.EQUIP) {
 				eq++;
@@ -168,12 +168,12 @@ public final class HiredMerchantHandler {
 		final Connection con = Database.getConnection();
 
 		try {
-			PreparedStatement ps = con.prepareStatement("DELETE from hiredmerch where characterid = ?");
+			final PreparedStatement ps = con.prepareStatement("DELETE from hiredmerch where characterid = ?");
 			ps.setInt(1, charid);
 			ps.execute();
 			ps.close();
 			return true;
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			return false;
 		}
 	}
@@ -182,10 +182,10 @@ public final class HiredMerchantHandler {
 		final Connection con = Database.getConnection();
 
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where characterid = ?");
+			final PreparedStatement ps = con.prepareStatement("SELECT * from hiredmerch where characterid = ?");
 			ps.setInt(1, charid);
 
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 
 			if (!rs.next()) {
 				ps.close();
@@ -202,11 +202,11 @@ public final class HiredMerchantHandler {
 			ps.close();
 			rs.close();
 
-			List<IItem> items = new ArrayList<IItem>();
+			final List<IItem> items = new ArrayList<IItem>();
 
-			PreparedStatement ps2 = con.prepareStatement("SELECT * from hiredmerchitems where PackageId = ?");
+			final PreparedStatement ps2 = con.prepareStatement("SELECT * from hiredmerchitems where PackageId = ?");
 			ps2.setInt(1, packageid);
-			ResultSet rs2 = ps2.executeQuery();
+			final ResultSet rs2 = ps2.executeQuery();
 
 			while (rs2.next()) {
 				final int itemid = rs2.getInt("itemid");
@@ -257,7 +257,7 @@ public final class HiredMerchantHandler {
 			pack.setItems(items);
 
 			return pack;
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			return null;
 		}

@@ -25,7 +25,7 @@ public class AttackPair {
 	public int objectid;
 	public List<Integer> attack;
 
-	public AttackPair(int objectId, List<Integer> attack) {
+	public AttackPair(final int objectId, final List<Integer> attack) {
 		this.objectid = objectId;
 		this.attack = attack;
 	}

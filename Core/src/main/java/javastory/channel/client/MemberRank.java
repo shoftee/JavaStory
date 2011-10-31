@@ -9,15 +9,15 @@ public enum MemberRank {
 	MASTER(1), JR_MASTER(2), MEMBER_HIGH(3), MEMBER_MIDDLE(4), MEMBER_LOW(5);
 	private byte ordinal;
 
-	private MemberRank(int ordinal) {
+	private MemberRank(final int ordinal) {
 		this.ordinal = (byte) ordinal;
 	}
 
 	public byte asNumber() {
-		return ordinal;
+		return this.ordinal;
 	}
 
-	public boolean isSuperior(MemberRank other) {
+	public boolean isSuperior(final MemberRank other) {
 		// Regular members have the same priviledges;
 		// Jr. Masters are equal (not superior) to other Jr. Masters.
 		return this.isMaster() && this.ordinal < other.ordinal;
@@ -27,7 +27,7 @@ public enum MemberRank {
 		return this.equals(MemberRank.JR_MASTER) || this.equals(MemberRank.MASTER);
 	}
 
-	public static MemberRank fromNumber(int ordinal) {
+	public static MemberRank fromNumber(final int ordinal) {
 		switch (ordinal) {
 		case 1:
 			return MASTER;

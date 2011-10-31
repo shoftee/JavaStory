@@ -31,108 +31,108 @@ public class PlayerStorage {
 	private final Map<Integer, CharacterTransfer> pendingTransfers;
 
 	public PlayerStorage() {
-		pendingTransfers = new MapMaker().expireAfterWrite(1, TimeUnit.MINUTES).evictionListener(new EvictionListener()).makeMap();
+		this.pendingTransfers = new MapMaker().expireAfterWrite(1, TimeUnit.MINUTES).evictionListener(new EvictionListener()).makeMap();
 	}
 
 	public final boolean registerSession(final int characterId, final String sessionIP) {
 		Preconditions.checkNotNull(sessionIP);
 
-		sessionsLock.lock();
+		this.sessionsLock.lock();
 		try {
-			if (!sessions.get(characterId).equals(sessionIP)) {
+			if (!this.sessions.get(characterId).equals(sessionIP)) {
 				return false;
 			}
-			sessions.put(characterId, sessionIP);
+			this.sessions.put(characterId, sessionIP);
 			return true;
 		} finally {
-			sessionsLock.unlock();
+			this.sessionsLock.unlock();
 		}
 	}
 
 	public final void deregisterSession(final int characterId) {
-		sessionsLock.lock();
+		this.sessionsLock.lock();
 		try {
-			sessions.remove(characterId);
+			this.sessions.remove(characterId);
 		} finally {
-			sessionsLock.unlock();
+			this.sessionsLock.unlock();
 		}
 	}
 
 	public final boolean checkSession(final int characterId, final String sessionIP) {
 		Preconditions.checkNotNull(sessionIP);
 
-		sessionsLock.lock();
+		this.sessionsLock.lock();
 		try {
-			return sessions.get(characterId).equals(sessionIP);
+			return this.sessions.get(characterId).equals(sessionIP);
 		} finally {
-			sessionsLock.unlock();
+			this.sessionsLock.unlock();
 		}
 	}
 
 	public final void registerTransfer(final CharacterTransfer chr, final int characterId) {
-		pendingPlayerLock.lock();
+		this.pendingPlayerLock.lock();
 		try {
-			pendingTransfers.put(characterId, chr);
+			this.pendingTransfers.put(characterId, chr);
 		} finally {
-			pendingPlayerLock.unlock();
+			this.pendingPlayerLock.unlock();
 		}
 	}
 
 	public final void deregisterPlayer(final ChannelCharacter chr) {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			nameToChar.remove(chr.getName().toLowerCase());
-			idToChar.remove(chr.getId());
+			this.nameToChar.remove(chr.getName().toLowerCase());
+			this.idToChar.remove(chr.getId());
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	public final void deregisterTransfer(final int characterId) {
-		pendingPlayerLock.lock();
+		this.pendingPlayerLock.lock();
 		try {
-			pendingTransfers.remove(characterId);
+			this.pendingTransfers.remove(characterId);
 		} finally {
-			pendingPlayerLock.unlock();
+			this.pendingPlayerLock.unlock();
 		}
 	}
 
 	public final CharacterTransfer getPendingTransfer(final int characterId) {
-		final CharacterTransfer transfer = pendingTransfers.get(characterId);
+		final CharacterTransfer transfer = this.pendingTransfers.get(characterId);
 		if (transfer != null) {
-			deregisterTransfer(characterId);
+			this.deregisterTransfer(characterId);
 		}
 		return transfer;
 	}
 
 	public final void registerPlayer(final ChannelCharacter chr) {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			nameToChar.put(chr.getName().toLowerCase(), chr);
-			idToChar.put(chr.getId(), chr);
+			this.nameToChar.put(chr.getName().toLowerCase(), chr);
+			this.idToChar.put(chr.getId(), chr);
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	public final ChannelCharacter getCharacterByName(final String name) {
-		return nameToChar.get(name.toLowerCase());
+		return this.nameToChar.get(name.toLowerCase());
 	}
 
 	public final ChannelCharacter getCharacterById(final int id) {
-		return idToChar.get(id);
+		return this.idToChar.get(id);
 	}
 
 	public final int getConnectedClients() {
-		return idToChar.size();
+		return this.idToChar.size();
 	}
 
 	public final List<CheaterData> getCheaters() {
 		final List<CheaterData> cheaters = new ArrayList<>();
 
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+			final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -150,15 +150,15 @@ public class PlayerStorage {
 				cheaters.add(new CheaterData(points, description));
 			}
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 		return cheaters;
 	}
 
 	public final void disconnectAll() {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+			final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -170,28 +170,28 @@ public class PlayerStorage {
 				}
 			}
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	public final String getOnlinePlayers(final boolean byGM) {
 		final StringBuilder sb = new StringBuilder();
 		if (byGM) {
-			activePlayerLock.lock();
+			this.activePlayerLock.lock();
 			try {
-				final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
-				ChannelCharacter character = itr.next();
+				final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
+				final ChannelCharacter character = itr.next();
 				while (itr.hasNext()) {
 					sb.append(character.getWorldName().toUpperCase());
 					sb.append(", ");
 				}
 			} finally {
-				activePlayerLock.unlock();
+				this.activePlayerLock.unlock();
 			}
 		} else {
-			activePlayerLock.lock();
+			this.activePlayerLock.lock();
 			try {
-				final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+				final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 				ChannelCharacter chr;
 				while (itr.hasNext()) {
 					chr = itr.next();
@@ -201,28 +201,28 @@ public class PlayerStorage {
 					}
 				}
 			} finally {
-				activePlayerLock.unlock();
+				this.activePlayerLock.unlock();
 			}
 		}
 		return sb.toString();
 	}
 
 	public final void broadcastPacket(final GamePacket data) {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+			final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 			while (itr.hasNext()) {
 				itr.next().getClient().write(data);
 			}
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	public final void broadcastSmegaPacket(final GamePacket data) {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+			final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -232,14 +232,14 @@ public class PlayerStorage {
 				}
 			}
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	public final void broadcastGMPacket(final GamePacket data) {
-		activePlayerLock.lock();
+		this.activePlayerLock.lock();
 		try {
-			final Iterator<ChannelCharacter> itr = nameToChar.values().iterator();
+			final Iterator<ChannelCharacter> itr = this.nameToChar.values().iterator();
 			ChannelCharacter chr;
 			while (itr.hasNext()) {
 				chr = itr.next();
@@ -249,18 +249,18 @@ public class PlayerStorage {
 				}
 			}
 		} finally {
-			activePlayerLock.unlock();
+			this.activePlayerLock.unlock();
 		}
 	}
 
 	private final class EvictionListener implements MapEvictionListener<Integer, CharacterTransfer> {
 		@Override
-		public void onEviction(Integer key, CharacterTransfer value) {
-			deregisterSession(key);
+		public void onEviction(final Integer key, final CharacterTransfer value) {
+			PlayerStorage.this.deregisterSession(key);
 		}
 	}
 
 	public Collection<ChannelCharacter> getAllCharacters() {
-		return nameToChar.values();
+		return this.nameToChar.values();
 	}
 }

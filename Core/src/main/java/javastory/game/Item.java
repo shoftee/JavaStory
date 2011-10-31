@@ -40,7 +40,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public IItem copy() {
-		final Item ret = new Item(id, position, quantity, flag);
+		final Item ret = new Item(this.id, this.position, this.quantity, this.flag);
 		ret.petId = this.petId;
 		ret.pet = this.pet;
 		ret.owner = this.owner;
@@ -52,8 +52,8 @@ public class Item implements IItem, Serializable {
 	@Override
 	public final void setPosition(final short position) {
 		this.position = position;
-		if (pet != null) {
-			pet.setInventoryPosition(position);
+		if (this.pet != null) {
+			this.pet.setInventoryPosition(position);
 		}
 	}
 
@@ -64,22 +64,22 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final int getItemId() {
-		return id;
+		return this.id;
 	}
 
 	@Override
 	public final short getPosition() {
-		return position;
+		return this.position;
 	}
 
 	@Override
 	public final byte getFlag() {
-		return flag;
+		return this.flag;
 	}
 
 	@Override
 	public final short getQuantity() {
-		return quantity;
+		return this.quantity;
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final String getOwner() {
-		return owner;
+		return this.owner;
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final long getExpiration() {
-		return expiration;
+		return this.expiration;
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final String getGMLog() {
-		return GameMaster_log;
+		return this.GameMaster_log;
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final int getUniqueId() {
-		return uniqueid;
+		return this.uniqueid;
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public final Pet getPet() {
-		return pet;
+		return this.pet;
 	}
 
 	public final void setPet(final Pet pet) {
@@ -142,8 +142,8 @@ public class Item implements IItem, Serializable {
 	}
 
 	@Override
-	public int compareTo(IItem other) {
-		final int absPosition = Math.abs(position);
+	public int compareTo(final IItem other) {
+		final int absPosition = Math.abs(this.position);
 		final int otherAbsPosition = Math.abs(other.getPosition());
 		if (absPosition < otherAbsPosition) {
 			return -1;
@@ -156,22 +156,22 @@ public class Item implements IItem, Serializable {
 
 	@Override
 	public String toString() {
-		return "Item: " + id + " quantity: " + quantity;
+		return "Item: " + this.id + " quantity: " + this.quantity;
 	}
 
 	@Override
 	public int getCashId() {
-		if (cashId == 0) {
-			cashId = Randomizer.nextInt(Integer.MAX_VALUE) + 1;
+		if (this.cashId == 0) {
+			this.cashId = Randomizer.nextInt(Integer.MAX_VALUE) + 1;
 		}
-		return cashId;
+		return this.cashId;
 	}
 
 	public int getPetId() {
-		return petId;
+		return this.petId;
 	}
 
-	public void setPetId(int petId) {
+	public void setPetId(final int petId) {
 		this.petId = petId;
 	}
 }

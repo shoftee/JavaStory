@@ -29,20 +29,20 @@ import javastory.channel.packet.PlayerShopPacket;
 public class GenericPlayerStore extends AbstractPlayerShop {
 
 	private boolean open;
-	private ChannelCharacter owner;
-	private List<String> bannedList = new ArrayList<>();
+	private final ChannelCharacter owner;
+	private final List<String> bannedList = new ArrayList<>();
 
-	public GenericPlayerStore(ChannelCharacter owner, int itemId, String desc) {
+	public GenericPlayerStore(final ChannelCharacter owner, final int itemId, final String desc) {
 		super(owner, itemId, desc);
 		this.owner = owner;
-		open = false;
+		this.open = false;
 	}
 
 	@Override
-	public void buy(ChannelClient c, int item, short quantity) {
-		PlayerShopItem pItem = items.get(item);
+	public void buy(final ChannelClient c, final int item, final short quantity) {
+		final PlayerShopItem pItem = this.items.get(item);
 		if (pItem.bundles > 0) {
-			owner.getClient().write(PlayerShopPacket.shopItemUpdate(this));
+			this.owner.getClient().write(PlayerShopPacket.shopItemUpdate(this));
 		}
 	}
 
@@ -52,57 +52,57 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 	}
 
 	@Override
-	public void closeShop(boolean saveItems, boolean remove) {
-		owner.getMap().broadcastMessage(PlayerShopPacket.removeCharBox(owner));
-		owner.getMap().removeMapObject(this);
+	public void closeShop(final boolean saveItems, final boolean remove) {
+		this.owner.getMap().broadcastMessage(PlayerShopPacket.removeCharBox(this.owner));
+		this.owner.getMap().removeMapObject(this);
 
 		if (saveItems) {
-			saveItems();
+			this.saveItems();
 		}
-		owner.setPlayerShop(null);
+		this.owner.setPlayerShop(null);
 	}
 
-	public void banPlayer(String name) {
-		if (!bannedList.contains(name)) {
-			bannedList.add(name);
+	public void banPlayer(final String name) {
+		if (!this.bannedList.contains(name)) {
+			this.bannedList.add(name);
 		}
 		for (int i = 0; i < 3; i++) {
-			ChannelCharacter chr = getVisitor(i);
+			final ChannelCharacter chr = this.getVisitor(i);
 			if (chr.getName().equals(name)) {
 				chr.getClient().write(PlayerShopPacket.shopErrorMessage(5, 1));
 				chr.setPlayerShop(null);
-				removeVisitor(chr);
+				this.removeVisitor(chr);
 			}
 		}
 	}
 
 	@Override
-	public void setOpen(boolean open) {
+	public void setOpen(final boolean open) {
 		this.open = open;
 	}
 
 	@Override
 	public boolean isOpen() {
-		return open;
+		return this.open;
 	}
 
-	public boolean isBanned(String name) {
-		if (bannedList.contains(name)) {
+	public boolean isBanned(final String name) {
+		if (this.bannedList.contains(name)) {
 			return true;
 		}
 		return false;
 	}
 
 	public ChannelCharacter getMCOwner() {
-		return owner;
+		return this.owner;
 	}
 
 	@Override
-	public void sendDestroyData(ChannelClient client) {
+	public void sendDestroyData(final ChannelClient client) {
 	}
 
 	@Override
-	public void sendSpawnData(ChannelClient client) {
+	public void sendSpawnData(final ChannelClient client) {
 	}
 
 	@Override

@@ -64,8 +64,8 @@ public class LoginCryptoLegacy {
 	 *            The password to be hashed.
 	 * @return String of the hashed password.
 	 */
-	public static final String hashPassword(String password) {
-		byte[] randomBytes = new byte[6];
+	public static final String hashPassword(final String password) {
+		final byte[] randomBytes = new byte[6];
 
 		rand.setSeed(System.currentTimeMillis());
 		rand.nextBytes(randomBytes);
@@ -83,11 +83,11 @@ public class LoginCryptoLegacy {
 	 * @return <code>true</code> if the password is correct, <code>false</code>
 	 *         otherwise.
 	 */
-	public static final boolean checkPassword(String password, String hash) {
-		return (myCrypt(password, hash).equals(hash));
+	public static final boolean checkPassword(final String password, final String hash) {
+		return myCrypt(password, hash).equals(hash);
 	}
 
-	public static final boolean isLegacyPassword(String hash) {
+	public static final boolean isLegacyPassword(final String hash) {
 		return hash.substring(0, 3).equals("$H$");
 	}
 
@@ -101,7 +101,7 @@ public class LoginCryptoLegacy {
 	 * @return The salted SHA1 hash of password.
 	 * @throws RuntimeException
 	 */
-	private static final String myCrypt(String password, String seed) throws RuntimeException {
+	private static final String myCrypt(final String password, String seed) throws RuntimeException {
 		String out = null;
 		int count = 8;
 		MessageDigest digester;
@@ -109,12 +109,12 @@ public class LoginCryptoLegacy {
 		// Check for correct Seed
 		if (!seed.substring(0, 3).equals("$H$")) {
 			// Oh noes! Generate a seed and continue.
-			byte[] randomBytes = new byte[6];
+			final byte[] randomBytes = new byte[6];
 			rand.nextBytes(randomBytes);
 			seed = genSalt(randomBytes);
 		}
 
-		String salt = seed.substring(4, 12);
+		final String salt = seed.substring(4, 12);
 		if (salt.length() != 8) {
 			throw new RuntimeException("Error hashing password - Invalid seed.");
 		}
@@ -126,7 +126,7 @@ public class LoginCryptoLegacy {
 			digester.update((salt + password).getBytes("iso-8859-1"), 0, (salt + password).length());
 			sha1Hash = digester.digest();
 			do {
-				byte[] CombinedBytes = new byte[sha1Hash.length + password.length()];
+				final byte[] CombinedBytes = new byte[sha1Hash.length + password.length()];
 				System.arraycopy(sha1Hash, 0, CombinedBytes, 0, sha1Hash.length);
 				System.arraycopy(password.getBytes("iso-8859-1"), 0, CombinedBytes, sha1Hash.length, password.getBytes("iso-8859-1").length);
 				digester.update(CombinedBytes, 0, CombinedBytes.length);
@@ -134,9 +134,9 @@ public class LoginCryptoLegacy {
 			} while (--count > 0);
 			out = seed.substring(0, 12);
 			out += encode64(sha1Hash);
-		} catch (NoSuchAlgorithmException Ex) {
+		} catch (final NoSuchAlgorithmException Ex) {
 			System.err.println("Error hashing password." + Ex);
-		} catch (UnsupportedEncodingException Ex) {
+		} catch (final UnsupportedEncodingException Ex) {
 			System.err.println("Error hashing password." + Ex);
 		}
 		if (out == null) {
@@ -161,17 +161,18 @@ public class LoginCryptoLegacy {
 		return Salt.toString();
 	}
 
-	private static final String convertToHex(byte[] data) {
-		StringBuffer buf = new StringBuffer();
-		for (int i = 0; i < data.length; i++) {
-			int halfbyte = (data[i] >>> 4) & 0x0F;
+	private static final String convertToHex(final byte[] data) {
+		final StringBuffer buf = new StringBuffer();
+		for (final byte element : data) {
+			int halfbyte = element >>> 4 & 0x0F;
 			int two_halfs = 0;
 			do {
-				if ((0 <= halfbyte) && (halfbyte <= 9))
+				if (0 <= halfbyte && halfbyte <= 9) {
 					buf.append((char) ('0' + halfbyte));
-				else
+				} else {
 					buf.append((char) ('a' + (halfbyte - 10)));
-				halfbyte = data[i] & 0x0F;
+				}
+				halfbyte = element & 0x0F;
 			} while (two_halfs++ < 1);
 		}
 		return buf.toString();
@@ -192,23 +193,23 @@ public class LoginCryptoLegacy {
 	 *            Array of bytes to put into base64.
 	 * @return String of base64.
 	 */
-	private static final String encode64(byte[] Input) {
-		int iLen = Input.length;
+	private static final String encode64(final byte[] Input) {
+		final int iLen = Input.length;
 
-		int oDataLen = (iLen * 4 + 2) / 3; // output length without padding
-		int oLen = ((iLen + 2) / 3) * 4; // output length including
+		final int oDataLen = (iLen * 4 + 2) / 3; // output length without padding
+		final int oLen = (iLen + 2) / 3 * 4; // output length including
 		// padding
-		char[] out = new char[oLen];
+		final char[] out = new char[oLen];
 		int ip = 0;
 		int op = 0;
 		while (ip < iLen) {
-			int i0 = Input[ip++] & 0xff;
-			int i1 = ip < iLen ? Input[ip++] & 0xff : 0;
-			int i2 = ip < iLen ? Input[ip++] & 0xff : 0;
-			int o0 = i0 >>> 2;
-			int o1 = ((i0 & 3) << 4) | (i1 >>> 4);
-			int o2 = ((i1 & 0xf) << 2) | (i2 >>> 6);
-			int o3 = i2 & 0x3F;
+			final int i0 = Input[ip++] & 0xff;
+			final int i1 = ip < iLen ? Input[ip++] & 0xff : 0;
+			final int i2 = ip < iLen ? Input[ip++] & 0xff : 0;
+			final int o0 = i0 >>> 2;
+			final int o1 = (i0 & 3) << 4 | i1 >>> 4;
+			final int o2 = (i1 & 0xf) << 2 | i2 >>> 6;
+			final int o3 = i2 & 0x3F;
 			out[op++] = iota64[o0];
 			out[op++] = iota64[o1];
 			out[op] = op < oDataLen ? iota64[o2] : '=';

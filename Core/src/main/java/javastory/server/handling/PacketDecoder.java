@@ -38,7 +38,7 @@ public class PacketDecoder extends CumulativeProtocolDecoder {
 	}
 
 	@Override
-	protected boolean doDecode(IoSession session, IoBuffer buffer, ProtocolDecoderOutput out) throws Exception {
+	protected boolean doDecode(final IoSession session, final IoBuffer buffer, final ProtocolDecoderOutput out) throws Exception {
 		final DecoderState decoderState = (DecoderState) session.getAttribute(DECODER_STATE_KEY);
 
 		final ChannelClient client = (ChannelClient) session.getAttribute(GameClient.CLIENT_KEY);

@@ -25,17 +25,17 @@ import java.awt.Point;
 import javastory.io.PacketBuilder;
 
 public class TeleportMovement extends AbsoluteLifeMovement {
-	public TeleportMovement(int type, Point position, int newstate) {
+	public TeleportMovement(final int type, final Point position, final int newstate) {
 		super(type, position, 0, newstate);
 	}
 
 	@Override
-	public void serialize(PacketBuilder lew) {
-		lew.writeAsByte(getType());
-		lew.writeAsShort(getPosition().x);
-		lew.writeAsShort(getPosition().y);
-		lew.writeAsShort(getPixelsPerSecond().x);
-		lew.writeAsShort(getPixelsPerSecond().y);
-		lew.writeAsByte(getNewstate());
+	public void serialize(final PacketBuilder lew) {
+		lew.writeAsByte(this.getType());
+		lew.writeAsShort(this.getPosition().x);
+		lew.writeAsShort(this.getPosition().y);
+		lew.writeAsShort(this.getPixelsPerSecond().x);
+		lew.writeAsShort(this.getPixelsPerSecond().y);
+		lew.writeAsByte(this.getNewstate());
 	}
 }

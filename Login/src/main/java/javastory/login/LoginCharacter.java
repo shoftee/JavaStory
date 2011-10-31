@@ -38,23 +38,23 @@ public class LoginCharacter implements GameCharacter {
     private Gender gender;
     private int worldId;
     //
-    private PlayerStats stats;
+    private final PlayerStats stats;
     //
     private int accountId, meso, jobId, hairId, faceId, skinColorId,
             remainingAp, mapId, initialSpawnPoint, subcategory;
     //
     private int worldRank, worldRankMove, jobRank, jobRankMove;
-    private int[] remainingSp;
+    private final int[] remainingSp;
     //
-    private Inventory equips;
+    private final Inventory equips;
 
     private LoginCharacter() {
         this.stats = new PlayerStats();
         this.equips = new Inventory(InventoryType.EQUIPPED);
-        remainingSp = new int[10];
+        this.remainingSp = new int[10];
     }
 
-    private static LoginCharacter loadFromRecord(ResultSet charResultSet) {
+    private static LoginCharacter loadFromRecord(final ResultSet charResultSet) {
         final LoginCharacter character = new LoginCharacter();
         PreparedStatement selectEquips = null;
         ResultSet equipsResultSet = null;
@@ -109,7 +109,7 @@ public class LoginCharacter implements GameCharacter {
                 final Equip equip = new Equip(itemId, slot, ringId, flags);
                 character.equips.addFromDb(equip);
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             System.out.println("Failed to load character: " + ex);
         } finally {
             try {
@@ -119,36 +119,36 @@ public class LoginCharacter implements GameCharacter {
                 if (equipsResultSet != null) {
                     equipsResultSet.close();
                 }
-            } catch (SQLException ex) {
+            } catch (final SQLException ex) {
             }
 
         }
         return character;
     }
 
-    public static Collection<LoginCharacter> loadCharacters(int accountId, int worldId) {
-        List<LoginCharacter> characters = Lists.newLinkedList();
-        Connection connection = Database.getConnection();
+    public static Collection<LoginCharacter> loadCharacters(final int accountId, final int worldId) {
+        final List<LoginCharacter> characters = Lists.newLinkedList();
+        final Connection connection = Database.getConnection();
         try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM `characters` WHERE `accountid` = ? AND `world` = ? ORDER BY `id` ASC")) {
             ps.setInt(1, accountId);
             ps.setInt(2, worldId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    LoginCharacter character = loadFromRecord(rs);
+                    final LoginCharacter character = loadFromRecord(rs);
                     characters.add(character);
                 }
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             System.err.println("error loading characters internal" + e);
         }
         return Collections.unmodifiableCollection(characters);
     }
 
     public static LoginCharacter getDefault(final int type) {
-        LoginCharacter character = new LoginCharacter();
+        final LoginCharacter character = new LoginCharacter();
         character.exp = 0;
         character.gmLevel = 0;
-        character.jobId = type == 0 ? 1000 : (type == 1 ? 0 : (type == 2 ? 2000 : 2001));
+        character.jobId = type == 0 ? 1000 : type == 1 ? 0 : type == 2 ? 2000 : 2001;
         character.meso = 0;
         character.level = 1;
         character.remainingAp = 0;
@@ -165,7 +165,7 @@ public class LoginCharacter implements GameCharacter {
     }
 
     public static void saveNewCharacterToDb(final LoginCharacter chr, final int type, final boolean isDualBlader) {
-        Connection con = Database.getConnection();
+        final Connection con = Database.getConnection();
 
         PreparedStatement ps = null;
         PreparedStatement pse = null;
@@ -194,8 +194,8 @@ public class LoginCharacter implements GameCharacter {
             ps.setInt(18, chr.hairId);
             ps.setInt(19, chr.faceId);
             // TODO: proper constants.
-            ps.setInt(20, type == 1 ? 10000 : (type == 0 ? 130030000 : (type
-                    == 2 ? 914000000 : 900010000))); // 0-KOC 1-Adventurer 2-Aran 3-Evan 4-DB
+            ps.setInt(20, type == 1 ? 10000 : type == 0 ? 130030000 : type
+                    == 2 ? 914000000 : 900010000); // 0-KOC 1-Adventurer 2-Aran 3-Evan 4-DB
             ps.setInt(21, chr.meso); // Meso
             ps.setInt(22, 0); // HP ap used
             ps.setInt(23, 0); // MP ap used
@@ -319,7 +319,7 @@ public class LoginCharacter implements GameCharacter {
             System.err.println("[charsave] Error saving character data: " + e);
             try {
                 con.rollback();
-            } catch (SQLException ex) {
+            } catch (final SQLException ex) {
                 System.err.println("[charsave] Error Rolling Back: " + ex);
             }
         } finally {
@@ -335,7 +335,7 @@ public class LoginCharacter implements GameCharacter {
                 }
                 con.setAutoCommit(true);
                 con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 System.err.println("[charsave] Error going back to autocommit mode: " + e);
             }
         }
@@ -343,34 +343,34 @@ public class LoginCharacter implements GameCharacter {
 
     @Override
 	public int getExp() {
-        return exp;
+        return this.exp;
     }
 
     @Override
 	public int getRemainingAp() {
-        return remainingAp;
+        return this.remainingAp;
     }
 
     @Override
 	public int[] getRemainingSps() {
-        return remainingSp;
+        return this.remainingSp;
     }
 
     @Override
 	public int getRemainingSp() {
-        return remainingSp[Skills.getSkillbook(jobId)]; //default
+        return this.remainingSp[Skills.getSkillbook(this.jobId)]; //default
     }
 
     @Override
 	public int getRemainingSp(final int skillbook) {
-        return remainingSp[skillbook];
+        return this.remainingSp[skillbook];
     }
 
     @Override
 	public int getRemainingSpSize() {
         int ret = 0;
-        for (int i = 0; i < remainingSp.length; i++) {
-            if (remainingSp[i] > 0) {
+        for (final int element : this.remainingSp) {
+            if (element > 0) {
                 ret++;
             }
 
@@ -380,162 +380,162 @@ public class LoginCharacter implements GameCharacter {
 
     @Override
 	public int getId() {
-        return id;
+        return this.id;
     }
 
     @Override
 	public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
 	public int getLevel() {
-        return level;
+        return this.level;
     }
 
     @Override
 	public int getFame() {
-        return fame;
+        return this.fame;
     }
 
     @Override
 	public int getGmLevel() {
-        return gmLevel;
+        return this.gmLevel;
     }
 
     @Override
 	public Gender getGender() {
-        return gender;
+        return this.gender;
     }
 
     @Override
 	public int getWorldId() {
-        return worldId;
+        return this.worldId;
     }
 
     public int getAccountId() {
-        return accountId;
+        return this.accountId;
     }
 
     @Override
 	public int getMeso() {
-        return meso;
+        return this.meso;
     }
 
     @Override
 	public int getJobId() {
-        return jobId;
+        return this.jobId;
     }
 
     @Override
 	public int getHairId() {
-        return hairId;
+        return this.hairId;
     }
 
     @Override
 	public int getFaceId() {
-        return faceId;
+        return this.faceId;
     }
 
     @Override
 	public int getSkinColorId() {
-        return skinColorId;
+        return this.skinColorId;
     }
 
     @Override
 	public int getMapId() {
-        return mapId;
+        return this.mapId;
     }
 
     @Override
 	public int getInitialSpawnPoint() {
-        return initialSpawnPoint;
+        return this.initialSpawnPoint;
     }
 
     @Override
 	public int getSubcategory() {
-        return subcategory;
+        return this.subcategory;
     }
 
     public int getWorldRank() {
-        return worldRank;
+        return this.worldRank;
     }
 
     public int getWorldRankMove() {
-        return worldRankMove;
+        return this.worldRankMove;
     }
 
     public int getJobRank() {
-        return jobRank;
+        return this.jobRank;
     }
 
     public int getJobRankMove() {
-        return jobRankMove;
+        return this.jobRankMove;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(final int level) {
         this.level = (short) level;
     }
 
-    public void setFame(int fame) {
+    public void setFame(final int fame) {
         this.fame = fame;
     }
 
-    public void setExp(int exp) {
+    public void setExp(final int exp) {
         this.exp = exp;
     }
 
-    public void setGmLevel(byte gmLevel) {
+    public void setGmLevel(final byte gmLevel) {
         this.gmLevel = gmLevel;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(final Gender gender) {
         this.gender = gender;
     }
 
-    public void setWorldId(int worldId) {
+    public void setWorldId(final int worldId) {
         this.worldId = worldId;
     }
 
-    public void setMeso(int meso) {
+    public void setMeso(final int meso) {
         this.meso = meso;
     }
 
-    public void setJobId(int jobId) {
+    public void setJobId(final int jobId) {
         this.jobId = jobId;
     }
 
-    public void setHairId(int hairId) {
+    public void setHairId(final int hairId) {
         this.hairId = hairId;
     }
 
-    public void setFaceId(int faceId) {
+    public void setFaceId(final int faceId) {
         this.faceId = faceId;
     }
 
-    public void setSkinColorId(int skinColorId) {
+    public void setSkinColorId(final int skinColorId) {
         this.skinColorId = skinColorId;
     }
 
-    public void setRemainingAp(int remainingAp) {
+    public void setRemainingAp(final int remainingAp) {
         this.remainingAp = remainingAp;
     }
 
-    public void setSubcategory(int subcategory) {
+    public void setSubcategory(final int subcategory) {
         this.subcategory = subcategory;
     }
 
     @Override
 	public Inventory getEquippedItemsInventory() {
-        return equips;
+        return this.equips;
     }
 
     @Override
 	public PlayerStats getStats() {
-        return stats;
+        return this.stats;
     }
 }

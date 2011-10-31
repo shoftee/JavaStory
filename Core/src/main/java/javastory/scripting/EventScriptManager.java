@@ -52,7 +52,7 @@ public class EventScriptManager extends AbstractScriptManager {
 	private final AtomicInteger runningInstanceMapId = new AtomicInteger(0);
 
 	public final int getNewInstanceMapId() {
-		return runningInstanceMapId.addAndGet(1);
+		return this.runningInstanceMapId.addAndGet(1);
 	}
 
 	public EventScriptManager() {
@@ -64,19 +64,19 @@ public class EventScriptManager extends AbstractScriptManager {
 		for (final String script : scripts) {
 			if (!script.equals("")) {
 				final String path = "event/" + script + ".js";
-				final Invocable invocable = getInvocable(path, null);
+				final Invocable invocable = this.getInvocable(path, null);
 
 				if (invocable != null) {
 					final EventManager eventManager = new EventManager(invocable, script);
 					final EventEntry eventEntry = new EventEntry(script, invocable, eventManager);
-					events.put(script, eventEntry);
+					this.events.put(script, eventEntry);
 				}
 			}
 		}
 	}
 
 	public final EventManager getEventManager(final String event) {
-		final EventEntry entry = events.get(event);
+		final EventEntry entry = this.events.get(event);
 		if (entry == null) {
 			return null;
 		}
@@ -84,7 +84,7 @@ public class EventScriptManager extends AbstractScriptManager {
 	}
 
 	public final void init() {
-		for (final EventEntry entry : events.values()) {
+		for (final EventEntry entry : this.events.values()) {
 			try {
 				((ScriptEngine) entry.invocable).put("em", entry.eventManager);
 				entry.invocable.invokeFunction("init", (Object) null);
@@ -97,7 +97,7 @@ public class EventScriptManager extends AbstractScriptManager {
 	}
 
 	public final void cancel() {
-		for (final EventEntry entry : events.values()) {
+		for (final EventEntry entry : this.events.values()) {
 			entry.eventManager.cancel();
 		}
 	}

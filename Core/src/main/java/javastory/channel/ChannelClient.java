@@ -20,46 +20,46 @@ import org.apache.mina.core.session.IoSession;
 public final class ChannelClient extends GameClient {
 
 	private ChannelCharacter player;
-	private boolean transition = false;
-	private Map<String, ScriptEngine> engines = new HashMap<>();
+	private final boolean transition = false;
+	private final Map<String, ScriptEngine> engines = new HashMap<>();
 
-	public ChannelClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
+	public ChannelClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
 		super(clientCrypto, serverCrypto, session);
 	}
 
 	public ChannelCharacter getPlayer() {
-		return player;
+		return this.player;
 	}
 
-	public void setPlayer(ChannelCharacter player) {
+	public void setPlayer(final ChannelCharacter player) {
 		this.player = player;
 	}
 
 	public final void removalTask() {
 		try {
-			if (!player.getAllBuffs().isEmpty()) {
-				player.clearAllBuffEffects();
+			if (!this.player.getAllBuffs().isEmpty()) {
+				this.player.clearAllBuffEffects();
 			}
-			if (!player.getAllDiseases().isEmpty()) {
-				player.cancelAllDebuffs();
+			if (!this.player.getAllDiseases().isEmpty()) {
+				this.player.cancelAllDebuffs();
 			}
-			if (player.getTrade() != null) {
-				Trade.cancelTrade(player.getTrade());
+			if (this.player.getTrade() != null) {
+				Trade.cancelTrade(this.player.getTrade());
 			}
 			NpcScriptManager.getInstance().dispose(this);
 
-			if (player.getEventInstance() != null) {
-				player.getEventInstance().playerDisconnected(player);
+			if (this.player.getEventInstance() != null) {
+				this.player.getEventInstance().playerDisconnected(this.player);
 			}
-			player.getCheatTracker().dispose();
-			if (player.getMap() != null) {
-				player.getMap().removePlayer(player);
+			this.player.getCheatTracker().dispose();
+			if (this.player.getMap() != null) {
+				this.player.getMap().removePlayer(this.player);
 			}
 
-			final PlayerShop shop = player.getPlayerShop();
+			final PlayerShop shop = this.player.getPlayerShop();
 			if (shop != null) {
-				shop.removeVisitor(player);
-				if (shop.isOwner(player)) {
+				shop.removeVisitor(this.player);
+				if (shop.isOwner(this.player)) {
 					shop.setOpen(true);
 				}
 			}
@@ -69,31 +69,31 @@ public final class ChannelClient extends GameClient {
 	}
 
 	public final void getDebugMessage(final StringBuilder sb) {
-		sb.append(getSession().getRemoteAddress());
+		sb.append(this.getSession().getRemoteAddress());
 		sb.append(" Connected: ");
-		sb.append(getSession().isConnected());
+		sb.append(this.getSession().isConnected());
 		sb.append(" Closing: ");
-		sb.append(getSession().isClosing());
+		sb.append(this.getSession().isClosing());
 		sb.append(" ClientKeySet: ");
-		sb.append(getSession().getAttribute(GameClient.CLIENT_KEY) != null);
+		sb.append(this.getSession().getAttribute(GameClient.CLIENT_KEY) != null);
 		sb.append(" has char: ");
-		sb.append(getPlayer() != null);
+		sb.append(this.getPlayer() != null);
 	}
 
 	public final void setScriptEngine(final String name, final ScriptEngine e) {
-		engines.put(name, e);
+		this.engines.put(name, e);
 	}
 
 	public final ScriptEngine getScriptEngine(final String name) {
-		return engines.get(name);
+		return this.engines.get(name);
 	}
 
 	public final void removeScriptEngine(final String name) {
-		engines.remove(name);
+		this.engines.remove(name);
 	}
 
 	@Override
-	public final void disconnect(boolean force) {
+	public final void disconnect(final boolean force) {
 		if (!force) {
 			this.removalTask();
 			this.player.saveToDb(true);
@@ -104,7 +104,7 @@ public final class ChannelClient extends GameClient {
 					world.leaveMessenger(this.player.getMessenger().getId(), new MessengerMember(this.player));
 					this.player.setMessenger(null);
 				}
-				PartyMember partyMember = this.player.getPartyMembership();
+				final PartyMember partyMember = this.player.getPartyMembership();
 				if (partyMember != null) {
 					partyMember.setOnline(false);
 					world.updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);

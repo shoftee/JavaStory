@@ -20,13 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package javastory.world;
 
-import javastory.world.core.WorldRegistry;
 import java.rmi.RemoteException;
-import com.google.common.collect.ImmutableMap;
 
-import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.ChannelWorldInterface;
+import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.WorldLoginInterface;
+import javastory.world.core.WorldRegistry;
+
+import com.google.common.collect.ImmutableMap;
 
 public class WorldLoginInterfaceImpl extends GenericRemoteObject implements WorldLoginInterface {
 
@@ -35,13 +36,14 @@ public class WorldLoginInterfaceImpl extends GenericRemoteObject implements Worl
 
     public WorldLoginInterfaceImpl() throws RemoteException {
         super();
-        registry = WorldRegistryImpl.getInstance();
+        this.registry = WorldRegistryImpl.getInstance();
     }
 
-    public ImmutableMap<Integer, Integer> getChannelLoad() throws RemoteException {
-        ImmutableMap.Builder<Integer, Integer> builder = ImmutableMap.builder();
+    @Override
+	public ImmutableMap<Integer, Integer> getChannelLoad() throws RemoteException {
+        final ImmutableMap.Builder<Integer, Integer> builder = ImmutableMap.builder();
 
-        for (ChannelWorldInterface cwi : registry.getAllChannelServers()) {
+        for (final ChannelWorldInterface cwi : this.registry.getAllChannelServers()) {
         	builder.put(cwi.getChannelId(), cwi.getConnected());
         }
         

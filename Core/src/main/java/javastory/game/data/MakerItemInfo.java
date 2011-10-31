@@ -8,10 +8,10 @@ public class MakerItemInfo {
 	public final int ReqLevel;
 	public final int Cost, Quantity, Stimulator;
 	public final byte TUC, ReqMakerLevel;
-	private ItemRecipe recipe;
-	private List<Integer> reqEquips = new ArrayList<Integer>();
+	private final ItemRecipe recipe;
+	private final List<Integer> reqEquips = new ArrayList<Integer>();
 
-	public MakerItemInfo(ItemRecipe recipe, int cost, int reqLevel, byte reqMakerLevel, int quantity, byte tuc, int stimulator) {
+	public MakerItemInfo(final ItemRecipe recipe, final int cost, final int reqLevel, final byte reqMakerLevel, final int quantity, final byte tuc, final int stimulator) {
 		this.recipe = recipe;
 
 		this.Cost = cost;
@@ -27,6 +27,6 @@ public class MakerItemInfo {
 	}
 
 	public List<Integer> getReqEquips() {
-		return reqEquips;
+		return this.reqEquips;
 	}
 }

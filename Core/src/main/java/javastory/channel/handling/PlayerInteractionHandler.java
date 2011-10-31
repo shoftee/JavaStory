@@ -30,7 +30,7 @@ public class PlayerInteractionHandler {
 	public static void handlePlayerInteraction(final PacketReader reader, final ChannelClient client, final ChannelCharacter player)
 		throws PacketFormatException {
 		final byte action = reader.readByte();
-		PlayerInteractionType type = PlayerInteractionType.fromNumber(action);
+		final PlayerInteractionType type = PlayerInteractionType.fromNumber(action);
 		switch (type) { // Mode
 		case CREATE:
 			create(reader, client, player);
@@ -125,7 +125,7 @@ public class PlayerInteractionHandler {
 	}
 
 	private static void inviteTrade(final PacketReader reader, final ChannelCharacter chr) throws PacketFormatException {
-		ChannelCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
+		final ChannelCharacter ochr = chr.getMap().getCharacterById_InMap(reader.readInt());
 		if (ochr.getWorldId() != chr.getWorldId()) {
 			chr.getClient().write(ChannelPackets.serverNotice(5, "Cannot find player"));
 			return;
@@ -207,7 +207,7 @@ public class PlayerInteractionHandler {
 			if (ips.isOwner(chr)) {
 				if (ips.getShopType() == 2) {
 					boolean save = false;
-					for (PlayerShopItem items : ips.getItems()) {
+					for (final PlayerShopItem items : ips.getItems()) {
 						if (items.bundles > 0) {
 							if (InventoryManipulator.addFromDrop(c, items.item, false)) {
 								items.bundles = 0;
@@ -260,7 +260,7 @@ public class PlayerInteractionHandler {
 		final byte targetSlot = reader.readByte();
 
 		if (chr.getTrade() != null && item != null) {
-			if ((quantity <= item.getQuantity() && quantity >= 0) || GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
+			if (quantity <= item.getQuantity() && quantity >= 0 || GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 				final byte flag = item.getFlag();
 
 				if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
@@ -273,7 +273,7 @@ public class PlayerInteractionHandler {
 						return;
 					}
 				}
-				IItem tradeItem = item.copy();
+				final IItem tradeItem = item.copy();
 				if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 					tradeItem.setQuantity(item.getQuantity());
 					InventoryManipulator.removeFromSlot(c, inventory, item.getPosition(), item.getQuantity(), true);
@@ -300,7 +300,7 @@ public class PlayerInteractionHandler {
 		}
 	}
 
-	private static void exitMerchant(ChannelCharacter chr) {
+	private static void exitMerchant(final ChannelCharacter chr) {
 //		final PlayerShop shop = chr.getPlayerShop();
 //		if (shop != null && shop instanceof HiredMerchantStore && shop.isOwner(chr)) {
 //			shop.setOpen(true);
@@ -373,9 +373,9 @@ public class PlayerInteractionHandler {
 		final PlayerShopItem tobuy = shop.getItems().get(item);
 
 		if (quantity < 0 || tobuy == null || tobuy.bundles < quantity
-			|| (tobuy.bundles % quantity != 0 && GameConstants.isEquip(tobuy.item.getItemId())) // Buying
-			|| ((short) (tobuy.bundles * quantity)) < 0 || (quantity * tobuy.price) < 0 || quantity * tobuy.item.getQuantity() < 0
-			|| chr.getMeso() - (quantity * tobuy.price) < 0 || shop.getMeso() + (quantity * tobuy.price) < 0) {
+			|| tobuy.bundles % quantity != 0 && GameConstants.isEquip(tobuy.item.getItemId()) // Buying
+			|| (short) (tobuy.bundles * quantity) < 0 || quantity * tobuy.price < 0 || quantity * tobuy.item.getQuantity() < 0
+			|| chr.getMeso() - quantity * tobuy.price < 0 || shop.getMeso() + quantity * tobuy.price < 0) {
 			return;
 		}
 		shop.buy(c, item, quantity);
@@ -393,7 +393,7 @@ public class PlayerInteractionHandler {
 
 		if (item != null) {
 			if (item.bundles > 0) {
-				IItem item_get = item.item.copy();
+				final IItem item_get = item.item.copy();
 				item_get.setQuantity((short) (item.bundles * item.item.getQuantity()));
 				if (InventoryManipulator.addFromDrop(c, item_get, false)) {
 					item.bundles = 0;
@@ -450,9 +450,9 @@ public class PlayerInteractionHandler {
 				merchant.setMeso(0);
 
 				if (merchant.getItems().size() > 0) {
-					for (PlayerShopItem items : merchant.getItems()) {
+					for (final PlayerShopItem items : merchant.getItems()) {
 						if (items.bundles > 0) {
-							IItem item_get = items.item.copy();
+							final IItem item_get = items.item.copy();
 							item_get.setQuantity((short) (items.bundles * items.item.getQuantity()));
 							if (InventoryManipulator.addFromDrop(c, item_get, false)) {
 								items.bundles = 0;

@@ -18,7 +18,7 @@ public class PropertyUtil {
 	private PropertyUtil() {
 	}
 
-	public static void loadInto(String filename, Properties properties) {
+	public static void loadInto(final String filename, final Properties properties) {
 		checkNotNull(filename);
 		checkNotNull(properties);
 
@@ -26,15 +26,15 @@ public class PropertyUtil {
 		try {
 			stream = new FileInputStream(filename);
 			properties.load(stream);
-		} catch (FileNotFoundException ex) {
+		} catch (final FileNotFoundException ex) {
 			Logger.getLogger(PropertyUtil.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			Logger.getLogger(PropertyUtil.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
 			if (stream != null) {
 				try {
 					stream.close();
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					Logger.getLogger(PropertyUtil.class.getName()).log(Level.SEVERE, null, ex);
 				}
 			}

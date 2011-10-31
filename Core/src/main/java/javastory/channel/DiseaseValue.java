@@ -7,24 +7,24 @@ import javastory.channel.client.Disease;
  * @author shoftee
  */
 public class DiseaseValue {
-	private Disease disease;
-	private int value;
+	private final Disease disease;
+	private final int value;
 
-	public DiseaseValue(Disease disease, int value) {
+	public DiseaseValue(final Disease disease, final int value) {
 		this.disease = disease;
 		this.value = value;
 	}
 
 	public Disease getDisease() {
-		return disease;
+		return this.disease;
 	}
 
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -34,7 +34,7 @@ public class DiseaseValue {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		DiseaseValue other = (DiseaseValue) obj;
+		final DiseaseValue other = (DiseaseValue) obj;
 		return this.disease.equals(other.disease);
 	}
 

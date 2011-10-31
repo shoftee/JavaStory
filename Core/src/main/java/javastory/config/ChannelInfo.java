@@ -19,7 +19,7 @@ public class ChannelInfo extends EndpointInfo {
 	private final int id;
 	private final String name;
 
-	public ChannelInfo(int worldId, int id, String name, String host, int port) {
+	public ChannelInfo(final int worldId, final int id, final String name, final String host, final int port) {
 		super(host, port);
 		checkArgument(worldId >= 0, "'worldId' must be non-negative");
 		checkArgument(id >= 0, "'id' must be non-negative.");
@@ -31,14 +31,14 @@ public class ChannelInfo extends EndpointInfo {
 	}
 
 	public final int getId() {
-		return id;
+		return this.id;
 	}
 
 	public final String getName() {
-		return name;
+		return this.name;
 	}
 
 	public final int getWorldId() {
-		return worldId;
+		return this.worldId;
 	}
 }

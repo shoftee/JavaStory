@@ -24,8 +24,8 @@ import javastory.server.handling.ServerPacketOpcode;
 
 public class MonsterBookPacket {
 
-	public static GamePacket addCard(boolean full, int cardid, int level) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket addCard(final boolean full, final int cardid, final int level) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MONSTERBOOK_ADD.getValue());
 
@@ -41,7 +41,7 @@ public class MonsterBookPacket {
 	}
 
 	public static GamePacket showGainCard(final int itemid) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(0);
@@ -51,8 +51,8 @@ public class MonsterBookPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showForeginCardEffect(int id) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showForeginCardEffect(final int id) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(id);
@@ -61,8 +61,8 @@ public class MonsterBookPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket changeCover(int cardid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket changeCover(final int cardid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MONSTERBOOK_CHANGE_COVER.getValue());
 		builder.writeInt(cardid);

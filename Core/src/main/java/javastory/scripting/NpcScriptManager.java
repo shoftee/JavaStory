@@ -46,46 +46,46 @@ public final class NpcScriptManager extends AbstractScriptManager {
 
 	public final void start(final ChannelClient c, final int npc) {
 		try {
-			if (!(managers.containsKey(c) && scripts.containsKey(c))) {
-				final Invocable iv = getInvocable("npc/" + npc + ".js", c);
+			if (!(this.managers.containsKey(c) && this.scripts.containsKey(c))) {
+				final Invocable iv = this.getInvocable("npc/" + npc + ".js", c);
 				final ScriptEngine scriptengine = (ScriptEngine) iv;
 				if (iv == null) {
 					return;
 				}
 				final NpcConversationManager cm = new NpcConversationManager(c, npc, -1, (byte) -1);
-				managers.put(c, cm);
+				this.managers.put(c, cm);
 				scriptengine.put("cm", cm);
 
 				c.getPlayer().setConversationState(1);
 
-				scripts.put(c, iv);
+				this.scripts.put(c, iv);
 
 				try {
 					iv.invokeFunction("start");
 					// Temporary until I've removed all of start
-				} catch (NoSuchMethodException nsme) {
+				} catch (final NoSuchMethodException nsme) {
 					iv.invokeFunction("action", (byte) 1, (byte) 0, 0);
 				}
 			}
 		} catch (final ScriptException | NoSuchMethodException e) {
 			e.printStackTrace();
 			System.err.println("Error executing NPC script, NPC ID : " + npc + "." + e);
-			dispose(c);
+			this.dispose(c);
 		}
 	}
 
 	public final void action(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		if (mode != -1) {
 			try {
-				if (managers.get(c).isPendingDisposal()) {
-					dispose(c);
+				if (this.managers.get(c).isPendingDisposal()) {
+					this.dispose(c);
 				} else {
-					scripts.get(c).invokeFunction("action", mode, type, selection);
+					this.scripts.get(c).invokeFunction("action", mode, type, selection);
 				}
 			} catch (final ScriptException | NoSuchMethodException e) {
 				e.printStackTrace();
 				System.err.println("Error executing NPC script");
-				dispose(c);
+				this.dispose(c);
 			}
 		}
 	}
@@ -95,19 +95,19 @@ public final class NpcScriptManager extends AbstractScriptManager {
 			return;
 		}
 		try {
-			if (!(managers.containsKey(c) && scripts.containsKey(c))) {
-				final Invocable iv = getInvocable("quest/" + quest + ".js", c);
+			if (!(this.managers.containsKey(c) && this.scripts.containsKey(c))) {
+				final Invocable iv = this.getInvocable("quest/" + quest + ".js", c);
 				final ScriptEngine scriptengine = (ScriptEngine) iv;
 				if (iv == null) {
 					return;
 				}
 				final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 0);
-				managers.put(c, cm);
+				this.managers.put(c, cm);
 				scriptengine.put("qm", cm);
 
 				c.getPlayer().setConversationState(1);
 
-				scripts.put(c, iv);
+				this.scripts.put(c, iv);
 
 				iv.invokeFunction("start", (byte) 1, (byte) 0, 0); // start it
 																	// off as
@@ -115,42 +115,42 @@ public final class NpcScriptManager extends AbstractScriptManager {
 			}
 		} catch (final Exception e) {
 			System.err.println("Error executing Quest script. (" + quest + ")" + e);
-			dispose(c);
+			this.dispose(c);
 		}
 	}
 
 	public final void startQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		try {
-			if (managers.get(c).isPendingDisposal()) {
-				dispose(c);
+			if (this.managers.get(c).isPendingDisposal()) {
+				this.dispose(c);
 			} else {
-				scripts.get(c).invokeFunction("start", mode, type, selection);
+				this.scripts.get(c).invokeFunction("start", mode, type, selection);
 			}
 		} catch (ScriptException | NoSuchMethodException e) {
-			dispose(c);
+			this.dispose(c);
 		}
 	}
 
 	public final void endQuest(final ChannelClient c, final int npc, final int quest, final boolean customEnd) {
-		QuestInfo info = QuestInfoProvider.getInfo(quest);
-		boolean canComplete = info.canComplete(c.getPlayer(), npc);
+		final QuestInfo info = QuestInfoProvider.getInfo(quest);
+		final boolean canComplete = info.canComplete(c.getPlayer(), npc);
 		if (!customEnd && canComplete) {
 			return;
 		}
 		try {
-			if (!(managers.containsKey(c) && scripts.containsKey(c))) {
-				final Invocable iv = getInvocable("quest/" + quest + ".js", c);
+			if (!(this.managers.containsKey(c) && this.scripts.containsKey(c))) {
+				final Invocable iv = this.getInvocable("quest/" + quest + ".js", c);
 				final ScriptEngine scriptengine = (ScriptEngine) iv;
 				if (iv == null) {
 					return;
 				}
 				final NpcConversationManager cm = new NpcConversationManager(c, npc, quest, (byte) 1);
-				managers.put(c, cm);
+				this.managers.put(c, cm);
 				scriptengine.put("qm", cm);
 
 				c.getPlayer().setConversationState(1);
 
-				scripts.put(c, iv);
+				this.scripts.put(c, iv);
 
 				iv.invokeFunction("end", (byte) 1, (byte) 0, 0); // start it off
 																	// as
@@ -159,29 +159,29 @@ public final class NpcScriptManager extends AbstractScriptManager {
 		} catch (ScriptException | NoSuchMethodException e) {
 			System.err.println("Error executing Quest script. (" + quest + ")" + e);
 		} finally {
-			dispose(c);
+			this.dispose(c);
 		}
 	}
 
 	public final void endQuest(final ChannelClient c, final byte mode, final byte type, final int selection) {
 		try {
-			if (managers.get(c).isPendingDisposal()) {
-				dispose(c);
+			if (this.managers.get(c).isPendingDisposal()) {
+				this.dispose(c);
 			} else {
-				scripts.get(c).invokeFunction("end", mode, type, selection);
+				this.scripts.get(c).invokeFunction("end", mode, type, selection);
 			}
 		} catch (ScriptException | NoSuchMethodException e) {
 			// System.err.println("Error executing Quest script. (" +
 			// c.getQM().getQuestId() + ")" + e);
-			dispose(c);
+			this.dispose(c);
 		}
 	}
 
 	public final void dispose(final ChannelClient c) {
-		final NpcConversationManager manager = managers.get(c);
+		final NpcConversationManager manager = this.managers.get(c);
 		if (manager != null) {
-			managers.remove(manager.getClient());
-			scripts.remove(manager.getClient());
+			this.managers.remove(manager.getClient());
+			this.scripts.remove(manager.getClient());
 
 			if (manager.getType() == -1) {
 				c.removeScriptEngine("scripts/npc/" + manager.getNpcId() + ".js");
@@ -195,6 +195,6 @@ public final class NpcScriptManager extends AbstractScriptManager {
 	}
 
 	public final NpcConversationManager getConversationManager(final ChannelClient client) {
-		return managers.get(client);
+		return this.managers.get(client);
 	}
 }

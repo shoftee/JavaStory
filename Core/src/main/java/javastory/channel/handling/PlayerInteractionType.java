@@ -30,11 +30,11 @@ public enum PlayerInteractionType {
 	}
 
 	public byte toNumber() {
-		return value;
+		return this.value;
 	}
 
-	public static PlayerInteractionType fromNumber(byte number) {
-		for (PlayerInteractionType type : PlayerInteractionType.values()) {
+	public static PlayerInteractionType fromNumber(final byte number) {
+		for (final PlayerInteractionType type : PlayerInteractionType.values()) {
 			if (type.value == number) {
 				return type;
 			}

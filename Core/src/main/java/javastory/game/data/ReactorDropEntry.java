@@ -20,7 +20,7 @@ package javastory.game.data;
 
 public class ReactorDropEntry {
 
-	public ReactorDropEntry(int itemId, int chance, int questId) {
+	public ReactorDropEntry(final int itemId, final int chance, final int questId) {
 		this.itemId = itemId;
 		this.chance = chance;
 		this.questid = questId;

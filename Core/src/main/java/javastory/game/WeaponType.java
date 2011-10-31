@@ -55,10 +55,10 @@ public enum WeaponType {
 	}
 
 	public final float getMinDamageMultiplier() {
-		return minDamageMultiplier;
+		return this.minDamageMultiplier;
 	}
 
 	public final float getMaxDamageMultiplier() {
-		return maxDamageMultiplier;
+		return this.maxDamageMultiplier;
 	}
 };

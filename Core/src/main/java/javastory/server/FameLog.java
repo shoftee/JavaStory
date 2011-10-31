@@ -21,9 +21,9 @@ public final class FameLog {
 	}
 
 	// TODO: Extract prepare statement call into method.
-	public static long getLastTimestamp(int famerId) {
+	public static long getLastTimestamp(final int famerId) {
 
-		Connection connection = Database.getConnection();
+		final Connection connection = Database.getConnection();
 		try (PreparedStatement ps = connection.prepareStatement(SelectLastTimestampSql)) {
 			long timestamp = 0;
 			ps.setInt(1, famerId);
@@ -33,16 +33,16 @@ public final class FameLog {
 				}
 			}
 			return timestamp;
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("ERROR reading famelog.");
 		}
 		return 0;
 	}
 
 	// TODO: Extract prepare statement call into method.
-	public static boolean hasFamedRecently(int famerId, int receiverId) {
+	public static boolean hasFamedRecently(final int famerId, final int receiverId) {
 		boolean success = true;
-		Connection connection = Database.getConnection();
+		final Connection connection = Database.getConnection();
 		try (PreparedStatement ps = connection.prepareStatement(CanFamePlayerSql)) {
 			ps.setInt(1, famerId);
 			ps.setInt(2, receiverId);
@@ -51,21 +51,21 @@ public final class FameLog {
 					success = false;
 				}
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("ERROR reading famelog.");
 		}
 		return success;
 	}
 
-	public static long addEntry(int famerId, int receiverId) {
-		Connection connection = Database.getConnection();
+	public static long addEntry(final int famerId, final int receiverId) {
+		final Connection connection = Database.getConnection();
 		try {
 			try (PreparedStatement ps = connection.prepareStatement("INSERT INTO famelog (famer_id, receiver_id) VALUES (?, ?)")) {
 				ps.setInt(1, famerId);
 				ps.setInt(2, receiverId);
 				ps.execute();
 			}
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("ERROR writing famelog entry (" + famerId + " -> " + receiverId + ")");
 		}
 		return System.currentTimeMillis();

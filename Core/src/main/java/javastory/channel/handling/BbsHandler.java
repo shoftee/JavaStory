@@ -73,7 +73,7 @@ public class BbsHandler {
 			deleteBbsThread(c, localthreadid);
 			break;
 		case 2: // list threads
-			int start = reader.readInt();
+			final int start = reader.readInt();
 			listBBSThreads(c, start * 10);
 			break;
 		case 3: // list thread + reply, followed by id (int)
@@ -87,24 +87,24 @@ public class BbsHandler {
 			break;
 		case 5: // delete reply
 			localthreadid = reader.readInt(); // we don't use this
-			int replyid = reader.readInt();
+			final int replyid = reader.readInt();
 			deleteBbsReply(c, replyid);
 			break;
 		}
 	}
 
-	private static void listBBSThreads(ChannelClient c, int start) {
+	private static void listBBSThreads(final ChannelClient c, final int start) {
 		try {
-			Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM bbs_threads WHERE guildid = ? ORDER BY localthreadid DESC");
+			final Connection con = Database.getConnection();
+			final PreparedStatement ps = con.prepareStatement("SELECT * FROM bbs_threads WHERE guildid = ? ORDER BY localthreadid DESC");
 			ps.setInt(1, c.getPlayer().getGuildId());
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 
 			c.write(ChannelPackets.showBbsThreadList(rs, start));
 
 			rs.close();
 			ps.close();
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -114,19 +114,19 @@ public class BbsHandler {
 		if (player.getGuildId() <= 0) {
 			return;
 		}
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT threadid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
 			ps.setInt(1, player.getGuildId());
 			ps.setInt(2, localthreadid);
-			ResultSet threadRS = ps.executeQuery();
+			final ResultSet threadRS = ps.executeQuery();
 
 			if (!threadRS.next()) {
 				threadRS.close();
 				ps.close();
 				return; // thread no longer exists, deleted?
 			}
-			int threadid = threadRS.getInt("threadid");
+			final int threadid = threadRS.getInt("threadid");
 			threadRS.close();
 			ps.close();
 
@@ -144,7 +144,7 @@ public class BbsHandler {
 			ps.close();
 
 			displayThread(c, localthreadid, true);
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -155,7 +155,7 @@ public class BbsHandler {
 			return; // expelled while viewing?
 		}
 
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("UPDATE bbs_threads SET " + "`name` = ?, `timestamp` = ?, " + "`icon` = ?, "
 			+ "`startpost` = ? WHERE guildid = ? AND localthreadid = ? AND (postercid = ? OR ?)")) {
 			ps.setString(1, title);
@@ -169,7 +169,7 @@ public class BbsHandler {
 			ps.execute();
 
 			displayThread(c, localThreadId, true);
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -181,14 +181,14 @@ public class BbsHandler {
 		}
 		int nextId = 0;
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps;
 
 			if (!bNotice) { // notice's local id is always 0, so we don't need
 							// to fetch it
 				ps = con.prepareStatement("SELECT MAX(localthreadid) AS lastLocalId FROM bbs_threads WHERE guildid = ?");
 				ps.setInt(1, player.getGuildId());
-				ResultSet rs = ps.executeQuery();
+				final ResultSet rs = ps.executeQuery();
 
 				rs.next();
 				nextId = rs.getInt("lastLocalId") + 1;
@@ -209,7 +209,7 @@ public class BbsHandler {
 
 			ps.close();
 			displayThread(c, nextId, true);
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -219,12 +219,12 @@ public class BbsHandler {
 		if (player.getGuildId() <= 0) {
 			return;
 		}
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT threadid, postercid FROM bbs_threads WHERE guildid = ? AND localthreadid = ?");
 			ps.setInt(1, player.getGuildId());
 			ps.setInt(2, localthreadid);
-			ResultSet threadRS = ps.executeQuery();
+			final ResultSet threadRS = ps.executeQuery();
 
 			if (!threadRS.next()) {
 				threadRS.close();
@@ -236,7 +236,7 @@ public class BbsHandler {
 				ps.close();
 				return; // [hax] deleting a thread that he didn't make
 			}
-			int threadid = threadRS.getInt("threadid");
+			final int threadid = threadRS.getInt("threadid");
 			threadRS.close();
 			ps.close();
 
@@ -249,7 +249,7 @@ public class BbsHandler {
 			ps.setInt(1, threadid);
 			ps.execute();
 			ps.close();
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -261,11 +261,11 @@ public class BbsHandler {
 		}
 
 		int threadid;
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT postercid, threadid FROM bbs_replies WHERE replyid = ?");
 			ps.setInt(1, replyid);
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 
 			if (!rs.next()) {
 				rs.close();
@@ -292,7 +292,7 @@ public class BbsHandler {
 			ps.close();
 
 			displayThread(c, threadid, false);
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
 		}
 	}
@@ -301,7 +301,7 @@ public class BbsHandler {
 		if (c.getPlayer().getGuildId() <= 0) {
 			return;
 		}
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		PreparedStatement ps = null;
 		PreparedStatement ps2 = null;
 		ResultSet repliesRS = null;
@@ -327,9 +327,9 @@ public class BbsHandler {
 			}
 			c.write(ChannelPackets.showThread(bIsThreadIdLocal ? threadid : threadRS.getInt("localthreadid"), threadRS, repliesRS));
 
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQLException: " + se.getLocalizedMessage() + se);
-		} catch (RuntimeException re) {
+		} catch (final RuntimeException re) {
 			System.err.println("The number of reply rows does not match the replycount in thread.  ThreadId = " + re.getMessage() + re);
 			try {
 				ps = con.prepareStatement("DELETE FROM bbs_threads WHERE threadid = ?");
@@ -354,7 +354,7 @@ public class BbsHandler {
 				if (ps2 != null) {
 					ps2.close();
 				}
-			} catch (SQLException e) {
+			} catch (final SQLException e) {
 			}
 		} finally {
 			try {
@@ -370,7 +370,7 @@ public class BbsHandler {
 				if (ps2 != null) {
 					ps2.close();
 				}
-			} catch (SQLException ignore) {
+			} catch (final SQLException ignore) {
 			}
 		}
 	}

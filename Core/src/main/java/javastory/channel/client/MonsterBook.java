@@ -43,7 +43,7 @@ public class MonsterBook implements Serializable {
 	private final Map<Integer, Integer> cards = Maps.newLinkedHashMap();
 
 	public final int getTotalCards() {
-		return specialCardCount + normalCardCount;
+		return this.specialCardCount + this.normalCardCount;
 	}
 
 	public static MonsterBook loadFromDb(final int characterId) throws SQLException {
@@ -72,7 +72,7 @@ public class MonsterBook implements Serializable {
 	}
 
 	public final void saveCards(final int charid) throws SQLException {
-		if (!changed || cards.isEmpty()) {
+		if (!this.changed || this.cards.isEmpty()) {
 			return;
 		}
 		final Connection con = Database.getConnection();
@@ -84,7 +84,7 @@ public class MonsterBook implements Serializable {
 		boolean first = true;
 		final StringBuilder query = new StringBuilder();
 
-		for (final Entry<Integer, Integer> all : cards.entrySet()) {
+		for (final Entry<Integer, Integer> all : this.cards.entrySet()) {
 			if (first) {
 				first = false;
 				query.append("INSERT INTO monsterbook VALUES (DEFAULT,");
@@ -104,31 +104,31 @@ public class MonsterBook implements Serializable {
 	}
 
 	private void calculateLevel() {
-		int Size = normalCardCount + specialCardCount;
-		bookLevel = 8;
+		final int Size = this.normalCardCount + this.specialCardCount;
+		this.bookLevel = 8;
 
 		for (int i = 0; i < 8; i++) {
 			if (Size <= GameConstants.getBookLevel(i)) {
-				bookLevel = (i + 1);
+				this.bookLevel = i + 1;
 				break;
 			}
 		}
 	}
 
 	public final void addCardPacket(final PacketBuilder builder) {
-		builder.writeAsShort(cards.size());
+		builder.writeAsShort(this.cards.size());
 
-		for (Entry<Integer, Integer> all : cards.entrySet()) {
+		for (final Entry<Integer, Integer> all : this.cards.entrySet()) {
 			builder.writeAsShort(GameConstants.getCardShortId(all.getKey())); // Id
 			builder.writeAsByte(all.getValue()); // Level
 		}
 	}
 
 	public final void addCharInfoPacket(final int bookcover, final PacketBuilder builder) {
-		builder.writeInt(bookLevel);
-		builder.writeInt(normalCardCount);
-		builder.writeInt(specialCardCount);
-		builder.writeInt(normalCardCount + specialCardCount);
+		builder.writeInt(this.bookLevel);
+		builder.writeInt(this.normalCardCount);
+		builder.writeInt(this.specialCardCount);
+		builder.writeInt(this.normalCardCount + this.specialCardCount);
 		builder.writeInt(ItemInfoProvider.getInstance().getCardMobId(bookcover));
 	}
 
@@ -137,9 +137,9 @@ public class MonsterBook implements Serializable {
 	}
 
 	public final void addCard(final GameClient c, final int cardid) {
-		changed = true;
+		this.changed = true;
 
-		for (final Entry<Integer, Integer> all : cards.entrySet()) {
+		for (final Entry<Integer, Integer> all : this.cards.entrySet()) {
 			if (all.getKey() == cardid) {
 
 				if (all.getValue() >= 5) {
@@ -148,15 +148,15 @@ public class MonsterBook implements Serializable {
 					c.write(MonsterBookPacket.addCard(false, cardid, all.getValue()));
 					c.write(MonsterBookPacket.showGainCard(cardid));
 					all.setValue(all.getValue() + 1);
-					calculateLevel();
+					this.calculateLevel();
 				}
 				return;
 			}
 		}
 		// New card
-		cards.put(cardid, 1);
+		this.cards.put(cardid, 1);
 		c.write(MonsterBookPacket.addCard(false, cardid, 1));
 		c.write(MonsterBookPacket.showGainCard(cardid));
-		calculateLevel();
+		this.calculateLevel();
 	}
 }

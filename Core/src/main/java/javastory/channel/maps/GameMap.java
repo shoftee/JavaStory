@@ -66,10 +66,16 @@ public class GameMap {
 	private final List<Rectangle> areas;
 
 	private FootholdTree footholds = null;
-	private float monsterRate, recoveryRate;
+	private final float monsterRate;
+	private float recoveryRate;
 	private GameMapEffect mapEffect;
 	private short decHP = 0, createMobInterval = 9000;
-	private int protectItem = 0, mapId, returnMapId, timeLimit, fieldLimit, maxRegularSpawn = 0;
+	private int protectItem = 0;
+	private final int mapId;
+	private final int returnMapId;
+	private int timeLimit;
+	private int fieldLimit;
+	private int maxRegularSpawn = 0;
 	private int runningOid = 100000, forcedReturnMap = 999999999;
 	private boolean town, clock, personalShop, isEverlast = false, dropsDisabled = false;
 	private String onUserEnter, onFirstUserEnter;
@@ -90,27 +96,27 @@ public class GameMap {
 	}
 
 	public final void toggleDrops() {
-		this.dropsDisabled = !dropsDisabled;
+		this.dropsDisabled = !this.dropsDisabled;
 	}
 
 	public final int getId() {
-		return mapId;
+		return this.mapId;
 	}
 
 	public final GameMap getReturnMap() {
-		return ChannelServer.getMapFactory().getMap(returnMapId);
+		return ChannelServer.getMapFactory().getMap(this.returnMapId);
 	}
 
 	public final int getReturnMapId() {
-		return returnMapId;
+		return this.returnMapId;
 	}
 
 	public final int getForcedReturnId() {
-		return forcedReturnMap;
+		return this.forcedReturnMap;
 	}
 
 	public final GameMap getForcedReturnMap() {
-		return ChannelServer.getMapFactory().getMap(forcedReturnMap);
+		return ChannelServer.getMapFactory().getMap(this.forcedReturnMap);
 	}
 
 	public final void setForcedReturnMap(final int map) {
@@ -118,7 +124,7 @@ public class GameMap {
 	}
 
 	public final float getRecoveryRate() {
-		return recoveryRate;
+		return this.recoveryRate;
 	}
 
 	public final void setRecoveryRate(final float recoveryRate) {
@@ -126,7 +132,7 @@ public class GameMap {
 	}
 
 	public final int getFieldLimit() {
-		return fieldLimit;
+		return this.fieldLimit;
 	}
 
 	public final void setFieldLimit(final int fieldLimit) {
@@ -150,7 +156,7 @@ public class GameMap {
 	}
 
 	public final boolean hasClock() {
-		return clock;
+		return this.clock;
 	}
 
 	public final void setClock(final boolean hasClock) {
@@ -158,7 +164,7 @@ public class GameMap {
 	}
 
 	public final boolean isTown() {
-		return town;
+		return this.town;
 	}
 
 	public final void setTown(final boolean town) {
@@ -166,7 +172,7 @@ public class GameMap {
 	}
 
 	public final boolean allowPersonalShop() {
-		return personalShop;
+		return this.personalShop;
 	}
 
 	public final void setPersonalShop(final boolean personalShop) {
@@ -178,19 +184,19 @@ public class GameMap {
 	}
 
 	public final boolean isEverlast() {
-		return isEverlast;
+		return this.isEverlast;
 	}
 
 	public final int getHPDec() {
-		return decHP;
+		return this.decHP;
 	}
 
 	public final void setHPDec(final int delta) {
-		decHP = (short) delta;
+		this.decHP = (short) delta;
 	}
 
 	public final int getHPDecProtect() {
-		return protectItem;
+		return this.protectItem;
 	}
 
 	public final void setHPDecProtect(final int delta) {
@@ -198,9 +204,9 @@ public class GameMap {
 	}
 
 	public final int getCurrentPartyId() {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter chr;
 			while (ltr.hasNext()) {
 				chr = ltr.next();
@@ -210,32 +216,32 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return -1;
 	}
 
 	public final void addMapObject(final GameMapObject mapobject) {
-		mutex.lock();
+		this.mutex.lock();
 
 		try {
-			runningOid++;
-			mapobject.setObjectId(runningOid);
-			mapObjects.put(runningOid, mapobject);
+			this.runningOid++;
+			mapobject.setObjectId(this.runningOid);
+			this.mapObjects.put(this.runningOid, mapobject);
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	private void spawnAndAddRangedMapObject(final GameMapObject mapobject, final DelayedPacketCreation packetbakery, final SpawnCondition condition) {
-		mutex.lock();
+		this.mutex.lock();
 
 		try {
-			runningOid++;
-			mapobject.setObjectId(runningOid);
-			mapObjects.put(runningOid, mapobject);
+			this.runningOid++;
+			mapobject.setObjectId(this.runningOid);
+			this.mapObjects.put(this.runningOid, mapobject);
 
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter chr;
 			while (ltr.hasNext()) {
 				chr = ltr.next();
@@ -247,30 +253,30 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public final void removeMapObject(final int num) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			mapObjects.remove(Integer.valueOf(num));
+			this.mapObjects.remove(Integer.valueOf(num));
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public final void removeMapObject(final GameMapObject obj) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			mapObjects.remove(Integer.valueOf(obj.getObjectId()));
+			this.mapObjects.remove(Integer.valueOf(obj.getObjectId()));
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public final Point calcPointBelow(final Point initial) {
-		final Foothold fh = footholds.findBelow(initial);
+		final Foothold fh = this.footholds.findBelow(initial);
 		if (fh == null) {
 			return null;
 		}
@@ -288,7 +294,7 @@ public class GameMap {
 	}
 
 	private Point calcDropPos(final Point initial, final Point fallback) {
-		final Point ret = calcPointBelow(new Point(initial.x, initial.y - 50));
+		final Point ret = this.calcPointBelow(new Point(initial.x, initial.y - 50));
 		if (ret == null) {
 			return fallback;
 		}
@@ -296,7 +302,7 @@ public class GameMap {
 	}
 
 	private void dropFromMonster(final ChannelCharacter chr, final Monster mob) {
-		if (dropsDisabled || mob.dropsDisabled()) {
+		if (this.dropsDisabled || mob.dropsDisabled()) {
 			return;
 		}
 
@@ -316,16 +322,16 @@ public class GameMap {
 		final float globalItemRate = ChannelServer.getInstance().getItemRate();
 		IItem idrop;
 		byte d = 1;
-		Point pos = new Point(0, mob.getPosition().y);
+		final Point pos = new Point(0, mob.getPosition().y);
 		final MobDropInfoProvider mi = MobDropInfoProvider.getInstance();
 		final List<MobDropInfo> dropEntry = new ArrayList<>(mi.retrieveDrop(mob.getId()));
 		Collections.shuffle(dropEntry);
 		for (final MobDropInfo de : dropEntry) {
 			if (Randomizer.nextInt(999999) < de.Chance * globalItemRate) {
 				if (droptype == 3) {
-					pos.x = (mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2))));
+					pos.x = mobpos + (d % 2 == 0 ? 40 * (d + 1) / 2 : -(40 * (d / 2)));
 				} else {
-					pos.x = (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
+					pos.x = mobpos + (d % 2 == 0 ? 25 * (d + 1) / 2 : -(25 * (d / 2)));
 				}
 
 				if (de.ItemId == 0) {
@@ -336,7 +342,7 @@ public class GameMap {
 							mesos = (int) (mesos * chr.getBuffedValue(BuffStat.MESOUP).doubleValue() / 100.0);
 						}
 						final float mesoRate = ChannelServer.getInstance().getMesoRate();
-						spawnMobMesoDrop((int) (mesos * mesoRate), calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
+						this.spawnMobMesoDrop((int) (mesos * mesoRate), this.calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
 					}
 				} else {
 					if (GameConstants.getInventoryType(de.ItemId) == InventoryType.EQUIP) {
@@ -345,7 +351,7 @@ public class GameMap {
 						idrop = new Item(de.ItemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1),
 							(byte) 0);
 					}
-					spawnMobDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.QuestId);
+					this.spawnMobDrop(idrop, this.calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.QuestId);
 				}
 				d++;
 			}
@@ -355,9 +361,9 @@ public class GameMap {
 		for (final MobGlobalDropInfo de : globalEntry) {
 			if (Randomizer.nextInt(999999) < de.Chance) {
 				if (droptype == 3) {
-					pos.x = (mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2))));
+					pos.x = mobpos + (d % 2 == 0 ? 40 * (d + 1) / 2 : -(40 * (d / 2)));
 				} else {
-					pos.x = (mobpos + ((d % 2 == 0) ? (25 * (d + 1) / 2) : -(25 * (d / 2))));
+					pos.x = mobpos + (d % 2 == 0 ? 25 * (d + 1) / 2 : -(25 * (d / 2)));
 				}
 				if (de.ItemId == 0) { // Random Cash xD
 					int cashGain;
@@ -375,7 +381,7 @@ public class GameMap {
 						idrop = new Item(de.ItemId, (byte) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1),
 							(byte) 0);
 					}
-					spawnMobDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.QuestId);
+					this.spawnMobDrop(idrop, this.calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.QuestId);
 					d++;
 				}
 			}
@@ -384,11 +390,11 @@ public class GameMap {
 
 	private void killMonster(final Monster monster) { // For mobs with
 														// removeAfter
-		spawnedMonstersOnMap.decrementAndGet();
+		this.spawnedMonstersOnMap.decrementAndGet();
 		monster.setHp(0);
 		monster.spawnRevives(this);
-		broadcastMessage(MobPacket.killMonster(monster.getObjectId(), 1));
-		removeMapObject(monster);
+		this.broadcastMessage(MobPacket.killMonster(monster.getObjectId(), 1));
+		this.removeMapObject(monster);
 	}
 
 	public final void killMonster(final Monster monster, final ChannelCharacter chr, final boolean withDrops, final boolean second, final byte animation) {
@@ -397,20 +403,20 @@ public class GameMap {
 
 				@Override
 				public void run() {
-					killMonster(monster, chr, true, true, (byte) 1);
-					killAllMonsters(true);
+					GameMap.this.killMonster(monster, chr, true, true, (byte) 1);
+					GameMap.this.killAllMonsters(true);
 				}
 			}, 3000);
 			return;
 		}
-		spawnedMonstersOnMap.decrementAndGet();
-		removeMapObject(monster);
+		this.spawnedMonstersOnMap.decrementAndGet();
+		this.removeMapObject(monster);
 		ChannelCharacter dropOwner = monster.killBy(chr);
-		broadcastMessage(MobPacket.killMonster(monster.getObjectId(), animation));
+		this.broadcastMessage(MobPacket.killMonster(monster.getObjectId(), animation));
 		if (monster.getBuffToGive() > -1) {
 			final int buffid = monster.getBuffToGive();
 			final StatEffect buff = ItemInfoProvider.getInstance().getItemEffect(buffid);
-			for (final GameMapObject mmo : getAllPlayer()) {
+			for (final GameMapObject mmo : this.getAllPlayer()) {
 				final ChannelCharacter c = (ChannelCharacter) mmo;
 				if (c.isAlive()) {
 					buff.applyTo(c);
@@ -419,7 +425,7 @@ public class GameMap {
 					case 8820001:
 						// HT nine spirit
 						c.getClient().write(ChannelPackets.showOwnBuffEffect(buffid, 11));
-						broadcastMessage(c, ChannelPackets.showBuffeffect(c.getId(), buffid, 11), false);
+						this.broadcastMessage(c, ChannelPackets.showBuffeffect(c.getId(), buffid, 11), false);
 						break;
 					}
 				}
@@ -431,23 +437,23 @@ public class GameMap {
 				ChannelServer.getWorldInterface().broadcastMessage(
 					ChannelPackets.serverNotice(6,
 						"To the crew that have finally conquered Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!"));
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
 			}
-			LogUtil.log(LogUtil.Horntail_Log, MapDebug_Log());
+			LogUtil.log(LogUtil.Horntail_Log, this.MapDebug_Log());
 		} else if (mobid == 8820001) {
 			try {
 				ChannelServer.getWorldInterface().broadcastMessage(
 					ChannelPackets.serverNotice(6, "Expedition who defeated Pink Bean with invicible passion! You are the true timeless hero!"));
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
 			}
-			LogUtil.log(LogUtil.Pinkbean_Log, MapDebug_Log());
+			LogUtil.log(LogUtil.Pinkbean_Log, this.MapDebug_Log());
 		} else if (mobid >= 8800003 && mobid <= 8800010) {
 			boolean makeZakReal = true;
-			final Collection<GameMapObject> objects = getAllMonster();
+			final Collection<GameMapObject> objects = this.getAllMonster();
 			for (final GameMapObject object : objects) {
-				final Monster mons = ((Monster) object);
+				final Monster mons = (Monster) object;
 				if (mons.getId() >= 8800003 && mons.getId() <= 8800010) {
 					makeZakReal = false;
 					break;
@@ -455,11 +461,11 @@ public class GameMap {
 			}
 			if (makeZakReal) {
 				for (final GameMapObject object : objects) {
-					final Monster mons = ((Monster) object);
+					final Monster mons = (Monster) object;
 					if (mons.getId() == 8800000) {
 						final Point pos = mons.getPosition();
 						this.killAllMonsters(true);
-						spawnMonsterOnGroundBelow(LifeFactory.getMonster(8800000), pos);
+						this.spawnMonsterOnGroundBelow(LifeFactory.getMonster(8800000), pos);
 						break;
 					}
 				}
@@ -469,26 +475,26 @@ public class GameMap {
 			if (dropOwner == null) {
 				dropOwner = chr;
 			}
-			dropFromMonster(dropOwner, monster);
+			this.dropFromMonster(dropOwner, monster);
 		}
 	}
 
 	public final void killAllMonsters(final boolean animate) {
-		for (final GameMapObject monstermo : getAllMonster()) {
+		for (final GameMapObject monstermo : this.getAllMonster()) {
 			final Monster monster = (Monster) monstermo;
-			spawnedMonstersOnMap.decrementAndGet();
+			this.spawnedMonstersOnMap.decrementAndGet();
 			monster.setHp(0);
-			broadcastMessage(MobPacket.killMonster(monster.getObjectId(), animate ? 1 : 0));
-			removeMapObject(monster);
+			this.broadcastMessage(MobPacket.killMonster(monster.getObjectId(), animate ? 1 : 0));
+			this.removeMapObject(monster);
 		}
 	}
 
 	public final void killMonster(final int monsId) {
-		for (final GameMapObject mmo : getAllMonster()) {
+		for (final GameMapObject mmo : this.getAllMonster()) {
 			if (((Monster) mmo).getId() == monsId) {
-				spawnedMonstersOnMap.decrementAndGet();
-				removeMapObject(mmo);
-				broadcastMessage(MobPacket.killMonster(mmo.getObjectId(), 1));
+				this.spawnedMonstersOnMap.decrementAndGet();
+				this.removeMapObject(mmo);
+				this.broadcastMessage(MobPacket.killMonster(mmo.getObjectId(), 1));
 				break;
 			}
 		}
@@ -500,7 +506,7 @@ public class GameMap {
 
 		sb.append(" | Mapid : ").append(this.mapId);
 
-		final List<GameMapObject> players = getAllPlayer();
+		final List<GameMapObject> players = this.getAllPlayer();
 		sb.append(" Users [").append(players.size()).append("] | ");
 		final Iterator<GameMapObject> itr = players.iterator();
 		while (itr.hasNext()) {
@@ -510,10 +516,10 @@ public class GameMap {
 	}
 
 	public final void destroyReactor(final int oid) {
-		final Reactor reactor = getReactorByOid(oid);
-		broadcastMessage(ChannelPackets.destroyReactor(reactor));
+		final Reactor reactor = this.getReactorByOid(oid);
+		this.broadcastMessage(ChannelPackets.destroyReactor(reactor));
 		reactor.setAlive(false);
-		removeMapObject(reactor);
+		this.removeMapObject(reactor);
 		reactor.setTimerActive(false);
 
 		if (reactor.getDelay() > 0) {
@@ -521,7 +527,7 @@ public class GameMap {
 
 				@Override
 				public final void run() {
-					respawnReactor(reactor);
+					GameMap.this.respawnReactor(reactor);
 				}
 			}, reactor.getDelay());
 		}
@@ -533,18 +539,18 @@ public class GameMap {
 	 * Should create instances for multiple copies of non-respawning reactors...
 	 */
 	public final void resetReactors() {
-		for (final GameMapObject o : getAllReactor()) {
+		for (final GameMapObject o : this.getAllReactor()) {
 			((Reactor) o).setState((byte) 0);
 			((Reactor) o).setTimerActive(false);
-			broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 0));
+			this.broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 0));
 		}
 	}
 
 	public final void setReactorState() {
-		for (final GameMapObject o : getAllReactor()) {
+		for (final GameMapObject o : this.getAllReactor()) {
 			((Reactor) o).setState((byte) 1);
 			((Reactor) o).setTimerActive(false);
-			broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 1));
+			this.broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 1));
 		}
 	}
 
@@ -553,13 +559,13 @@ public class GameMap {
 	 * (such as ZPQ/LMPQ)
 	 */
 	public final void shuffleReactors() {
-		List<Point> points = new ArrayList<>();
+		final List<Point> points = new ArrayList<>();
 
-		for (final GameMapObject o : getAllReactor()) {
+		for (final GameMapObject o : this.getAllReactor()) {
 			points.add(((Reactor) o).getPosition());
 		}
 		Collections.shuffle(points);
-		for (final GameMapObject o : getAllReactor()) {
+		for (final GameMapObject o : this.getAllReactor()) {
 			((Reactor) o).setPosition(points.remove(points.size() - 1));
 		}
 	}
@@ -584,10 +590,10 @@ public class GameMap {
 		int mincontrolled = -1;
 		ChannelCharacter newController = null;
 
-		mutex.lock();
+		this.mutex.lock();
 
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter chr;
 			while (ltr.hasNext()) {
 				chr = ltr.next();
@@ -597,7 +603,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		if (newController != null) {
 			if (monster.isFirstAttack()) {
@@ -615,11 +621,11 @@ public class GameMap {
 	 * Collections.unmodifiableCollection(mapobjects.values()); }
 	 */
 	public final GameMapObject getMapObject(final int oid) {
-		return mapObjects.get(oid);
+		return this.mapObjects.get(oid);
 	}
 
 	public final int containsNPC(final int npcid) {
-		for (GameMapObject obj : getAllNPC()) {
+		for (final GameMapObject obj : this.getAllNPC()) {
 			if (((Npc) obj).getId() == npcid) {
 				return obj.getObjectId();
 			}
@@ -635,7 +641,7 @@ public class GameMap {
 	 * @return
 	 */
 	public final Monster getMonsterByOid(final int oid) {
-		final GameMapObject mmo = getMapObject(oid);
+		final GameMapObject mmo = this.getMapObject(oid);
 		if (mmo == null) {
 			return null;
 		}
@@ -646,7 +652,7 @@ public class GameMap {
 	}
 
 	public final Npc getNPCByOid(final int oid) {
-		final GameMapObject mmo = getMapObject(oid);
+		final GameMapObject mmo = this.getMapObject(oid);
 		if (mmo == null) {
 			return null;
 		}
@@ -657,7 +663,7 @@ public class GameMap {
 	}
 
 	public final Reactor getReactorByOid(final int oid) {
-		final GameMapObject mmo = getMapObject(oid);
+		final GameMapObject mmo = this.getMapObject(oid);
 		if (mmo == null) {
 			return null;
 		}
@@ -668,7 +674,7 @@ public class GameMap {
 	}
 
 	public final Reactor getReactorByName(final String name) {
-		for (final GameMapObject obj : getAllReactor()) {
+		for (final GameMapObject obj : this.getAllReactor()) {
 			if (((Reactor) obj).getName().equals(name)) {
 				return (Reactor) obj;
 			}
@@ -682,43 +688,43 @@ public class GameMap {
 		npc.setCy(pos.y);
 		npc.setRx0(pos.x + 50);
 		npc.setRx1(pos.x - 50);
-		npc.setFoothold(getFootholds().findBelow(pos).getId());
+		npc.setFoothold(this.getFootholds().findBelow(pos).getId());
 		npc.setCustom(true);
-		addMapObject(npc);
-		broadcastMessage(ChannelPackets.spawnNpc(npc, true));
+		this.addMapObject(npc);
+		this.broadcastMessage(ChannelPackets.spawnNpc(npc, true));
 	}
 
 	public final void removeNpc(final int id) {
-		final List<GameMapObject> npcs = getAllNPC();
+		final List<GameMapObject> npcs = this.getAllNPC();
 		for (final GameMapObject npcmo : npcs) {
 			final Npc npc = (Npc) npcmo;
 			if (npc.isCustom() && npc.getId() == id) {
-				broadcastMessage(ChannelPackets.removeNpc(npc.getObjectId()));
-				removeMapObject(npc.getObjectId());
+				this.broadcastMessage(ChannelPackets.removeNpc(npc.getObjectId()));
+				this.removeMapObject(npc.getObjectId());
 			}
 		}
 	}
 
 	public final void spawnMonster_sSack(final Monster mob, final Point pos, final int spawnType) {
-		final Point spos = calcPointBelow(new Point(pos.x, pos.y - 1));
+		final Point spos = this.calcPointBelow(new Point(pos.x, pos.y - 1));
 		mob.setPosition(spos);
-		spawnMonster(mob, spawnType);
+		this.spawnMonster(mob, spawnType);
 	}
 
 	public final void spawnMonsterOnGroundBelow(final Monster mob, final Point pos) {
-		final Point spos = calcPointBelow(new Point(pos.x, pos.y - 1));
+		final Point spos = this.calcPointBelow(new Point(pos.x, pos.y - 1));
 		mob.setPosition(spos);
-		spawnMonster(mob, -2);
+		this.spawnMonster(mob, -2);
 	}
 
 	public final void spawnZakum(final Point pos) {
 		final Monster mainb = LifeFactory.getMonster(8800000);
-		final Point spos = calcPointBelow(new Point(pos.x, pos.y - 1));
+		final Point spos = this.calcPointBelow(new Point(pos.x, pos.y - 1));
 		mainb.setPosition(spos);
 		mainb.setFake(true);
 
 		// Might be possible to use the map object for reference in future.
-		spawnFakeMonster(mainb);
+		this.spawnFakeMonster(mainb);
 
 		final int[] zakpart = { 8800003, 8800004, 8800005, 8800006, 8800007, 8800008, 8800009, 8800010 };
 
@@ -726,16 +732,16 @@ public class GameMap {
 			final Monster part = LifeFactory.getMonster(i);
 			part.setPosition(spos);
 
-			spawnMonster(part, -2);
+			this.spawnMonster(part, -2);
 		}
 	}
 
 	public final void spawnFakeMonsterOnGroundBelow(final Monster mob, final Point pos) {
 		Point spos = new Point(pos.x, pos.y - 1);
-		spos = calcPointBelow(spos);
+		spos = this.calcPointBelow(spos);
 		spos.y -= 1;
 		mob.setPosition(spos);
-		spawnFakeMonster(mob);
+		this.spawnFakeMonster(mob);
 	}
 
 	private void checkRemoveAfter(final Monster monster) {
@@ -747,7 +753,7 @@ public class GameMap {
 				@Override
 				public final void run() {
 					if (monster != null) {
-						killMonster(monster);
+						GameMap.this.killMonster(monster);
 					}
 				}
 			}, ra * 1000);
@@ -756,46 +762,46 @@ public class GameMap {
 
 	public final void spawnRevives(final Monster monster, final int oid) {
 		monster.setMap(this);
-		checkRemoveAfter(monster);
+		this.checkRemoveAfter(monster);
 
-		spawnAndAddRangedMapObject(monster, new MonsterSpawnTask(oid, monster), null);
-		updateMonsterController(monster);
+		this.spawnAndAddRangedMapObject(monster, new MonsterSpawnTask(oid, monster), null);
+		this.updateMonsterController(monster);
 
-		spawnedMonstersOnMap.incrementAndGet();
+		this.spawnedMonstersOnMap.incrementAndGet();
 	}
 
 	public final void spawnMonster(final Monster monster, final int spawnType) {
 		monster.setMap(this);
-		checkRemoveAfter(monster);
+		this.checkRemoveAfter(monster);
 
-		spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
 			@Override
-			public final void sendPackets(ChannelClient c) {
+			public final void sendPackets(final ChannelClient c) {
 				c.write(MobPacket.spawnMonster(monster, spawnType, 0, 0));
 			}
 		}, null);
-		updateMonsterController(monster);
+		this.updateMonsterController(monster);
 
-		spawnedMonstersOnMap.incrementAndGet();
+		this.spawnedMonstersOnMap.incrementAndGet();
 	}
 
-	public final void spawnMonsterWithEffect(final Monster monster, final int effect, Point pos) {
+	public final void spawnMonsterWithEffect(final Monster monster, final int effect, final Point pos) {
 		try {
 			monster.setMap(this);
 			monster.setPosition(pos);
 
-			spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
+			this.spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
 				@Override
-				public final void sendPackets(ChannelClient c) {
+				public final void sendPackets(final ChannelClient c) {
 					c.write(MobPacket.spawnMonster(monster, -2, effect, 0));
 				}
 			}, null);
-			updateMonsterController(monster);
+			this.updateMonsterController(monster);
 
-			spawnedMonstersOnMap.incrementAndGet();
-		} catch (Exception e) {
+			this.spawnedMonstersOnMap.incrementAndGet();
+		} catch (final Exception e) {
 		}
 	}
 
@@ -803,26 +809,26 @@ public class GameMap {
 		monster.setMap(this);
 		monster.setFake(true);
 
-		spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(monster, new DelayedPacketCreation() {
 
 			@Override
-			public final void sendPackets(ChannelClient c) {
+			public final void sendPackets(final ChannelClient c) {
 				c.write(MobPacket.spawnMonster(monster, -2, 0xfc, 0));
 				// c.write(MobPacket.spawnFakeMonster(monster, 0));
 			}
 		}, null);
-		updateMonsterController(monster);
+		this.updateMonsterController(monster);
 
-		spawnedMonstersOnMap.incrementAndGet();
+		this.spawnedMonstersOnMap.incrementAndGet();
 	}
 
 	public final void spawnReactor(final Reactor reactor) {
 		reactor.setMap(this);
 
-		spawnAndAddRangedMapObject(reactor, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(reactor, new DelayedPacketCreation() {
 
 			@Override
-			public final void sendPackets(ChannelClient c) {
+			public final void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.spawnReactor(reactor));
 			}
 		}, null);
@@ -831,14 +837,14 @@ public class GameMap {
 	private void respawnReactor(final Reactor reactor) {
 		reactor.setState((byte) 0);
 		reactor.setAlive(true);
-		spawnReactor(reactor);
+		this.spawnReactor(reactor);
 	}
 
 	public final void spawnDoor(final Door door) {
-		spawnAndAddRangedMapObject(door, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(door, new DelayedPacketCreation() {
 
 			@Override
-			public final void sendPackets(ChannelClient c) {
+			public final void sendPackets(final ChannelClient c) {
 				final ChannelCharacter doorOwner = door.getOwner();
 				c.write(ChannelPackets.spawnDoor(doorOwner.getId(), door.getTargetPosition(), false));
 
@@ -865,30 +871,30 @@ public class GameMap {
 	}
 
 	public final void spawnDragon(final Dragon summon) {
-		spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.spawnDragon(summon));
 			}
 		}, null);
 	}
 
 	public final void spawnSummon(final Summon summon) {
-		spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(summon, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.spawnSummon(summon, summon.getSkillLevel(), true));
 			}
 		}, null);
 	}
 
-	public final void spawnMist(final Mist mist, final int duration, boolean poison, boolean fake) {
-		spawnAndAddRangedMapObject(mist, new DelayedPacketCreation() {
+	public final void spawnMist(final Mist mist, final int duration, final boolean poison, final boolean fake) {
+		this.spawnAndAddRangedMapObject(mist, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.spawnMist(mist));
 			}
 		}, null);
@@ -901,7 +907,7 @@ public class GameMap {
 
 				@Override
 				public void run() {
-					for (final GameMapObject mo : getMapObjectsInRect(mist.getBox(), Collections.singletonList(GameMapObjectType.MONSTER))) {
+					for (final GameMapObject mo : GameMap.this.getMapObjectsInRect(mist.getBox(), Collections.singletonList(GameMapObjectType.MONSTER))) {
 						if (mist.makeChanceResult()) {
 							((Monster) mo).applyStatus(mist.getOwner(), new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.POISON, 1), mist
 								.getSourceSkill(), null, false), true, duration, false);
@@ -916,8 +922,8 @@ public class GameMap {
 
 			@Override
 			public void run() {
-				broadcastMessage(ChannelPackets.removeMist(mist.getObjectId()));
-				removeMapObject(mist);
+				GameMap.this.broadcastMessage(ChannelPackets.removeMist(mist.getObjectId()));
+				GameMap.this.removeMapObject(mist);
 				if (poisonSchedule != null) {
 					poisonSchedule.cancel(false);
 				}
@@ -926,23 +932,23 @@ public class GameMap {
 	}
 
 	public final void disappearingItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, final Point pos) {
-		final Point droppos = calcDropPos(pos, pos);
+		final Point droppos = this.calcDropPos(pos, pos);
 		final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 1, false);
-		broadcastMessage(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
+		this.broadcastMessage(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 3), drop.getPosition());
 	}
 
 	public final void spawnMesoDrop(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final boolean playerDrop,
 		final byte droptype) {
-		final Point droppos = calcDropPos(position, position);
+		final Point droppos = this.calcDropPos(position, position);
 		final GameMapItem mdrop = new GameMapItem(meso, droppos, dropper, owner, droptype, playerDrop);
-		spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
 			}
 		}, null);
-		if (!isEverlast) {
+		if (!this.isEverlast) {
 			MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
 		}
 	}
@@ -950,10 +956,10 @@ public class GameMap {
 	public final void spawnMobMesoDrop(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner,
 		final boolean playerDrop, final byte droptype) {
 		final GameMapItem mdrop = new GameMapItem(meso, position, dropper, owner, droptype, playerDrop);
-		spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.dropItemFromMapObject(mdrop, dropper.getPosition(), position, (byte) 1));
 			}
 		}, null);
@@ -962,41 +968,41 @@ public class GameMap {
 
 	private void spawnMobDrop(final IItem idrop, final Point dropPos, final Monster mob, final ChannelCharacter chr, final byte droptype, final short questid) {
 		final GameMapItem mdrop = new GameMapItem(idrop, dropPos, mob, chr, droptype, false, questid);
-		spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				if (questid <= 0 || c.getPlayer().getQuestCompletionStatus(questid) == 1) {
 					c.write(ChannelPackets.dropItemFromMapObject(mdrop, mob.getPosition(), dropPos, (byte) 1));
 				}
 			}
 		}, null);
 		MapTimer.getInstance().schedule(new ExpireMapItemJob(mdrop), 180000);
-		activateItemReactors(mdrop, chr.getClient());
+		this.activateItemReactors(mdrop, chr.getClient());
 	}
 
-	public final void spawnItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, Point pos, final boolean ffaDrop,
+	public final void spawnItemDrop(final GameMapObject dropper, final ChannelCharacter owner, final IItem item, final Point pos, final boolean ffaDrop,
 		final boolean playerDrop) {
-		final Point droppos = calcDropPos(pos, pos);
+		final Point droppos = this.calcDropPos(pos, pos);
 		final GameMapItem drop = new GameMapItem(item, droppos, dropper, owner, (byte) 0, playerDrop);
-		spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
+		this.spawnAndAddRangedMapObject(drop, new DelayedPacketCreation() {
 
 			@Override
-			public void sendPackets(ChannelClient c) {
+			public void sendPackets(final ChannelClient c) {
 				c.write(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 1));
 			}
 		}, null);
-		broadcastMessage(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 0));
-		if (!isEverlast) {
+		this.broadcastMessage(ChannelPackets.dropItemFromMapObject(drop, dropper.getPosition(), droppos, (byte) 0));
+		if (!this.isEverlast) {
 			MapTimer.getInstance().schedule(new ExpireMapItemJob(drop), 180000);
-			activateItemReactors(drop, owner.getClient());
+			this.activateItemReactors(drop, owner.getClient());
 		}
 	}
 
 	private void activateItemReactors(final GameMapItem drop, final ChannelClient c) {
 		final IItem item = drop.getItem();
 
-		for (final GameMapObject o : getAllReactor()) {
+		for (final GameMapObject o : this.getAllReactor()) {
 			final Reactor react = (Reactor) o;
 
 			if (react.getReactorType() == 100) {
@@ -1017,107 +1023,107 @@ public class GameMap {
 	public final void AriantPQStart() {
 		int i = 1;
 
-		mutex.lock();
+		this.mutex.lock();
 
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter chars;
 			while (ltr.hasNext()) {
 				chars = ltr.next();
-				broadcastMessage(ChannelPackets.updateAriantPQRanking(chars.getName(), 0, false));
-				broadcastMessage(ChannelPackets.serverNotice(0, ChannelPackets.updateAriantPQRanking(chars.getName(), 0, false).toString()));
+				this.broadcastMessage(ChannelPackets.updateAriantPQRanking(chars.getName(), 0, false));
+				this.broadcastMessage(ChannelPackets.serverNotice(0, ChannelPackets.updateAriantPQRanking(chars.getName(), 0, false).toString()));
 				if (this.getCharactersSize() > i) {
-					broadcastMessage(ChannelPackets.updateAriantPQRanking(null, 0, true));
-					broadcastMessage(ChannelPackets.serverNotice(0, ChannelPackets.updateAriantPQRanking(chars.getName(), 0, true).toString()));
+					this.broadcastMessage(ChannelPackets.updateAriantPQRanking(null, 0, true));
+					this.broadcastMessage(ChannelPackets.serverNotice(0, ChannelPackets.updateAriantPQRanking(chars.getName(), 0, true).toString()));
 				}
 				i++;
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public final void returnEverLastItem(final ChannelCharacter chr) {
-		for (final GameMapObject o : getAllItems()) {
-			final GameMapItem item = ((GameMapItem) o);
+		for (final GameMapObject o : this.getAllItems()) {
+			final GameMapItem item = (GameMapItem) o;
 			if (item.getOwner() == chr.getId()) {
 				item.setPickedUp(true);
-				broadcastMessage(ChannelPackets.removeItemFromMap(item.getObjectId(), 2, chr.getId()), item.getPosition());
+				this.broadcastMessage(ChannelPackets.removeItemFromMap(item.getObjectId(), 2, chr.getId()), item.getPosition());
 				if (item.getMeso() > 0) {
 					chr.gainMeso(item.getMeso(), false);
 				} else {
 					InventoryManipulator.addFromDrop(chr.getClient(), item.getItem(), false);
 				}
-				removeMapObject(item);
+				this.removeMapObject(item);
 			}
 		}
 	}
 
 	public final void startMapEffect(final String msg, final int itemId) {
-		if (mapEffect != null) {
+		if (this.mapEffect != null) {
 			return;
 		}
-		mapEffect = new GameMapEffect(msg, itemId);
-		broadcastMessage(mapEffect.makeStartData());
+		this.mapEffect = new GameMapEffect(msg, itemId);
+		this.broadcastMessage(this.mapEffect.makeStartData());
 		MapTimer.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
-				broadcastMessage(mapEffect.makeDestroyData());
-				mapEffect = null;
+				GameMap.this.broadcastMessage(GameMap.this.mapEffect.makeDestroyData());
+				GameMap.this.mapEffect = null;
 			}
 		}, 30000);
 	}
 
 	public final void addPlayer(final ChannelCharacter character) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			characters.add(character);
-			mapObjects.put(character.getObjectId(), character);
+			this.characters.add(character);
+			this.mapObjects.put(character.getObjectId(), character);
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		if (!character.isHidden()) {
-			broadcastMessage(ChannelPackets.spawnPlayerMapObject(character));
+			this.broadcastMessage(ChannelPackets.spawnPlayerMapObject(character));
 		}
-		sendObjectPlacement(character);
+		this.sendObjectPlacement(character);
 
 		final ChannelClient client = character.getClient();
 
 		client.write(ChannelPackets.spawnPlayerMapObject(character));
 
-		if (!onFirstUserEnter.equals("")) {
-			if (getCharactersSize() == 1) {
-				MapScriptMethods.startScript_FirstUser(client, onFirstUserEnter);
+		if (!this.onFirstUserEnter.equals("")) {
+			if (this.getCharactersSize() == 1) {
+				MapScriptMethods.startScript_FirstUser(client, this.onFirstUserEnter);
 			}
 		}
-		if (!onUserEnter.equals("")) {
-			MapScriptMethods.startScript_User(client, onUserEnter);
+		if (!this.onUserEnter.equals("")) {
+			MapScriptMethods.startScript_User(client, this.onUserEnter);
 		}
 		for (final Pet pet : character.getPets()) {
 			if (pet.isSummoned()) {
 				final GamePacket packet = PetPacket.showPet(character, pet);
-				broadcastMessage(character, packet, false);
+				this.broadcastMessage(character, packet, false);
 			}
 		}
-		switch (mapId) {
+		switch (this.mapId) {
 		case 809000101:
 		case 809000201:
 			client.write(ChannelPackets.showEquipEffect());
 			break;
 		}
-		if (getHPDec() > 0) {
+		if (this.getHPDec() > 0) {
 			character.startHurtHp();
 		}
 		final PartyMember member = character.getPartyMembership();
 		if (member != null) {
 			try {
-				Party party = ChannelServer.getWorldInterface().getParty(member.getPartyId());
+				final Party party = ChannelServer.getWorldInterface().getParty(member.getPartyId());
 				character.silentPartyUpdate();
 				client.write(ChannelPackets.updateParty(client.getChannelId(), party, PartyOperation.SILENT_UPDATE, null));
 				character.updatePartyMemberHP();
 				character.receivePartyMemberHP();
-			} catch (RemoteException ex) {
+			} catch (final RemoteException ex) {
 				ex.printStackTrace();
 			}
 		}
@@ -1128,15 +1134,15 @@ public class GameMap {
 			character.addVisibleMapObject(summon);
 			this.spawnSummon(summon);
 		}
-		if (mapEffect != null) {
-			mapEffect.sendStartData(client);
+		if (this.mapEffect != null) {
+			this.mapEffect.sendStartData(client);
 		}
-		if (timeLimit > 0 && getForcedReturnMap() != null) {
-			character.startMapTimeLimitTask(timeLimit, getForcedReturnMap());
+		if (this.timeLimit > 0 && this.getForcedReturnMap() != null) {
+			character.startMapTimeLimitTask(this.timeLimit, this.getForcedReturnMap());
 		}
 
 		if (character.getBuffedValue(BuffStat.MONSTER_RIDING) != null) {
-			if (FieldLimitType.Mount.check(fieldLimit)) {
+			if (FieldLimitType.Mount.check(this.fieldLimit)) {
 				character.cancelBuffStats(BuffStat.MONSTER_RIDING);
 			}
 		}
@@ -1146,7 +1152,7 @@ public class GameMap {
 			client.write(ChannelPackets.getClock((int) (eventInstance.getTimeLeft() / 1000)));
 		}
 
-		if (hasClock()) {
+		if (this.hasClock()) {
 			final Calendar calendar = Calendar.getInstance();
 			client.write(ChannelPackets.getClockTime(calendar));
 		}
@@ -1160,8 +1166,8 @@ public class GameMap {
 			if (character.getDragon() == null) {
 				character.makeDragon();
 			}
-			spawnDragon(character.getDragon());
-			updateMapObjectVisibility(character, character.getDragon());
+			this.spawnDragon(character.getDragon());
+			this.updateMapObjectVisibility(character, character.getDragon());
 		}
 	}
 
@@ -1169,23 +1175,23 @@ public class GameMap {
 		// log.warn("[dc] [level2] Player {} leaves map {}", new Object[] {
 		// chr.getName(), mapid });
 
-		if (isEverlast) {
-			returnEverLastItem(character);
+		if (this.isEverlast) {
+			this.returnEverLastItem(character);
 		}
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			characters.remove(character);
+			this.characters.remove(character);
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
-		removeMapObject(Integer.valueOf(character.getObjectId()));
-		broadcastMessage(ChannelPackets.removePlayerFromMap(character.getId()));
+		this.removeMapObject(Integer.valueOf(character.getObjectId()));
+		this.broadcastMessage(ChannelPackets.removePlayerFromMap(character.getId()));
 
 		for (final Monster monster : character.getControlledMonsters()) {
 			monster.setController(null);
 			monster.setControllerHasAggro(false);
 			monster.setControllerKnowsAboutAggro(false);
-			updateMonsterController(monster);
+			this.updateMonsterController(monster);
 		}
 		character.leaveMap();
 		character.cancelMapTimeLimitTask();
@@ -1195,20 +1201,20 @@ public class GameMap {
 				character.cancelBuffStats(BuffStat.PUPPET);
 				character.cancelBuffStats(BuffStat.MIRROR_TARGET);
 			} else {
-				removeMapObject(summon);
+				this.removeMapObject(summon);
 			}
 		}
 		if (character.getDragon() != null) {
-			removeMapObject(character.getDragon());
+			this.removeMapObject(character.getDragon());
 		}
 	}
 
 	public final void broadcastMessage(final GamePacket packet) {
-		broadcastMessage(null, packet, Double.POSITIVE_INFINITY, null);
+		this.broadcastMessage(null, packet, Double.POSITIVE_INFINITY, null);
 	}
 
 	public final void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final boolean repeatToSource) {
-		broadcastMessage(repeatToSource ? null : source, packet, Double.POSITIVE_INFINITY, source.getPosition());
+		this.broadcastMessage(repeatToSource ? null : source, packet, Double.POSITIVE_INFINITY, source.getPosition());
 	}
 
 	/*
@@ -1218,17 +1224,17 @@ public class GameMap {
 	 * Double.POSITIVE_INFINITY, source.getPosition()); }
 	 */
 	public final void broadcastMessage(final GamePacket packet, final Point rangedFrom) {
-		broadcastMessage(null, packet, GameConstants.maxViewRangeSq(), rangedFrom);
+		this.broadcastMessage(null, packet, GameConstants.maxViewRangeSq(), rangedFrom);
 	}
 
 	public final void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final Point rangedFrom) {
-		broadcastMessage(source, packet, GameConstants.maxViewRangeSq(), rangedFrom);
+		this.broadcastMessage(source, packet, GameConstants.maxViewRangeSq(), rangedFrom);
 	}
 
 	private void broadcastMessage(final ChannelCharacter source, final GamePacket packet, final double rangeSq, final Point rangedFrom) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter chr;
 			while (ltr.hasNext()) {
 				chr = ltr.next();
@@ -1243,7 +1249,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
@@ -1251,10 +1257,10 @@ public class GameMap {
 		if (c == null) {
 			return;
 		}
-		for (final GameMapObject o : getAllMonster()) {
-			updateMonsterController((Monster) o);
+		for (final GameMapObject o : this.getAllMonster()) {
+			this.updateMonsterController((Monster) o);
 		}
-		for (final GameMapObject o : getMapObjectsInRange(c.getPosition(), GameConstants.maxViewRangeSq(), GameConstants.rangedMapObjectTypes)) {
+		for (final GameMapObject o : this.getMapObjectsInRange(c.getPosition(), GameConstants.maxViewRangeSq(), GameConstants.rangedMapObjectTypes)) {
 			if (o.getType() == GameMapObjectType.REACTOR) {
 				if (!((Reactor) o).isAlive()) {
 					continue;
@@ -1268,9 +1274,9 @@ public class GameMap {
 	public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq) {
 		final List<GameMapObject> ret = new LinkedList<>();
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<GameMapObject> ltr = mapObjects.values().iterator();
+			final Iterator<GameMapObject> ltr = this.mapObjects.values().iterator();
 			GameMapObject obj;
 			while (ltr.hasNext()) {
 				obj = ltr.next();
@@ -1279,7 +1285,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return ret;
 	}
@@ -1287,9 +1293,9 @@ public class GameMap {
 	public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq, final List<GameMapObjectType> MapObject_types) {
 		final List<GameMapObject> ret = new LinkedList<>();
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<GameMapObject> ltr = mapObjects.values().iterator();
+			final Iterator<GameMapObject> ltr = this.mapObjects.values().iterator();
 			GameMapObject obj;
 			while (ltr.hasNext()) {
 				obj = ltr.next();
@@ -1300,7 +1306,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return ret;
 	}
@@ -1308,9 +1314,9 @@ public class GameMap {
 	public final List<GameMapObject> getMapObjectsInRect(final Rectangle box, final List<GameMapObjectType> MapObject_types) {
 		final List<GameMapObject> ret = new LinkedList<>();
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<GameMapObject> ltr = mapObjects.values().iterator();
+			final Iterator<GameMapObject> ltr = this.mapObjects.values().iterator();
 			GameMapObject obj;
 			while (ltr.hasNext()) {
 				obj = ltr.next();
@@ -1321,7 +1327,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return ret;
 	}
@@ -1329,9 +1335,9 @@ public class GameMap {
 	public final List<ChannelCharacter> getPlayersInRect(final Rectangle box, final List<ChannelCharacter> CharacterList) {
 		final List<ChannelCharacter> character = new LinkedList<>();
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter a;
 			while (ltr.hasNext()) {
 				a = ltr.next();
@@ -1342,41 +1348,41 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return character;
 	}
 
 	public final List<GameMapObject> getAllItems() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.ITEM));
 	}
 
 	public final List<GameMapObject> getAllNPC() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.NPC));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.NPC));
 	}
 
 	public final List<GameMapObject> getAllReactor() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.REACTOR));
 	}
 
 	public final List<GameMapObject> getAllPlayer() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.PLAYER));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.PLAYER));
 	}
 
 	public final List<GameMapObject> getAllMonster() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.MONSTER));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.MONSTER));
 	}
 
 	public final List<GameMapObject> getAllDoor() {
-		return getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.DOOR));
+		return this.getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(GameMapObjectType.DOOR));
 	}
 
 	public final void addPortal(final Portal myPortal) {
-		portals.put(myPortal.getId(), myPortal);
+		this.portals.put(myPortal.getId(), myPortal);
 	}
 
 	public final Portal getPortal(final String portalname) {
-		for (final Portal port : portals.values()) {
+		for (final Portal port : this.portals.values()) {
 			if (port.getName().equals(portalname)) {
 				return port;
 			}
@@ -1385,19 +1391,19 @@ public class GameMap {
 	}
 
 	public final Portal getPortal(final int portalid) {
-		return portals.get(portalid);
+		return this.portals.get(portalid);
 	}
 
 	public final void addMapleArea(final Rectangle rec) {
-		areas.add(rec);
+		this.areas.add(rec);
 	}
 
 	public final List<Rectangle> getAreas() {
-		return new ArrayList<>(areas);
+		return new ArrayList<>(this.areas);
 	}
 
 	public final Rectangle getArea(final int index) {
-		return areas.get(index);
+		return this.areas.get(index);
 	}
 
 	public final void setFootholds(final FootholdTree footholds) {
@@ -1405,25 +1411,25 @@ public class GameMap {
 	}
 
 	public final FootholdTree getFootholds() {
-		return footholds;
+		return this.footholds;
 	}
 
 	public final void loadMonsterRate(final boolean first) {
-		final int spawnSize = monsterSpawn.size();
+		final int spawnSize = this.monsterSpawn.size();
 		/*
 		 * if (spawnSize >= 25 || monsterRate > 1.5) { maxRegularSpawn =
 		 * Math.round(spawnSize / monsterRate); } else { maxRegularSpawn =
 		 * Math.round(spawnSize * monsterRate); }
 		 */
-		maxRegularSpawn = Math.round(spawnSize * monsterRate);
-		if (maxRegularSpawn < 2) {
-			maxRegularSpawn = 2;
-		} else if (maxRegularSpawn > spawnSize) {
-			maxRegularSpawn = spawnSize - (spawnSize / 15);
+		this.maxRegularSpawn = Math.round(spawnSize * this.monsterRate);
+		if (this.maxRegularSpawn < 2) {
+			this.maxRegularSpawn = 2;
+		} else if (this.maxRegularSpawn > spawnSize) {
+			this.maxRegularSpawn = spawnSize - spawnSize / 15;
 		}
-		Collection<Spawns> newSpawn = new LinkedList<>();
-		Collection<Spawns> newBossSpawn = new LinkedList<>();
-		for (final Spawns s : monsterSpawn) {
+		final Collection<Spawns> newSpawn = new LinkedList<>();
+		final Collection<Spawns> newBossSpawn = new LinkedList<>();
+		for (final Spawns s : this.monsterSpawn) {
 			if (s.getCarnivalTeam() >= 2) {
 				continue; // Remove carnival spawned mobs
 			}
@@ -1433,57 +1439,57 @@ public class GameMap {
 				newSpawn.add(s);
 			}
 		}
-		monsterSpawn.clear();
-		monsterSpawn.addAll(newBossSpawn);
-		monsterSpawn.addAll(newSpawn);
+		this.monsterSpawn.clear();
+		this.monsterSpawn.addAll(newBossSpawn);
+		this.monsterSpawn.addAll(newSpawn);
 
 		if (first && spawnSize > 0) {
 			MapTimer.getInstance().register(new Runnable() {
 
 				@Override
 				public void run() {
-					respawn(false);
+					GameMap.this.respawn(false);
 				}
-			}, createMobInterval);
+			}, this.createMobInterval);
 		}
 	}
 
 	public final void addMonsterSpawn(final Monster monster, final int mobTime, final byte carnivalTeam, final String msg) {
-		final Point newpos = calcPointBelow(monster.getPosition());
+		final Point newpos = this.calcPointBelow(monster.getPosition());
 		newpos.y -= 1;
-		monsterSpawn.add(new SpawnPoint(monster, newpos, mobTime, carnivalTeam, msg));
+		this.monsterSpawn.add(new SpawnPoint(monster, newpos, mobTime, carnivalTeam, msg));
 	}
 
 	public final void addAreaMonsterSpawn(final Monster monster, Point pos1, Point pos2, Point pos3, final int mobTime, final String msg) {
-		pos1 = calcPointBelow(pos1);
-		pos2 = calcPointBelow(pos2);
-		pos3 = calcPointBelow(pos3);
+		pos1 = this.calcPointBelow(pos1);
+		pos2 = this.calcPointBelow(pos2);
+		pos3 = this.calcPointBelow(pos3);
 		pos1.y -= 1;
 		pos2.y -= 1;
 		pos3.y -= 1;
 
-		monsterSpawn.add(new SpawnPointAreaBoss(monster, pos1, pos2, pos3, mobTime, msg));
+		this.monsterSpawn.add(new SpawnPointAreaBoss(monster, pos1, pos2, pos3, mobTime, msg));
 	}
 
 	public final Collection<ChannelCharacter> getCharacters() {
 		final List<ChannelCharacter> chars = new ArrayList<>();
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			while (ltr.hasNext()) {
 				chars.add(ltr.next());
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return chars;
 	}
 
 	public final ChannelCharacter getCharacterById_InMap(final int id) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			ChannelCharacter c;
 			while (ltr.hasNext()) {
 				c = ltr.next();
@@ -1492,7 +1498,7 @@ public class GameMap {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return null;
 	}
@@ -1511,17 +1517,17 @@ public class GameMap {
 		}
 	}
 
-	public void moveMonster(Monster monster, Point reportedPos) {
+	public void moveMonster(final Monster monster, final Point reportedPos) {
 		monster.setPosition(reportedPos);
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			final Iterator<ChannelCharacter> ltr = characters.iterator();
+			final Iterator<ChannelCharacter> ltr = this.characters.iterator();
 			while (ltr.hasNext()) {
-				updateMapObjectVisibility(ltr.next(), monster);
+				this.updateMapObjectVisibility(ltr.next(), monster);
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
@@ -1531,14 +1537,14 @@ public class GameMap {
 		final Collection<GameMapObject> visibleObjects = player.getVisibleMapObjects();
 		final GameMapObject[] visibleObjectsNow = visibleObjects.toArray(new GameMapObject[visibleObjects.size()]);
 
-		for (GameMapObject mo : visibleObjectsNow) {
-			if (getMapObject(mo.getObjectId()) == mo) {
-				updateMapObjectVisibility(player, mo);
+		for (final GameMapObject mo : visibleObjectsNow) {
+			if (this.getMapObject(mo.getObjectId()) == mo) {
+				this.updateMapObjectVisibility(player, mo);
 			} else {
 				player.removeVisibleMapObject(mo);
 			}
 		}
-		for (GameMapObject mo : getMapObjectsInRange(player.getPosition(), GameConstants.maxViewRangeSq())) {
+		for (final GameMapObject mo : this.getMapObjectsInRange(player.getPosition(), GameConstants.maxViewRangeSq())) {
 			if (!player.isMapObjectVisible(mo)) {
 				mo.sendSpawnData(player.getClient());
 				player.addVisibleMapObject(mo);
@@ -1546,10 +1552,10 @@ public class GameMap {
 		}
 	}
 
-	public Portal findClosestSpawnpoint(Point from) {
+	public Portal findClosestSpawnpoint(final Point from) {
 		Portal closest = null;
 		double distance, shortestDistance = Double.POSITIVE_INFINITY;
-		for (Portal portal : portals.values()) {
+		for (final Portal portal : this.portals.values()) {
 			distance = portal.getPosition().distanceSq(from);
 			if (portal.getType() >= 0 && portal.getType() <= 2 && distance < shortestDistance && portal.getTargetMapId() == 999999999) {
 				closest = portal;
@@ -1560,80 +1566,80 @@ public class GameMap {
 	}
 
 	public String spawnDebug() {
-		StringBuilder sb = new StringBuilder("Mapobjects in map : ");
+		final StringBuilder sb = new StringBuilder("Mapobjects in map : ");
 		sb.append(this.getMapObjectSize());
 		sb.append(" spawnedMonstersOnMap: ");
-		sb.append(spawnedMonstersOnMap);
+		sb.append(this.spawnedMonstersOnMap);
 		sb.append(" spawnpoints: ");
-		sb.append(monsterSpawn.size());
+		sb.append(this.monsterSpawn.size());
 		sb.append(" maxRegularSpawn: ");
-		sb.append(maxRegularSpawn);
+		sb.append(this.maxRegularSpawn);
 		sb.append(" actual monsters: ");
-		sb.append(getAllMonster().size());
+		sb.append(this.getAllMonster().size());
 
 		return sb.toString();
 	}
 
 	public final int getMapObjectSize() {
-		return mapObjects.size();
+		return this.mapObjects.size();
 	}
 
 	public final int getCharactersSize() {
-		return characters.size();
+		return this.characters.size();
 	}
 
 	public Collection<Portal> getPortals() {
-		return Collections.unmodifiableCollection(portals.values());
+		return Collections.unmodifiableCollection(this.portals.values());
 	}
 
 	public int getSpawnedMonstersOnMap() {
-		return spawnedMonstersOnMap.get();
+		return this.spawnedMonstersOnMap.get();
 	}
 
 	private static final class MonsterSpawnTask implements DelayedPacketCreation {
 		private final int oid;
 		private final Monster monster;
 
-		private MonsterSpawnTask(int oid, Monster monster) {
+		private MonsterSpawnTask(final int oid, final Monster monster) {
 			this.oid = oid;
 			this.monster = monster;
 		}
 
 		@Override
-		public final void sendPackets(ChannelClient c) {
+		public final void sendPackets(final ChannelClient c) {
 			// TODO: effect
-			c.write(MobPacket.spawnMonster(monster, -2, 0, oid));
+			c.write(MobPacket.spawnMonster(this.monster, -2, 0, this.oid));
 		}
 	}
 
 	private class ExpireMapItemJob implements Runnable {
 
-		private GameMapItem mapitem;
+		private final GameMapItem mapitem;
 
-		public ExpireMapItemJob(GameMapItem mapitem) {
+		public ExpireMapItemJob(final GameMapItem mapitem) {
 			this.mapitem = mapitem;
 		}
 
 		@Override
 		public void run() {
-			if (mapitem != null && mapitem == getMapObject(mapitem.getObjectId())) {
-				if (mapitem.isPickedUp()) {
+			if (this.mapitem != null && this.mapitem == GameMap.this.getMapObject(this.mapitem.getObjectId())) {
+				if (this.mapitem.isPickedUp()) {
 					return;
 				}
-				mapitem.setPickedUp(true);
-				broadcastMessage(ChannelPackets.removeItemFromMap(mapitem.getObjectId(), 0, 0));
-				removeMapObject(mapitem);
+				this.mapitem.setPickedUp(true);
+				GameMap.this.broadcastMessage(ChannelPackets.removeItemFromMap(this.mapitem.getObjectId(), 0, 0));
+				GameMap.this.removeMapObject(this.mapitem);
 			}
 		}
 	}
 
 	private class ActivateItemReactor implements Runnable {
 
-		private GameMapItem mapitem;
-		private Reactor reactor;
-		private ChannelClient c;
+		private final GameMapItem mapitem;
+		private final Reactor reactor;
+		private final ChannelClient c;
 
-		public ActivateItemReactor(GameMapItem mapitem, Reactor reactor, ChannelClient c) {
+		public ActivateItemReactor(final GameMapItem mapitem, final Reactor reactor, final ChannelClient c) {
 			this.mapitem = mapitem;
 			this.reactor = reactor;
 			this.c = c;
@@ -1641,25 +1647,25 @@ public class GameMap {
 
 		@Override
 		public void run() {
-			if (mapitem != null && mapitem == getMapObject(mapitem.getObjectId())) {
-				if (mapitem.isPickedUp()) {
-					reactor.setTimerActive(false);
+			if (this.mapitem != null && this.mapitem == GameMap.this.getMapObject(this.mapitem.getObjectId())) {
+				if (this.mapitem.isPickedUp()) {
+					this.reactor.setTimerActive(false);
 					return;
 				}
-				mapitem.setPickedUp(true);
-				broadcastMessage(ChannelPackets.removeItemFromMap(mapitem.getObjectId(), 0, 0));
-				removeMapObject(mapitem);
-				reactor.hitReactor(c);
-				reactor.setTimerActive(false);
-				if (reactor.getDelay() > 0) {
+				this.mapitem.setPickedUp(true);
+				GameMap.this.broadcastMessage(ChannelPackets.removeItemFromMap(this.mapitem.getObjectId(), 0, 0));
+				GameMap.this.removeMapObject(this.mapitem);
+				this.reactor.hitReactor(this.c);
+				this.reactor.setTimerActive(false);
+				if (this.reactor.getDelay() > 0) {
 					MapTimer.getInstance().schedule(new Runnable() {
 
 						@Override
 						public void run() {
-							reactor.setState((byte) 0);
-							broadcastMessage(ChannelPackets.triggerReactor(reactor, 0));
+							ActivateItemReactor.this.reactor.setState((byte) 0);
+							GameMap.this.broadcastMessage(ChannelPackets.triggerReactor(ActivateItemReactor.this.reactor, 0));
 						}
-					}, reactor.getDelay());
+					}, this.reactor.getDelay());
 				}
 			}
 		}
@@ -1667,10 +1673,10 @@ public class GameMap {
 
 	public void respawn(final boolean force) {
 		if (force) {
-			final int numShouldSpawn = monsterSpawn.size() - spawnedMonstersOnMap.get();
+			final int numShouldSpawn = this.monsterSpawn.size() - this.spawnedMonstersOnMap.get();
 			if (numShouldSpawn > 0) {
 				int spawned = 0;
-				for (Spawns spawnPoint : monsterSpawn) {
+				for (final Spawns spawnPoint : this.monsterSpawn) {
 					spawnPoint.spawnMonster(this);
 					spawned++;
 					if (spawned >= numShouldSpawn) {
@@ -1679,15 +1685,15 @@ public class GameMap {
 				}
 			}
 		} else {
-			if (getCharactersSize() <= 0) {
+			if (this.getCharactersSize() <= 0) {
 				return;
 			}
-			final int numShouldSpawn = maxRegularSpawn - spawnedMonstersOnMap.get();
+			final int numShouldSpawn = this.maxRegularSpawn - this.spawnedMonstersOnMap.get();
 			if (numShouldSpawn > 0) {
 				int spawned = 0;
-				final List<Spawns> randomSpawn = new ArrayList<>(monsterSpawn);
+				final List<Spawns> randomSpawn = new ArrayList<>(this.monsterSpawn);
 				Collections.shuffle(randomSpawn);
-				for (Spawns spawnPoint : randomSpawn) {
+				for (final Spawns spawnPoint : randomSpawn) {
 					if (spawnPoint.shouldSpawn()) {
 						spawnPoint.spawnMonster(this);
 						spawned++;

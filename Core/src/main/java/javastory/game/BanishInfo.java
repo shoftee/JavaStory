@@ -20,24 +20,24 @@ package javastory.game;
 
 public class BanishInfo {
 
-	private int map;
-	private String portal, msg;
+	private final int map;
+	private final String portal, msg;
 
-	public BanishInfo(String msg, int map, String portal) {
+	public BanishInfo(final String msg, final int map, final String portal) {
 		this.msg = msg;
 		this.map = map;
 		this.portal = portal;
 	}
 
 	public int getMap() {
-		return map;
+		return this.map;
 	}
 
 	public String getPortal() {
-		return portal;
+		return this.portal;
 	}
 
 	public String getMsg() {
-		return msg;
+		return this.msg;
 	}
 }

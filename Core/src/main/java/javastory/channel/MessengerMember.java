@@ -5,13 +5,13 @@ import java.io.Serializable;
 public class MessengerMember implements Serializable {
 
 	private static final long serialVersionUID = 6215463252132450750L;
-	private String name;
-	private int characterId;
-	private int channelId;
+	private final String name;
+	private final int characterId;
+	private final int channelId;
 	private boolean isOnline;
 	private int position;
 
-	public MessengerMember(ChannelCharacter character) {
+	public MessengerMember(final ChannelCharacter character) {
 		this.name = character.getName();
 		this.channelId = character.getClient().getChannelId();
 		this.characterId = character.getId();
@@ -19,7 +19,7 @@ public class MessengerMember implements Serializable {
 		this.position = 0;
 	}
 
-	public MessengerMember(ChannelCharacter character, int position) {
+	public MessengerMember(final ChannelCharacter character, final int position) {
 		this.name = character.getName();
 		this.channelId = character.getClient().getChannelId();
 		this.characterId = character.getId();
@@ -28,30 +28,30 @@ public class MessengerMember implements Serializable {
 	}
 
 	public int getChannel() {
-		return channelId;
+		return this.channelId;
 	}
 
 	public boolean isOnline() {
-		return isOnline;
+		return this.isOnline;
 	}
 
-	public void setOnline(boolean online) {
+	public void setOnline(final boolean online) {
 		this.isOnline = online;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getId() {
-		return characterId;
+		return this.characterId;
 	}
 
 	public int getPosition() {
-		return position;
+		return this.position;
 	}
 
-	public void setPosition(int position) {
+	public void setPosition(final int position) {
 		this.position = position;
 	}
 
@@ -63,14 +63,14 @@ public class MessengerMember implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final MessengerMember other = (MessengerMember) obj;

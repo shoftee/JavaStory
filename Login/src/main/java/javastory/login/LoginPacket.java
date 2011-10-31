@@ -132,9 +132,9 @@ public final class LoginPacket {
 		builder.writeAsShort(100);
 		builder.writeAsShort(100);
 
-		int count = channels.size();
+		final int count = channels.size();
 		builder.writeAsByte(count);
-		for (LoginChannelInfo info : channels.values()) {
+		for (final LoginChannelInfo info : channels.values()) {
 			builder.writeLengthPrefixedString(info.getName());
 			builder.writeInt(info.getLoad());
 			builder.writeAsByte(worldId);
@@ -163,7 +163,7 @@ public final class LoginPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getCharacterList(final boolean secondpw, final List<LoginCharacter> chars, int maxCharacters) {
+	public static GamePacket getCharacterList(final boolean secondpw, final List<LoginCharacter> chars, final int maxCharacters) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CHARLIST.getValue());

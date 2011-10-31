@@ -24,7 +24,7 @@ public final class MobGlobalDropInfo {
 	public final short QuestId;
 	public final int ItemId, Chance, Minimum, Maximum;
 
-	public MobGlobalDropInfo(int itemId, int chance, int continent, byte dropType, int minimum, int maximum, short questId) {
+	public MobGlobalDropInfo(final int itemId, final int chance, final int continent, final byte dropType, final int minimum, final int maximum, final short questId) {
 		this.ItemId = itemId;
 		this.Chance = chance;
 		this.DropType = dropType;

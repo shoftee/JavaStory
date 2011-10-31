@@ -30,15 +30,15 @@ public enum ItemFlag {
 	KARMA_USE(0x02);
 	private final int i;
 
-	private ItemFlag(int i) {
+	private ItemFlag(final int i) {
 		this.i = i;
 	}
 
 	public final int getValue() {
-		return i;
+		return this.i;
 	}
 
-	public final boolean check(int flag) {
-		return (flag & i) == i;
+	public final boolean check(final int flag) {
+		return (flag & this.i) == this.i;
 	}
 }

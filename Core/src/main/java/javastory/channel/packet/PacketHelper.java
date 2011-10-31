@@ -31,13 +31,13 @@ public class PacketHelper {
 	public static final byte unk2[] = new byte[] { (byte) 0x3B, (byte) 0x37, (byte) 0x4F, (byte) 0x01 };
 
 	public static long getFiletimeFromMillis(final long realTimestamp) {
-		long time = (realTimestamp / 1000 / 60); // convert to minutes
-		return ((time * 600000000) + FT_UT_OFFSET);
+		final long time = realTimestamp / 1000 / 60; // convert to minutes
+		return time * 600000000 + FT_UT_OFFSET;
 	}
 
 	public static long getTime(final long realTimestamp) {
-		long time = (realTimestamp / 1000); // convert to seconds
-		return ((time * 10000000) + FT_UT_OFFSET);
+		final long time = realTimestamp / 1000; // convert to seconds
+		return time * 10000000 + FT_UT_OFFSET;
 	}
 
 	public static void addQuestInfo(final PacketBuilder builder, final ChannelCharacter chr) {
@@ -97,7 +97,7 @@ public class PacketHelper {
 	}
 
 	public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
-		List<Ring> rings = new ArrayList<>();
+		final List<Ring> rings = new ArrayList<>();
 		final Inventory equipped = chr.getEquippedItemsInventory();
 		for (final IItem item : equipped) {
 			final IEquip equip = (IEquip) item;
@@ -144,7 +144,7 @@ public class PacketHelper {
 		}
 	}
 
-	public static void addInventoryInfo(PacketBuilder builder, ChannelCharacter chr) {
+	public static void addInventoryInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		builder.writeInt(chr.getMeso()); // mesos
 		builder.writeByte(chr.getEquipInventory().getSlotLimit()); // equip
 																	// slots
@@ -156,16 +156,16 @@ public class PacketHelper {
 		builder.writeBytes(unk1);
 		builder.writeBytes(unk2);
 		Inventory inventory = chr.getEquippedItemsInventory();
-		List<IItem> equipped = Lists.newArrayList(inventory);
+		final List<IItem> equipped = Lists.newArrayList(inventory);
 
 		Collections.sort(equipped);
-		for (IItem item : equipped) {
+		for (final IItem item : equipped) {
 			if (item.getPosition() < 0 && item.getPosition() > -100) {
 				addItemInfo(builder, item, false, false);
 			}
 		}
 		builder.writeAsShort(0); // start of equipped nx
-		for (IItem item : equipped) {
+		for (final IItem item : equipped) {
 			if (item.getPosition() < -100) {
 				addItemInfo(builder, item, false, false);
 			}
@@ -173,27 +173,27 @@ public class PacketHelper {
 
 		builder.writeAsShort(0); // start of equip inventory
 		inventory = chr.getEquipInventory();
-		for (IItem item : inventory) {
+		for (final IItem item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeInt(0); // start of use inventory
 		inventory = chr.getUseInventory();
-		for (IItem item : inventory) {
+		for (final IItem item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of set-up inventory
 		inventory = chr.getSetupInventory();
-		for (IItem item : inventory) {
+		for (final IItem item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of etc inventory
 		inventory = chr.getEtcInventory();
-		for (IItem item : inventory) {
+		for (final IItem item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0); // start of cash inventory
 		inventory = chr.getCashInventory();
-		for (IItem item : inventory) {
+		for (final IItem item : inventory) {
 			addItemInfo(builder, item, false, false);
 		}
 		builder.writeAsByte(0);
@@ -307,7 +307,7 @@ public class PacketHelper {
 
 	public static void serializeMovementList(final PacketBuilder lew, final List<LifeMovementFragment> moves) {
 		lew.writeAsByte(moves.size());
-		for (LifeMovementFragment move : moves) {
+		for (final LifeMovementFragment move : moves) {
 			move.serialize(lew);
 		}
 	}

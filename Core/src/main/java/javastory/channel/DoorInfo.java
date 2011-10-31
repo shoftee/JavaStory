@@ -7,9 +7,9 @@ import java.awt.Point;
  * @author shoftee
  */
 public class DoorInfo {
-	private int townId;
-	private int targetId;
-	private Point position;
+	private final int townId;
+	private final int targetId;
+	private final Point position;
 	public static final DoorInfo NONE = new DoorInfo();
 
 	private DoorInfo() {
@@ -18,22 +18,22 @@ public class DoorInfo {
 		this.position = new Point(0, 0);
 	}
 
-	public DoorInfo(int townId, int targetId, Point position) {
+	public DoorInfo(final int townId, final int targetId, final Point position) {
 		this.townId = townId;
 		this.targetId = targetId;
 		this.position = position;
 	}
 
 	public int getTownId() {
-		return townId;
+		return this.townId;
 	}
 
 	public int getTargetId() {
-		return targetId;
+		return this.targetId;
 	}
 
 	public Point getPosition() {
-		return position;
+		return this.position;
 	}
 
 }

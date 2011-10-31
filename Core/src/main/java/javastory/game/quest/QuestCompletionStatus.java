@@ -13,7 +13,7 @@ public enum QuestCompletionStatus {
 	//
 	private int status;
 
-	private QuestCompletionStatus(int status) {
+	private QuestCompletionStatus(final int status) {
 		this.status = status;
 	}
 
@@ -21,7 +21,7 @@ public enum QuestCompletionStatus {
 		return (byte) this.status;
 	}
 
-	public static QuestCompletionStatus fromNumber(int status) {
+	public static QuestCompletionStatus fromNumber(final int status) {
 		switch (status) {
 		case 0:
 			return INACTIVE;

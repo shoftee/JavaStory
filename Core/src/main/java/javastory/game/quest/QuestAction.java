@@ -41,17 +41,17 @@ import javastory.wz.WzDataTool;
 public class QuestAction implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	private QuestActionType actionType;
-	private WzData data;
-	private int questId;
+	private final QuestActionType actionType;
+	private final WzData data;
+	private final int questId;
 
-	public QuestAction(int quest, QuestActionType type, WzData data) {
+	public QuestAction(final int quest, final QuestActionType type, final WzData data) {
 		this.actionType = type;
 		this.data = data;
 		this.questId = quest;
 	}
 
-	private static boolean canGetItem(WzData item, ChannelCharacter c) {
+	private static boolean canGetItem(final WzData item, final ChannelCharacter c) {
 		if (item.getChildByPath("gender") != null) {
 			final Gender gender = Gender.fromNumber(WzDataTool.getInt(item.getChildByPath("gender")));
 			if (!gender.equals(Gender.UNSPECIFIED)) {
@@ -89,10 +89,10 @@ public class QuestAction implements Serializable {
 	}
 
 	public final boolean restoreLostItem(final ChannelCharacter c, final int itemid) {
-		if (actionType == QuestActionType.ITEM) {
+		if (this.actionType == QuestActionType.ITEM) {
 			int retitem;
 
-			for (final WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				retitem = WzDataTool.getInt(iEntry.getChildByPath("id"), -1);
 				if (retitem == itemid) {
 					if (!c.haveItem(retitem, 1, true, false)) {
@@ -105,23 +105,23 @@ public class QuestAction implements Serializable {
 		return false;
 	}
 
-	public void runStart(ChannelCharacter c, Integer extSelection) {
+	public void runStart(final ChannelCharacter c, final Integer extSelection) {
 		QuestStatus status;
-		switch (actionType) {
+		switch (this.actionType) {
 		case EXP:
-			status = c.getQuestStatus(questId);
+			status = c.getQuestStatus(this.questId);
 			if (status.getForfeited() > 0) {
 				break;
 			}
-			final int baseExp = WzDataTool.getInt(data, 0);
-			final int exp = calculateExpGain(c, baseExp);
+			final int baseExp = WzDataTool.getInt(this.data, 0);
+			final int exp = this.calculateExpGain(c, baseExp);
 			c.gainExp(exp, true, true, true);
 			break;
 		case ITEM:
 			// first check for randomness in item selection
-			Map<Integer, Integer> props = new HashMap<>();
+			final Map<Integer, Integer> props = new HashMap<>();
 			WzData prop;
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				prop = iEntry.getChildByPath("prop");
 				if (prop != null && WzDataTool.getInt(prop) != -1 && canGetItem(iEntry, c)) {
 					for (int i = 0; i < WzDataTool.getInt(iEntry.getChildByPath("prop")); i++) {
@@ -134,7 +134,7 @@ public class QuestAction implements Serializable {
 			if (props.size() > 0) {
 				selection = props.get(Randomizer.nextInt(props.size()));
 			}
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				if (!canGetItem(iEntry, c)) {
 					continue;
 				}
@@ -154,7 +154,7 @@ public class QuestAction implements Serializable {
 					// They're supposed to be used for EXCEPTIONAL scenarios. Duh.
 					//try {
 					final Inventory inventory = c.getInventoryForItem(id);
-					InventoryManipulator.removeById(c.getClient(), inventory, id, (count * -1), true, false);
+					InventoryManipulator.removeById(c.getClient(), inventory, id, count * -1, true, false);
 					//} catch (InventoryException ie) {
 					//System.err.println("[h4x] Completing a quest without meeting the requirements"                                    + ie);
 					//}
@@ -171,14 +171,14 @@ public class QuestAction implements Serializable {
 		//				Need to somehow make the chat popup for the next quest...
 		//				break;
 		case MESO:
-			status = c.getQuestStatus(questId);
+			status = c.getQuestStatus(this.questId);
 			if (status.getForfeited() > 0) {
 				break;
 			}
-			c.gainMeso(WzDataTool.getInt(data, 0), true, false, true);
+			c.gainMeso(WzDataTool.getInt(this.data, 0), true, false, true);
 			break;
 		case QUEST:
-			for (WzData qEntry : data) {
+			for (final WzData qEntry : this.data) {
 				final int nextQuestId = WzDataTool.getInt(qEntry.getChildByPath("id"));
 				final int nextQuestState = WzDataTool.getInt(qEntry.getChildByPath("state"), 0);
 				//TODO: Hmmmmm.
@@ -187,13 +187,13 @@ public class QuestAction implements Serializable {
 			break;
 		case SKILL:
 			//TODO needs gain/lost message?
-			for (WzData sEntry : data) {
+			for (final WzData sEntry : this.data) {
 				final int skillid = WzDataTool.getInt(sEntry.getChildByPath("id"));
-				int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
-				int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
+				final int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
+				final int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
 				final ISkill skillObject = SkillFactory.getSkill(skillid);
 
-				for (WzData applicableJob : sEntry.getChildByPath("job")) {
+				for (final WzData applicableJob : sEntry.getChildByPath("job")) {
 					if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {
 						c.changeSkillLevel(skillObject, (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)), (byte) Math.max(masterLevel, c
 							.getMasterSkillLevel(skillObject)));
@@ -203,21 +203,21 @@ public class QuestAction implements Serializable {
 			}
 			break;
 		case FAME:
-			status = c.getQuestStatus(questId);
+			status = c.getQuestStatus(this.questId);
 			if (status.getForfeited() > 0) {
 				break;
 			}
-			final int fameGain = WzDataTool.getInt(data, 0);
+			final int fameGain = WzDataTool.getInt(this.data, 0);
 			c.addFame(fameGain);
 			c.updateSingleStat(Stat.FAME, c.getFame());
 			c.getClient().write(ChannelPackets.getShowFameGain(fameGain));
 			break;
 		case BUFF_ITEM_ID:
-			status = c.getQuestStatus(questId);
+			status = c.getQuestStatus(this.questId);
 			if (status.getForfeited() > 0) {
 				break;
 			}
-			final int tobuff = WzDataTool.getInt(data, -1);
+			final int tobuff = WzDataTool.getInt(this.data, -1);
 			if (tobuff == -1) {
 				break;
 			}
@@ -233,7 +233,7 @@ public class QuestAction implements Serializable {
 		}
 	}
 
-	private int calculateExpGain(ChannelCharacter c, final int baseExp) {
+	private int calculateExpGain(final ChannelCharacter c, final int baseExp) {
 		final float expMultiplier;
 		if (c.getLevel() <= 10) {
 			expMultiplier = 1.0f;
@@ -244,13 +244,13 @@ public class QuestAction implements Serializable {
 		return exp;
 	}
 
-	public boolean checkEnd(ChannelCharacter c, Integer extSelection) {
-		switch (actionType) {
+	public boolean checkEnd(final ChannelCharacter c, final Integer extSelection) {
+		switch (this.actionType) {
 		case ITEM: {
 			// first check for randomness in item selection
 			final Map<Integer, Integer> props = new HashMap<>();
 
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				final WzData prop = iEntry.getChildByPath("prop");
 				if (prop != null && WzDataTool.getInt(prop) != -1 && canGetItem(iEntry, c)) {
 					for (int i = 0; i < WzDataTool.getInt(iEntry.getChildByPath("prop")); i++) {
@@ -265,7 +265,7 @@ public class QuestAction implements Serializable {
 			}
 			byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
 
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				if (!canGetItem(iEntry, c)) {
 					continue;
 				}
@@ -324,7 +324,7 @@ public class QuestAction implements Serializable {
 			return true;
 		}
 		case MESO: {
-			final int meso = WzDataTool.getInt(data, 0);
+			final int meso = WzDataTool.getInt(this.data, 0);
 			if (c.getMeso() + meso < 0) { // Giving, overflow
 				c.sendNotice(1, "Meso exceed the max amount, 2147483647.");
 				return false;
@@ -338,19 +338,19 @@ public class QuestAction implements Serializable {
 		return true;
 	}
 
-	public void runEnd(ChannelCharacter c, Integer extSelection) {
-		switch (actionType) {
+	public void runEnd(final ChannelCharacter c, final Integer extSelection) {
+		switch (this.actionType) {
 		case EXP: {
-			final int baseExp = WzDataTool.getInt(data, 0);
-			int exp = calculateExpGain(c, baseExp);
+			final int baseExp = WzDataTool.getInt(this.data, 0);
+			final int exp = this.calculateExpGain(c, baseExp);
 			c.gainExp(exp, true, true, true);
 			break;
 		}
 		case ITEM: {
 			// first check for randomness in item selection
-			Map<Integer, Integer> props = new HashMap<>();
+			final Map<Integer, Integer> props = new HashMap<>();
 
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				final WzData prop = iEntry.getChildByPath("prop");
 				if (prop != null && WzDataTool.getInt(prop) != -1 && canGetItem(iEntry, c)) {
 					for (int i = 0; i < WzDataTool.getInt(iEntry.getChildByPath("prop")); i++) {
@@ -363,7 +363,7 @@ public class QuestAction implements Serializable {
 			if (props.size() > 0) {
 				selection = props.get(Randomizer.nextInt(props.size()));
 			}
-			for (WzData iEntry : data.getChildren()) {
+			for (final WzData iEntry : this.data.getChildren()) {
 				if (!canGetItem(iEntry, c)) {
 					continue;
 				}
@@ -379,7 +379,7 @@ public class QuestAction implements Serializable {
 				}
 				final short count = (short) WzDataTool.getInt(iEntry.getChildByPath("count"), 1);
 				if (count < 0) { // remove items
-					InventoryManipulator.removeById(c.getClient(), c.getInventoryForItem(id), id, (count * -1), true, false);
+					InventoryManipulator.removeById(c.getClient(), c.getInventoryForItem(id), id, count * -1, true, false);
 					c.getClient().write(ChannelPackets.getShowItemGain(id, count, true));
 				} else { // add items
 					//			final int period = MapleDataTool.getInt(iEntry.getChildByPath("period"), 0);
@@ -394,11 +394,11 @@ public class QuestAction implements Serializable {
 		//				Need to somehow make the chat popup for the next quest...
 		//				break;
 		case MESO: {
-			c.gainMeso(WzDataTool.getInt(data, 0), true, false, true);
+			c.gainMeso(WzDataTool.getInt(this.data, 0), true, false, true);
 			break;
 		}
 		case QUEST: {
-			for (WzData qEntry : data) {
+			for (final WzData qEntry : this.data) {
 				final int nextQuestId = WzDataTool.getInt(qEntry.getChildByPath("id"));
 				final int nextQuestState = WzDataTool.getInt(qEntry.getChildByPath("state"), 0);
 				//TODO: Hmmmmm.
@@ -407,13 +407,13 @@ public class QuestAction implements Serializable {
 			break;
 		}
 		case SKILL: {
-			for (WzData sEntry : data) {
+			for (final WzData sEntry : this.data) {
 				final int skillid = WzDataTool.getInt(sEntry.getChildByPath("id"));
-				int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
-				int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
+				final int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
+				final int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
 				final ISkill skillObject = SkillFactory.getSkill(skillid);
 
-				for (WzData applicableJob : sEntry.getChildByPath("job")) {
+				for (final WzData applicableJob : sEntry.getChildByPath("job")) {
 					if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {
 						c.changeSkillLevel(skillObject, (byte) Math.max(skillLevel, c.getCurrentSkillLevel(skillObject)), (byte) Math.max(masterLevel, c
 							.getMasterSkillLevel(skillObject)));
@@ -424,14 +424,14 @@ public class QuestAction implements Serializable {
 			break;
 		}
 		case FAME: {
-			final int fameGain = WzDataTool.getInt(data, 0);
+			final int fameGain = WzDataTool.getInt(this.data, 0);
 			c.addFame(fameGain);
 			c.updateSingleStat(Stat.FAME, c.getFame());
 			c.getClient().write(ChannelPackets.getShowFameGain(fameGain));
 			break;
 		}
 		case BUFF_ITEM_ID: {
-			final int tobuff = WzDataTool.getInt(data, -1);
+			final int tobuff = WzDataTool.getInt(this.data, -1);
 			if (tobuff == -1) {
 				break;
 			}
@@ -448,7 +448,7 @@ public class QuestAction implements Serializable {
 		}
 	}
 
-	private static int getJobBy5ByteEncoding(int encoded) {
+	private static int getJobBy5ByteEncoding(final int encoded) {
 		switch (encoded) {
 		case 2:
 		case 3:
@@ -467,7 +467,7 @@ public class QuestAction implements Serializable {
 		}
 	}
 
-	private static int getJobByEncoding(int encoded, int playerjob) {
+	private static int getJobByEncoding(final int encoded, final int playerjob) {
 		switch (encoded) {
 		case 1049601:
 			if (Jobs.isCygnus(playerjob)) {
@@ -507,11 +507,11 @@ public class QuestAction implements Serializable {
 	}
 
 	public QuestActionType getType() {
-		return actionType;
+		return this.actionType;
 	}
 
 	@Override
 	public String toString() {
-		return actionType + ": " + data;
+		return this.actionType + ": " + this.data;
 	}
 }

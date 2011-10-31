@@ -21,7 +21,7 @@ package javastory.game;
 public enum Element {
 	NEUTRAL, PHYSICAL, FIRE, ICE, LIGHTING, POISON, HOLY, DARKNESS;
 
-	public static Element fromCharacter(char c) {
+	public static Element fromCharacter(final char c) {
 		switch (Character.toUpperCase(c)) {
 		case 'F':
 			return FIRE;

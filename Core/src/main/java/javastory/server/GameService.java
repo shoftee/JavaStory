@@ -39,15 +39,15 @@ public abstract class GameService {
 	protected AtomicBoolean isWorldReady;
 
 	private GameService() {
-		isWorldReady = new AtomicBoolean(false);
+		this.isWorldReady = new AtomicBoolean(false);
 	}
 
-	protected GameService(EndpointInfo endpointInfo) {
+	protected GameService(final EndpointInfo endpointInfo) {
 		this();
 		this.endpointInfo = endpointInfo;
 	}
 
-	protected GameService(int port) {
+	protected GameService(final int port) {
 		this();
 		this.endpointInfo = new EndpointInfo("127.0.0.1", port);
 	}
@@ -57,29 +57,29 @@ public abstract class GameService {
 	}
 
 	private void getNewAcceptor(final PacketHandler handler) {
-		if (acceptor != null) {
-			acceptor.unbind();
-			acceptor.dispose(false);
+		if (this.acceptor != null) {
+			this.acceptor.unbind();
+			this.acceptor.dispose(false);
 		}
-		acceptor = new NioSocketAcceptor();
-		acceptor.getSessionConfig().setWriterIdleTime(0);
-		acceptor.getFilterChain().addLast("codec", getPacketFilter());
-		acceptor.setHandler(handler);
+		this.acceptor = new NioSocketAcceptor();
+		this.acceptor.getSessionConfig().setWriterIdleTime(0);
+		this.acceptor.getFilterChain().addLast("codec", getPacketFilter());
+		this.acceptor.setHandler(handler);
 	}
 
 	protected final WorldRegistry getRegistry() throws RemoteException, AccessException, NotBoundException {
 		final String registryIP = System.getProperty("org.javastory.world.ip");
-		Registry registry = LocateRegistry.getRegistry(registryIP, Registry.REGISTRY_PORT, Sockets.getClientFactory());
+		final Registry registry = LocateRegistry.getRegistry(registryIP, Registry.REGISTRY_PORT, Sockets.getClientFactory());
 		return (WorldRegistry) registry.lookup("WorldRegistry");
 	}
 
 	protected final void bind(final PacketHandler handler) {
-		getNewAcceptor(handler);
+		this.getNewAcceptor(handler);
 
-		SocketAddress address = endpointInfo.asSocketAddress();
+		final SocketAddress address = this.endpointInfo.asSocketAddress();
 
 		try {
-			acceptor.bind(address);
+			this.acceptor.bind(address);
 			System.out.println(":: Successfully bound to " + address + " ::");
 		} catch (final IOException e) {
 			System.err.println("Binding to port " + address + " failed" + e);
@@ -91,20 +91,20 @@ public abstract class GameService {
 	}
 
 	public final String getIP() {
-		return endpointInfo.getHost();
+		return this.endpointInfo.getHost();
 	}
 
 	public final ServerStatus getStatus() {
-		return status;
+		return this.status;
 	}
 
-	protected final void setStatus(ServerStatus status) {
+	protected final void setStatus(final ServerStatus status) {
 		this.status = status;
 	}
 
 	protected final void reconnectWorld() {
-		if (isWorldReady.compareAndSet(false, true)) {
-			connectToWorld();
+		if (this.isWorldReady.compareAndSet(false, true)) {
+			this.connectToWorld();
 		}
 	}
 

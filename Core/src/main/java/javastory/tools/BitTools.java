@@ -39,7 +39,7 @@ public class BitTools {
 	public static int getShort(final byte array[], final int index) {
 		int ret = array[index];
 		ret &= 0xFF;
-		ret |= ((array[index + 1]) << 8) & 0xFF00;
+		ret |= array[index + 1] << 8 & 0xFF00;
 		return ret;
 	}
 
@@ -56,7 +56,7 @@ public class BitTools {
 	 * @return The string read.
 	 */
 	public static String getString(final byte array[], final int index, final int length) {
-		char[] cret = new char[length];
+		final char[] cret = new char[length];
 		for (int x = 0; x < length; x++) {
 			cret[x] = (char) array[x + index];
 		}
@@ -74,7 +74,7 @@ public class BitTools {
 	 * @return The string read.
 	 */
 	public static String getMapleString(final byte array[], final int index) {
-		final int length = ((array[index]) & 0xFF) | ((array[index + 1] << 8) & 0xFF00);
+		final int length = array[index] & 0xFF | array[index + 1] << 8 & 0xFF00;
 		return BitTools.getString(array, index + 2, length);
 	}
 
@@ -86,7 +86,7 @@ public class BitTools {
 	 * @return The converted integer.
 	 */
 	public static int doubleshofteertBits(final double d) {
-		long l = Double.doubleToLongBits(d);
+		final long l = Double.doubleToLongBits(d);
 		return (int) (l >> 48);
 	}
 }

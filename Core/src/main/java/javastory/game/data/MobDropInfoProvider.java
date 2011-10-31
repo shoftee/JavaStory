@@ -19,7 +19,7 @@ public final class MobDropInfoProvider {
 	private final List<MobGlobalDropInfo> globaldrops = new ArrayList<>();
 
 	private MobDropInfoProvider() {
-		retrieveGlobal();
+		this.retrieveGlobal();
 	}
 
 	public static MobDropInfoProvider getInstance() {
@@ -27,7 +27,7 @@ public final class MobDropInfoProvider {
 	}
 
 	public List<MobGlobalDropInfo> getGlobalDrop() {
-		return globaldrops;
+		return this.globaldrops;
 	}
 
 	private void retrieveGlobal() {
@@ -44,16 +44,16 @@ public final class MobDropInfoProvider {
 				final int maxQuantity = rs.getInt("maximum_quantity");
 				final short questId = rs.getShort("questid");
 				final MobGlobalDropInfo entry = new MobGlobalDropInfo(itemId, chance, continent, type, minQuantity, maxQuantity, questId);
-				globaldrops.add(entry);
+				this.globaldrops.add(entry);
 			}
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Error retrieving drop" + e);
 		}
 	}
 
 	public List<MobDropInfo> retrieveDrop(final int monsterId) {
-		if (drops.containsKey(monsterId)) {
-			return drops.get(monsterId);
+		if (this.drops.containsKey(monsterId)) {
+			return this.drops.get(monsterId);
 		}
 
 		final Connection con = Database.getConnection();
@@ -72,16 +72,16 @@ public final class MobDropInfoProvider {
 					ret.add(entry);
 				}
 			}
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			return ret;
 		}
-		drops.put(monsterId, ret);
+		this.drops.put(monsterId, ret);
 		return ret;
 	}
 
 	public void clearDrops() {
-		drops.clear();
-		globaldrops.clear();
-		retrieveGlobal();
+		this.drops.clear();
+		this.globaldrops.clear();
+		this.retrieveGlobal();
 	}
 }

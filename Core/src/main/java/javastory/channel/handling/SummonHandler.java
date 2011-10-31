@@ -66,7 +66,7 @@ public final class SummonHandler {
 		reader.skip(8);
 		final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
-		for (Summon sum : chr.getSummons().values()) {
+		for (final Summon sum : chr.getSummons().values()) {
 			if (sum.getObjectId() == oid && sum.getMovementType() != SummonMovementType.STATIONARY) {
 				final Point startPos = sum.getPosition();
 				MovementParse.updatePosition(res, sum, 0);
@@ -150,7 +150,7 @@ public final class SummonHandler {
 		final ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
 		final StatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
 
-		for (SummonAttackEntry attackEntry : allDamage) {
+		for (final SummonAttackEntry attackEntry : allDamage) {
 			final int toDamage = attackEntry.getDamage();
 			final Monster mob = attackEntry.getMonster();
 

@@ -11,42 +11,42 @@ public class DueyActions {
 	private long sentTime;
 	private int packageId = 0;
 
-	public DueyActions(int pId, IItem item) {
+	public DueyActions(final int pId, final IItem item) {
 		this.item = item;
 		this.quantity = item.getQuantity();
-		packageId = pId;
+		this.packageId = pId;
 	}
 
-	public DueyActions(int pId) { // meso only package
+	public DueyActions(final int pId) { // meso only package
 		this.packageId = pId;
 	}
 
 	public String getSender() {
-		return sender;
+		return this.sender;
 	}
 
-	public void setSender(String name) {
-		sender = name;
+	public void setSender(final String name) {
+		this.sender = name;
 	}
 
 	public IItem getItem() {
-		return item;
+		return this.item;
 	}
 
 	public int getMesos() {
-		return mesos;
+		return this.mesos;
 	}
 
-	public void setMesos(int set) {
-		mesos = set;
+	public void setMesos(final int set) {
+		this.mesos = set;
 	}
 
 	public int getQuantity() {
-		return quantity;
+		return this.quantity;
 	}
 
 	public int getPackageId() {
-		return packageId;
+		return this.packageId;
 	}
 
 /*    public boolean isExpired() {
@@ -63,11 +63,11 @@ public class DueyActions {
         return cal.getTimeInMillis();
     }*/
 
-	public void setSentTime(long sentTime) {
+	public void setSentTime(final long sentTime) {
 		this.sentTime = sentTime;
 	}
 
 	public long getSentTime() {
-		return sentTime;
+		return this.sentTime;
 	}
 }

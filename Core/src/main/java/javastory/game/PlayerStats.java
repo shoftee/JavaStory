@@ -12,46 +12,46 @@ public class PlayerStats implements PacketWritable {
 	public int STR, DEX, LUK, INT, HP, MaxHP, MP, MaxMP;
 
 	public final int getDex() {
-		return DEX;
+		return this.DEX;
 	}
 
 	public final int getHp() {
-		return HP;
+		return this.HP;
 	}
 
 	public final int getInt() {
-		return INT;
+		return this.INT;
 	}
 
 	public final int getLuk() {
-		return LUK;
+		return this.LUK;
 	}
 
 	public final int getMaxHp() {
-		return MaxHP;
+		return this.MaxHP;
 	}
 
 	public final int getMaxMp() {
-		return MaxMP;
+		return this.MaxMP;
 	}
 
 	public final int getMp() {
-		return MP;
+		return this.MP;
 	}
 
 	public final int getStr() {
-		return STR;
+		return this.STR;
 	}
 
 	@Override
 	public void connectData(final PacketBuilder builder) {
-		builder.writeAsShort(STR);
-		builder.writeAsShort(DEX);
-		builder.writeAsShort(INT);
-		builder.writeAsShort(LUK);
-		builder.writeAsShort(HP);
-		builder.writeAsShort(MaxHP);
-		builder.writeAsShort(MP);
-		builder.writeAsShort(MaxMP);
+		builder.writeAsShort(this.STR);
+		builder.writeAsShort(this.DEX);
+		builder.writeAsShort(this.INT);
+		builder.writeAsShort(this.LUK);
+		builder.writeAsShort(this.HP);
+		builder.writeAsShort(this.MaxHP);
+		builder.writeAsShort(this.MP);
+		builder.writeAsShort(this.MaxMP);
 	}
 }

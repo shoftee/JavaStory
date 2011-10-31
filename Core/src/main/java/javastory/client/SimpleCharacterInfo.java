@@ -21,10 +21,10 @@ package javastory.client;
 
 public class SimpleCharacterInfo {
 
-	private int id, level, job;
-	private String name;
+	private final int id, level, job;
+	private final String name;
 
-	public SimpleCharacterInfo(int id, String name, int level, int job) {
+	public SimpleCharacterInfo(final int id, final String name, final int level, final int job) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -33,18 +33,18 @@ public class SimpleCharacterInfo {
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public int getJob() {
-		return job;
+		return this.job;
 	}
 }

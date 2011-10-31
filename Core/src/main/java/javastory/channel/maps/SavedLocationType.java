@@ -6,7 +6,7 @@ public enum SavedLocationType {
 
 	private int value;
 
-	private SavedLocationType(int value) {
+	private SavedLocationType(final int value) {
 		this.value = value;
 	}
 
@@ -14,7 +14,7 @@ public enum SavedLocationType {
 		return this.value;
 	}
 
-	public static SavedLocationType fromNumber(int value) {
+	public static SavedLocationType fromNumber(final int value) {
 		switch (value) {
 		case 0:
 			return FREE_MARKET;
@@ -37,7 +37,7 @@ public enum SavedLocationType {
 		}
 	}
 
-	public static SavedLocationType fromString(String Str) {
+	public static SavedLocationType fromString(final String Str) {
 		return valueOf(Str);
 	}
 }

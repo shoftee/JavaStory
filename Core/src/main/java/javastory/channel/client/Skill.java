@@ -36,7 +36,7 @@ public class Skill implements ISkill {
 	//
 	public static final int[] EVAN_SKILLS_2 = new int[] { 22181000, 22181001, 22181002, 22181003 };
 	//
-	private int id;
+	private final int id;
 	private final List<StatEffect> effects = new ArrayList<>();
 	private Element element;
 	private byte level;
@@ -52,11 +52,11 @@ public class Skill implements ISkill {
 
 	@Override
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public static Skill loadFromData(final int id, final WzData data) {
-		Skill ret = new Skill(id);
+		final Skill ret = new Skill(id);
 
 		boolean isBuff = false;
 		final int skillType = WzDataTool.getInt("skillType", data, -1);
@@ -173,53 +173,53 @@ public class Skill implements ISkill {
 
 	@Override
 	public StatEffect getEffect(final int level) {
-		return effects.get(level - 1);
+		return this.effects.get(level - 1);
 	}
 
 	@Override
 	public StatEffect getEffect(final ChannelCharacter chr, final int level) {
-		return effects.get(level - 1);
+		return this.effects.get(level - 1);
 	}
 
 	@Override
 	public boolean getAction() {
-		return action;
+		return this.action;
 	}
 
 	@Override
 	public boolean isChargeSkill() {
-		return chargeskill;
+		return this.chargeskill;
 	}
 
 	@Override
 	public boolean isInvisible() {
-		return invisible;
+		return this.invisible;
 	}
 
 	@Override
 	public boolean hasRequiredSkill() {
-		return level > 0;
+		return this.level > 0;
 	}
 
 	@Override
 	public int getRequiredSkillLevel() {
-		return level;
+		return this.level;
 	}
 
 	@Override
 	public int getRequiredSkillId() {
-		return requiredSkill;
+		return this.requiredSkill;
 	}
 
 	@Override
 	public byte getMaxLevel() {
-		return (byte) effects.size();
+		return (byte) this.effects.size();
 	}
 
 	@Override
-	public boolean canBeLearnedBy(int job) {
-		int jid = job;
-		int skillJob = id / 10000;
+	public boolean canBeLearnedBy(final int job) {
+		final int jid = job;
+		final int skillJob = this.id / 10000;
 		if (skillJob == 2001 && Jobs.isEvan(job)) {
 			return true; //special exception for evan -.-
 		}
@@ -241,7 +241,7 @@ public class Skill implements ISkill {
 		} else if (Jobs.isEvan(skillJob) && !Jobs.isEvan(job)) {
 			return false;
 		}
-		if ((skillJob / 10) % 10 > (jid / 10) % 10) { // wrong 2nd job
+		if (skillJob / 10 % 10 > jid / 10 % 10) { // wrong 2nd job
 			return false;
 		}
 		if (skillJob % 10 > jid % 10) { // wrong 3rd/4th job
@@ -252,35 +252,35 @@ public class Skill implements ISkill {
 
 	@Override
 	public boolean isFourthJob() {
-		final int jobFamily = id / 10000;
+		final int jobFamily = this.id / 10000;
 		if (jobFamily >= 2212 && jobFamily < 3000) {
 			//evan skill
-			return (jobFamily % 10) >= 7;
+			return jobFamily % 10 >= 7;
 		}
 		if (jobFamily >= 430 && jobFamily <= 434) {
 			//db skill
-			return (jobFamily % 10) == 4 || isMasterSkill(id);
+			return jobFamily % 10 == 4 || isMasterSkill(this.id);
 		}
-		return (jobFamily % 10) == 2;
+		return jobFamily % 10 == 2;
 	}
 
 	@Override
 	public Element getElement() {
-		return element;
+		return this.element;
 	}
 
 	@Override
 	public int getAnimationTime() {
-		return animationTime;
+		return this.animationTime;
 	}
 
 	@Override
 	public int getMasterLevel() {
-		return masterLevel;
+		return this.masterLevel;
 	}
 
 	public static boolean isMasterSkill(final int skill) {
-		for (int i : DUALBLADE_SKILLS) {
+		for (final int i : DUALBLADE_SKILLS) {
 			if (i == skill) {
 				return true;
 			}
@@ -290,7 +290,7 @@ public class Skill implements ISkill {
 
 	@Override
 	public boolean isBeginnerSkill() {
-		String idString = String.valueOf(id);
+		final String idString = String.valueOf(this.id);
 		if (idString.length() == 4 || idString.length() == 1) {
 			return true;
 		}

@@ -38,21 +38,21 @@ public enum Disease implements Serializable {
 	private long i;
 	private boolean first;
 
-	private Disease(long i) {
+	private Disease(final long i) {
 		this.i = i;
-		first = false;
+		this.first = false;
 	}
 
-	private Disease(long i, boolean first) {
+	private Disease(final long i, final boolean first) {
 		this.i = i;
 		this.first = first;
 	}
 
 	public boolean isFirst() {
-		return first;
+		return this.first;
 	}
 
 	public long getValue() {
-		return i;
+		return this.i;
 	}
 }

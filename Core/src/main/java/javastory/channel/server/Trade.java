@@ -25,96 +25,96 @@ public final class Trade {
 	}
 
 	public void CompleteTrade() {
-		for (final IItem item : exchangeItems) {
-			byte flag = item.getFlag();
+		for (final IItem item : this.exchangeItems) {
+			final byte flag = item.getFlag();
 
 			if (ItemFlag.KARMA_EQ.check(flag)) {
 				item.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
 			} else if (ItemFlag.KARMA_USE.check(flag)) {
 				item.setFlag((byte) (flag - ItemFlag.KARMA_USE.getValue()));
 			}
-			InventoryManipulator.addFromDrop(chr.getClient(), item, false);
+			InventoryManipulator.addFromDrop(this.chr.getClient(), item, false);
 		}
-		if (exchangeMeso > 0) {
-			chr.gainMeso(exchangeMeso - GameConstants.getTaxAmount(exchangeMeso), false, true, false);
+		if (this.exchangeMeso > 0) {
+			this.chr.gainMeso(this.exchangeMeso - GameConstants.getTaxAmount(this.exchangeMeso), false, true, false);
 		}
-		exchangeMeso = 0;
-		exchangeItems.clear();
+		this.exchangeMeso = 0;
+		this.exchangeItems.clear();
 
-		chr.getClient().write(ChannelPackets.TradeMessage(tradingslot, (byte) 0x07));
+		this.chr.getClient().write(ChannelPackets.TradeMessage(this.tradingslot, (byte) 0x07));
 	}
 
 	public void cancel() {
-		for (final IItem item : items) {
-			InventoryManipulator.addFromDrop(chr.getClient(), item, false);
+		for (final IItem item : this.items) {
+			InventoryManipulator.addFromDrop(this.chr.getClient(), item, false);
 		}
-		if (meso > 0) {
-			chr.gainMeso(meso, false, true, false);
+		if (this.meso > 0) {
+			this.chr.gainMeso(this.meso, false, true, false);
 		}
-		meso = 0;
-		if (items != null) { // just to be on the safe side...
-			items.clear();
+		this.meso = 0;
+		if (this.items != null) { // just to be on the safe side...
+			this.items.clear();
 		}
-		chr.getClient().write(ChannelPackets.getTradeCancel(tradingslot));
+		this.chr.getClient().write(ChannelPackets.getTradeCancel(this.tradingslot));
 	}
 
 	public boolean isLocked() {
-		return locked;
+		return this.locked;
 	}
 
 	public void setMeso(final int meso) {
-		if (locked || partner == null || meso <= 0 || this.meso + meso <= 0) {
+		if (this.locked || this.partner == null || meso <= 0 || this.meso + meso <= 0) {
 			return;
 		}
-		if (chr.getMeso() >= meso) {
-			chr.gainMeso(-meso, false, true, false);
+		if (this.chr.getMeso() >= meso) {
+			this.chr.gainMeso(-meso, false, true, false);
 			this.meso += meso;
-			chr.getClient().write(ChannelPackets.getTradeMesoSet((byte) 0, this.meso));
-			if (partner != null) {
-				partner.getChr().getClient().write(ChannelPackets.getTradeMesoSet((byte) 1, this.meso));
+			this.chr.getClient().write(ChannelPackets.getTradeMesoSet((byte) 0, this.meso));
+			if (this.partner != null) {
+				this.partner.getChr().getClient().write(ChannelPackets.getTradeMesoSet((byte) 1, this.meso));
 			}
 		}
 	}
 
 	public void addItem(final IItem item) {
-		if (locked || partner == null) {
+		if (this.locked || this.partner == null) {
 			return;
 		}
-		items.add(item);
-		chr.getClient().write(ChannelPackets.getTradeItemAdd((byte) 0, item));
-		if (partner != null) {
-			partner.getChr().getClient().write(ChannelPackets.getTradeItemAdd((byte) 1, item));
+		this.items.add(item);
+		this.chr.getClient().write(ChannelPackets.getTradeItemAdd((byte) 0, item));
+		if (this.partner != null) {
+			this.partner.getChr().getClient().write(ChannelPackets.getTradeItemAdd((byte) 1, item));
 		}
 	}
 
 	public void chat(final String message) {
-		chr.getClient().write(ChannelPackets.getPlayerShopChat(chr, message, true));
-		if (partner != null) {
-			partner.getChr().getClient().write(ChannelPackets.getPlayerShopChat(chr, message, false));
+		this.chr.getClient().write(ChannelPackets.getPlayerShopChat(this.chr, message, true));
+		if (this.partner != null) {
+			this.partner.getChr().getClient().write(ChannelPackets.getPlayerShopChat(this.chr, message, false));
 		}
 	}
 
 	public Trade getPartner() {
-		return partner;
+		return this.partner;
 	}
 
 	public void setPartner(final Trade partner) {
-		if (locked) {
+		if (this.locked) {
 			return;
 		}
 		this.partner = partner;
 	}
 
 	public ChannelCharacter getChr() {
-		return chr;
+		return this.chr;
 	}
 
 	private boolean check() {
-		if (chr.getMeso() + exchangeMeso < 0) {
+		if (this.chr.getMeso() + this.exchangeMeso < 0) {
 			return false;
 		}
 		byte eq = 0, use = 0, setup = 0, etc = 0;
-		for (final IItem item : exchangeItems) {
+		for (final IItem item : this.exchangeItems) {
 			switch (GameConstants.getInventoryType(item.getItemId())) {
 			case EQUIP:
 				eq++;
@@ -132,8 +132,8 @@ public final class Trade {
 				return false;
 			}
 		}
-		if (chr.getEquipInventory().getNumFreeSlot() <= eq || chr.getUseInventory().getNumFreeSlot() <= use
-			|| chr.getSetupInventory().getNumFreeSlot() <= setup || chr.getEtcInventory().getNumFreeSlot() <= etc) {
+		if (this.chr.getEquipInventory().getNumFreeSlot() <= eq || this.chr.getUseInventory().getNumFreeSlot() <= use
+			|| this.chr.getSetupInventory().getNumFreeSlot() <= setup || this.chr.getEtcInventory().getNumFreeSlot() <= etc) {
 			return false;
 		}
 		return true;
@@ -215,7 +215,7 @@ public final class Trade {
 		final Trade trade = c.getTrade();
 		if (trade != null) {
 			if (trade.getPartner() != null) {
-				ChannelCharacter other = trade.getPartner().getChr();
+				final ChannelCharacter other = trade.getPartner().getChr();
 				other.getTrade().cancel();
 				other.setTrade(null);
 				other.getClient().write(ChannelPackets.serverNotice(5, c.getName() + " has declined your trade request"));

@@ -33,75 +33,75 @@ import com.google.common.collect.Sets;
 public class Party implements Serializable {
 	private static final long serialVersionUID = 9179541993413738569L;
 	private PartyMember leader;
-	private Set<PartyMember> members = Sets.newLinkedHashSet();
-	private Map<PartyMember, DoorInfo> doors = Maps.newHashMap();
+	private final Set<PartyMember> members = Sets.newLinkedHashSet();
+	private final Map<PartyMember, DoorInfo> doors = Maps.newHashMap();
 	private int id;
 
-	public Party(int id) {
+	public Party(final int id) {
 		this.leader = null;
 		this.id = id;
 	}
 
-	public boolean containsMember(PartyMember member) {
+	public boolean containsMember(final PartyMember member) {
 		Preconditions.checkNotNull(member);
 
-		return members.contains(member);
+		return this.members.contains(member);
 	}
 
-	public void addMember(PartyMember member) {
+	public void addMember(final PartyMember member) {
 		Preconditions.checkNotNull(member);
-		Preconditions.checkArgument(!members.contains(member), "This player is already in the party.");
+		Preconditions.checkArgument(!this.members.contains(member), "This player is already in the party.");
 
-		if (leader == null) {
-			leader = member;
-			leader.setLeader(true);
+		if (this.leader == null) {
+			this.leader = member;
+			this.leader.setLeader(true);
 		}
 
-		members.add(member);
-		setNullDoor(member);
+		this.members.add(member);
+		this.setNullDoor(member);
 	}
 
-	public void removeMember(PartyMember member) {
+	public void removeMember(final PartyMember member) {
 		Preconditions.checkNotNull(member);
-		Preconditions.checkArgument(members.contains(member), "This player is not in the party.");
+		Preconditions.checkArgument(this.members.contains(member), "This player is not in the party.");
 
-		members.remove(member);
-		setNullDoor(member);
+		this.members.remove(member);
+		this.setNullDoor(member);
 	}
 
-	public void updateMember(PartyMember member) {
+	public void updateMember(final PartyMember member) {
 		Preconditions.checkNotNull(member);
-		Preconditions.checkArgument(members.contains(member), "This player is not in the party.");
+		Preconditions.checkArgument(this.members.contains(member), "This player is not in the party.");
 
-		members.remove(member);
-		members.add(member);
+		this.members.remove(member);
+		this.members.add(member);
 	}
 
-	private void setNullDoor(PartyMember owner) {
+	private void setNullDoor(final PartyMember owner) {
 		Preconditions.checkNotNull(owner);
 
-		doors.put(owner, DoorInfo.NONE);
+		this.doors.put(owner, DoorInfo.NONE);
 	}
 
-	public void setDoor(PartyMember owner, Door door) {
+	public void setDoor(final PartyMember owner, final Door door) {
 		Preconditions.checkNotNull(owner);
 		Preconditions.checkNotNull(door);
 
-		doors.put(owner, new DoorInfo(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
+		this.doors.put(owner, new DoorInfo(door.getTown().getId(), door.getTarget().getId(), door.getTargetPosition()));
 	}
 
-	public void removeDoor(PartyMember owner) {
+	public void removeDoor(final PartyMember owner) {
 		Preconditions.checkNotNull(owner);
 
-		setNullDoor(owner);
+		this.setNullDoor(owner);
 	}
 
 	public ImmutableMap<PartyMember, DoorInfo> getDoors() {
-		return ImmutableMap.copyOf(doors);
+		return ImmutableMap.copyOf(this.doors);
 	}
 
-	public PartyMember getMemberById(int id) {
-		for (PartyMember chr : members) {
+	public PartyMember getMemberById(final int id) {
+		for (final PartyMember chr : this.members) {
 			if (chr.getCharacterId() == id) {
 				return chr;
 			}
@@ -110,49 +110,49 @@ public class Party implements Serializable {
 	}
 
 	public ImmutableList<PartyMember> getMembers() {
-		return ImmutableList.copyOf(members);
+		return ImmutableList.copyOf(this.members);
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
 	public PartyMember getLeader() {
-		return leader;
+		return this.leader;
 	}
 
-	public void setLeader(PartyMember newLeader) {
+	public void setLeader(final PartyMember newLeader) {
 		Preconditions.checkNotNull(newLeader);
-		leader.setLeader(false);
-		leader = newLeader;
-		leader.setLeader(true);
+		this.leader.setLeader(false);
+		this.leader = newLeader;
+		this.leader.setLeader(true);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result + this.id;
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final Party other = (Party) obj;
-		if (id != other.id) {
+		if (this.id != other.id) {
 			return false;
 		}
 		return true;

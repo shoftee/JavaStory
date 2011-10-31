@@ -24,12 +24,12 @@ package javastory.channel.client;
  */
 public class PetCommand {
 
-	private int petId;
-	private int skillId;
-	private int probability;
-	private int increase;
+	private final int petId;
+	private final int skillId;
+	private final int probability;
+	private final int increase;
 
-	public PetCommand(int petId, int skillId, int prob, int inc) {
+	public PetCommand(final int petId, final int skillId, final int prob, final int inc) {
 		this.petId = petId;
 		this.skillId = skillId;
 		this.probability = prob;
@@ -37,18 +37,18 @@ public class PetCommand {
 	}
 
 	public int getPetId() {
-		return petId;
+		return this.petId;
 	}
 
 	public int getSkillId() {
-		return skillId;
+		return this.skillId;
 	}
 
 	public int getProbability() {
-		return probability;
+		return this.probability;
 	}
 
 	public int getIncrease() {
-		return increase;
+		return this.increase;
 	}
 }

@@ -17,13 +17,13 @@ import com.google.common.collect.Maps;
  * @author shoftee
  */
 public class MultiInventory implements Iterable<Inventory> {
-	private Map<InventoryType, Inventory> tabs;
+	private final Map<InventoryType, Inventory> tabs;
 
 	public MultiInventory() {
 		this.tabs = Maps.newEnumMap(InventoryType.class);
 	}
 
-	public Inventory get(InventoryType type) {
+	public Inventory get(final InventoryType type) {
 		Inventory inventory = this.tabs.get(type);
 		if (inventory == null) {
 			inventory = new Inventory(type);

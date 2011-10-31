@@ -28,8 +28,8 @@ public final class LifeFactory {
 	private static final Map<Integer, MobInfo> monsterInfo = new HashMap<>();
 	private static final Map<Integer, Integer> npcLocations = new HashMap<>();
 
-	public static AbstractLoadedLife getLife(int id, String type) {
-		String typeUpper = type.toUpperCase();
+	public static AbstractLoadedLife getLife(final int id, final String type) {
+		final String typeUpper = type.toUpperCase();
 		switch (typeUpper) {
 		case "N":
 			return getNpc(id);
@@ -41,7 +41,7 @@ public final class LifeFactory {
 		}
 	}
 
-	public static int getNpcLocation(int npcId) {
+	public static int getNpcLocation(final int npcId) {
 		if (npcLocations.containsKey(npcId)) {
 			return npcLocations.get(npcId);
 		}
@@ -50,7 +50,7 @@ public final class LifeFactory {
 		return map;
 	}
 
-	public static Monster getMonster(int mobId) {
+	public static Monster getMonster(final int mobId) {
 		MobInfo info = monsterInfo.get(Integer.valueOf(mobId));
 
 		if (info == null) {
@@ -59,8 +59,8 @@ public final class LifeFactory {
 		return new Monster(info);
 	}
 
-	private static MobInfo loadMonster(int mobId) {
-		WzData monsterData = getMonsterData(mobId);
+	private static MobInfo loadMonster(final int mobId) {
+		final WzData monsterData = getMonsterData(mobId);
 		if (monsterData == null) {
 			return null;
 		}
@@ -78,9 +78,9 @@ public final class LifeFactory {
 		return info;
 	}
 
-	private static WzData getMonsterData(int mobId) {
+	private static WzData getMonsterData(final int mobId) {
 		final String paddedId = StringUtil.getLeftPaddedStr(Integer.toString(mobId), '0', 7);
-		WzData monsterData = dataRoot.getData(paddedId + ".img");
+		final WzData monsterData = dataRoot.getData(paddedId + ".img");
 		return monsterData;
 	}
 
@@ -92,7 +92,7 @@ public final class LifeFactory {
 			PreparedStatement ps = null;
 			ResultSet rs = null;
 			try {
-				Connection con = Database.getConnection();
+				final Connection con = Database.getConnection();
 				ps = con.prepareStatement("SELECT * FROM playernpcs WHERE npcid = ?");
 				ps.setInt(1, lifeId);
 
@@ -114,7 +114,7 @@ public final class LifeFactory {
 					ps.setInt(1, rs.getInt("id"));
 					rs = ps.executeQuery();
 
-					Map<Byte, Integer> equips = new HashMap<>();
+					final Map<Byte, Integer> equips = new HashMap<>();
 
 					while (rs.next()) {
 						equips.put(rs.getByte("equippos"), rs.getInt("equipid"));
@@ -123,7 +123,7 @@ public final class LifeFactory {
 					rs.close();
 					ps.close();
 				}
-			} catch (SQLException ex) {
+			} catch (final SQLException ex) {
 			} finally {
 				try {
 					if (ps != null) {
@@ -132,7 +132,7 @@ public final class LifeFactory {
 					if (rs != null) {
 						rs.close();
 					}
-				} catch (SQLException ignore) {
+				} catch (final SQLException ignore) {
 				}
 			}
 			return npc;

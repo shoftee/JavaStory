@@ -102,7 +102,7 @@ public class PlayerHandler {
 					newbinding = new KeyBinding(type, action);
 					chr.changeKeybinding(key, newbinding);
 				}
-			} catch (PacketFormatException ex) {
+			} catch (final PacketFormatException ex) {
 				Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
@@ -116,7 +116,7 @@ public class PlayerHandler {
 			return;
 		}
 		if (itemId == 3011000) {
-			for (IItem item : c.getPlayer().getCashInventory()) {
+			for (final IItem item : c.getPlayer().getCashInventory()) {
 				if (item.getItemId() == 5340000) {
 					chr.startFishingTask(false);
 					break;
@@ -163,7 +163,7 @@ public class PlayerHandler {
 		final ChannelCharacter player = (ChannelCharacter) c.getPlayer().getMap().getMapObject(objectid);
 
 		if (player != null) {
-			if (!player.isGM() || (c.getPlayer().isGM() && player.isGM())) {
+			if (!player.isGM() || c.getPlayer().isGM() && player.isGM()) {
 				c.write(ChannelPackets.charInfo(player, c.getPlayer().equals(player)));
 			} else {
 				c.write(ChannelPackets.enableActions());
@@ -180,10 +180,10 @@ public class PlayerHandler {
 
 		int oid = 0;
 		int monsteridfrom = 0;
-		int reflect = 0;
+		final int reflect = 0;
 		byte direction = 0;
-		int pos_x = 0;
-		int pos_y = 0;
+		final int pos_x = 0;
+		final int pos_y = 0;
 		int fake = 0;
 		int mpattack = 0;
 		boolean is_pg = false;
@@ -217,7 +217,7 @@ public class PlayerHandler {
 		}
 
 		if (damage == -1) {
-			fake = 4020002 + ((chr.getJobId() / 10 - 40) * 100000);
+			fake = 4020002 + (chr.getJobId() / 10 - 40) * 100000;
 		} else if (damage < -1 || damage > 60000) {
 			AutobanManager.getInstance().addPoints(c, 1000, 60000, "Taking abnormal amounts of damge from " + monsteridfrom + ": " + damage);
 			return;
@@ -248,21 +248,21 @@ public class PlayerHandler {
 				case 112: {
 					final ISkill skill = SkillFactory.getSkill(1120004);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
-						damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
+						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
 					break;
 				}
 				case 122: {
 					final ISkill skill = SkillFactory.getSkill(1220005);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
-						damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
+						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
 					break;
 				}
 				case 132: {
 					final ISkill skill = SkillFactory.getSkill(1320005);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
-						damage = (int) ((skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0) * damage);
+						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
 					break;
 				}
@@ -293,7 +293,7 @@ public class PlayerHandler {
 				}
 
 			} else if (chr.getBuffedValue(BuffStat.MESOGUARD) != null) {
-				damage = (damage % 2 == 0) ? damage / 2 : (damage / 2) + 1;
+				damage = damage % 2 == 0 ? damage / 2 : damage / 2 + 1;
 
 				final int mesoloss = (int) (damage * (chr.getBuffedValue(BuffStat.MESOGUARD).doubleValue() / 100.0));
 				if (chr.getMeso() < mesoloss) {
@@ -324,7 +324,7 @@ public class PlayerHandler {
 		if (chr.getJobId() >= 2000 && chr.getJobId() <= 2112) {
 			short combo = chr.getCombo();
 			final long curr = System.currentTimeMillis();
-			if (combo > 0 && (curr - chr.getLastCombo()) > 5000) {
+			if (combo > 0 && curr - chr.getLastCombo() > 5000) {
 				// Official MS timing is 2.5 seconds, so 5 seconds should be
 				// safe.
 				chr.getCheatTracker().registerOffense(CheatingOffense.ARAN_COMBO_HACK);
@@ -424,7 +424,7 @@ public class PlayerHandler {
 			}
 			if (skillid != 5221006) { // Battleship
 				c.write(ChannelPackets.skillCooldown(skillid, effect.getCooldown()));
-				ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(chr, skillid), effect.getCooldown() * 1000);
+				final ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(chr, skillid), effect.getCooldown() * 1000);
 				chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000, timer);
 			}
 		}
@@ -438,7 +438,7 @@ public class PlayerHandler {
 			final byte number_of_mobs = reader.readByte();
 			reader.skip(3);
 			for (int i = 0; i < number_of_mobs; i++) {
-				int mobId = reader.readInt();
+				final int mobId = reader.readInt();
 
 				final Monster mob = chr.getMap().getMonsterByOid(mobId);
 				if (mob != null) {
@@ -487,7 +487,7 @@ public class PlayerHandler {
 
 		double maxdamage = chr.getStats().getCurrentMaxBaseDamage();
 		final boolean mirror = chr.getBuffedValue(BuffStat.MIRROR_IMAGE) != null;
-		int attackCount = (chr.getJobId() >= 430 && chr.getJobId() <= 434 ? 2 : 1), skillLevel = 0;
+		int attackCount = chr.getJobId() >= 430 && chr.getJobId() <= 434 ? 2 : 1, skillLevel = 0;
 		StatEffect effect = null;
 		ISkill skill = null;
 
@@ -665,7 +665,7 @@ public class PlayerHandler {
 		case 4121007: // Triple Throw
 		case 14001004: // Lucky seven
 		case 14111005: // Triple Throw
-			basedamage = (((statst.getTotalLuk() * 5.0f) * (statst.getTotalWatk() + projectileWatk)) / 100);
+			basedamage = statst.getTotalLuk() * 5.0f * (statst.getTotalWatk() + projectileWatk) / 100;
 			break;
 		case 4111004: // Shadow Meso
 //		basedamage = ((effect.getMoneyCon() * 10) / 100) * effect.getProb(); // Not sure
@@ -752,7 +752,7 @@ public class PlayerHandler {
 	}
 
 	public static void handleMesoDrop(final int meso, final ChannelCharacter chr) {
-		if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
+		if (!chr.isAlive() || meso < 10 || meso > 50000 || meso > chr.getMeso()) {
 			chr.getClient().write(ChannelPackets.enableActions());
 			return;
 		}
@@ -835,8 +835,9 @@ public class PlayerHandler {
 	}
 
 	private static void speedCheck(final List<LifeMovementFragment> res, final ChannelClient c) {
-		double speedMod, playerSpeedMod = c.getPlayer().getStats().getSpeedMod() + 0.005;
-		for (LifeMovementFragment lmf : res) {
+		double speedMod;
+		final double playerSpeedMod = c.getPlayer().getStats().getSpeedMod() + 0.005;
+		for (final LifeMovementFragment lmf : res) {
 			if (lmf.getClass() == AbsoluteLifeMovement.class) {
 				final AbsoluteLifeMovement alm = (AbsoluteLifeMovement) lmf;
 				speedMod = Math.abs(alm.getPixelsPerSecond().x) / 125.0;
@@ -889,7 +890,7 @@ public class PlayerHandler {
 				} else {
 					if (chr.haveItem(5510000, 1, false, true)) { // Wheel of
 																	// Fortune
-						chr.getStats().setHp((chr.getStats().getMaxHp() / 100) * 40);
+						chr.getStats().setHp(chr.getStats().getMaxHp() / 100 * 40);
 						InventoryManipulator.removeById(c, chr.getCashInventory(), 5510000, 1, true, false);
 
 						final GameMap to = chr.getMap();
@@ -970,7 +971,7 @@ public class PlayerHandler {
 					final GameMap to = mapFactory.getMap(targetid);
 					chr.changeMap(to, to.getPortal(0));
 				} else if (chr.getMapId() == 106020001 || chr.getMapId() == 106020502) {
-					if (targetid == (chr.getMapId() - 1)) {
+					if (targetid == chr.getMapId() - 1) {
 						c.write(UIPacket.IntroDisableUI(false));
 						c.write(UIPacket.IntroLock(false));
 						c.write(ChannelPackets.enableActions());

@@ -95,7 +95,7 @@ public final class Skills {
 
 	public static int getJobShortValue(int job) {
 		if (job >= 1000) {
-			job -= (job / 1000) * 1000;
+			job -= job / 1000 * 1000;
 		}
 		job /= 100;
 		if (job == 4) { // For some reason dagger/ claw is 8.. IDK

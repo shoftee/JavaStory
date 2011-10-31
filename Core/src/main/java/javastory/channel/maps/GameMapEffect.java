@@ -24,16 +24,16 @@ import javastory.tools.packets.ChannelPackets;
 
 public class GameMapEffect {
 
-	private String msg;
-	private int itemId;
+	private final String msg;
+	private final int itemId;
 	private boolean active = true;
 
-	public GameMapEffect(String msg, int itemId) {
+	public GameMapEffect(final String msg, final int itemId) {
 		this.msg = msg;
 		this.itemId = itemId;
 	}
 
-	public void setActive(boolean active) {
+	public void setActive(final boolean active) {
 		this.active = active;
 	}
 
@@ -42,10 +42,10 @@ public class GameMapEffect {
 	}
 
 	public GamePacket makeStartData() {
-		return ChannelPackets.startMapEffect(msg, itemId, active);
+		return ChannelPackets.startMapEffect(this.msg, this.itemId, this.active);
 	}
 
-	public void sendStartData(ChannelClient c) {
-		c.write(ChannelPackets.startMapEffect(msg, itemId, active));
+	public void sendStartData(final ChannelClient c) {
+		c.write(ChannelPackets.startMapEffect(this.msg, this.itemId, this.active));
 	}
 }

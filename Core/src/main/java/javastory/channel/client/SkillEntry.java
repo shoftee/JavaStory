@@ -32,10 +32,10 @@ public class SkillEntry implements Serializable {
 	}
 
 	public byte getCurrentLevel() {
-		return currentLevel;
+		return this.currentLevel;
 	}
 
 	public byte getMasterLevel() {
-		return masterLevel;
+		return this.masterLevel;
 	}
 }

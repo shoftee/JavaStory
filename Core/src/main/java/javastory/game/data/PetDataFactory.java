@@ -34,7 +34,7 @@ public final class PetDataFactory {
 		public final int PetId;
 		public final int SkillId;
 
-		public PetCommandEntry(int petId, int skillId) {
+		public PetCommandEntry(final int petId, final int skillId) {
 			this.PetId = petId;
 			this.SkillId = skillId;
 		}

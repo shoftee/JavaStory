@@ -23,12 +23,12 @@ public enum Stat {
     PET(0x180008);
     private final int i;
 
-    private Stat(int i) {
+    private Stat(final int i) {
         this.i = i;
     }
 
     public int getValue() {
-        return i;
+        return this.i;
     }
 
     public static Stat fromValue(final int value) {

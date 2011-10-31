@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 public final class PacketReader {
 
 	private int position = 0;
-	private byte[] buffer;
+	private final byte[] buffer;
 
 	/**
 	 * Class constructor
@@ -20,7 +20,7 @@ public final class PacketReader {
 	 * @param buffer
 	 *            the byte array containing the packet data.
 	 */
-	public PacketReader(byte[] buffer) {
+	public PacketReader(final byte[] buffer) {
 		this.buffer = buffer;
 	}
 
@@ -36,10 +36,10 @@ public final class PacketReader {
 	 *             if the advance put the current position past the end of the
 	 *             buffer.
 	 */
-	private int checkedAdvance(int count) throws PacketFormatException {
-		int oldPosition = position;
-		position += count;
-		if (position >= buffer.length) {
+	private int checkedAdvance(final int count) throws PacketFormatException {
+		final int oldPosition = this.position;
+		this.position += count;
+		if (this.position >= this.buffer.length) {
 			throw new PacketFormatException();
 		}
 		return oldPosition;
@@ -54,7 +54,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public boolean readBoolean() throws PacketFormatException {
-		return buffer[checkedAdvance(1)] == 1;
+		return this.buffer[this.checkedAdvance(1)] == 1;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public byte readByte() throws PacketFormatException {
-		return buffer[checkedAdvance(1)];
+		return this.buffer[this.checkedAdvance(1)];
 	}
 
 	/**
@@ -76,14 +76,14 @@ public final class PacketReader {
 	 * @return the number of bytes until the end of the stream.
 	 */
 	public long remaining() {
-		return buffer.length - position;
+		return this.buffer.length - this.position;
 	}
 
 	/**
 	 * Gets the current position of the stream.
 	 */
 	public long getPosition() {
-		return position;
+		return this.position;
 	}
 
 	/**
@@ -99,19 +99,19 @@ public final class PacketReader {
 	 * @throws IllegalArgumentException
 	 *             if <code>count</code> is negative.
 	 */
-	public void skip(int count) throws PacketFormatException {
+	public void skip(final int count) throws PacketFormatException {
 		Preconditions.checkArgument(count >= 0);
 
-		checkedAdvance(count);
+		this.checkedAdvance(count);
 	}
 
-	private long readReverse(int count) throws PacketFormatException {
-		int start = checkedAdvance(count);
-		int end = this.position;
+	private long readReverse(final int count) throws PacketFormatException {
+		final int start = this.checkedAdvance(count);
+		final int end = this.position;
 		long number = 0;
 		for (int i = start; i < end; i++) {
 			number <<= 8;
-			number |= (buffer[i] & 0xFF);
+			number |= this.buffer[i] & 0xFF;
 		}
 		return number;
 	}
@@ -126,7 +126,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final int readInt() throws PacketFormatException {
-		return (int) (readReverse(4) & 0xFFFFFFFF);
+		return (int) (this.readReverse(4) & 0xFFFFFFFF);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final long readUnsignedInt() throws PacketFormatException {
-		return (readReverse(4) & 0xFFFFFFFF);
+		return this.readReverse(4) & 0xFFFFFFFF;
 	}
 
 	/**
@@ -152,7 +152,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final short readShort() throws PacketFormatException {
-		return (short) (readReverse(2) & 0xFFFF);
+		return (short) (this.readReverse(2) & 0xFFFF);
 	}
 
 	/**
@@ -165,7 +165,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final int readUnsignedShort() throws PacketFormatException {
-		return (int) (readReverse(2) & 0xFFFF);
+		return (int) (this.readReverse(2) & 0xFFFF);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final char readChar() throws PacketFormatException {
-		return (char) readShort();
+		return (char) this.readShort();
 	}
 
 	/**
@@ -191,7 +191,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final long readLong() throws PacketFormatException {
-		return readReverse(8);
+		return this.readReverse(8);
 	}
 
 	/**
@@ -204,7 +204,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final float readFloat() throws PacketFormatException {
-		int bits = (int) readReverse(4);
+		final int bits = (int) this.readReverse(4);
 		return Float.intBitsToFloat(bits);
 	}
 
@@ -218,7 +218,7 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final double readDouble() throws PacketFormatException {
-		long bits = readReverse(8);
+		final long bits = this.readReverse(8);
 		return Double.longBitsToDouble(bits);
 	}
 
@@ -239,12 +239,12 @@ public final class PacketReader {
 	public final String readString(final int length) throws PacketFormatException {
 		Preconditions.checkArgument(length >= 0);
 
-		StringBuilder b = new StringBuilder(length);
+		final StringBuilder b = new StringBuilder(length);
 
-		int start = checkedAdvance(length);
-		int end = position;
+		final int start = this.checkedAdvance(length);
+		final int end = this.position;
 		for (int i = start; i < end; i++) {
-			b.append((char) buffer[i]);
+			b.append((char) this.buffer[i]);
 		}
 		return b.toString();
 	}
@@ -259,11 +259,11 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final String readNullTerminatedString() throws PacketFormatException {
-		int start = position;
-		StringBuilder builder = new StringBuilder();
+		final int start = this.position;
+		final StringBuilder builder = new StringBuilder();
 		int i = start;
-		while (buffer[i = checkedAdvance(1)] != 0x00) {
-			builder.append((char) buffer[i]);
+		while (this.buffer[i = this.checkedAdvance(1)] != 0x00) {
+			builder.append((char) this.buffer[i]);
 		}
 		return builder.toString();
 	}
@@ -278,8 +278,8 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final String readLengthPrefixedString() throws PacketFormatException {
-		int length = readShort();
-		String string = readString(length);
+		final int length = this.readShort();
+		final String string = this.readString(length);
 		return string;
 	}
 
@@ -293,8 +293,8 @@ public final class PacketReader {
 	 *             buffer.
 	 */
 	public final Point readVector() throws PacketFormatException {
-		final int x = readShort();
-		final int y = readShort();
+		final int x = this.readShort();
+		final int y = this.readShort();
 		return new Point(x, y);
 	}
 
@@ -315,9 +315,9 @@ public final class PacketReader {
 	public final byte[] readBytes(final int count) throws PacketFormatException {
 		Preconditions.checkArgument(count >= 0);
 
-		int start = checkedAdvance(count);
-		byte[] bytes = new byte[count];
-		System.arraycopy(buffer, start, bytes, 0, count);
+		final int start = this.checkedAdvance(count);
+		final byte[] bytes = new byte[count];
+		System.arraycopy(this.buffer, start, bytes, 0, count);
 		return bytes;
 	}
 }

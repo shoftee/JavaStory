@@ -1,9 +1,9 @@
 package javastory.login;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -39,18 +39,18 @@ public final class LoginInfoProvider {
             1072001, 1072005, 1072037, 1072038, 1072383, 1072418// Shoes
         };
         final WzDataProvider equipData = WzDataProviderFactory.getDataProvider("Character.wz");
-        for (int i = 0; i < LoadEquipment.length; i++) {
-            loadEquipStats(LoadEquipment[i], equipData);
+        for (final int element : LoadEquipment) {
+            this.loadEquipStats(element, equipData);
         }
 
         final WzData nameData = WzDataProviderFactory.getDataProvider("Etc.wz").getData("ForbiddenName.img");
         for (final WzData data : nameData.getChildren()) {
-            nameFilter.add(WzDataTool.getString(data));
+            this.nameFilter.add(WzDataTool.getString(data));
         }
     }
 
     private void loadEquipStats(final int itemId, final WzDataProvider equipData) {
-        final WzData item = getItemData(itemId, equipData);
+        final WzData item = this.getItemData(itemId, equipData);
         if (item == null) {
             return;
         }
@@ -75,15 +75,15 @@ public final class LoginInfoProvider {
         ret.put("cash", WzDataTool.getInt("cash", info, 0));
         ret.put("cursed", WzDataTool.getInt("cursed", info, 0));
         ret.put("success", WzDataTool.getInt("success", info, 0));
-        equipStatsCache.put(itemId, ret);
+        this.equipStatsCache.put(itemId, ret);
     }
 
     private WzData getItemData(final int itemId, final WzDataProvider equipData) {
-        WzData ret = null;
-        String idStr = "0" + String.valueOf(itemId);
-        WzDataDirectoryEntry root = equipData.getRoot();
-        for (WzDataDirectoryEntry topDir : root.getSubdirectories()) {
-            for (WzDataFileEntry iFile : topDir.getFiles()) {
+        final WzData ret = null;
+        final String idStr = "0" + String.valueOf(itemId);
+        final WzDataDirectoryEntry root = equipData.getRoot();
+        for (final WzDataDirectoryEntry topDir : root.getSubdirectories()) {
+            for (final WzDataFileEntry iFile : topDir.getFiles()) {
                 if (iFile.getName().equals(idStr + ".img")) {
                     return equipData.getData(topDir.getName() + "/" +
                             iFile.getName());
@@ -96,9 +96,9 @@ public final class LoginInfoProvider {
     public final IItem getEquipById(final int equipId) {
         final Equip equip = new Equip(equipId, (byte) 0, -1, (byte) 0);
         equip.setQuantity((short) 1);
-        final Map<String, Integer> stats = equipStatsCache.get(equipId);
+        final Map<String, Integer> stats = this.equipStatsCache.get(equipId);
         if (stats != null) {
-            for (Entry<String, Integer> stat : stats.entrySet()) {
+            for (final Entry<String, Integer> stat : stats.entrySet()) {
                 final String key = stat.getKey();
                 switch (key) {
                     case "STR":
@@ -151,12 +151,12 @@ public final class LoginInfoProvider {
                 }
             }
         }
-        equipCache.put(equipId, equip);
+        this.equipCache.put(equipId, equip);
         return equip.copy();
     }
 
     public final boolean isAllowedName(final String in) {
-        for (final String name : nameFilter) {
+        for (final String name : this.nameFilter) {
             if (in.contains(name)) {
                 return false;
             }

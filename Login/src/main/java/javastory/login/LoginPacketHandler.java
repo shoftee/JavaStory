@@ -23,8 +23,8 @@ public class LoginPacketHandler extends PacketHandler {
     }
 
     @Override
-    protected void handlePacket(ClientPacketOpcode header, PacketReader reader, GameClient client) throws PacketFormatException {
-        LoginClient loginClient = (LoginClient) client;
+    protected void handlePacket(final ClientPacketOpcode header, final PacketReader reader, final GameClient client) throws PacketFormatException {
+        final LoginClient loginClient = (LoginClient) client;
         switch (header) {
             case PONG:
                 client.pongReceived();
@@ -67,7 +67,8 @@ public class LoginPacketHandler extends PacketHandler {
         }
     }
 
-    protected GameClient createClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
+    @Override
+	protected GameClient createClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
         final GameClient client = new LoginClient(clientCrypto, serverCrypto, session);
         return client;
     }

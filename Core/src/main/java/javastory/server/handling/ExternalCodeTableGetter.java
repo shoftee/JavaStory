@@ -31,12 +31,12 @@ public class ExternalCodeTableGetter {
 
 	Properties props;
 
-	public ExternalCodeTableGetter(Properties properties) {
-		props = properties;
+	public ExternalCodeTableGetter(final Properties properties) {
+		this.props = properties;
 	}
 
-	private static <T extends Enum<? extends IntValueHolder> & IntValueHolder> T valueOf(String name, T[] values) {
-		for (T val : values) {
+	private static <T extends Enum<? extends IntValueHolder> & IntValueHolder> T valueOf(final String name, final T[] values) {
+		for (final T val : values) {
 			if (val.name().equals(name)) {
 				return val;
 			}
@@ -44,17 +44,17 @@ public class ExternalCodeTableGetter {
 		return null;
 	}
 
-	private <T extends Enum<? extends IntValueHolder> & IntValueHolder> int getValue(String name, T[] values, int def) {
-		String prop = props.getProperty(name);
+	private <T extends Enum<? extends IntValueHolder> & IntValueHolder> int getValue(final String name, final T[] values, final int def) {
+		final String prop = this.props.getProperty(name);
 		if (prop != null && prop.length() > 0) {
-			String trimmed = prop.trim();
-			String[] args = trimmed.split(" ");
+			final String trimmed = prop.trim();
+			final String[] args = trimmed.split(" ");
 			int base = 0;
 			String offset;
 			if (args.length == 2) {
 				base = valueOf(args[0], values).getValue();
 				if (base == def) {
-					base = getValue(args[0], values, def);
+					base = this.getValue(args[0], values, def);
 				}
 				offset = args[1];
 			} else {
@@ -69,18 +69,18 @@ public class ExternalCodeTableGetter {
 		return def;
 	}
 
-	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(T[] enumeration) {
-		StringBuilder enumVals = new StringBuilder();
-		List<T> all = new ArrayList<>(); // need a mutable list plawks
+	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(final T[] enumeration) {
+		final StringBuilder enumVals = new StringBuilder();
+		final List<T> all = new ArrayList<>(); // need a mutable list plawks
 		all.addAll(Arrays.asList(enumeration));
 		Collections.sort(all, new Comparator<IntValueHolder>() {
 
 			@Override
-			public int compare(IntValueHolder o1, IntValueHolder o2) {
+			public int compare(final IntValueHolder o1, final IntValueHolder o2) {
 				return Integer.valueOf(o1.getValue()).compareTo(o2.getValue());
 			}
 		});
-		for (T code : all) {
+		for (final T code : all) {
 			enumVals.append(code.name());
 			enumVals.append(" = ");
 			enumVals.append("0x");
@@ -92,9 +92,9 @@ public class ExternalCodeTableGetter {
 		return enumVals.toString();
 	}
 
-	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> void populateValues(Properties properties, T[] values) {
-		ExternalCodeTableGetter exc = new ExternalCodeTableGetter(properties);
-		for (T code : values) {
+	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> void populateValues(final Properties properties, final T[] values) {
+		final ExternalCodeTableGetter exc = new ExternalCodeTableGetter(properties);
+		for (final T code : values) {
 			code.setValue(exc.getValue(code.name(), values, -2));
 		}
 

@@ -40,32 +40,32 @@ public final class GameMapFactory {
 	}
 
 	public final GameMap getMap(final int mapId) {
-		return getMap(mapId, true, true, true);
+		return this.getMap(mapId, true, true, true);
 	}
 
 	// backwards-compatible
 	public final GameMap getMap(final int mapId, final boolean respawns, final boolean npcs) {
-		return getMap(mapId, respawns, npcs, true);
+		return this.getMap(mapId, respawns, npcs, true);
 	}
 
 	public final GameMap getMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors) {
-		Integer mapIdInt = Integer.valueOf(mapId);
-		GameMap map = maps.get(mapIdInt);
+		final Integer mapIdInt = Integer.valueOf(mapId);
+		GameMap map = this.maps.get(mapIdInt);
 		if (map == null) {
-			lock.lock();
+			this.lock.lock();
 			try {
 				// check if someone else who was also synchronized has loaded
 				// the map already
-				map = maps.get(mapIdInt);
+				map = this.maps.get(mapIdInt);
 				if (map != null) {
 					return map;
 				}
 
-				map = loadMap(mapId, mobsRespawn, loadNpcs, loadReactors);
+				map = this.loadMap(mapId, mobsRespawn, loadNpcs, loadReactors);
 
-				maps.put(mapIdInt, map);
+				this.maps.put(mapIdInt, map);
 			} finally {
-				lock.unlock();
+				this.lock.unlock();
 			}
 		}
 		return map;
@@ -73,15 +73,15 @@ public final class GameMapFactory {
 
 	private GameMap loadMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors) {
 
-		WzData mapData = source.getData(getMapName(mapId));
-		WzData link = mapData.getChildByPath("info/link");
+		WzData mapData = source.getData(this.getMapName(mapId));
+		final WzData link = mapData.getChildByPath("info/link");
 		if (link != null) {
-			mapData = source.getData(getMapName(WzDataTool.getIntConvert("info/link", mapData)));
+			mapData = source.getData(this.getMapName(WzDataTool.getIntConvert("info/link", mapData)));
 		}
 
 		float monsterRate = 0;
 		if (mobsRespawn) {
-			WzData mobRate = mapData.getChildByPath("info/mobRate");
+			final WzData mobRate = mapData.getChildByPath("info/mobRate");
 			if (mobRate != null) {
 				monsterRate = ((Float) mobRate.getData()).floatValue();
 			}
@@ -90,20 +90,20 @@ public final class GameMapFactory {
 		final int returnMapId = WzDataTool.getInt("info/returnMap", mapData);
 		final GameMap map = new GameMap(mapId, returnMapId, monsterRate);
 
-		PortalFactory portalFactory = new PortalFactory();
-		for (WzData portalData : mapData.getChildByPath("portal")) {
+		final PortalFactory portalFactory = new PortalFactory();
+		for (final WzData portalData : mapData.getChildByPath("portal")) {
 			final int portalType = WzDataTool.getInt("pt", portalData);
 			final Portal portal = portalFactory.makePortal(portalType, portalData);
 
 			map.addPortal(portal);
 		}
 
-		List<Foothold> footholds = Lists.newLinkedList();
-		Point lBound = new Point();
-		Point uBound = new Point();
-		for (WzData fhRoot : mapData.getChildByPath("foothold")) {
-			for (WzData fhCategory : fhRoot) {
-				for (WzData fhData : fhCategory) {
+		final List<Foothold> footholds = Lists.newLinkedList();
+		final Point lBound = new Point();
+		final Point uBound = new Point();
+		for (final WzData fhRoot : mapData.getChildByPath("foothold")) {
+			for (final WzData fhCategory : fhRoot) {
+				for (final WzData fhData : fhCategory) {
 					final Foothold fh = new Foothold(fhData);
 
 					if (fh.getX1() < lBound.x) {
@@ -124,20 +124,20 @@ public final class GameMapFactory {
 			}
 		}
 
-		FootholdTree fTree = new FootholdTree(lBound, uBound);
-		for (Foothold item : footholds) {
+		final FootholdTree fTree = new FootholdTree(lBound, uBound);
+		for (final Foothold item : footholds) {
 			fTree.insert(item);
 		}
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
 		if (mapData.getChildByPath("area") != null) {
-			for (WzData area : mapData.getChildByPath("area")) {
+			for (final WzData area : mapData.getChildByPath("area")) {
 				final int x1 = WzDataTool.getInt(area.getChildByPath("x1"));
 				final int y1 = WzDataTool.getInt(area.getChildByPath("y1"));
 				final int x2 = WzDataTool.getInt(area.getChildByPath("x2"));
 				final int y2 = WzDataTool.getInt(area.getChildByPath("y2"));
-				final Rectangle mapArea = new Rectangle(x1, y1, (x2 - x1), (y2 - y1));
+				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 				map.addMapleArea(mapArea);
 			}
 		}
@@ -149,36 +149,37 @@ public final class GameMapFactory {
 		}
 
 		// load life data (npc, monsters)
-		for (WzData life : mapData.getChildByPath("life")) {
+		for (final WzData life : mapData.getChildByPath("life")) {
 			final String type = WzDataTool.getString("type", life);
 			if (loadNpcs || !type.equals("n")) {
 				final String id = WzDataTool.getString("id", life);
-				final AbstractLoadedLife myLife = loadLife(life, id, type);
+				final AbstractLoadedLife myLife = this.loadLife(life, id, type);
 				if (myLife instanceof Monster) {
 					final Monster mob = (Monster) myLife;
 					final int mobTime = WzDataTool.getInt("mobTime", life, 0);
 					final byte team = (byte) WzDataTool.getInt("team", life, -1);
 					map.addMonsterSpawn(mob, mobTime, team, message);
 				} else {
-					boolean bAdd = true;
+					final boolean bAdd = true;
 					if (bAdd) {
 						map.addMapObject(myLife);
 					}
 				}
 			}
 		}
-		addAreaBossSpawn(map);
+		this.addAreaBossSpawn(map);
 		map.loadMonsterRate(true);
 
 		// load reactor data
 		if (loadReactors && mapData.getChildByPath("reactor") != null) {
-			for (WzData reactor : mapData.getChildByPath("reactor")) {
+			for (final WzData reactor : mapData.getChildByPath("reactor")) {
 				final String id = WzDataTool.getString("id", reactor);
-				if (id == null)
+				if (id == null) {
 					continue;
+				}
 
 				final byte facingDirection = (byte) WzDataTool.getInt("f", reactor, 0);
-				map.spawnReactor(loadReactor(reactor, id, facingDirection));
+				map.spawnReactor(this.loadReactor(reactor, id, facingDirection));
 			}
 		}
 
@@ -203,45 +204,45 @@ public final class GameMapFactory {
 	}
 
 	public GameMap getInstanceMap(final int instanceid) {
-		return instanceMap.get(instanceid);
+		return this.instanceMap.get(instanceid);
 	}
 
 	public void removeInstanceMap(final int instanceid) {
-		instanceMap.remove(instanceid);
+		this.instanceMap.remove(instanceid);
 	}
 
-	public GameMap createInstanceMap(int mapId, boolean mobsRespawn, boolean loadNpcs, boolean loadReactors, int instanceId) {
-		WzData mapData = source.getData(getMapName(mapId));
-		WzData link = mapData.getChildByPath("info/link");
+	public GameMap createInstanceMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors, final int instanceId) {
+		WzData mapData = source.getData(this.getMapName(mapId));
+		final WzData link = mapData.getChildByPath("info/link");
 		if (link != null) {
-			mapData = source.getData(getMapName(WzDataTool.getIntConvert("info/link", mapData)));
+			mapData = source.getData(this.getMapName(WzDataTool.getIntConvert("info/link", mapData)));
 		}
 
 		float monsterRate = 0;
 		if (mobsRespawn) {
-			WzData mobRate = mapData.getChildByPath("info/mobRate");
+			final WzData mobRate = mapData.getChildByPath("info/mobRate");
 			if (mobRate != null) {
 				monsterRate = ((Float) mobRate.getData()).floatValue();
 			}
 		}
 
-		GameMap map = new GameMap(mapId, WzDataTool.getInt("info/returnMap", mapData), monsterRate);
+		final GameMap map = new GameMap(mapId, WzDataTool.getInt("info/returnMap", mapData), monsterRate);
 
-		PortalFactory portalFactory = new PortalFactory();
-		for (WzData portalData : mapData.getChildByPath("portal")) {
+		final PortalFactory portalFactory = new PortalFactory();
+		for (final WzData portalData : mapData.getChildByPath("portal")) {
 			final int portalType = WzDataTool.getInt("pt", portalData);
 			final Portal portal = portalFactory.makePortal(portalType, portalData);
 
 			map.addPortal(portal);
 		}
 
-		List<Foothold> footholds = Lists.newLinkedList();
-		Point lBound = new Point();
-		Point uBound = new Point();
-		for (WzData fhRoot : mapData.getChildByPath("foothold")) {
-			for (WzData fhCategory : fhRoot) {
-				for (WzData fhData : fhCategory) {
-					Foothold fh = new Foothold(fhData);
+		final List<Foothold> footholds = Lists.newLinkedList();
+		final Point lBound = new Point();
+		final Point uBound = new Point();
+		for (final WzData fhRoot : mapData.getChildByPath("foothold")) {
+			for (final WzData fhCategory : fhRoot) {
+				for (final WzData fhData : fhCategory) {
+					final Foothold fh = new Foothold(fhData);
 
 					if (fh.getX1() < lBound.x) {
 						lBound.x = fh.getX1();
@@ -260,20 +261,20 @@ public final class GameMapFactory {
 			}
 		}
 
-		FootholdTree fTree = new FootholdTree(lBound, uBound);
-		for (Foothold fh : footholds) {
+		final FootholdTree fTree = new FootholdTree(lBound, uBound);
+		for (final Foothold fh : footholds) {
 			fTree.insert(fh);
 		}
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
 		if (mapData.getChildByPath("area") != null) {
-			for (WzData area : mapData.getChildByPath("area")) {
+			for (final WzData area : mapData.getChildByPath("area")) {
 				final int x1 = WzDataTool.getInt(area.getChildByPath("x1"));
 				final int y1 = WzDataTool.getInt(area.getChildByPath("y1"));
 				final int x2 = WzDataTool.getInt(area.getChildByPath("x2"));
 				final int y2 = WzDataTool.getInt(area.getChildByPath("y2"));
-				final Rectangle mapArea = new Rectangle(x1, y1, (x2 - x1), (y2 - y1));
+				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 				map.addMapleArea(mapArea);
 			}
 		}
@@ -285,36 +286,37 @@ public final class GameMapFactory {
 		}
 
 		// load life data (npc, monsters)
-		for (WzData life : mapData.getChildByPath("life")) {
+		for (final WzData life : mapData.getChildByPath("life")) {
 			final String type = WzDataTool.getString("type", life);
 			if (loadNpcs || !type.equals("n")) {
 				final String id = WzDataTool.getString("id", life);
-				final AbstractLoadedLife myLife = loadLife(life, id, type);
+				final AbstractLoadedLife myLife = this.loadLife(life, id, type);
 				if (myLife instanceof Monster) {
 					final Monster mob = (Monster) myLife;
 					final int mobTime = WzDataTool.getInt("mobTime", life, 0);
 					final byte team = (byte) WzDataTool.getInt("team", life, -1);
 					map.addMonsterSpawn(mob, mobTime, team, message);
 				} else {
-					boolean bAdd = true;
+					final boolean bAdd = true;
 					if (bAdd) {
 						map.addMapObject(myLife);
 					}
 				}
 			}
 		}
-		addAreaBossSpawn(map);
+		this.addAreaBossSpawn(map);
 		map.loadMonsterRate(true);
 
 		// load reactor data
 		if (loadReactors && mapData.getChildByPath("reactor") != null) {
-			for (WzData reactor : mapData.getChildByPath("reactor")) {
+			for (final WzData reactor : mapData.getChildByPath("reactor")) {
 				final String id = WzDataTool.getString("id", reactor);
-				if (id == null)
+				if (id == null) {
 					continue;
+				}
 
 				final byte facingDirection = (byte) WzDataTool.getInt("f", reactor, 0);
-				map.spawnReactor(loadReactor(reactor, id, facingDirection));
+				map.spawnReactor(this.loadReactor(reactor, id, facingDirection));
 			}
 		}
 
@@ -335,32 +337,32 @@ public final class GameMapFactory {
 		map.setFirstUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onFirstUserEnter"), ""));
 		map.setUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onUserEnter"), ""));
 
-		instanceMap.put(instanceId, map);
+		this.instanceMap.put(instanceId, map);
 		return map;
 	}
 
 	public int getLoadedMaps() {
-		return maps.size();
+		return this.maps.size();
 	}
 
-	public boolean isMapLoaded(int mapId) {
-		return maps.containsKey(mapId);
+	public boolean isMapLoaded(final int mapId) {
+		return this.maps.containsKey(mapId);
 	}
 
-	public boolean isInstanceMapLoaded(int instanceid) {
-		return instanceMap.containsKey(instanceid);
+	public boolean isInstanceMapLoaded(final int instanceid) {
+		return this.instanceMap.containsKey(instanceid);
 	}
 
 	public void clearLoadedMap() {
-		maps.clear();
+		this.maps.clear();
 	}
 
 	public Map<Integer, GameMap> getMaps() {
-		return maps;
+		return this.maps;
 	}
 
-	private AbstractLoadedLife loadLife(WzData life, String id, String type) {
-		AbstractLoadedLife myLife = LifeFactory.getLife(Integer.parseInt(id), type);
+	private AbstractLoadedLife loadLife(final WzData life, final String id, final String type) {
+		final AbstractLoadedLife myLife = LifeFactory.getLife(Integer.parseInt(id), type);
 		myLife.setCy(WzDataTool.getInt("cy", life));
 		myLife.setFacingDirection(WzDataTool.getInt("f", life, 0));
 		myLife.setFoothold(WzDataTool.getInt("fh", life));
@@ -399,9 +401,9 @@ public final class GameMapFactory {
 		return myReactor;
 	}
 
-	private String getMapName(int mapId) {
+	private String getMapName(final int mapId) {
 		String paddedId = StringUtil.getLeftPaddedStr(Integer.toString(mapId), '0', 9);
-		StringBuilder builder = new StringBuilder("Map/Map");
+		final StringBuilder builder = new StringBuilder("Map/Map");
 		builder.append(mapId / 100_000_000);
 		builder.append("/");
 		builder.append(paddedId);

@@ -10,14 +10,14 @@ import javastory.db.Database;
 
 public class Ring implements Comparable<Ring> {
 
-	private int ringId;
-	private int partnerRingId;
-	private int partnerId;
-	private int itemId;
-	private String partnerName;
+	private final int ringId;
+	private final int partnerRingId;
+	private final int partnerId;
+	private final int itemId;
+	private final String partnerName;
 	private boolean equipped;
 
-	private Ring(int ringId, int partnerRingId, int partnerId, int itemid, String partnername) {
+	private Ring(final int ringId, final int partnerRingId, final int partnerId, final int itemid, final String partnername) {
 		this.ringId = ringId;
 		this.partnerRingId = partnerRingId;
 		this.partnerId = partnerId;
@@ -25,8 +25,8 @@ public class Ring implements Comparable<Ring> {
 		this.partnerName = partnername;
 	}
 
-	public static Ring loadFromDb(int ringId) {
-		Connection c = Database.getConnection();
+	public static Ring loadFromDb(final int ringId) {
+		final Connection c = Database.getConnection();
 		try (	PreparedStatement ps = getRingById(ringId, c);
 				ResultSet rs = ps.executeQuery()) {
 			if (rs.next()) {
@@ -36,27 +36,27 @@ public class Ring implements Comparable<Ring> {
 				final String partnerName = rs.getString("partnerName");
 				return new Ring(ringId, partnerRingId, partnerCharacterId, ringItemId, partnerName);
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Could not load ring from database: " + ex);
 		}
 		return null;
 	}
 
-	private static PreparedStatement getRingById(int ringId, Connection con) throws SQLException {
-		PreparedStatement ps = con.prepareStatement("SELECT * FROM rings WHERE id = ?");
+	private static PreparedStatement getRingById(final int ringId, final Connection con) throws SQLException {
+		final PreparedStatement ps = con.prepareStatement("SELECT * FROM rings WHERE id = ?");
 		ps.setInt(1, ringId);
 		return ps;
 	}
 
-	public static int createRing(int itemid, final int partner1Id, final String partner1Name, final int partner2Id, final String partner2Name) {
+	public static int createRing(final int itemid, final int partner1Id, final String partner1Name, final int partner2Id, final String partner2Name) {
 		// TODO: Check if item ID is actually a ring.
 
 		if (checkRingDB(partner1Id) || checkRingDB(partner2Id)) {
 			return 0;
 		}
 
-		int[] ringID = new int[2];
-		Connection con = Database.getConnection();
+		final int[] ringID = new int[2];
+		final Connection con = Database.getConnection();
 
 		try {
 			PreparedStatement ps = con.prepareStatement("INSERT INTO rings (itemid, partnerChrId, partnername) VALUES (?, ?, ?)",
@@ -92,7 +92,7 @@ public class Ring implements Comparable<Ring> {
 			ps.close();
 
 			return 1;
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			return 0;
 		}
 
@@ -103,37 +103,37 @@ public class Ring implements Comparable<Ring> {
 	}
 
 	public int getRingId() {
-		return ringId;
+		return this.ringId;
 	}
 
 	public int getPartnerRingId() {
-		return partnerRingId;
+		return this.partnerRingId;
 	}
 
 	public int getPartnerCharacterId() {
-		return partnerId;
+		return this.partnerId;
 	}
 
 	public int getItemId() {
-		return itemId;
+		return this.itemId;
 	}
 
 	public String getPartnerName() {
-		return partnerName;
+		return this.partnerName;
 	}
 
 	public boolean isEquipped() {
-		return equipped;
+		return this.equipped;
 	}
 
-	public void setEquipped(boolean equipped) {
+	public void setEquipped(final boolean equipped) {
 		this.equipped = equipped;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (o instanceof Ring) {
-			if (((Ring) o).getRingId() == getRingId()) {
+			if (((Ring) o).getRingId() == this.getRingId()) {
 				return true;
 			} else {
 				return false;
@@ -150,56 +150,56 @@ public class Ring implements Comparable<Ring> {
 	}
 
 	@Override
-	public int compareTo(Ring other) {
-		if (ringId < other.getRingId()) {
+	public int compareTo(final Ring other) {
+		if (this.ringId < other.getRingId()) {
 			return -1;
-		} else if (ringId == other.getRingId()) {
+		} else if (this.ringId == other.getRingId()) {
 			return 0;
 		} else {
 			return 1;
 		}
 	}
 
-	public static boolean checkRingDB(int characterId) {
-		Connection con = Database.getConnection();
+	public static boolean checkRingDB(final int characterId) {
+		final Connection con = Database.getConnection();
 		try (	PreparedStatement ps = getSelectRingIdByPartnerId(characterId, con);
 				ResultSet rs = ps.executeQuery()) {
 			return rs.next();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			// TS NOTE: This used to return true. Very wrong. Failure is appropriate for this case.
 			return false;
 		}
 	}
 
-	private static PreparedStatement getSelectRingIdByPartnerId(int characterId, Connection con) throws SQLException {
-		PreparedStatement ps = con.prepareStatement("SELECT id FROM rings WHERE partnerChrId = ?");
+	private static PreparedStatement getSelectRingIdByPartnerId(final int characterId, final Connection con) throws SQLException {
+		final PreparedStatement ps = con.prepareStatement("SELECT id FROM rings WHERE partnerChrId = ?");
 		ps.setInt(1, characterId);
 		return ps;
 	}
 
-	public static void removeRingFromDb(int characterId) {
+	public static void removeRingFromDb(final int characterId) {
 		int otherId;
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (	PreparedStatement ps = getSelectRingByPartnerId(characterId, con);
 				ResultSet rs = ps.executeQuery()) {
 			otherId = rs.getInt("partnerRingId");
 
 			removeRing(characterId, con);
 			removeRing(otherId, con);
-		} catch (SQLException sex) {
+		} catch (final SQLException sex) {
 			return;
 		}
 	}
 
-	private static void removeRing(int characterId, Connection con) throws SQLException {
+	private static void removeRing(final int characterId, final Connection con) throws SQLException {
 		try (PreparedStatement ps2 = con.prepareStatement("DELETE FROM rings WHERE partnerChrId = ?")) {
 			ps2.setInt(1, characterId);
 			ps2.executeUpdate();
 		}
 	}
 
-	private static PreparedStatement getSelectRingByPartnerId(int characterId, Connection con) throws SQLException {
-		PreparedStatement ps = con.prepareStatement("SELECT partnerRingId FROM rings WHERE partnerChrId = ?");
+	private static PreparedStatement getSelectRingByPartnerId(final int characterId, final Connection con) throws SQLException {
+		final PreparedStatement ps = con.prepareStatement("SELECT partnerRingId FROM rings WHERE partnerChrId = ?");
 		ps.setInt(1, characterId);
 		return ps;
 	}

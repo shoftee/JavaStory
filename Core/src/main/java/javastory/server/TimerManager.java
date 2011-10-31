@@ -24,7 +24,7 @@ public final class TimerManager {
 
 	public void start() {
 		//starting the same timermanager twice is no - op
-		if (executor != null && !executor.isShutdown() && !executor.isTerminated()) {
+		if (this.executor != null && !this.executor.isShutdown() && !this.executor.isTerminated()) {
 			return;
 		}
 
@@ -33,43 +33,43 @@ public final class TimerManager {
 			private final AtomicInteger threadId = new AtomicInteger(1);
 
 			@Override
-			public Thread newThread(Runnable runnable) {
+			public Thread newThread(final Runnable runnable) {
 				final Thread thread = new Thread(runnable);
-				final String threadName = "TimerManager-Worker-" + threadId.getAndIncrement();
+				final String threadName = "TimerManager-Worker-" + this.threadId.getAndIncrement();
 				thread.setName(threadName);
 				return thread;
 			}
 		};
 
-		executor = new ScheduledThreadPoolExecutor(3, factory);
-		executor.setKeepAliveTime(10, TimeUnit.MINUTES);
-		executor.allowCoreThreadTimeOut(true);
-		executor.setCorePoolSize(3);
-		executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+		this.executor = new ScheduledThreadPoolExecutor(3, factory);
+		this.executor.setKeepAliveTime(10, TimeUnit.MINUTES);
+		this.executor.allowCoreThreadTimeOut(true);
+		this.executor.setCorePoolSize(3);
+		this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 	}
 
 	public void stop() {
-		executor.shutdown();
+		this.executor.shutdown();
 	}
 
-	public ScheduledFuture<?> register(Runnable runnable, long repeatTime, long delay) {
-		return executor.scheduleAtFixedRate(getLoggedRunnable(runnable), delay, repeatTime, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> register(final Runnable runnable, final long repeatTime, final long delay) {
+		return this.executor.scheduleAtFixedRate(this.getLoggedRunnable(runnable), delay, repeatTime, TimeUnit.MILLISECONDS);
 	}
 
-	public ScheduledFuture<?> register(Runnable runnable, long repeatTime) {
-		return executor.scheduleAtFixedRate(getLoggedRunnable(runnable), 0, repeatTime, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> register(final Runnable runnable, final long repeatTime) {
+		return this.executor.scheduleAtFixedRate(this.getLoggedRunnable(runnable), 0, repeatTime, TimeUnit.MILLISECONDS);
 	}
 
-	private Runnable getLoggedRunnable(Runnable runnable) {
+	private Runnable getLoggedRunnable(final Runnable runnable) {
 		return new LoggedRunnable(runnable);
 	}
 
-	public ScheduledFuture<?> schedule(Runnable runnable, long delay) {
-		return executor.schedule(getLoggedRunnable(runnable), delay, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> schedule(final Runnable runnable, final long delay) {
+		return this.executor.schedule(this.getLoggedRunnable(runnable), delay, TimeUnit.MILLISECONDS);
 	}
 
-	public ScheduledFuture<?> scheduleAtTimestamp(Runnable r, long timestamp) {
-		return schedule(r, timestamp - System.currentTimeMillis());
+	public ScheduledFuture<?> scheduleAtTimestamp(final Runnable r, final long timestamp) {
+		return this.schedule(r, timestamp - System.currentTimeMillis());
 	}
 
 	private static class LoggedRunnable implements Runnable {
@@ -83,8 +83,8 @@ public final class TimerManager {
 		@Override
 		public void run() {
 			try {
-				runnable.run();
-			} catch (Throwable t) {
+				this.runnable.run();
+			} catch (final Throwable t) {
 				LogUtil.outputFileError(LogUtil.Timer_Log, t);
 			}
 		}

@@ -30,11 +30,11 @@ public abstract class AbstractLoadedLife extends AbstractAnimatedGameMapObject {
 	private int rx0;
 	private int rx1;
 
-	public AbstractLoadedLife(int id) {
+	public AbstractLoadedLife(final int id) {
 		this.id = id;
 	}
 
-	public AbstractLoadedLife(AbstractLoadedLife life) {
+	public AbstractLoadedLife(final AbstractLoadedLife life) {
 		this(life.getId());
 		this.facingDirection = life.facingDirection;
 		this.isHidden = life.isHidden;
@@ -45,59 +45,60 @@ public abstract class AbstractLoadedLife extends AbstractAnimatedGameMapObject {
 		this.rx1 = life.rx1;
 	}
 
+	@Override
 	public int getFacingDirection() {
-		return facingDirection;
+		return this.facingDirection;
 	}
 
-	public void setFacingDirection(int facingDirection) {
+	public void setFacingDirection(final int facingDirection) {
 		this.facingDirection = facingDirection;
 	}
 
 	public boolean isHidden() {
-		return isHidden;
+		return this.isHidden;
 	}
 
-	public void setHidden(boolean hide) {
+	public void setHidden(final boolean hide) {
 		this.isHidden = hide;
 	}
 
 	public int getOriginFoothold() {
-		return originFoothold;
+		return this.originFoothold;
 	}
 
 	public int getFoothold() {
-		return foothold;
+		return this.foothold;
 	}
 
-	public void setFoothold(int foothold) {
+	public void setFoothold(final int foothold) {
 		this.foothold = foothold;
 	}
 
 	public int getCy() {
-		return cy;
+		return this.cy;
 	}
 
-	public void setCy(int cy) {
+	public void setCy(final int cy) {
 		this.cy = cy;
 	}
 
 	public int getRx0() {
-		return rx0;
+		return this.rx0;
 	}
 
-	public void setRx0(int rx0) {
+	public void setRx0(final int rx0) {
 		this.rx0 = rx0;
 	}
 
 	public int getRx1() {
-		return rx1;
+		return this.rx1;
 	}
 
-	public void setRx1(int rx1) {
+	public void setRx1(final int rx1) {
 		this.rx1 = rx1;
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 }

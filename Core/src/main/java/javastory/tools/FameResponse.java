@@ -21,11 +21,11 @@ public enum FameResponse {
 
 	private int type;
 
-	private FameResponse(int type) {
+	private FameResponse(final int type) {
 		this.type = type;
 	}
 
 	public byte asNumber() {
-		return (byte) type;
+		return (byte) this.type;
 	}
 }

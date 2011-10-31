@@ -30,39 +30,39 @@ public class ReactorInfo {
 	private byte facingDirection;
 	private Point tl;
 	private Point br;
-	private Map<Byte, StateData> stateInfo = Maps.newHashMap();
+	private final Map<Byte, StateData> stateInfo = Maps.newHashMap();
 
 	public final void setFacingDirection(final byte facingDirection) {
 		this.facingDirection = facingDirection;
 	}
 
 	public final byte getFacingDirection() {
-		return facingDirection;
+		return this.facingDirection;
 	}
 
-	public void setTopLeft(Point tl) {
+	public void setTopLeft(final Point tl) {
 		this.tl = tl;
 	}
 
-	public void setBottomRight(Point br) {
+	public void setBottomRight(final Point br) {
 		this.br = br;
 	}
 
 	public Point getTopLeft() {
-		return tl;
+		return this.tl;
 	}
 
 	public Point getBottomRight() {
-		return br;
+		return this.br;
 	}
 
-	public void addState(byte state, int type, Pair<Integer, Integer> reactItem, byte nextState) {
-		StateData newState = new StateData(type, reactItem, nextState);
-		stateInfo.put(state, newState);
+	public void addState(final byte state, final int type, final Pair<Integer, Integer> reactItem, final byte nextState) {
+		final StateData newState = new StateData(type, reactItem, nextState);
+		this.stateInfo.put(state, newState);
 	}
 
-	public byte getNextState(byte state) {
-		StateData nextState = stateInfo.get(state);
+	public byte getNextState(final byte state) {
+		final StateData nextState = this.stateInfo.get(state);
 		if (nextState != null) {
 			return nextState.getNextState();
 		} else {
@@ -70,8 +70,8 @@ public class ReactorInfo {
 		}
 	}
 
-	public int getType(byte state) {
-		StateData nextState = stateInfo.get(state);
+	public int getType(final byte state) {
+		final StateData nextState = this.stateInfo.get(state);
 		if (nextState != null) {
 			return nextState.getType();
 		} else {
@@ -79,8 +79,8 @@ public class ReactorInfo {
 		}
 	}
 
-	public Pair<Integer, Integer> getReactItem(byte state) {
-		StateData nextState = stateInfo.get(state);
+	public Pair<Integer, Integer> getReactItem(final byte state) {
+		final StateData nextState = this.stateInfo.get(state);
 		if (nextState != null) {
 			return nextState.getReactItem();
 		} else {
@@ -90,26 +90,26 @@ public class ReactorInfo {
 
 	private static class StateData {
 
-		private int type;
-		private Pair<Integer, Integer> reactItem;
-		private byte nextState;
+		private final int type;
+		private final Pair<Integer, Integer> reactItem;
+		private final byte nextState;
 
-		private StateData(int type, Pair<Integer, Integer> reactItem, byte nextState) {
+		private StateData(final int type, final Pair<Integer, Integer> reactItem, final byte nextState) {
 			this.type = type;
 			this.reactItem = reactItem;
 			this.nextState = nextState;
 		}
 
 		private int getType() {
-			return type;
+			return this.type;
 		}
 
 		private byte getNextState() {
-			return nextState;
+			return this.nextState;
 		}
 
 		private Pair<Integer, Integer> getReactItem() {
-			return reactItem;
+			return this.reactItem;
 		}
 	}
 }

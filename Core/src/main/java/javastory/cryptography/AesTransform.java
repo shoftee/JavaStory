@@ -71,7 +71,7 @@ public class AesTransform {
 		try {
 			cipher = Cipher.getInstance("AES/ECB/NoPadding");
 			cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(AES_KEY, "AES"));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -106,10 +106,10 @@ public class AesTransform {
 		System.arraycopy(this.iv, 0, iv, 0, 4);
 
 		if (versionType == VersionType.COMPLEMENT) {
-			this.version = (short) (~version);
+			this.version = (short) ~version;
 		}
 
-		this.version = (short) ((this.version >> 8) | ((this.version & 0xFF) << 8));
+		this.version = (short) (this.version >> 8 | (this.version & 0xFF) << 8);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class AesTransform {
 	 * @return true if the header is valid; otherwise, false.
 	 */
 	public boolean validateHeader(final byte[] header) {
-		short extractedVersion = getVersion(header, this.iv);
+		final short extractedVersion = getVersion(header, this.iv);
 		return extractedVersion == this.version;
 	}
 
@@ -137,10 +137,10 @@ public class AesTransform {
 	public byte[] constructHeader(final int length) {
 		checkArgument(length >= 2);
 
-		int encodedVersion = (((this.iv[2] << 8) | (this.iv[3] & 0xFF)) ^ this.version);
-		int encodedLength = encodedVersion ^ (((length & 0xFF) << 8) | (length >> 8));
+		final int encodedVersion = (this.iv[2] << 8 | this.iv[3] & 0xFF) ^ this.version;
+		final int encodedLength = encodedVersion ^ ((length & 0xFF) << 8 | length >> 8);
 
-		byte[] header = new byte[4];
+		final byte[] header = new byte[4];
 		header[0] = (byte) (encodedVersion >> 8);
 		header[1] = (byte) encodedVersion;
 		header[2] = (byte) (encodedLength >> 8);
@@ -164,23 +164,23 @@ public class AesTransform {
 
 		transformArraySegment(data, this.iv, 0, data.length);
 
-		updateIv();
+		this.updateIv();
 	}
 
 	private void updateIv() {
-		byte[] newIv = new byte[4];
+		final byte[] newIv = new byte[4];
 		System.arraycopy(SHUFFLE_IV, 0, newIv, 0, 4);
 
 		for (int i = 0; i < 4; i++) {
-			byte input = this.iv[i], tableInput = SHUFFLE_TABLE[input];
+			final byte input = this.iv[i], tableInput = SHUFFLE_TABLE[input];
 
 			newIv[0] += (byte) (SHUFFLE_TABLE[newIv[1]] - input);
 			newIv[1] -= (byte) (newIv[2] ^ tableInput);
 			newIv[2] ^= (byte) (SHUFFLE_TABLE[newIv[3]] + input);
 			newIv[3] -= (byte) (newIv[0] - tableInput);
 
-			int merged = ((newIv[3] << 24) | (newIv[2] << 16) | (newIv[1] << 8) | newIv[0]);
-			int shifted = (merged << 3) | (merged >> 0x1D);
+			final int merged = newIv[3] << 24 | newIv[2] << 16 | newIv[1] << 8 | newIv[0];
+			final int shifted = merged << 3 | merged >> 0x1D;
 
 			newIv[0] = (byte) shifted;
 			newIv[1] = (byte) (shifted >> 8);
@@ -200,8 +200,8 @@ public class AesTransform {
 	 * @return the transformed array.
 	 */
 	public static byte[] transformWithIv(final byte[] data, final byte[] iv) {
-		int length = data.length;
-		byte[] transformedData = new byte[length];
+		final int length = data.length;
+		final byte[] transformedData = new byte[length];
 
 		System.arraycopy(data, 0, transformedData, 0, length);
 
@@ -226,7 +226,7 @@ public class AesTransform {
 		checkNotNull(data);
 		checkArgument(data.length >= 4, "'data' must have at least 4 elements.");
 
-		return ((data[1] ^ data[3]) << 8) | (data[0] ^ data[2]);
+		return (data[1] ^ data[3]) << 8 | data[0] ^ data[2];
 	}
 
 	/**
@@ -247,14 +247,14 @@ public class AesTransform {
 		checkNotNull(iv);
 		checkArgument(data.length >= 4, "'data' must have at least 4 elements.");
 
-		short encodedVersion = (short) ((data[0] << 8) | (data[1] & 0xFF));
-		short xorSegment = (short) ((iv[2] << 8) | (iv[3] & 0xFF));
+		final short encodedVersion = (short) (data[0] << 8 | data[1] & 0xFF);
+		final short xorSegment = (short) (iv[2] << 8 | iv[3] & 0xFF);
 
 		return (short) (encodedVersion ^ xorSegment);
 	}
 
 	private static void transformArraySegment(final byte[] data, final byte[] iv, final int segmentStart, final int segmentEnd) {
-		byte[] xorBlock = new byte[IV_LENGTH];
+		final byte[] xorBlock = new byte[IV_LENGTH];
 
 		// First block is 4 elements shorter because of the header.
 		final int FIRST_BLOCK_LENGTH = BLOCK_LENGTH - 4;
@@ -282,7 +282,7 @@ public class AesTransform {
 			if (xorBlockPosition == 0) {
 				try {
 					xorBlock = cipher.doFinal(xorBlock, 0, IV_LENGTH);
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -295,7 +295,7 @@ public class AesTransform {
 		}
 	}
 
-	private static void fillXorBlock(byte[] iv, byte[] xorBlock) {
+	private static void fillXorBlock(final byte[] iv, final byte[] xorBlock) {
 		for (int i = 0; i < IV_LENGTH; i += 4) {
 			System.arraycopy(iv, 0, xorBlock, i, 4);
 		}

@@ -108,21 +108,21 @@ public enum BuffStat implements Serializable {
     private final long buffstat;
     private final boolean first;
 
-    private BuffStat(long buffstat) {
+    private BuffStat(final long buffstat) {
         this.buffstat = buffstat;
-        first = false;
+        this.first = false;
     }
 
-    private BuffStat(long buffstat, boolean first) {
+    private BuffStat(final long buffstat, final boolean first) {
         this.buffstat = buffstat;
         this.first = first;
     }
 
     public final boolean isFirst() {
-        return first;
+        return this.first;
     }
 
     public final long getValue() {
-        return buffstat;
+        return this.buffstat;
     }
 }

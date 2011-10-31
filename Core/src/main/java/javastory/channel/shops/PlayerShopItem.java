@@ -25,7 +25,7 @@ public class PlayerShopItem {
 	public short bundles;
 	public int price;
 
-	public PlayerShopItem(IItem item, short bundles, int price) {
+	public PlayerShopItem(final IItem item, final short bundles, final int price) {
 		this.item = item;
 		this.bundles = bundles;
 		this.price = price;

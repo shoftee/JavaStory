@@ -132,13 +132,13 @@ public enum ClientPacketOpcode implements WritableIntValueHolder {
 	private int code = -2;
 
 	@Override
-	public void setValue(int code) {
+	public void setValue(final int code) {
 		this.code = code;
 	}
 
 	@Override
 	public final int getValue() {
-		return code;
+		return this.code;
 	}
 
 	private boolean CheckState;
@@ -152,11 +152,11 @@ public enum ClientPacketOpcode implements WritableIntValueHolder {
 	}
 
 	public final boolean NeedsChecking() {
-		return CheckState;
+		return this.CheckState;
 	}
 
 	public static Properties getDefaultProperties() throws FileNotFoundException, IOException {
-		Properties props = new Properties();
+		final Properties props = new Properties();
 		try (FileInputStream fileInputStream = new FileInputStream("clientopcodes.properties")) {
 			props.load(fileInputStream);
 		}
@@ -170,7 +170,7 @@ public enum ClientPacketOpcode implements WritableIntValueHolder {
 	public static void reloadValues() {
 		try {
 			ExternalCodeTableGetter.populateValues(getDefaultProperties(), values());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new RuntimeException("Failed to load client op codes", e);
 		}
 	}

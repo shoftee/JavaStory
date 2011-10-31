@@ -90,7 +90,7 @@ public class PetHandler {
 		ItemInfoProvider.getInstance().getItemEffect(toUse.getItemId()).applyTo(chr);
 	}
 
-	public static void handlePetChat(final int petid, final short command, final String text, ChannelCharacter chr) {
+	public static void handlePetChat(final int petid, final short command, final String text, final ChannelCharacter chr) {
 		chr.getMap().broadcastMessage(chr, PetPacket.petChat(chr.getId(), command, text, chr.getPetIndex(petid)), true);
 	}
 
@@ -99,7 +99,7 @@ public class PetHandler {
 		if (petIndex == -1) {
 			return;
 		}
-		Pet pet = chr.getPet(petIndex);
+		final Pet pet = chr.getPet(petIndex);
 		reader.skip(5);
 		final byte command = reader.readByte();
 		final PetCommand petCommand = PetDataFactory.getPetCommand(pet.getPetItemId(), command);

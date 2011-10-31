@@ -42,10 +42,10 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 	private static final long serialVersionUID = -5170574938159280746L;
 	private static WorldRegistryImpl instance = null;
 	//
-	private ServerStatus loginStatus;
+	private final ServerStatus loginStatus;
 	private final List<LoginWorldInterface> logins = new LinkedList<>();
 	//
-	private Map<Integer, ServerStatus> channelStatus;
+	private final Map<Integer, ServerStatus> channelStatus;
 	private final Map<Integer, ChannelWorldInterface> channels;
 	//
 	private final AtomicInteger runningMessengerId = new AtomicInteger();
@@ -61,28 +61,28 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 	private WorldRegistryImpl() throws RemoteException {
 		super();
 
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (	PreparedStatement ps = con.prepareStatement("SELECT MAX(party)+1 FROM characters");
 				ResultSet rs = ps.executeQuery()) {
 			rs.next();
-			runningPartyId.set(rs.getInt(1));
-		} catch (SQLException ex) {
+			this.runningPartyId.set(rs.getInt(1));
+		} catch (final SQLException ex) {
 			System.err.println("Could not load max party ID: " + ex);
 		}
 
-		channelStatus = Maps.newLinkedHashMap();
-		channels = Maps.newLinkedHashMap();
+		this.channelStatus = Maps.newLinkedHashMap();
+		this.channels = Maps.newLinkedHashMap();
 
-		loginStatus = ServerStatus.OFFLINE;
+		this.loginStatus = ServerStatus.OFFLINE;
 
-		runningMessengerId.set(1);
+		this.runningMessengerId.set(1);
 	}
 
 	public static WorldRegistry getInstance() {
 		if (instance == null) {
 			try {
 				instance = new WorldRegistryImpl();
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				// can't do much anyway we are fucked ^^
 				throw new RuntimeException(e);
 			}
@@ -90,103 +90,115 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 		return instance;
 	}
 
-	private boolean isChannelActive(int channelId) {
-		ServerStatus status = getChannelStatus(channelId);
+	private boolean isChannelActive(final int channelId) {
+		final ServerStatus status = this.getChannelStatus(channelId);
 		return !status.equals(ServerStatus.OFFLINE);
 	}
 
 	private boolean isLoginActive() {
-		return !loginStatus.equals(ServerStatus.OFFLINE);
+		return !this.loginStatus.equals(ServerStatus.OFFLINE);
 	}
 
-	private ServerStatus getChannelStatus(int channelId) {
-		ServerStatus status = channelStatus.get(channelId);
+	private ServerStatus getChannelStatus(final int channelId) {
+		ServerStatus status = this.channelStatus.get(channelId);
 		if (status == null) {
 			status = ServerStatus.OFFLINE;
-			channelStatus.put(channelId, status);
+			this.channelStatus.put(channelId, status);
 		}
 		return status;
 	}
 
-	public WorldChannelInterface registerChannelServer(ChannelInfo info, final ChannelWorldInterface channel) throws RemoteException {
-		int id = info.getId();
-		if (isChannelActive(id)) {
+	@Override
+	public WorldChannelInterface registerChannelServer(final ChannelInfo info, final ChannelWorldInterface channel) throws RemoteException {
+		final int id = info.getId();
+		if (this.isChannelActive(id)) {
 			throw new IllegalStateException("The specified channel slot is already active.");
 		}
-		channels.put(id, channel);
-		WorldChannelInterface ret = new WorldChannelInterfaceImpl(channel, id);
+		this.channels.put(id, channel);
+		final WorldChannelInterface ret = new WorldChannelInterfaceImpl(channel, id);
 		return ret;
 	}
 
-	public void deregisterChannelServer(int channelId) throws RemoteException {
-		if (!isChannelActive(channelId)) {
+	@Override
+	public void deregisterChannelServer(final int channelId) throws RemoteException {
+		if (!this.isChannelActive(channelId)) {
 			throw new IllegalStateException("The specified channel slot is not currently active.");
 		}
 
-		channels.remove(channelId);
-		channelStatus.put(channelId, ServerStatus.OFFLINE);
+		this.channels.remove(channelId);
+		this.channelStatus.put(channelId, ServerStatus.OFFLINE);
 
-		for (final LoginWorldInterface wli : logins) {
+		for (final LoginWorldInterface wli : this.logins) {
 			wli.channelOffline(channelId);
 		}
 		System.out.println("Channel " + channelId + " is offline.");
 	}
 
+	@Override
 	public WorldLoginInterface registerLoginServer(final LoginWorldInterface login) throws RemoteException {
-		if (isLoginActive()) {
+		if (this.isLoginActive()) {
 			throw new IllegalStateException("The login server is already active.");
 		}
-		WorldLoginInterface ret = new WorldLoginInterfaceImpl();
+		final WorldLoginInterface ret = new WorldLoginInterfaceImpl();
 
-		logins.add(login);
-		for (ChannelWorldInterface cwi : channels.values()) {
+		this.logins.add(login);
+		for (final ChannelWorldInterface cwi : this.channels.values()) {
 			login.channelOnline(cwi.getChannelInfo());
 		}
 
 		return ret;
 	}
 
-	public void deregisterLoginServer(LoginWorldInterface cb) throws RemoteException {
-		if (!isLoginActive()) {
+	@Override
+	public void deregisterLoginServer(final LoginWorldInterface cb) throws RemoteException {
+		if (!this.isLoginActive()) {
 			throw new IllegalStateException("The login server is not currently active.");
 		}
-		logins.remove(cb);
+		this.logins.remove(cb);
 	}
 
+	@Override
 	public List<LoginWorldInterface> getLoginServer() {
-		return new LinkedList<>(logins);
+		return new LinkedList<>(this.logins);
 	}
 
+	@Override
 	public ChannelWorldInterface getChannel(final int channel) {
-		return channels.get(channel);
+		return this.channels.get(channel);
 	}
 
+	@Override
 	public ImmutableSet<Integer> getActiveChannels() {
 		return ImmutableSet.copyOf(this.channels.keySet());
 	}
 
+	@Override
 	public Collection<ChannelWorldInterface> getAllChannelServers() {
-		return channels.values();
+		return this.channels.values();
 	}
 
+	@Override
 	public Party createParty() {
-		final int partyid = runningPartyId.getAndIncrement();
+		final int partyid = this.runningPartyId.getAndIncrement();
 		final Party party = new Party(partyid);
-		parties.put(party.getId(), party);
+		this.parties.put(party.getId(), party);
 		return party;
 	}
 
+	@Override
 	public Party getParty(final int partyid) {
-		return parties.get(partyid);
+		return this.parties.get(partyid);
 	}
 
+	@Override
 	public Party disbandParty(final int partyid) {
-		return parties.remove(partyid);
+		return this.parties.remove(partyid);
 	}
 
+	@Override
 	public final String getStatus() throws RemoteException {
-		StringBuilder ret = new StringBuilder();
-		List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(channels.entrySet());
+		final StringBuilder ret = new StringBuilder();
+		final List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(this.channels.entrySet());
 		int totalUsers = 0;
 		for (final Entry<Integer, ChannelWorldInterface> cs : channelServers) {
 			ret.append("Channel ");
@@ -194,11 +206,11 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 			try {
 				cs.getValue().ping();
 				ret.append(": online, ");
-				int channelUsers = cs.getValue().getConnected();
+				final int channelUsers = cs.getValue().getConnected();
 				totalUsers += channelUsers;
 				ret.append(channelUsers);
 				ret.append(" users\n");
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				ret.append(": offline\n");
 			}
 		}
@@ -207,152 +219,171 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 		ret.append("\n");
 		// Properties props = new
 		// Properties(WorldServer.getInstance().getWorldProperties());
-		for (LoginWorldInterface lwi : logins) {
+		for (final LoginWorldInterface lwi : this.logins) {
 			ret.append("Login: ");
 			try {
 				lwi.ping();
 				ret.append("online\n");
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				ret.append("offline\n");
 			}
 		}
 		return ret.toString();
 	}
 
+	@Override
 	public final int createGuild(final int leaderId, final String name) {
 		return Guild.createGuild(leaderId, name);
 	}
 
+	@Override
 	public final Guild getGuild(final int guildId) {
-		guildMutex.lock();
+		this.guildMutex.lock();
 		try {
-			return loadGuildIfAbsent(guildId);
+			return this.loadGuildIfAbsent(guildId);
 		} finally {
-			guildMutex.unlock();
+			this.guildMutex.unlock();
 		}
 	}
 
 	private Guild loadGuildIfAbsent(final int guildId) {
-		Guild guild = guilds.get(guildId);
+		Guild guild = this.guilds.get(guildId);
 		if (guild == null) {
 			guild = new Guild(guildId);
 			if (guild.getId() == -1) {
 				return null;
 			}
-			guilds.put(guildId, guild);
+			this.guilds.put(guildId, guild);
 		}
 		return guild;
 	}
 
+	@Override
 	public void setGuildMemberOnline(final GuildMember mgc, final boolean bOnline, final int channel) {
-		getGuild(mgc.getGuildId()).setOnline(mgc.getCharacterId(), bOnline, channel);
+		this.getGuild(mgc.getGuildId()).setOnline(mgc.getCharacterId(), bOnline, channel);
 	}
 
+	@Override
 	public final boolean addGuildMember(final GuildMember mgc) {
-		final Guild guild = guilds.get(mgc.getGuildId());
+		final Guild guild = this.guilds.get(mgc.getGuildId());
 		return guild != null && guild.addGuildMember(mgc);
 	}
 
+	@Override
 	public void leaveGuild(final GuildMember mgc) {
-		final Guild guild = guilds.get(mgc.getGuildId());
+		final Guild guild = this.guilds.get(mgc.getGuildId());
 		if (guild != null) {
 			guild.leaveGuild(mgc);
 		}
 	}
 
+	@Override
 	public void guildChat(final int gid, final String name, final int cid, final String msg) throws RemoteException {
-		final Guild guild = guilds.get(gid);
+		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
 			guild.guildChat(name, cid, msg);
 		}
 	}
 
+	@Override
 	public void changeRank(final int gid, final int cid, final MemberRank newRank) throws RemoteException {
-		final Guild guild = guilds.get(gid);
+		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
 			guild.changeRank(cid, newRank);
 		}
 	}
 
+	@Override
 	public void expelMember(final GuildMember initiator, final int cid) throws RemoteException {
-		final Guild guild = guilds.get(initiator.getGuildId());
+		final Guild guild = this.guilds.get(initiator.getGuildId());
 		if (guild != null) {
 			guild.expelMember(initiator, cid);
 		}
 	}
 
+	@Override
 	public void setGuildNotice(final int gid, final String notice) throws RemoteException {
-		final Guild guild = guilds.get(gid);
+		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
 			guild.setGuildNotice(notice);
 		}
 	}
 
-	public void updateGuildMemberLevel(int guildId, int characterId, int level) throws RemoteException {
-		final Guild guild = guilds.get(guildId);
+	@Override
+	public void updateGuildMemberLevel(final int guildId, final int characterId, final int level) throws RemoteException {
+		final Guild guild = this.guilds.get(guildId);
 		if (guild != null) {
 			guild.updateMemberLevel(characterId, level);
 		}
 	}
 
-	public void updateGuildMemberJob(int guildId, int characterId, int jobId) throws RemoteException {
-		final Guild guild = guilds.get(guildId);
+	@Override
+	public void updateGuildMemberJob(final int guildId, final int characterId, final int jobId) throws RemoteException {
+		final Guild guild = this.guilds.get(guildId);
 		if (guild != null) {
 			guild.updateMemberJob(characterId, jobId);
 		}
 	}
 
+	@Override
 	public void changeRankTitle(final int gid, final String[] ranks) throws RemoteException {
-		final Guild guild = guilds.get(gid);
+		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
 			guild.changeRankTitle(ranks);
 		}
 	}
 
+	@Override
 	public void setGuildEmblem(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) throws RemoteException {
-		final Guild guild = guilds.get(gid);
+		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
 			guild.setGuildEmblem(bg, bgcolor, logo, logocolor);
 		}
 	}
 
+	@Override
 	public void disbandGuild(final int guildId) throws RemoteException {
-		guildMutex.lock();
+		this.guildMutex.lock();
 		try {
-			guilds.get(guildId).disbandGuild();
-			guilds.remove(guildId);
+			this.guilds.get(guildId).disbandGuild();
+			this.guilds.remove(guildId);
 		} finally {
-			guildMutex.unlock();
+			this.guildMutex.unlock();
 		}
 	}
 
+	@Override
 	public final boolean increaseGuildCapacity(final int guildId) throws RemoteException {
-		final Guild guild = guilds.get(guildId);
+		final Guild guild = this.guilds.get(guildId);
 		if (guild != null) {
 			return guild.increaseCapacity();
 		}
 		return false;
 	}
 
+	@Override
 	public void gainGP(final int guildId, final int amount) throws RemoteException {
-		final Guild guild = guilds.get(guildId);
+		final Guild guild = this.guilds.get(guildId);
 		if (guild != null) {
 			guild.gainGuildPoints(amount);
 		}
 	}
 
+	@Override
 	public final Messenger createMessenger(final MessengerMember chrfor) throws RemoteException {
-		final int messengerid = runningMessengerId.getAndIncrement();
+		final int messengerid = this.runningMessengerId.getAndIncrement();
 		final Messenger messenger = new Messenger(messengerid, chrfor);
-		messengers.put(messenger.getId(), messenger);
+		this.messengers.put(messenger.getId(), messenger);
 		return messenger;
 	}
 
+	@Override
 	public final Messenger getMessenger(final int messengerid) throws RemoteException {
-		return messengers.get(messengerid);
+		return this.messengers.get(messengerid);
 	}
 
+	@Override
 	public final PlayerBuffStorage getPlayerBuffStorage() throws RemoteException {
-		return buffStorage;
+		return this.buffStorage;
 	}
 }

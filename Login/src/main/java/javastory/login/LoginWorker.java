@@ -1,34 +1,35 @@
 package javastory.login;
 
-import com.google.common.collect.Lists;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.server.TimerManager;
 import javastory.tools.LogUtil;
 
+import com.google.common.collect.Lists;
+
 
 public class LoginWorker {
 
     private static class AccountIpEntry {
-        private int AccountId;
-        private String IpAddress;
+        private final int AccountId;
+        private final String IpAddress;
         
-        public AccountIpEntry(int id, String entry) {
+        public AccountIpEntry(final int id, final String entry) {
             this.AccountId = id;
             this.IpAddress = entry;
         }
 
         public int getAccountId() {
-            return AccountId;
+            return this.AccountId;
         }
 
         public String getIpAddress() {
-            return IpAddress;
+            return this.IpAddress;
         }
     }
     
@@ -50,7 +51,7 @@ public class LoginWorker {
             mutex.lock();
             try {
                 final String time = LogUtil.CurrentReadable_Time();
-                for (AccountIpEntry logentry : ACCOUNT_IP_LOG) {
+                for (final AccountIpEntry logentry : ACCOUNT_IP_LOG) {
                     sb.append("AccountId : ");
                     sb.append(logentry.getAccountId());
                     sb.append(", IP : ");
@@ -71,7 +72,8 @@ public class LoginWorker {
         c.write(LoginPacket.getAuthSuccessRequest(c));
         c.setIdleTask(TimerManager.getInstance().schedule(new Runnable() {
 
-            public void run() {
+            @Override
+			public void run() {
                 c.disconnect();
             }
         }, 10 * 60 * 10000));
@@ -88,11 +90,11 @@ public class LoginWorker {
                     c.write(LoginPacket.getLoginFailed(AuthReplyCode.TOO_MANY_CONNECTIONS));
                     return;
                 }
-                for (Entry<Integer, Integer> entry : channelLoad.entrySet()) {
+                for (final Entry<Integer, Integer> entry : channelLoad.entrySet()) {
                     final int load = Math.min(1200, entry.getValue());
                     loginServer.setLoad(entry.getKey(), load);
                 }
-            } catch (RemoteException ex) {
+            } catch (final RemoteException ex) {
                 LoginServer.getInstance().pingWorld();
             }
         }

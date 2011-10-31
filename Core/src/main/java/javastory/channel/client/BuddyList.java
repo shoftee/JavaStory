@@ -36,21 +36,21 @@ import javastory.tools.packets.ChannelPackets;
 
 public class BuddyList implements Serializable {
 	private static final long serialVersionUID = 1413738569L;
-	private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<>();
+	private final Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<>();
 	private int capacity;
-	private Deque<SimpleCharacterInfo> pendingRequests = new LinkedList<>();
+	private final Deque<SimpleCharacterInfo> pendingRequests = new LinkedList<>();
 
-	public BuddyList(int capacity) {
+	public BuddyList(final int capacity) {
 		super();
 		this.capacity = capacity;
 	}
 
-	public boolean contains(int characterId) {
-		return buddies.containsKey(Integer.valueOf(characterId));
+	public boolean contains(final int characterId) {
+		return this.buddies.containsKey(Integer.valueOf(characterId));
 	}
 
-	public boolean containsVisible(int characterId) {
-		BuddyListEntry ble = buddies.get(characterId);
+	public boolean containsVisible(final int characterId) {
+		final BuddyListEntry ble = this.buddies.get(characterId);
 		if (ble == null) {
 			return false;
 		}
@@ -58,20 +58,20 @@ public class BuddyList implements Serializable {
 	}
 
 	public int getCapacity() {
-		return capacity;
+		return this.capacity;
 	}
 
-	public void setCapacity(int capacity) {
+	public void setCapacity(final int capacity) {
 		this.capacity = capacity;
 	}
 
-	public BuddyListEntry get(int characterId) {
-		return buddies.get(Integer.valueOf(characterId));
+	public BuddyListEntry get(final int characterId) {
+		return this.buddies.get(Integer.valueOf(characterId));
 	}
 
-	public BuddyListEntry get(String characterName) {
-		String lowerCaseName = characterName.toLowerCase();
-		for (BuddyListEntry ble : buddies.values()) {
+	public BuddyListEntry get(final String characterName) {
+		final String lowerCaseName = characterName.toLowerCase();
+		for (final BuddyListEntry ble : this.buddies.values()) {
 			if (ble.getName().toLowerCase().equals(lowerCaseName)) {
 				return ble;
 			}
@@ -79,26 +79,26 @@ public class BuddyList implements Serializable {
 		return null;
 	}
 
-	public void put(BuddyListEntry entry) {
-		buddies.put(Integer.valueOf(entry.getCharacterId()), entry);
+	public void put(final BuddyListEntry entry) {
+		this.buddies.put(Integer.valueOf(entry.getCharacterId()), entry);
 	}
 
-	public void remove(int characterId) {
-		buddies.remove(Integer.valueOf(characterId));
+	public void remove(final int characterId) {
+		this.buddies.remove(Integer.valueOf(characterId));
 	}
 
 	public Collection<BuddyListEntry> getBuddies() {
-		return buddies.values();
+		return this.buddies.values();
 	}
 
 	public boolean isFull() {
-		return buddies.size() >= capacity;
+		return this.buddies.size() >= this.capacity;
 	}
 
 	public int[] getBuddyIds() {
-		int buddyIds[] = new int[buddies.size()];
+		final int buddyIds[] = new int[this.buddies.size()];
 		int i = 0;
-		for (BuddyListEntry ble : buddies.values()) {
+		for (final BuddyListEntry ble : this.buddies.values()) {
 			buddyIds[i++] = ble.getCharacterId();
 		}
 		return buddyIds;
@@ -111,26 +111,26 @@ public class BuddyList implements Serializable {
 			buddyid = qs.getKey();
 			pair = qs.getValue();
 			if (!pair) {
-				pendingRequests.push(buddyid);
+				this.pendingRequests.push(buddyid);
 			} else {
-				put(new BuddyListEntry(buddyid.getName(), buddyid.getId(), "ETC", -1, true, buddyid.getLevel(), buddyid.getJob()));
+				this.put(new BuddyListEntry(buddyid.getName(), buddyid.getId(), "ETC", -1, true, buddyid.getLevel(), buddyid.getJob()));
 			}
 		}
 	}
 
-	public void loadFromDb(int characterId) throws SQLException {
-		Connection con = Database.getConnection();
+	public void loadFromDb(final int characterId) throws SQLException {
+		final Connection con = Database.getConnection();
 		PreparedStatement ps = con
 			.prepareStatement("SELECT b.buddyid, b.pending, c.name as buddyname, c.job as buddyjob, c.level as buddylevel, b.groupname FROM buddies as b, characters as c WHERE c.id = b.buddyid AND b.characterid = ?");
 		ps.setInt(1, characterId);
-		ResultSet rs = ps.executeQuery();
+		final ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			int buddyid = rs.getInt("buddyid");
-			String buddyname = rs.getString("buddyname");
+			final int buddyid = rs.getInt("buddyid");
+			final String buddyname = rs.getString("buddyname");
 			if (rs.getInt("pending") == 1) {
-				pendingRequests.push(new SimpleCharacterInfo(buddyid, buddyname, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
+				this.pendingRequests.push(new SimpleCharacterInfo(buddyid, buddyname, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
 			} else {
-				put(new BuddyListEntry(buddyname, buddyid, rs.getString("groupname"), -1, true, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
+				this.put(new BuddyListEntry(buddyname, buddyid, rs.getString("groupname"), -1, true, rs.getInt("buddylevel"), rs.getInt("buddyjob")));
 			}
 		}
 		rs.close();
@@ -143,15 +143,15 @@ public class BuddyList implements Serializable {
 	}
 
 	public SimpleCharacterInfo pollPendingRequest() {
-		return pendingRequests.pollLast();
+		return this.pendingRequests.pollLast();
 	}
 
-	public void addBuddyRequest(ChannelClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
-		put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
-		if (pendingRequests.isEmpty()) {
+	public void addBuddyRequest(final ChannelClient c, final int cidFrom, final String nameFrom, final int channelFrom, final int levelFrom, final int jobFrom) {
+		this.put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false, levelFrom, jobFrom));
+		if (this.pendingRequests.isEmpty()) {
 			c.write(ChannelPackets.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
 		} else {
-			pendingRequests.push(new SimpleCharacterInfo(cidFrom, nameFrom, levelFrom, jobFrom));
+			this.pendingRequests.push(new SimpleCharacterInfo(cidFrom, nameFrom, levelFrom, jobFrom));
 		}
 	}
 }

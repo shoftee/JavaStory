@@ -60,7 +60,7 @@ public class CustomEncryption {
 			remember = current;
 
 			current = rollRight(current, lengthByte);
-			current = (byte) (~current);
+			current = (byte) ~current;
 			current += 0x48;
 			data[i] = current;
 
@@ -80,8 +80,8 @@ public class CustomEncryption {
 	public static void decrypt(final byte[] data) {
 		checkNotNull(data);
 
-		int length = data.length;
-		byte truncatedLength = (byte) length;
+		final int length = data.length;
+		final byte truncatedLength = (byte) length;
 		for (int j = 1; j <= 6; j++) {
 			if ((j & 1) != 0) {
 				oddDecryptTransform(data, length, truncatedLength);
@@ -97,7 +97,7 @@ public class CustomEncryption {
 			byte current = rollLeft(data[i], 3);
 			current ^= 0x13;
 
-			byte tmp = current;
+			final byte tmp = current;
 			current ^= remember;
 			remember = tmp;
 
@@ -113,10 +113,10 @@ public class CustomEncryption {
 		for (int i = 0; i < length; i++) {
 			byte current = data[i];
 			current -= 0x48;
-			current = (byte) (~current);
+			current = (byte) ~current;
 			current = rollLeft(current, lengthByte);
 
-			byte tmp = current;
+			final byte tmp = current;
 			current ^= remember;
 			remember = tmp;
 
@@ -127,13 +127,13 @@ public class CustomEncryption {
 		}
 	}
 
-	private static byte rollLeft(byte b, int count) {
-		int tmp = b << (count & 7);
-		return (byte) (tmp | (tmp >>> 8));
+	private static byte rollLeft(final byte b, final int count) {
+		final int tmp = b << (count & 7);
+		return (byte) (tmp | tmp >>> 8);
 	}
 
-	private static byte rollRight(byte b, int count) {
-		int tmp = b << (8 - (count & 7));
-		return (byte) (tmp | (tmp >>> 8));
+	private static byte rollRight(final byte b, final int count) {
+		final int tmp = b << 8 - (count & 7);
+		return (byte) (tmp | tmp >>> 8);
 	}
 }

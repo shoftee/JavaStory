@@ -29,15 +29,15 @@ public final class WzDataProviderFactory {
 	private WzDataProviderFactory() {
 	}
 
-	private static WzDataProvider getWZ(File file) {
+	private static WzDataProvider getWZ(final File file) {
 		return new XmlWzFile(file);
 	}
 
-	public static WzDataProvider getDataProvider(String filename) {
+	public static WzDataProvider getDataProvider(final String filename) {
 		return getWZ(fileInWZPath(filename));
 	}
 
-	private static File fileInWZPath(String filename) {
+	private static File fileInWZPath(final String filename) {
 		return new File(wzPath, filename);
 	}
 }

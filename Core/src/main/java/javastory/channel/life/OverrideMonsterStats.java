@@ -22,26 +22,26 @@ public class OverrideMonsterStats {
 	private int exp, hp, mp;
 
 	public int getExp() {
-		return exp;
+		return this.exp;
 	}
 
-	public void setOExp(int exp) {
+	public void setOExp(final int exp) {
 		this.exp = exp;
 	}
 
 	public int getHp() {
-		return hp;
+		return this.hp;
 	}
 
-	public void setOHp(int hp) {
+	public void setOHp(final int hp) {
 		this.hp = hp;
 	}
 
 	public int getMp() {
-		return mp;
+		return this.mp;
 	}
 
-	public void setOMp(int mp) {
+	public void setOMp(final int mp) {
 		this.mp = mp;
 	}
 }

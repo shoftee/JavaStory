@@ -49,10 +49,10 @@ public final class CollectionUtil {
 	 *            The number of items to copy.
 	 * @return The copied list.
 	 */
-	public static <T> List<T> copyFirst(List<T> list, int count) {
-		List<T> ret = new ArrayList<>(list.size() < count ? list.size() : count);
+	public static <T> List<T> copyFirst(final List<T> list, final int count) {
+		final List<T> ret = new ArrayList<>(list.size() < count ? list.size() : count);
 		int i = 0;
-		for (T elem : list) {
+		for (final T elem : list) {
 			ret.add(elem);
 			if (i++ > count) {
 				break;

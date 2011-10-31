@@ -20,8 +20,11 @@ package javastory.channel.client;
 
 public class BuddyListEntry {
 
-	private String name, group;
-	private int characterId, channelId, level, job;
+	private final String name, group;
+	private final int characterId;
+	private int channelId;
+	private final int level;
+	private final int job;
 	private boolean isVisible;
 
 	/**
@@ -36,7 +39,7 @@ public class BuddyListEntry {
 	 * @param visible
 	 *            Whether the buddy character is visible by the player or not.
 	 */
-	public BuddyListEntry(String name, int characterId, String group, int channel, boolean visible, int level, int job) {
+	public BuddyListEntry(final String name, final int characterId, final String group, final int channel, final boolean visible, final int level, final int job) {
 		super();
 		this.name = name;
 		this.characterId = characterId;
@@ -52,70 +55,70 @@ public class BuddyListEntry {
 	 *         returns -1.
 	 */
 	public int getChannel() {
-		return channelId;
+		return this.channelId;
 	}
 
-	public void setChannel(int channel) {
+	public void setChannel(final int channel) {
 		this.channelId = channel;
 	}
 
 	public boolean isOnline() {
-		return channelId >= 0;
+		return this.channelId >= 0;
 	}
 
 	public void setOffline() {
-		channelId = -1;
+		this.channelId = -1;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getCharacterId() {
-		return characterId;
+		return this.characterId;
 	}
 
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 		this.isVisible = visible;
 	}
 
 	public boolean isVisible() {
-		return isVisible;
+		return this.isVisible;
 	}
 
 	public String getGroup() {
-		return group;
+		return this.group;
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public int getJob() {
-		return job;
+		return this.job;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + characterId;
+		result = prime * result + this.characterId;
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final BuddyListEntry other = (BuddyListEntry) obj;
-		if (characterId != other.characterId) {
+		if (this.characterId != other.characterId) {
 			return false;
 		}
 		return true;

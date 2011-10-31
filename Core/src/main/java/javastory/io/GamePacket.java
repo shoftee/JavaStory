@@ -39,9 +39,9 @@ public final class GamePacket implements Externalizable {
 	 *            the data for the constructed packet.
 	 * @return the new GamePacket instance.
 	 */
-	public static GamePacket copyFrom(byte[] bytes) {
-		int length = bytes.length;
-		byte[] copy = new byte[length];
+	public static GamePacket copyFrom(final byte[] bytes) {
+		final int length = bytes.length;
+		final byte[] copy = new byte[length];
 		System.arraycopy(bytes, 0, copy, 0, length);
 		return new GamePacket(copy);
 	}
@@ -54,7 +54,7 @@ public final class GamePacket implements Externalizable {
 	 *            the data for the constructed packet.
 	 * @return the new GamePacket instance.
 	 */
-	public static GamePacket wrapperOf(byte[] bytes) {
+	public static GamePacket wrapperOf(final byte[] bytes) {
 		return new GamePacket(bytes);
 	}
 
@@ -63,7 +63,7 @@ public final class GamePacket implements Externalizable {
 	private GamePacket() {
 	}
 
-	private GamePacket(byte[] bytes) {
+	private GamePacket(final byte[] bytes) {
 		this.bytes = bytes;
 	}
 
@@ -73,7 +73,7 @@ public final class GamePacket implements Externalizable {
 	 * @return the bytes of this packet.
 	 */
 	public byte[] getBytes() {
-		return bytes;
+		return this.bytes;
 	}
 
 	/**
@@ -83,14 +83,14 @@ public final class GamePacket implements Externalizable {
 	 */
 	public byte[] getCopy() {
 		final int length = this.bytes.length;
-		byte[] copy = new byte[length];
+		final byte[] copy = new byte[length];
 		System.arraycopy(this.bytes, 0, copy, 0, length);
 		return copy;
 	}
 
 	@Override
-	public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
-		int length = input.read();
+	public void readExternal(final ObjectInput input) throws IOException, ClassNotFoundException {
+		final int length = input.read();
 
 		this.bytes = new byte[length];
 
@@ -101,7 +101,7 @@ public final class GamePacket implements Externalizable {
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput output) throws IOException {
+	public void writeExternal(final ObjectOutput output) throws IOException {
 		output.write(this.bytes.length);
 		// TODO Auto-generated method stub
 		output.write(this.bytes);

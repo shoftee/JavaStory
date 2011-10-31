@@ -45,15 +45,15 @@ public class PacketBuilder {
 	 * @throws IllegalArgumentException
 	 *             if <code>initialCapacity</code> is non-positive.
 	 */
-	public PacketBuilder(int initialCapacity) {
+	public PacketBuilder(final int initialCapacity) {
 		Preconditions.checkArgument(initialCapacity > 0);
 
-		buffers = Lists.newLinkedList();
-		currentCapacity = initialCapacity;
-		nextCapacity = initialCapacity;
+		this.buffers = Lists.newLinkedList();
+		this.currentCapacity = initialCapacity;
+		this.nextCapacity = initialCapacity;
 
-		currentBuffer = new byte[initialCapacity];
-		buffers.add(currentBuffer);
+		this.currentBuffer = new byte[initialCapacity];
+		this.buffers.add(this.currentBuffer);
 	}
 
 	/**
@@ -63,13 +63,13 @@ public class PacketBuilder {
 	 * The method makes the new buffer the current one.
 	 */
 	private void allocateNext() {
-		currentBuffer = new byte[currentCapacity];
-		currentPosition = 0;
+		this.currentBuffer = new byte[this.currentCapacity];
+		this.currentPosition = 0;
 
-		buffers.add(currentBuffer);
+		this.buffers.add(this.currentBuffer);
 
-		currentCapacity = nextCapacity;
-		nextCapacity *= 2;
+		this.currentCapacity = this.nextCapacity;
+		this.nextCapacity *= 2;
 	}
 
 	/**
@@ -79,14 +79,14 @@ public class PacketBuilder {
 	 * @param b
 	 *            the byte to write.
 	 */
-	private void writeByteInternal(byte b) {
-		if (currentPosition == currentCapacity) {
-			allocateNext();
+	private void writeByteInternal(final byte b) {
+		if (this.currentPosition == this.currentCapacity) {
+			this.allocateNext();
 		}
 
-		currentPosition++;
-		globalPosition++;
-		currentBuffer[currentPosition] = b;
+		this.currentPosition++;
+		this.globalPosition++;
+		this.currentBuffer[this.currentPosition] = b;
 	}
 
 	/**
@@ -95,25 +95,25 @@ public class PacketBuilder {
 	 * @param bytes
 	 *            the byte array to write.
 	 */
-	private void writeArrayInternal(byte[] bytes) {
+	private void writeArrayInternal(final byte[] bytes) {
 		int written = 0;
 		int remaining = bytes.length;
 		while (true) {
-			int free = currentCapacity - currentPosition;
+			final int free = this.currentCapacity - this.currentPosition;
 			if (free != 0) {
 				// We write as much as we can.
 				// current position in source : written
 				// current position in destination: this.currentPosition
 				// bytes to write: min(remaining, free)
-				int payload = Math.min(free, remaining);
-				System.arraycopy(bytes, written, currentBuffer, currentPosition, payload);
+				final int payload = Math.min(free, remaining);
+				System.arraycopy(bytes, written, this.currentBuffer, this.currentPosition, payload);
 				written += payload;
 				remaining -= payload;
 			}
 			if (remaining == 0) {
 				return;
 			}
-			allocateNext();
+			this.allocateNext();
 		}
 	}
 
@@ -123,27 +123,27 @@ public class PacketBuilder {
 	 * @param number
 	 * @param byteCount
 	 */
-	private void writeReverse(long number, int byteCount) {
+	private void writeReverse(long number, final int byteCount) {
 		for (int i = 0; i < byteCount; i++) {
-			byte b = (byte) (number & 0xFF);
-			writeByteInternal(b);
+			final byte b = (byte) (number & 0xFF);
+			this.writeByteInternal(b);
 			number >>>= 8;
 		}
 	}
 
 	public GamePacket getPacket() {
-		byte[] total = new byte[globalPosition];
+		final byte[] total = new byte[this.globalPosition];
 		int index = 0;
 		// We take all the buffers except the current one.
-		for (int i = 0; i < buffers.size() - 1; i++) {
+		for (int i = 0; i < this.buffers.size() - 1; i++) {
 			// Get the i-th buffer.
-			byte[] buffer = buffers.get(i);
+			final byte[] buffer = this.buffers.get(i);
 			// copy its contents to the big array.
 			System.arraycopy(buffer, 0, total, index, buffer.length);
 			index += buffer.length;
 		}
 		// Finally copy the current buffer separately (it may be incomplete)
-		System.arraycopy(currentBuffer, 0, total, index, currentPosition);
+		System.arraycopy(this.currentBuffer, 0, total, index, this.currentPosition);
 
 		return GamePacket.wrapperOf(total);
 	}
@@ -154,9 +154,9 @@ public class PacketBuilder {
 	 * @param count
 	 *            the number of null bytes to write.
 	 */
-	public void writeZeroBytes(int count) {
+	public void writeZeroBytes(final int count) {
 		for (int i = 0; i < count; i++) {
-			writeByteInternal((byte) 0);
+			this.writeByteInternal((byte) 0);
 		}
 	}
 
@@ -166,9 +166,9 @@ public class PacketBuilder {
 	 * @param bytes
 	 *            the array to write.
 	 */
-	public void writeBytes(byte[] bytes) {
-		for (int i = 0; i < bytes.length; i++) {
-			writeByteInternal(bytes[i]);
+	public void writeBytes(final byte[] bytes) {
+		for (final byte b : bytes) {
+			this.writeByteInternal(b);
 		}
 	}
 
@@ -178,8 +178,8 @@ public class PacketBuilder {
 	 * @param b
 	 *            the byte to write.
 	 */
-	public void writeByte(byte b) {
-		writeByteInternal(b);
+	public void writeByte(final byte b) {
+		this.writeByteInternal(b);
 	}
 
 	/**
@@ -189,8 +189,8 @@ public class PacketBuilder {
 	 * @param bool
 	 *            The boolean value to write.
 	 */
-	public void writeAsByte(boolean bool) {
-		writeAsByte(bool ? 1 : 0);
+	public void writeAsByte(final boolean bool) {
+		this.writeAsByte(bool ? 1 : 0);
 	}
 
 	/**
@@ -200,8 +200,8 @@ public class PacketBuilder {
 	 * @param bool
 	 *            The boolean value to write.
 	 */
-	public void writeAsShort(boolean bool) {
-		writeAsShort(bool ? 1 : 0);
+	public void writeAsShort(final boolean bool) {
+		this.writeAsShort(bool ? 1 : 0);
 	}
 
 	/**
@@ -210,8 +210,8 @@ public class PacketBuilder {
 	 * @param number
 	 *            the number to write.
 	 */
-	public void writeAsByte(int number) {
-		writeByteInternal((byte) number);
+	public void writeAsByte(final int number) {
+		this.writeByteInternal((byte) number);
 	}
 
 	/**
@@ -220,8 +220,8 @@ public class PacketBuilder {
 	 * @param number
 	 *            the number to write.
 	 */
-	public void writeAsShort(int number) {
-		writeReverse(number, 2);
+	public void writeAsShort(final int number) {
+		this.writeReverse(number, 2);
 	}
 
 	/**
@@ -230,8 +230,8 @@ public class PacketBuilder {
 	 * @param number
 	 *            the number to write.
 	 */
-	public void writeInt(int number) {
-		writeReverse(number, 4);
+	public void writeInt(final int number) {
+		this.writeReverse(number, 4);
 	}
 
 	/**
@@ -240,8 +240,8 @@ public class PacketBuilder {
 	 * @param number
 	 *            the number to write.
 	 */
-	public void writeLong(long number) {
-		writeReverse(number, 8);
+	public void writeLong(final long number) {
+		this.writeReverse(number, 8);
 	}
 
 	/**
@@ -250,8 +250,8 @@ public class PacketBuilder {
 	 * @param string
 	 *            the string to write.
 	 */
-	private void writeString(String string) {
-		writeArrayInternal(string.getBytes(ASCII));
+	private void writeString(final String string) {
+		this.writeArrayInternal(string.getBytes(ASCII));
 	}
 
 	/**
@@ -266,13 +266,13 @@ public class PacketBuilder {
 	 *             if the length of the given string is greater than
 	 *             <code>totalLength</code>.
 	 */
-	public void writePaddedString(String string, int totalLength) {
+	public void writePaddedString(final String string, final int totalLength) {
 		final int length = string.length();
 		Preconditions.checkArgument(length <= totalLength);
 
-		writeString(string);
+		this.writeString(string);
 		for (int i = length; i < totalLength; i++) {
-			writeAsByte(0);
+			this.writeAsByte(0);
 		}
 	}
 
@@ -282,9 +282,9 @@ public class PacketBuilder {
 	 * @param string
 	 *            the string to write.
 	 */
-	public void writeLengthPrefixedString(String string) {
-		writeAsShort((short) string.length());
-		writeString(string);
+	public void writeLengthPrefixedString(final String string) {
+		this.writeAsShort((short) string.length());
+		this.writeString(string);
 	}
 
 	/**
@@ -293,9 +293,9 @@ public class PacketBuilder {
 	 * @param string
 	 *            the string to write.
 	 */
-	public void writeNullTerminatedString(String string) {
-		writeString(string);
-		writeAsByte(0);
+	public void writeNullTerminatedString(final String string) {
+		this.writeString(string);
+		this.writeAsByte(0);
 	}
 
 	/**
@@ -304,12 +304,12 @@ public class PacketBuilder {
 	 * @param point
 	 *            the point to write.
 	 */
-	public void writeVector(Point point) {
-		writeAsShort((short) point.x);
-		writeAsShort((short) point.y);
+	public void writeVector(final Point point) {
+		this.writeAsShort((short) point.x);
+		this.writeAsShort((short) point.y);
 	}
 
-	public void writeAsFiletime(long unixtime) {
-		writeLong(FiletimeUtil.getFiletime(unixtime));
+	public void writeAsFiletime(final long unixtime) {
+		this.writeLong(FiletimeUtil.getFiletime(unixtime));
 	}
 }

@@ -21,21 +21,21 @@ public final class AutobanManager implements Runnable {
 		public int acc;
 		public int points;
 
-		public ExpirationEntry(long time, int acc, int points) {
+		public ExpirationEntry(final long time, final int acc, final int points) {
 			this.time = time;
 			this.acc = acc;
 			this.points = points;
 		}
 
 		@Override
-		public int compareTo(AutobanManager.ExpirationEntry o) {
-			return (int) (time - o.time);
+		public int compareTo(final AutobanManager.ExpirationEntry o) {
+			return (int) (this.time - o.time);
 		}
 	}
 
-	private Map<Integer, Integer> points = new HashMap<>();
-	private Map<Integer, List<String>> reasons = new HashMap<>();
-	private Set<ExpirationEntry> expirations = new TreeSet<>();
+	private final Map<Integer, Integer> points = new HashMap<>();
+	private final Map<Integer, List<String>> reasons = new HashMap<>();
+	private final Set<ExpirationEntry> expirations = new TreeSet<>();
 	private static final int AUTOBAN_POINTS = 1000;
 	private static AutobanManager instance = new AutobanManager();
 
@@ -48,7 +48,7 @@ public final class AutobanManager implements Runnable {
 			c.getPlayer().sendNotice(5, "[WARNING] A/b triggled : " + reason);
 			return;
 		}
-		addPoints(c, AUTOBAN_POINTS, 0, reason);
+		this.addPoints(c, AUTOBAN_POINTS, 0, reason);
 	}
 
 	public final synchronized void addPoints(final ChannelClient c, final int points, final long expiration, final String reason) {
@@ -82,7 +82,7 @@ public final class AutobanManager implements Runnable {
 			sb.append(" (IP ");
 			sb.append(c.getSessionIP());
 			sb.append("): ");
-			for (final String s : reasons.get(acc)) {
+			for (final String s : this.reasons.get(acc)) {
 				sb.append(s);
 				sb.append(", ");
 			}
@@ -99,7 +99,7 @@ public final class AutobanManager implements Runnable {
 			c.disconnect();
 		} else {
 			if (expiration > 0) {
-				expirations.add(new ExpirationEntry(System.currentTimeMillis() + expiration, acc, points));
+				this.expirations.add(new ExpirationEntry(System.currentTimeMillis() + expiration, acc, points));
 			}
 		}
 	}
@@ -107,7 +107,7 @@ public final class AutobanManager implements Runnable {
 	@Override
 	public final void run() {
 		final long now = System.currentTimeMillis();
-		for (final ExpirationEntry e : expirations) {
+		for (final ExpirationEntry e : this.expirations) {
 			if (e.time <= now) {
 				this.points.put(e.acc, this.points.get(e.acc) - e.points);
 			} else {

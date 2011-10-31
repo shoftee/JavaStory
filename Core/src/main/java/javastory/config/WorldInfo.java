@@ -15,7 +15,7 @@ public class WorldInfo extends EndpointInfo {
 	private final int mesoRate;
 	private final int itemRate;
 
-	public WorldInfo(int id, String name, int expRate, int mesoRate, int itemRate, String host, int port) {
+	public WorldInfo(final int id, final String name, final int expRate, final int mesoRate, final int itemRate, final String host, final int port) {
 		super(host, port);
 
 		this.worldId = id;
@@ -27,22 +27,22 @@ public class WorldInfo extends EndpointInfo {
 	}
 
 	public int getWorldId() {
-		return worldId;
+		return this.worldId;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getExpRate() {
-		return expRate;
+		return this.expRate;
 	}
 
 	public int getMesoRate() {
-		return mesoRate;
+		return this.mesoRate;
 	}
 
 	public int getItemRate() {
-		return itemRate;
+		return this.itemRate;
 	}
 }

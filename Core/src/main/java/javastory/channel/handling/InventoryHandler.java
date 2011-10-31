@@ -40,9 +40,9 @@ import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.ItemConsumeType;
 import javastory.game.ItemFlag;
+import javastory.game.ScrollResult;
 import javastory.game.Stat;
 import javastory.game.StatValue;
-import javastory.game.IEquip.ScrollResult;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
 import javastory.game.data.RewardItemInfo;
@@ -78,11 +78,11 @@ public class InventoryHandler {
 
 	public static void handleItemSort(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 		reader.skip(4);
-		byte mode = reader.readByte();
+		final byte mode = reader.readByte();
 		final Inventory inventory = c.getPlayer().getInventoryByTypeByte(mode);
 		boolean sorted = false;
 		while (!sorted) {
-			byte freeSlot = (byte) inventory.getNextFreeSlot();
+			final byte freeSlot = (byte) inventory.getNextFreeSlot();
 			if (freeSlot != -1) {
 				byte itemSlot = -1;
 				for (byte i = (byte) (freeSlot + 1); i <= 100; i++) {
@@ -133,13 +133,13 @@ public class InventoryHandler {
 				final Pair<Integer, List<RewardItemInfo>> rewards = ii.getRewardItem(itemId);
 
 				if (rewards != null) {
-					for (RewardItemInfo reward : rewards.getRight()) {
+					for (final RewardItemInfo reward : rewards.getRight()) {
 						if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) { // Total
 																					// prob
 							if (GameConstants.getInventoryType(reward.itemid) == InventoryType.EQUIP) {
 								final IItem item = ii.getEquipById(reward.itemid);
 								if (reward.period != -1) {
-									item.setExpiration(System.currentTimeMillis() + (reward.period * 60 * 60 * 10L));
+									item.setExpiration(System.currentTimeMillis() + reward.period * 60 * 60 * 10L);
 								}
 								InventoryManipulator.addbyItem(c, item);
 							} else {
@@ -243,11 +243,11 @@ public class InventoryHandler {
 			}
 		}
 		final Inventory useInventory = chr.getUseInventory();
-		IItem scroll = useInventory.getItem(slot);
+		final IItem scroll = useInventory.getItem(slot);
 		IItem wscroll = null;
 
 		// Anti cheat and validation
-		List<Integer> scrollReqs = ii.getScrollReqs(scroll.getItemId());
+		final List<Integer> scrollReqs = ii.getScrollReqs(scroll.getItemId());
 		if (scrollReqs.size() > 0 && !scrollReqs.contains(toScroll.getItemId())) {
 			c.write(ChannelPackets.getInventoryFull());
 			return;
@@ -280,15 +280,15 @@ public class InventoryHandler {
 		final IEquip scrolled = (IEquip) ii.scrollEquipWithId(toScroll, scroll.getItemId(), whiteScroll);
 		ScrollResult scrollSuccess;
 		if (scrolled == null) {
-			scrollSuccess = IEquip.ScrollResult.CURSE;
+			scrollSuccess = ScrollResult.CURSE;
 		} else if (scrolled.getLevel() > oldLevel) {
-			scrollSuccess = IEquip.ScrollResult.SUCCESS;
-		} else if ((GameConstants.isCleanSlate(scroll.getItemId()) && scrolled.getLevel() == oldLevel + 1)) {
-			scrollSuccess = IEquip.ScrollResult.SUCCESS;
-		} else if ((GameConstants.isSpecialScroll(scroll.getItemId()) && scrolled.getFlag() > oldFlag)) {
-			scrollSuccess = IEquip.ScrollResult.SUCCESS;
+			scrollSuccess = ScrollResult.SUCCESS;
+		} else if (GameConstants.isCleanSlate(scroll.getItemId()) && scrolled.getLevel() == oldLevel + 1) {
+			scrollSuccess = ScrollResult.SUCCESS;
+		} else if (GameConstants.isSpecialScroll(scroll.getItemId()) && scrolled.getFlag() > oldFlag) {
+			scrollSuccess = ScrollResult.SUCCESS;
 		} else {
-			scrollSuccess = IEquip.ScrollResult.FAIL;
+			scrollSuccess = ScrollResult.FAIL;
 		}
 
 		// Update
@@ -297,7 +297,7 @@ public class InventoryHandler {
 			InventoryManipulator.removeFromSlot(c, useInventory, wscroll.getPosition(), (short) 1, false, false);
 		}
 
-		if (scrollSuccess == IEquip.ScrollResult.CURSE) {
+		if (scrollSuccess == ScrollResult.CURSE) {
 			c.write(ChannelPackets.scrolledItem(scroll, toScroll, true));
 			if (dst < 0) {
 				equippedInventory.removeItem(toScroll.getPosition());
@@ -311,7 +311,7 @@ public class InventoryHandler {
 		chr.getMap().broadcastMessage(ChannelPackets.getScrollEffect(c.getPlayer().getId(), scrollSuccess, legendarySpirit));
 
 		// equipped item was scrolled and changed
-		if (dst < 0 && (scrollSuccess == IEquip.ScrollResult.SUCCESS || scrollSuccess == IEquip.ScrollResult.CURSE)) {
+		if (dst < 0 && (scrollSuccess == ScrollResult.SUCCESS || scrollSuccess == ScrollResult.CURSE)) {
 			chr.equipChanged();
 		}
 	}
@@ -331,7 +331,7 @@ public class InventoryHandler {
 			return;
 		}
 		boolean canuse = false, success = false;
-		int skill = 0, maxlevel = 0;
+		final int skill = 0, maxlevel = 0;
 
 		final int SuccessRate = skilldata.get("success");
 		final int ReqSkillLevel = skilldata.get("reqSkillLevel");
@@ -541,7 +541,7 @@ public class InventoryHandler {
 					return;
 				}
 				Monster ht;
-				int type = 0;
+				final int type = 0;
 
 				for (int i = 0; i < toSpawn.size(); i++) {
 					if (Randomizer.nextInt(99) <= toSpawn.get(i).Probability) {
@@ -606,7 +606,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastMessage(
 						ChannelPackets.getGachaponMega(c.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, (byte) 2));
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					ChannelServer.pingWorld();
 				}
 			}
@@ -656,7 +656,7 @@ public class InventoryHandler {
 				final ChannelCharacter victim = ChannelServer.getPlayerStorage().getCharacterByName(reader.readLengthPrefixedString());
 				if (victim != null && !victim.isGM()) {
 					if (!FieldLimitType.VipRock.check(ChannelServer.getMapFactory().getMap(victim.getMapId()).getFieldLimit())) {
-						if (itemId == 5041000 || (victim.getMapId() / 100000000) == (player.getMapId() / 100000000)) {
+						if (itemId == 5041000 || victim.getMapId() / 100000000 == player.getMapId() / 100000000) {
 							// Viprock or same continent
 							player.changeMap(victim.getMap(), victim.getMap().findClosestSpawnpoint(victim.getPosition()));
 							used = true;
@@ -667,7 +667,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5050000: { // AP Reset
-			List<StatValue> statupdate = new ArrayList<>(2);
+			final List<StatValue> statupdate = new ArrayList<>(2);
 			final int apto = reader.readInt();
 			final int apfrom = reader.readInt();
 
@@ -780,8 +780,8 @@ public class InventoryHandler {
 					if (job == 0) { // Beginner
 						maxhp += Randomizer.rand(8, 12);
 					} else if (job >= 100 && job <= 132) { // Warrior
-						ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += Randomizer.rand(20, 25);
 						if (improvingMaxHPLevel >= 1) {
 							maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
@@ -793,22 +793,22 @@ public class InventoryHandler {
 					} else if (job >= 400 && job <= 434) { // Thief
 						maxhp += Randomizer.rand(16, 20);
 					} else if (job >= 500 && job <= 522) { // Pirate
-						ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += 20;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
 					} else if (job >= 1100 && job <= 1111) { // Soul Master
-						ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += Randomizer.rand(36, 42);
 						if (improvingMaxHPLevel >= 1) {
 							maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
 					} else if (job >= 1200 && job <= 1211) { // Flame Wizard
 						maxhp += Randomizer.rand(15, 21);
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) { // Wind
+					} else if (job >= 1300 && job <= 1311 || job >= 1400 && job <= 1411) { // Wind
 																								// Breaker
 																								// and
 																								// Night
@@ -833,8 +833,8 @@ public class InventoryHandler {
 					} else if (job >= 100 && job <= 132) {
 						maxmp += Randomizer.rand(2, 4);
 					} else if (job >= 200 && job <= 232) {
-						ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
-						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
+						final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(18, 20);
 						if (improvingMaxMPLevel >= 1) {
 							maxmp += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
@@ -848,13 +848,13 @@ public class InventoryHandler {
 					} else if (job >= 1100 && job <= 1111) {
 						maxmp += Randomizer.rand(6, 9);
 					} else if (job >= 1200 && job <= 1211) {
-						ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
-						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
+						final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(33, 36);
 						if (improvingMaxMPLevel >= 1) {
 							maxmp += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 						}
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) {
+					} else if (job >= 1300 && job <= 1311 || job >= 1400 && job <= 1411) {
 						maxmp += Randomizer.rand(21, 24);
 					} else if (job >= 2000 && job <= 2112) {
 						maxmp += Randomizer.rand(4, 6);
@@ -905,8 +905,8 @@ public class InventoryHandler {
 						maxhp -= 12;
 					} else if (job >= 100 && job <= 132) {
 						// Warrior
-						ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 24;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
@@ -919,16 +919,16 @@ public class InventoryHandler {
 						maxhp -= 15;
 					} else if (job >= 500 && job <= 522) {
 						// Pirate
-						ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 15;
 						if (improvingMaxHPLevel > 0) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
 					} else if (job >= 1100 && job <= 1111) {
 						// Soul Master
-						ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
-						int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
+						final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
+						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 27;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp -= improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
@@ -936,7 +936,7 @@ public class InventoryHandler {
 					} else if (job >= 1200 && job <= 1211) {
 						// Flame Wizard
 						maxhp -= 12;
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) {
+					} else if (job >= 1300 && job <= 1311 || job >= 1400 && job <= 1411) {
 						// Wind	Breaker	and	Night Walker
 						maxhp -= 17;
 					} else if (job >= 2000 && job <= 2112) {
@@ -958,26 +958,26 @@ public class InventoryHandler {
 					} else if (job >= 100 && job <= 132) { // Warrior
 						maxmp -= 4;
 					} else if (job >= 200 && job <= 232) { // Magician
-						ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
-						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
+						final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp -= 20;
 						if (improvingMaxMPLevel >= 1) {
 							maxmp -= improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 						}
-					} else if ((job >= 500 && job <= 522) || (job >= 300 && job <= 322) || (job >= 400 && job <= 434)) { // Pirate,
+					} else if (job >= 500 && job <= 522 || job >= 300 && job <= 322 || job >= 400 && job <= 434) { // Pirate,
 																															// Bowman.
 																															// Thief
 						maxmp -= 10;
 					} else if (job >= 1100 && job <= 1111) { // Soul Master
 						maxmp -= 6;
 					} else if (job >= 1200 && job <= 1211) { // Flame Wizard
-						ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
-						int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
+						final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp -= 25;
 						if (improvingMaxMPLevel >= 1) {
 							maxmp -= improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 						}
-					} else if ((job >= 1300 && job <= 1311) || (job >= 1400 && job <= 1411)) { // Wind
+					} else if (job >= 1300 && job <= 1311 || job >= 1400 && job <= 1411) { // Wind
 																								// Breaker
 																								// and
 																								// Night
@@ -1007,16 +1007,16 @@ public class InventoryHandler {
 		case 5050002: // SP Reset (2nd job)
 		case 5050003: // SP Reset (3rd job)
 		case 5050004: { // SP Reset (4th job)
-			int skill1 = reader.readInt();
-			int skill2 = reader.readInt();
+			final int skill1 = reader.readInt();
+			final int skill2 = reader.readInt();
 
-			ISkill skillSPTo = SkillFactory.getSkill(skill1);
-			ISkill skillSPFrom = SkillFactory.getSkill(skill2);
+			final ISkill skillSPTo = SkillFactory.getSkill(skill1);
+			final ISkill skillSPFrom = SkillFactory.getSkill(skill2);
 
 			if (skillSPTo.isBeginnerSkill() || skillSPFrom.isBeginnerSkill()) {
 				break;
 			}
-			if ((player.getCurrentSkillLevel(skillSPTo) + 1 <= skillSPTo.getMaxLevel()) && player.getCurrentSkillLevel(skillSPFrom) > 0) {
+			if (player.getCurrentSkillLevel(skillSPTo) + 1 <= skillSPTo.getMaxLevel() && player.getCurrentSkillLevel(skillSPFrom) > 0) {
 				player.changeSkillLevel(skillSPFrom, (byte) (player.getCurrentSkillLevel(skillSPFrom) - 1), player.getMasterSkillLevel(skillSPFrom));
 				player.changeSkillLevel(skillSPTo, (byte) (player.getCurrentSkillLevel(skillSPTo) + 1), player.getMasterSkillLevel(skillSPTo));
 				used = true;
@@ -1100,7 +1100,7 @@ public class InventoryHandler {
 				byte flag = item.getFlag();
 				flag |= ItemFlag.LOCK.getValue();
 				item.setFlag(flag);
-				item.setExpiration(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000));
+				item.setExpiration(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
 
 				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
 				used = true;
@@ -1117,7 +1117,7 @@ public class InventoryHandler {
 				flag |= ItemFlag.LOCK.getValue();
 				item.setFlag(flag);
 
-				item.setExpiration(System.currentTimeMillis() + (30 * 24 * 60 * 60 * 1000));
+				item.setExpiration(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000);
 
 				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
 				used = true;
@@ -1134,7 +1134,7 @@ public class InventoryHandler {
 				flag |= ItemFlag.LOCK.getValue();
 				item.setFlag(flag);
 
-				item.setExpiration(System.currentTimeMillis() + (90 * 24 * 60 * 60 * 1000));
+				item.setExpiration(System.currentTimeMillis() + 90 * 24 * 60 * 60 * 1000);
 
 				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
 				used = true;
@@ -1181,7 +1181,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.tripleSmega(messages, ear, c.getChannelId()));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, triple megaphone");
 				}
 			} else {
@@ -1207,7 +1207,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(9, c.getChannelId(), sb.toString(), ear));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, heart megaphone");
 				}
 			} else {
@@ -1233,7 +1233,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(10, c.getChannelId(), sb.toString(), ear));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, skull megaphone");
 				}
 			} else {
@@ -1256,7 +1256,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.serverNotice(3, c.getChannelId(), sb.toString(), ear));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, super megaphone");
 				}
 			} else {
@@ -1281,15 +1281,15 @@ public class InventoryHandler {
 
 				IItem item = null;
 				if (reader.readByte() == 1) { // item
-					byte invType = (byte) reader.readInt();
-					byte pos = (byte) reader.readInt();
+					final byte invType = (byte) reader.readInt();
+					final byte pos = (byte) reader.readInt();
 					item = player.getInventoryByTypeByte(invType).getItem(pos);
 				}
 
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.itemMegaphone(sb.toString(), ear, c.getChannelId(), item));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, item megaphone");
 				}
 			} else {
@@ -1318,7 +1318,7 @@ public class InventoryHandler {
 			if (player.getPet(0) == null) {
 				break;
 			}
-			String nName = reader.readLengthPrefixedString();
+			final String nName = reader.readLengthPrefixedString();
 			if (GameCharacterUtil.validatePetName(nName)) {
 				player.getPet(0).setName(nName);
 				c.write(PetPacket.updatePet(player.getPet(0), true));
@@ -1457,7 +1457,7 @@ public class InventoryHandler {
 				try {
 					ChannelServer.getWorldInterface().broadcastSmega(ChannelPackets.getAvatarMega(player, c.getChannelId(), itemId, text, ear));
 					used = true;
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					System.out.println("RemoteException occured, TV megaphone");
 				}
 			} else {
@@ -1478,7 +1478,7 @@ public class InventoryHandler {
 
 				final int buff = ii.getStateChangeItem(itemId);
 				if (buff != 0) {
-					for (ChannelCharacter mChar : player.getMap().getCharacters()) {
+					for (final ChannelCharacter mChar : player.getMap().getCharacters()) {
 						ii.getItemEffect(buff).applyTo(mChar);
 					}
 				}
@@ -1497,7 +1497,7 @@ public class InventoryHandler {
 		}
 	}
 
-	public static void handleItemLoot(final PacketReader reader, ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
+	public static void handleItemLoot(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
 		reader.skip(5); // [4] Seems to be tickcount, [1] always 0
 		final Point Client_Reportedpos = reader.readVector();
 		final GameMapObject ob = chr.getMap().getMapObject(reader.readInt());
@@ -1523,12 +1523,12 @@ public class InventoryHandler {
 			chr.getCheatTracker().registerOffense(CheatingOffense.ITEMVAC_SERVER);
 		}
 		if (mapItem.getMeso() > 0) {
-			PartyMember member = chr.getPartyMembership();
+			final PartyMember member = chr.getPartyMembership();
 			if (member != null && mapItem.getOwner() == chr.getId()) {
 				final List<ChannelCharacter> toGive = new LinkedList<>();
 				final ChannelServer channelServer = ChannelServer.getInstance();
 
-				Party party = chr.getParty();
+				final Party party = chr.getParty();
 				for (final ChannelCharacter m : channelServer.getPartyMembers(party.getId())) {
 					// TODO, store info in MaplePartyCharacter instead
 					if (m != null) {

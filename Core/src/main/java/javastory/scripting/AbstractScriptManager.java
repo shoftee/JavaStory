@@ -36,7 +36,7 @@ public abstract class AbstractScriptManager {
 
 	private static final ScriptEngineManager sem = new ScriptEngineManager();
 
-	protected Invocable getInvocable(String path, ChannelClient c) {
+	protected Invocable getInvocable(String path, final ChannelClient c) {
 		FileReader fr = null;
 		try {
 			path = "scripts/" + path;
@@ -46,7 +46,7 @@ public abstract class AbstractScriptManager {
 				engine = c.getScriptEngine(path);
 			}
 			if (engine == null) {
-				File scriptFile = new File(path);
+				final File scriptFile = new File(path);
 				if (!scriptFile.exists()) {
 					return null;
 				}
@@ -58,7 +58,7 @@ public abstract class AbstractScriptManager {
 				engine.eval(fr);
 			}
 			return (Invocable) engine;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.err.println("Error executing script." + e);
 			return null;
 		} finally {
@@ -66,7 +66,7 @@ public abstract class AbstractScriptManager {
 				if (fr != null) {
 					fr.close();
 				}
-			} catch (IOException ignore) {
+			} catch (final IOException ignore) {
 			}
 		}
 	}

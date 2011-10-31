@@ -29,7 +29,7 @@ public class Foothold implements Comparable<Foothold> {
 	private final int id;
 	private final short nextId, prevId;
 
-	public Foothold(WzData data) {
+	public Foothold(final WzData data) {
 		final int x1 = WzDataTool.getInt("x1", data);
 		final int y1 = WzDataTool.getInt("y1", data);
 		this.p1 = new Point(x1, y1);
@@ -45,30 +45,30 @@ public class Foothold implements Comparable<Foothold> {
 	}
 
 	public boolean isWall() {
-		return p1.x == p2.x;
+		return this.p1.x == this.p2.x;
 	}
 
 	public int getX1() {
-		return p1.x;
+		return this.p1.x;
 	}
 
 	public int getX2() {
-		return p2.x;
+		return this.p2.x;
 	}
 
 	public int getY1() {
-		return p1.y;
+		return this.p1.y;
 	}
 
 	public int getY2() {
-		return p2.y;
+		return this.p2.y;
 	}
 
 	@Override
-	public int compareTo(Foothold other) {
-		if (p2.y < other.getY1()) {
+	public int compareTo(final Foothold other) {
+		if (this.p2.y < other.getY1()) {
 			return -1;
-		} else if (p1.y > other.getY2()) {
+		} else if (this.p1.y > other.getY2()) {
 			return 1;
 		} else {
 			return 0;
@@ -76,14 +76,14 @@ public class Foothold implements Comparable<Foothold> {
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public short getNextId() {
-		return nextId;
+		return this.nextId;
 	}
 
 	public short getPrevId() {
-		return prevId;
+		return this.prevId;
 	}
 }

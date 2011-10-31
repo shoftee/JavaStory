@@ -48,12 +48,12 @@ import javastory.channel.server.StatEffect;
 import javastory.channel.server.Trade;
 import javastory.game.GameConstants;
 import javastory.game.IEquip;
-import javastory.game.IEquip.ScrollResult;
 import javastory.game.IItem;
 import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.ItemType;
 import javastory.game.Jobs;
+import javastory.game.ScrollResult;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
@@ -143,20 +143,20 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
 		builder.writeAsByte(itemReaction);
-		int updateMask = 0;
+		final int updateMask = 0;
 		final EnumSet<Stat> mask = EnumSet.noneOf(Stat.class);
 		for (final StatValue newValue : stats) {
 			mask.add(newValue.stat);
 		}
-		List<StatValue> mystats = stats;
+		final List<StatValue> mystats = stats;
 		if (mystats.size() > 1) {
 			Collections.sort(mystats, new Comparator<StatValue>() {
 
 				@Override
 				public int compare(final StatValue o1, final StatValue o2) {
-					int val1 = o1.stat.getValue();
-					int val2 = o2.stat.getValue();
-					return (val1 < val2 ? -1 : (val1 == val2 ? 0 : 1));
+					final int val1 = o1.stat.getValue();
+					final int val2 = o2.stat.getValue();
+					return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
 				}
 			});
 		}
@@ -172,7 +172,7 @@ public final class ChannelPackets {
 				} else if (value < 0x20) {
 					builder.writeAsByte(value);
 				} else if (value == 0x8000) { // availablesp
-					if (evan == 2001 || (evan >= 2200 && evan <= 2218)) {
+					if (evan == 2001 || evan >= 2200 && evan <= 2218) {
 						throw new UnsupportedOperationException("Evan wrong updating");
 					} else {
 						builder.writeAsShort(value);
@@ -187,13 +187,13 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateSp(ChannelCharacter chr, final boolean itemReaction) { // this
+	public static GamePacket updateSp(final ChannelCharacter chr, final boolean itemReaction) { // this
 																							// will
 																							// do..
 		return updateSp(chr, itemReaction, false);
 	}
 
-	public static GamePacket updateSp(ChannelCharacter chr, final boolean itemReaction, final boolean overrideJob) { // this
+	public static GamePacket updateSp(final ChannelCharacter chr, final boolean itemReaction, final boolean overrideJob) { // this
 																														// will
 																														// do..
 		final PacketBuilder builder = new PacketBuilder();
@@ -267,8 +267,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeDoor(int oid, boolean isTown) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removeDoor(final int oid, final boolean isTown) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		if (isTown) {
 			builder.writeAsShort(ServerPacketOpcode.SPAWN_PORTAL.getValue());
@@ -283,8 +283,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnSummon(Summon summon, int skillLevel, boolean animated) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnSummon(final Summon summon, final int skillLevel, final boolean animated) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_SUMMON.getValue());
 		builder.writeInt(summon.getOwnerId());
@@ -305,8 +305,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeSummon(Summon summon, boolean animated) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removeSummon(final Summon summon, final boolean animated) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_SUMMON.getValue());
 		builder.writeInt(summon.getOwnerId());
@@ -317,7 +317,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getRelogResponse() {
-		PacketBuilder builder = new PacketBuilder(3);
+		final PacketBuilder builder = new PacketBuilder(3);
 
 		builder.writeAsShort(ServerPacketOpcode.RELOG_RESPONSE.getValue());
 		builder.writeAsByte(1);
@@ -340,8 +340,8 @@ public final class ChannelPackets {
 	 *            The type
 	 * @return The "block" packet.
 	 */
-	public static GamePacket serverBlocked(int type) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket serverBlocked(final int type) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MTS_OPEN.getValue());
 		builder.writeAsByte(type);
@@ -349,24 +349,24 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket headerMessage(String message) {
+	public static GamePacket headerMessage(final String message) {
 		return serverMessage(4, 0, message, true, false);
 	}
 
-	public static GamePacket serverNotice(int type, String message) {
+	public static GamePacket serverNotice(final int type, final String message) {
 		return serverMessage(type, 0, message, false, false);
 	}
 
-	public static GamePacket serverNotice(int type, int channel, String message) {
+	public static GamePacket serverNotice(final int type, final int channel, final String message) {
 		return serverMessage(type, channel, message, false, false);
 	}
 
-	public static GamePacket serverNotice(int type, int channel, String message, boolean smegaEar) {
+	public static GamePacket serverNotice(final int type, final int channel, final String message, final boolean smegaEar) {
 		return serverMessage(type, channel, message, false, smegaEar);
 	}
 
-	private static GamePacket serverMessage(int type, int channel, String message, boolean servermessage, boolean whisperEnabled) {
-		PacketBuilder builder = new PacketBuilder();
+	private static GamePacket serverMessage(final int type, final int channel, final String message, final boolean servermessage, final boolean whisperEnabled) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
 		// See ServerMessageType enum
@@ -391,7 +391,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getGachaponMega(final String name, final String message, final IItem item, final byte rareness) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
 		builder.writeAsByte(rareness == 2 ? 15 : 14);
@@ -403,8 +403,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket tripleSmega(List<String> message, boolean whisperEnabled, int channel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket tripleSmega(final List<String> message, final boolean whisperEnabled, final int channel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
 		builder.writeAsByte(12);
@@ -424,8 +424,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getAvatarMega(ChannelCharacter chr, int channel, int itemId, String message, boolean whisperEnabled) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getAvatarMega(final ChannelCharacter chr, final int channel, final int itemId, final String message, final boolean whisperEnabled) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.AVATAR_MEGA.getValue());
 		builder.writeInt(itemId);
@@ -438,8 +438,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket itemMegaphone(String msg, boolean whisperEnabled, int channel, IItem item) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket itemMegaphone(final String msg, final boolean whisperEnabled, final int channel, final IItem item) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SERVERMESSAGE.getValue());
 		builder.writeAsByte(8);
@@ -455,8 +455,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnNpc(Npc life, boolean show) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnNpc(final Npc life, final boolean show) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_NPC.getValue());
 		builder.writeInt(life.getObjectId());
@@ -473,7 +473,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket removeNpc(final int objectid) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_NPC.getValue());
 		builder.writeInt(objectid);
@@ -481,8 +481,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnNpcRequestController(Npc life, boolean miniMap) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnNpcRequestController(final Npc life, final boolean miniMap) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
 		builder.writeAsByte(1);
@@ -499,8 +499,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnPlayerNpc(NpcInfo npc, int id) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnPlayerNpc(final NpcInfo npc, final int id) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_NPC.getValue());
 		builder.writeAsByte(1);
@@ -511,10 +511,10 @@ public final class ChannelPackets {
 		builder.writeInt(npc.getFace());
 		builder.writeAsByte(0);
 		builder.writeInt(npc.getHair());
-		Map<Byte, Integer> equip = npc.getEquips();
-		Map<Byte, Integer> myEquip = new LinkedHashMap<>();
-		Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
-		for (byte position : equip.keySet()) {
+		final Map<Byte, Integer> equip = npc.getEquips();
+		final Map<Byte, Integer> myEquip = new LinkedHashMap<>();
+		final Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
+		for (final byte position : equip.keySet()) {
 			byte pos = (byte) (position * -1);
 			if (pos < 100 && myEquip.get(pos) == null) {
 				myEquip.put(pos, equip.get(position));
@@ -528,17 +528,17 @@ public final class ChannelPackets {
 				maskedEquip.put(pos, equip.get(position));
 			}
 		}
-		for (Entry<Byte, Integer> entry : myEquip.entrySet()) {
+		for (final Entry<Byte, Integer> entry : myEquip.entrySet()) {
 			builder.writeByte(entry.getKey());
 			builder.writeInt(entry.getValue());
 		}
 		builder.writeAsByte(0xFF);
-		for (Entry<Byte, Integer> entry : maskedEquip.entrySet()) {
+		for (final Entry<Byte, Integer> entry : maskedEquip.entrySet()) {
 			builder.writeByte(entry.getKey());
 			builder.writeInt(entry.getValue());
 		}
 		builder.writeAsByte(0xFF);
-		Integer cWeapon = equip.get((byte) -111);
+		final Integer cWeapon = equip.get((byte) -111);
 		if (cWeapon != null) {
 			builder.writeInt(cWeapon);
 		} else {
@@ -551,8 +551,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getChatText(int cidfrom, String text, boolean whiteBG, int show) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getChatText(final int cidfrom, final String text, final boolean whiteBG, final int show) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CHATTEXT.getValue());
 		builder.writeInt(cidfrom);
@@ -563,8 +563,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket GameMaster_Func(int value) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket GameMaster_Func(final int value) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeBytes(HexTool.getByteArrayFromHexString("7A 00"));
 		builder.writeAsByte(value);
@@ -573,8 +573,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket testCombo(int value) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket testCombo(final int value) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ARAN_COMBO.getValue());
 		builder.writeInt(value);
@@ -582,7 +582,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getPacketFromHexString(String hex) {
+	public static GamePacket getPacketFromHexString(final String hex) {
 		return GamePacket.wrapperOf(HexTool.getByteArrayFromHexString(hex));
 	}
 
@@ -663,12 +663,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getShowItemGain(int itemId, short quantity) {
+	public static GamePacket getShowItemGain(final int itemId, final short quantity) {
 		return getShowItemGain(itemId, quantity, false);
 	}
 
-	public static GamePacket getShowItemGain(int itemId, short quantity, boolean inChat) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getShowItemGain(final int itemId, final short quantity, final boolean inChat) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		if (inChat) {
 			builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
@@ -686,8 +686,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showRewardItemAnimation(int itemId, String effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showRewardItemAnimation(final int itemId, final String effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(0x0F);
@@ -698,8 +698,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showRewardItemAnimation(int itemId, String effect, int from_playerid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showRewardItemAnimation(final int itemId, final String effect, final int from_playerid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(from_playerid);
@@ -711,8 +711,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket dropItemFromMapObject(GameMapItem drop, Point dropfrom, Point dropto, byte mod) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket dropItemFromMapObject(final GameMapItem drop, final Point dropfrom, final Point dropto, final byte mod) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DROP_ITEM_FROM_MAPOBJECT.getValue());
 		builder.writeByte(mod); // 1 animation, 2 no animation, 3 spawn
@@ -742,8 +742,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnPlayerMapObject(ChannelCharacter chr) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnPlayerMapObject(final ChannelCharacter chr) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_PLAYER.getValue());
 		builder.writeInt(chr.getId());
@@ -802,7 +802,7 @@ public final class ChannelPackets {
 			buffvalue = Integer.valueOf(chr.getBuffedValue(BuffStat.MORPH).intValue());
 		}
 
-		builder.writeInt((int) ((buffmask >> 32) & 0xffffffffL));
+		builder.writeInt((int) (buffmask >> 32 & 0xffffffffL));
 		if (buffvalue != null) {
 			if (chr.getBuffedValue(BuffStat.MORPH) != null) {
 				builder.writeAsShort(buffvalue);
@@ -880,8 +880,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removePlayerFromMap(int cid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removePlayerFromMap(final int cid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_PLAYER_FROM_MAP.getValue());
 		builder.writeInt(cid);
@@ -889,8 +889,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket facialExpression(ChannelCharacter from, int expression) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket facialExpression(final ChannelCharacter from, final int expression) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FACIAL_EXPRESSION.getValue());
 		builder.writeInt(from.getId());
@@ -901,8 +901,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket movePlayer(int cid, List<LifeMovementFragment> moves, Point startPos) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket movePlayer(final int cid, final List<LifeMovementFragment> moves, final Point startPos) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MOVE_PLAYER.getValue());
 		builder.writeInt(cid);
@@ -913,8 +913,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveSummon(int cid, int oid, Point startPos, List<LifeMovementFragment> moves) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket moveSummon(final int cid, final int oid, final Point startPos, final List<LifeMovementFragment> moves) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MOVE_SUMMON.getValue());
 		builder.writeInt(cid);
@@ -927,7 +927,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket summonAttack(final int cid, final int summonSkillId, final byte animation, final List<SummonAttackEntry> allDamage, final int level) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SUMMON_ATTACK.getValue());
 		builder.writeInt(cid);
@@ -944,9 +944,9 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket closeRangeAttack(int cid, int tbyte, int skill, int level, byte display, byte animation, byte speed, List<AttackPair> damage,
+	public static GamePacket closeRangeAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final List<AttackPair> damage,
 		final int lvl) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CLOSE_RANGE_ATTACK.getValue());
 		builder.writeInt(cid);
@@ -966,23 +966,23 @@ public final class ChannelPackets {
 		builder.writeInt(0); // E9 03 BE FC
 
 		if (skill == 4211006) {
-			for (AttackPair oned : damage) {
+			for (final AttackPair oned : damage) {
 				if (oned.attack != null) {
 					builder.writeInt(oned.objectid);
 					builder.writeAsByte(0x07);
 					builder.writeAsByte(oned.attack.size());
-					for (Integer eachd : oned.attack) {
+					for (final Integer eachd : oned.attack) {
 						// highest bit set = crit
 						builder.writeInt(eachd);
 					}
 				}
 			}
 		} else {
-			for (AttackPair oned : damage) {
+			for (final AttackPair oned : damage) {
 				if (oned.attack != null) {
 					builder.writeInt(oned.objectid);
 					builder.writeAsByte(0x07);
-					for (Integer eachd : oned.attack) {
+					for (final Integer eachd : oned.attack) {
 						// highest bit set = crit
 						builder.writeInt(eachd);
 					}
@@ -992,9 +992,9 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket rangedAttack(int cid, byte tbyte, int skill, int level, byte display, byte animation, byte speed, int itemid,
-		List<AttackPair> damage, final Point pos, final int lvl) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket rangedAttack(final int cid, final byte tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final int itemid,
+		final List<AttackPair> damage, final Point pos, final int lvl) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.RANGED_ATTACK.getValue());
 		builder.writeInt(cid);
@@ -1013,11 +1013,11 @@ public final class ChannelPackets {
 		builder.writeAsByte(0); // Mastery level, who cares
 		builder.writeInt(itemid);
 
-		for (AttackPair oned : damage) {
+		for (final AttackPair oned : damage) {
 			if (oned.attack != null) {
 				builder.writeInt(oned.objectid);
 				builder.writeAsByte(0x07);
-				for (Integer eachd : oned.attack) {
+				for (final Integer eachd : oned.attack) {
 					// highest bit set = crit
 					builder.writeInt(eachd.intValue());
 				}
@@ -1028,9 +1028,9 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket magicAttack(int cid, int tbyte, int skill, int level, byte display, byte animation, byte speed, List<AttackPair> damage,
-		int charge, final int lvl) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket magicAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final List<AttackPair> damage,
+		final int charge, final int lvl) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MAGIC_ATTACK.getValue());
 		builder.writeInt(cid);
@@ -1047,11 +1047,11 @@ public final class ChannelPackets {
 								// have a swoosh
 		builder.writeInt(0);
 
-		for (AttackPair oned : damage) {
+		for (final AttackPair oned : damage) {
 			if (oned.attack != null) {
 				builder.writeInt(oned.objectid);
 				builder.writeAsByte(-1);
-				for (Integer eachd : oned.attack) {
+				for (final Integer eachd : oned.attack) {
 					// highest bit set = crit
 					builder.writeInt(eachd.intValue());
 				}
@@ -1063,14 +1063,14 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getNPCShop(ChannelClient c, int sid, List<ShopItem> items) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getNPCShop(final ChannelClient c, final int sid, final List<ShopItem> items) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 		builder.writeAsShort(ServerPacketOpcode.OPEN_NPC_SHOP.getValue());
 		builder.writeInt(sid);
 		builder.writeAsShort(items.size());
-		for (ShopItem item : items) {
+		for (final ShopItem item : items) {
 			builder.writeInt(item.getItemId());
 			builder.writeInt(item.getPrice());
 			builder.writeZeroBytes(16);
@@ -1088,8 +1088,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket confirmShopTransaction(byte code) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket confirmShopTransaction(final byte code) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CONFIRM_SHOP_TRANSACTION.getValue());
 		builder.writeByte(code); // 8 = sell, 0 = buy, 0x20 = due to an error
@@ -1097,12 +1097,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket addInventorySlot(InventoryType type, IItem item) {
+	public static GamePacket addInventorySlot(final InventoryType type, final IItem item) {
 		return addInventorySlot(type, item, false);
 	}
 
-	public static GamePacket addInventorySlot(InventoryType type, IItem item, boolean fromDrop) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket addInventorySlot(final InventoryType type, final IItem item, final boolean fromDrop) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(fromDrop);
@@ -1114,8 +1114,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateInventorySlot(InventoryType type, IItem item, boolean fromDrop) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateInventorySlot(final InventoryType type, final IItem item, final boolean fromDrop) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(fromDrop);
@@ -1133,12 +1133,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveInventoryItem(InventoryType type, short src, short dst) {
+	public static GamePacket moveInventoryItem(final InventoryType type, final short src, final short dst) {
 		return moveInventoryItem(type, src, dst, (byte) -1);
 	}
 
-	public static GamePacket moveInventoryItem(InventoryType type, short src, short dst, short equipIndicator) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket moveInventoryItem(final InventoryType type, final short src, final short dst, final short equipIndicator) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 02"));
@@ -1151,8 +1151,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveAndMergeInventoryItem(InventoryType type, byte src, byte dst, short total) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket moveAndMergeInventoryItem(final InventoryType type, final byte src, final byte dst, final short total) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 03"));
@@ -1166,8 +1166,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveAndMergeWithRestInventoryItem(InventoryType type, byte src, byte dst, short srcQ, short dstQ) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket moveAndMergeWithRestInventoryItem(final InventoryType type, final byte src, final byte dst, final short srcQ, final short dstQ) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 02 01"));
@@ -1182,8 +1182,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket clearInventoryItem(InventoryType type, short slot, boolean fromDrop) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket clearInventoryItem(final InventoryType type, final short slot, final boolean fromDrop) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(fromDrop);
@@ -1194,8 +1194,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateSpecialItemUse(IItem item, byte type) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateSpecialItemUse(final IItem item, final byte type) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(0); // could be from drop
@@ -1220,8 +1220,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket scrolledItem(IItem scroll, IItem item, boolean destroyed) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket scrolledItem(final IItem scroll, final IItem item, final boolean destroyed) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(1); // fromdrop always true
@@ -1249,8 +1249,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getScrollEffect(int chr, ScrollResult scrollSuccess, boolean isLegendarySpirit) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getScrollEffect(final int chr, final ScrollResult scrollSuccess, final boolean isLegendarySpirit) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_SCROLL_EFFECT.getValue());
 		builder.writeInt(chr);
@@ -1296,8 +1296,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket explodeDrop(int oid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket explodeDrop(final int oid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_ITEM_FROM_MAP.getValue());
 		builder.writeAsByte(4); // 4 = Explode
@@ -1307,12 +1307,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeItemFromMap(int oid, int animation, int cid) {
+	public static GamePacket removeItemFromMap(final int oid, final int animation, final int cid) {
 		return removeItemFromMap(oid, animation, cid, false, 0);
 	}
 
-	public static GamePacket removeItemFromMap(int oid, int animation, int cid, boolean pet, int slot) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removeItemFromMap(final int oid, final int animation, final int cid, final boolean pet, final int slot) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_ITEM_FROM_MAP.getValue());
 		builder.writeAsByte(animation); // 0 = Expire, 1 = without animation, 2
@@ -1327,20 +1327,20 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateCharLook(ChannelCharacter chr) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateCharLook(final ChannelCharacter chr) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_CHAR_LOOK.getValue());
 		builder.writeInt(chr.getId());
 		builder.writeAsByte(1);
 		GameCharacterPacket.addCharLook(builder, chr, false);
 
-		Inventory iv = chr.getEquippedItemsInventory();
-		List<IItem> equipped = Lists.newLinkedList(iv);
+		final Inventory iv = chr.getEquippedItemsInventory();
+		final List<IItem> equipped = Lists.newLinkedList(iv);
 		Collections.sort(equipped);
 
-		List<Ring> rings = new ArrayList<>();
-		for (IItem item : equipped) {
+		final List<Ring> rings = new ArrayList<>();
+		for (final IItem item : equipped) {
 			final IEquip equip = (IEquip) item;
 			if (equip.getRingId() > -1) {
 				rings.add(Ring.loadFromDb(equip.getRingId()));
@@ -1349,7 +1349,7 @@ public final class ChannelPackets {
 		Collections.sort(rings);
 
 		if (rings.size() > 0) {
-			for (Ring ring : rings) {
+			for (final Ring ring : rings) {
 				builder.writeAsByte(1);
 				builder.writeInt(ring.getRingId());
 				builder.writeInt(0);
@@ -1366,8 +1366,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket dropInventoryItem(InventoryType type, short src) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket dropInventoryItem(final InventoryType type, final short src) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 03"));
@@ -1379,8 +1379,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket dropInventoryItemUpdate(InventoryType type, IItem item) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket dropInventoryItemUpdate(final InventoryType type, final IItem item) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 01 01"));
@@ -1391,9 +1391,9 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket damagePlayer(int skill, int monsteridfrom, int cid, int damage, int fake, byte direction, int reflect, boolean isPowerGuard,
-		int oid, int pos_x, int pos_y) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket damagePlayer(final int skill, final int monsteridfrom, final int cid, final int damage, final int fake, final byte direction, final int reflect, final boolean isPowerGuard,
+		final int oid, final int pos_x, final int pos_y) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DAMAGE_PLAYER.getValue());
 		builder.writeInt(cid);
@@ -1433,8 +1433,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket forfeitQuest(ChannelCharacter c, int questId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket forfeitQuest(final ChannelCharacter c, final int questId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(1);
@@ -1448,7 +1448,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket completeQuest(final int questId) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(1);
@@ -1460,7 +1460,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket updateInfoQuest(final int quest, final String data) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(0x0B);
@@ -1470,8 +1470,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateQuestInfo(ChannelCharacter c, int questId, int npcId, byte progress) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateQuestInfo(final ChannelCharacter c, final int questId, final int npcId, final byte progress) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_QUEST_INFO.getValue());
 		builder.writeByte(progress);
@@ -1540,10 +1540,10 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	private static void writeLongMask(PacketBuilder builder, List<BuffStatValue> statups) {
+	private static void writeLongMask(final PacketBuilder builder, final List<BuffStatValue> statups) {
 		long firstmask = 0;
 		long secondmask = 0;
-		for (BuffStatValue statup : statups) {
+		for (final BuffStatValue statup : statups) {
 			if (statup.stat.isFirst()) {
 				firstmask |= statup.stat.getValue();
 			} else {
@@ -1554,11 +1554,11 @@ public final class ChannelPackets {
 		builder.writeLong(secondmask);
 	}
 
-	private static void writeLongDiseaseMask(PacketBuilder builder, List<DiseaseValue> statUpdates) {
+	private static void writeLongDiseaseMask(final PacketBuilder builder, final List<DiseaseValue> statUpdates) {
 		long firstmask = 0;
 		long secondmask = 0;
 		// TODO: use EnumSet for this instead?
-		for (DiseaseValue update : statUpdates) {
+		for (final DiseaseValue update : statUpdates) {
 			if (update.getDisease().isFirst()) {
 				firstmask |= update.getDisease().getValue();
 			} else {
@@ -1569,10 +1569,10 @@ public final class ChannelPackets {
 		builder.writeLong(secondmask);
 	}
 
-	private static void writeLongMaskFromList(PacketBuilder builder, List<BuffStat> statups) {
+	private static void writeLongMaskFromList(final PacketBuilder builder, final List<BuffStat> statups) {
 		long firstmask = 0;
 		long secondmask = 0;
-		for (BuffStat statup : statups) {
+		for (final BuffStat statup : statups) {
 			if (statup.isFirst()) {
 				firstmask |= statup.getValue();
 			} else {
@@ -1583,8 +1583,8 @@ public final class ChannelPackets {
 		builder.writeLong(secondmask);
 	}
 
-	public static GamePacket giveMount(int buffid, int skillid, List<BuffStatValue> statups) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveMount(final int buffid, final int skillid, final List<BuffStatValue> statups) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 
@@ -1601,15 +1601,15 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket givePirate(List<BuffStatValue> statups, int duration, int skillid) {
+	public static GamePacket givePirate(final List<BuffStatValue> statups, final int duration, final int skillid) {
 		final boolean infusion = skillid == 5121009 || skillid == 15111005;
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		writeLongMask(builder, statups);
 
 		builder.writeAsShort(0);
-		for (BuffStatValue stat : statups) {
+		for (final BuffStatValue stat : statups) {
 			builder.writeInt(stat.value);
 			builder.writeLong(skillid);
 			builder.writeZeroBytes(infusion ? 6 : 1);
@@ -1622,15 +1622,15 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveForeignPirate(List<BuffStatValue> statups, int duration, int cid, int skillid) {
+	public static GamePacket giveForeignPirate(final List<BuffStatValue> statups, final int duration, final int cid, final int skillid) {
 		final boolean infusion = skillid == 5121009 || skillid == 15111005;
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
 		writeLongMask(builder, statups);
 		builder.writeAsShort(0);
-		for (BuffStatValue stat : statups) {
+		for (final BuffStatValue stat : statups) {
 			builder.writeInt(stat.value);
 			builder.writeLong(skillid);
 			builder.writeZeroBytes(infusion ? 7 : 1);
@@ -1640,8 +1640,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveEnergyChargeTest(int bar) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveEnergyChargeTest(final int bar) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		long mask = 0;
@@ -1659,8 +1659,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveInfusion(List<BuffStatValue> statups, int buffid, int bufflength) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveInfusion(final List<BuffStatValue> statups, final int buffid, final int bufflength) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		// 17 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 07 00 AE E1 3E
@@ -1673,8 +1673,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveHoming(int skillid, int mobid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveHoming(final int skillid, final int mobid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		builder.writeLong(BuffStat.HOMING_BEACON.getValue());
@@ -1689,8 +1689,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveForeignInfusion(int cid, int speed, int duration) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveForeignInfusion(final int cid, final int speed, final int duration) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
@@ -1706,12 +1706,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveBuff(int buffid, int bufflength, List<BuffStatValue> statups, StatEffect effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveBuff(final int buffid, final int bufflength, final List<BuffStatValue> statups, final StatEffect effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		writeLongMask(builder, statups);
-		for (BuffStatValue statup : statups) {
+		for (final BuffStatValue statup : statups) {
 			builder.writeAsShort(statup.value);
 			builder.writeInt(buffid);
 			builder.writeInt(bufflength);
@@ -1724,11 +1724,11 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket giveDebuff(final List<DiseaseValue> statUpdates, final MobSkill skill) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		writeLongDiseaseMask(builder, statUpdates);
-		for (DiseaseValue update : statUpdates) {
+		for (final DiseaseValue update : statUpdates) {
 			builder.writeAsShort(update.getValue());
 			builder.writeAsShort(skill.getSkillId());
 			builder.writeAsShort(skill.getSkillLevel());
@@ -1741,8 +1741,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveForeignDebuff(int cid, final List<DiseaseValue> statUpdates, MobSkill skill) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveForeignDebuff(final int cid, final List<DiseaseValue> statUpdates, final MobSkill skill) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
@@ -1760,8 +1760,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelForeignDebuff(int cid, long mask) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket cancelForeignDebuff(final int cid, final long mask) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
@@ -1771,8 +1771,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showMonsterRiding(int cid, List<BuffStatValue> statups, int itemId, int skillId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showMonsterRiding(final int cid, final List<BuffStatValue> statups, final int itemId, final int skillId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
@@ -1788,13 +1788,13 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveForeignBuff(int cid, List<BuffStatValue> statups, StatEffect effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveForeignBuff(final int cid, final List<BuffStatValue> statups, final StatEffect effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GIVE_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
 		writeLongMask(builder, statups);
-		for (BuffStatValue statup : statups) {
+		for (final BuffStatValue statup : statups) {
 			if (effect.isMorph() && !effect.isPirateMorph()) {
 				builder.writeAsByte(statup.value);
 			} else {
@@ -1810,8 +1810,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelForeignBuff(int cid, List<BuffStat> statups) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket cancelForeignBuff(final int cid, final List<BuffStat> statups) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_FOREIGN_BUFF.getValue());
 		builder.writeInt(cid);
@@ -1821,12 +1821,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelBuff(List<BuffStat> statups) {
+	public static GamePacket cancelBuff(final List<BuffStat> statups) {
 		return cancelBuff(statups, false);
 	}
 
-	public static GamePacket cancelBuff(List<BuffStat> statups, boolean mount) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket cancelBuff(final List<BuffStat> statups, final boolean mount) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_BUFF.getValue());
 
@@ -1842,8 +1842,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelDebuff(long mask) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket cancelDebuff(final long mask) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_BUFF.getValue());
 		builder.writeLong(0);
@@ -1853,8 +1853,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateMount(ChannelCharacter chr, boolean levelup) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateMount(final ChannelCharacter chr, final boolean levelup) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_MOUNT.getValue());
 		builder.writeInt(chr.getId());
@@ -1866,8 +1866,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket mountInfo(ChannelCharacter chr) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket mountInfo(final ChannelCharacter chr) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_MOUNT.getValue());
 		builder.writeInt(chr.getId());
@@ -1879,8 +1879,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getPlayerShopChat(ChannelCharacter c, String chat, boolean isOwner) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getPlayerShopChat(final ChannelCharacter c, final String chat, final boolean isOwner) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("06 08"));
@@ -1890,8 +1890,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getPlayerShopNewVisitor(ChannelCharacter c, int slot) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getPlayerShopNewVisitor(final ChannelCharacter c, final int slot) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("04 0" + slot));
@@ -1902,8 +1902,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getPlayerShopRemoveVisitor(int slot) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getPlayerShopRemoveVisitor(final int slot) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("0A 0" + slot));
@@ -1911,8 +1911,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradePartnerAdd(ChannelCharacter c) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTradePartnerAdd(final ChannelCharacter c) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(4);
@@ -1924,8 +1924,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradeInvite(ChannelCharacter c) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTradeInvite(final ChannelCharacter c) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(2);
@@ -1936,8 +1936,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradeMesoSet(byte number, int meso) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTradeMesoSet(final byte number, final int meso) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(0xF);
@@ -1947,8 +1947,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradeItemAdd(byte number, IItem item) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTradeItemAdd(final byte number, final IItem item) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(0xE);
@@ -1958,8 +1958,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTradeStart(ChannelClient c, Trade trade, byte number) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTradeStart(final ChannelClient c, final Trade trade, final byte number) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(5);
@@ -1984,7 +1984,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getTradeConfirmation() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(0x10);
@@ -1993,7 +1993,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket TradeMessage(final byte UserSlot, final byte message) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(0xA);
@@ -2010,7 +2010,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getTradeCancel(final byte UserSlot) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
 		builder.writeAsByte(0xA);
@@ -2020,8 +2020,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getNPCTalk(int npc, byte msgType, String talk, String endBytes, byte type) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getNPCTalk(final int npc, final byte msgType, final String talk, final String endBytes, final byte type) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
 		builder.writeAsByte(4);
@@ -2035,7 +2035,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getMapSelection(final int npcid, final String sel) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
 		builder.writeAsByte(4);
@@ -2048,8 +2048,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getNPCTalkStyle(int npc, String talk, int... args) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getNPCTalkStyle(final int npc, final String talk, final int... args) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
 		builder.writeAsByte(4);
@@ -2057,15 +2057,15 @@ public final class ChannelPackets {
 		builder.writeAsShort(8);
 		builder.writeLengthPrefixedString(talk);
 		builder.writeAsByte(args.length);
-		for (int i = 0; i < args.length; i++) {
-			builder.writeInt(args[i]);
+		for (final int arg : args) {
+			builder.writeInt(arg);
 		}
 
 		return builder.getPacket();
 	}
 
-	public static GamePacket getNPCTalkNum(int npc, String talk, int def, int min, int max) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getNPCTalkNum(final int npc, final String talk, final int def, final int min, final int max) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
 		builder.writeAsByte(4);
@@ -2080,8 +2080,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getNPCTalkText(int npc, String talk) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getNPCTalkText(final int npc, final String talk) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.NPC_TALK.getValue());
 		builder.writeAsByte(4);
@@ -2094,8 +2094,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showForeignEffect(int cid, int effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showForeignEffect(final int cid, final int effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(cid);
@@ -2104,12 +2104,12 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showBuffeffect(int cid, int skillid, int effectid) {
+	public static GamePacket showBuffeffect(final int cid, final int skillid, final int effectid) {
 		return showBuffeffect(cid, skillid, effectid, (byte) 3);
 	}
 
-	public static GamePacket showBuffeffect(int cid, int skillid, int effectid, byte direction) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showBuffeffect(final int cid, final int skillid, final int effectid, final byte direction) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(cid);
@@ -2125,8 +2125,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showOwnBuffEffect(int skillid, int effectid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showOwnBuffEffect(final int skillid, final int effectid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(effectid);
@@ -2138,8 +2138,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showOwnBerserk(int skillLevel, boolean berserk) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showOwnBerserk(final int skillLevel, final boolean berserk) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(1);
@@ -2150,8 +2150,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showBerserk(int characterId, int skillLevel, boolean berserk) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showBerserk(final int characterId, final int skillLevel, final boolean berserk) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(characterId);
@@ -2163,8 +2163,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showSpecialEffect(int effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showSpecialEffect(final int effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(effect);
@@ -2172,8 +2172,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showSpecialEffect(int cid, int effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showSpecialEffect(final int cid, final int effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_FOREIGN_EFFECT.getValue());
 		builder.writeInt(cid);
@@ -2182,8 +2182,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateSkill(int skillid, int level, int masterlevel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateSkill(final int skillid, final int level, final int masterlevel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_SKILLS.getValue());
 		builder.writeAsByte(1);
@@ -2215,8 +2215,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getShowQuestCompletion(int id) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getShowQuestCompletion(final int id) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_QUEST_COMPLETION.getValue());
 		builder.writeAsShort(id);
@@ -2224,8 +2224,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getKeymap(KeyLayout layout) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getKeymap(final KeyLayout layout) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.KEYMAP.getValue());
 		builder.writeAsByte(0);
@@ -2234,8 +2234,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getWhisper(String sender, int channel, String text) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getWhisper(final String sender, final int channel, final String text) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.WHISPER.getValue());
 		builder.writeAsByte(0x12);
@@ -2246,8 +2246,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getWhisperReply(String target, byte reply) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getWhisperReply(final String target, final byte reply) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.WHISPER.getValue());
 		builder.writeAsByte(0x0A); // whisper?
@@ -2257,8 +2257,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getFindReplyWithMap(String target, int mapid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getFindReplyWithMap(final String target, final int mapid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.WHISPER.getValue());
 		builder.writeAsByte(9);
@@ -2271,8 +2271,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getFindReply(String target, int channel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getFindReply(final String target, final int channel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.WHISPER.getValue());
 		builder.writeAsByte(9);
@@ -2284,7 +2284,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getInventoryFull() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
 		builder.writeAsByte(1);
@@ -2301,8 +2301,8 @@ public final class ChannelPackets {
 		return getShowInventoryStatus(0xfe);
 	}
 
-	public static GamePacket getShowInventoryStatus(int mode) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getShowInventoryStatus(final int mode) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(0);
@@ -2313,8 +2313,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getStorage(int npcId, byte slots, Collection<IItem> items, int meso) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getStorage(final int npcId, final byte slots, final Collection<IItem> items, final int meso) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
 		builder.writeAsByte(0x16);
@@ -2326,7 +2326,7 @@ public final class ChannelPackets {
 		builder.writeInt(meso);
 		builder.writeAsShort(0);
 		builder.writeByte((byte) items.size());
-		for (IItem item : items) {
+		for (final IItem item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		builder.writeAsShort(0);
@@ -2336,7 +2336,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket getStorageFull() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
 		builder.writeAsByte(0x11);
@@ -2344,8 +2344,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket mesoStorage(byte slots, int meso) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket mesoStorage(final byte slots, final int meso) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
 		builder.writeAsByte(0x13);
@@ -2358,8 +2358,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket storeStorage(byte slots, InventoryType type, Collection<IItem> items) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket storeStorage(final byte slots, final InventoryType type, final Collection<IItem> items) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
 		builder.writeAsByte(0x0D);
@@ -2368,14 +2368,14 @@ public final class ChannelPackets {
 		builder.writeAsShort(0);
 		builder.writeInt(0);
 		builder.writeAsByte(items.size());
-		for (IItem item : items) {
+		for (final IItem item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		return builder.getPacket();
 	}
 
-	public static GamePacket takeOutStorage(byte slots, InventoryType type, Collection<IItem> items) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket takeOutStorage(final byte slots, final InventoryType type, final Collection<IItem> items) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.OPEN_STORAGE.getValue());
 		builder.writeAsByte(0x9);
@@ -2384,14 +2384,14 @@ public final class ChannelPackets {
 		builder.writeAsShort(0);
 		builder.writeInt(0);
 		builder.writeAsByte(items.size());
-		for (IItem item : items) {
+		for (final IItem item : items) {
 			PacketHelper.addItemInfo(builder, item, true, true);
 		}
 		return builder.getPacket();
 	}
 
-	public static GamePacket fairyPendantMessage(int type, int percent) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket fairyPendantMessage(final int type, final int percent) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FAIRY_PEND_MSG.getValue());
 		builder.writeAsShort(21); // 0x15
@@ -2403,8 +2403,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveFameResponse(boolean isIncrease, String name, int newFame) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveFameResponse(final boolean isIncrease, final String name, final int newFame) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
 		builder.writeAsByte(FameResponse.SUCCESS.asNumber());
@@ -2415,8 +2415,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket giveFameErrorResponse(FameResponse status) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket giveFameErrorResponse(final FameResponse status) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
 		builder.writeAsByte(status.asNumber());
@@ -2424,8 +2424,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket receiveFame(boolean isIncrease, String famerName) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket receiveFame(final boolean isIncrease, final String famerName) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FAME_RESPONSE.getValue());
 		builder.writeAsByte(FameResponse.RECEIVED_FAME.asNumber());
@@ -2436,7 +2436,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket partyCreated() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
 		builder.writeAsByte(8);
@@ -2451,8 +2451,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket partyInvite(ChannelCharacter from) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket partyInvite(final ChannelCharacter from) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
 		builder.writeAsByte(4);
@@ -2465,8 +2465,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket partyStatusMessage(int message) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket partyStatusMessage(final int message) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		/*
 		 * 10: A beginner can't create a party. 1/11/14/19: Your request for a
@@ -2481,8 +2481,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket partyStatusMessage(int message, String charname) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket partyStatusMessage(final int message, final String charname) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
 		builder.writeAsByte(message); // 23: 'Char' have denied request to the
@@ -2492,24 +2492,24 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	private static void addPartyStatus(int channelId, Party party, PacketBuilder builder, boolean leaving) {
-		List<PartyMember> partymembers = new ArrayList<>(party.getMembers());
+	private static void addPartyStatus(final int channelId, final Party party, final PacketBuilder builder, final boolean leaving) {
+		final List<PartyMember> partymembers = new ArrayList<>(party.getMembers());
 		while (partymembers.size() < 6) {
 			partymembers.add(new PartyMember());
 		}
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			builder.writeInt(partychar.getCharacterId());
 		}
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			builder.writePaddedString(partychar.getName(), 13);
 		}
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			builder.writeInt(partychar.getJobId());
 		}
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			builder.writeInt(partychar.getLevel());
 		}
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			if (partychar.isOnline()) {
 				builder.writeInt(partychar.getChannel() - 1);
 			} else {
@@ -2517,16 +2517,16 @@ public final class ChannelPackets {
 			}
 		}
 		builder.writeInt(party.getLeader().getCharacterId());
-		for (PartyMember partychar : partymembers) {
+		for (final PartyMember partychar : partymembers) {
 			if (partychar.getChannel() == channelId) {
 				builder.writeInt(partychar.getMapId());
 			} else {
 				builder.writeInt(0);
 			}
 		}
-		for (Map.Entry<PartyMember, DoorInfo> entry : party.getDoors().entrySet()) {
-			PartyMember member = entry.getKey();
-			DoorInfo door = entry.getValue();
+		for (final Map.Entry<PartyMember, DoorInfo> entry : party.getDoors().entrySet()) {
+			final PartyMember member = entry.getKey();
+			final DoorInfo door = entry.getValue();
 			if (member.getChannel() == channelId && !leaving) {
 				builder.writeInt(door.getTownId());
 				builder.writeInt(door.getTargetId());
@@ -2541,8 +2541,8 @@ public final class ChannelPackets {
 		}
 	}
 
-	public static GamePacket updateParty(int forChannel, Party party, PartyOperation operation, PartyMember target) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateParty(final int forChannel, final Party party, final PartyOperation operation, final PartyMember target) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
 		final boolean leave = operation == PartyOperation.LEAVE || operation == PartyOperation.LOG_ONOFF;
@@ -2588,8 +2588,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket partyPortal(int townId, int targetId, Point position) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket partyPortal(final int townId, final int targetId, final Point position) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PARTY_OPERATION.getValue());
 		builder.writeAsShort(0x28);
@@ -2601,8 +2601,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updatePartyMemberHP(int cid, int curhp, int maxhp) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updatePartyMemberHP(final int cid, final int curhp, final int maxhp) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_PARTYMEMBER_HP.getValue());
 		builder.writeInt(cid);
@@ -2612,8 +2612,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket multiChat(String name, String chattext, int mode) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket multiChat(final String name, final String chattext, final int mode) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MULTICHAT.getValue());
 		builder.writeAsByte(mode); // 0 buddychat; 1 partychat; 2 guildchat
@@ -2623,8 +2623,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getClock(int time) { // time in seconds
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getClock(final int time) { // time in seconds
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CLOCK.getValue());
 		builder.writeAsByte(2); // clock type. if you send 3 here you have to
@@ -2635,11 +2635,11 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getClockTime(Calendar cal) {
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-		int minute = cal.get(Calendar.MINUTE);
-		int second = cal.get(Calendar.SECOND);
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getClockTime(final Calendar cal) {
+		final int hour = cal.get(Calendar.HOUR_OF_DAY);
+		final int minute = cal.get(Calendar.MINUTE);
+		final int second = cal.get(Calendar.SECOND);
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CLOCK.getValue());
 		builder.writeAsByte(1); // Clock-Type
@@ -2651,7 +2651,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket spawnMist(final Mist mist) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SPAWN_MIST.getValue());
 		builder.writeInt(mist.getObjectId());
@@ -2677,7 +2677,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket removeMist(final int oid) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_MIST.getValue());
 		builder.writeInt(oid);
@@ -2685,8 +2685,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket damageSummon(int cid, int summonSkillId, int damage, int unkByte, int monsterIdFrom) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket damageSummon(final int cid, final int summonSkillId, final int damage, final int unkByte, final int monsterIdFrom) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DAMAGE_SUMMON.getValue());
 		builder.writeInt(cid);
@@ -2699,8 +2699,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket buddylistMessage(byte message) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket buddylistMessage(final byte message) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
 		builder.writeByte(message);
@@ -2708,14 +2708,14 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateBuddyList(Collection<BuddyListEntry> buddylist) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateBuddyList(final Collection<BuddyListEntry> buddylist) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
 		builder.writeAsByte(7);
 		builder.writeAsByte(buddylist.size());
 
-		for (BuddyListEntry buddy : buddylist) {
+		for (final BuddyListEntry buddy : buddylist) {
 			if (buddy.isVisible()) {
 				builder.writeInt(buddy.getCharacterId());
 				builder.writePaddedString(buddy.getName(), 13);
@@ -2730,8 +2730,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket requestBuddylistAdd(int cidFrom, String nameFrom, int levelFrom, int jobFrom) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket requestBuddylistAdd(final int cidFrom, final String nameFrom, final int levelFrom, final int jobFrom) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
 		builder.writeAsByte(9);
@@ -2750,8 +2750,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateBuddyChannel(int characterid, int channel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateBuddyChannel(final int characterid, final int channel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
 		builder.writeAsByte(0x14);
@@ -2762,8 +2762,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket itemEffect(int characterid, int itemid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket itemEffect(final int characterid, final int itemid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_EFFECT.getValue());
 		builder.writeInt(characterid);
@@ -2772,8 +2772,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateBuddyCapacity(int capacity) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateBuddyCapacity(final int capacity) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BUDDYLIST.getValue());
 		builder.writeAsByte(0x15);
@@ -2782,8 +2782,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showChair(int characterid, int itemid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showChair(final int characterid, final int itemid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_CHAIR.getValue());
 		builder.writeInt(characterid);
@@ -2792,8 +2792,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket cancelChair(int id) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket cancelChair(final int id) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_CHAIR.getValue());
 		if (id == -1) {
@@ -2805,8 +2805,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnReactor(Reactor reactor) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket spawnReactor(final Reactor reactor) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_SPAWN.getValue());
 		builder.writeInt(reactor.getObjectId());
@@ -2819,8 +2819,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket triggerReactor(Reactor reactor, int stance) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket triggerReactor(final Reactor reactor, final int stance) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_HIT.getValue());
 		builder.writeInt(reactor.getObjectId());
@@ -2834,8 +2834,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket destroyReactor(Reactor reactor) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket destroyReactor(final Reactor reactor) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_DESTROY.getValue());
 		builder.writeInt(reactor.getObjectId());
@@ -2845,20 +2845,20 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket musicChange(String song) {
+	public static GamePacket musicChange(final String song) {
 		return environmentChange(song, 6);
 	}
 
-	public static GamePacket showEffect(String effect) {
+	public static GamePacket showEffect(final String effect) {
 		return environmentChange(effect, 3);
 	}
 
-	public static GamePacket playSound(String sound) {
+	public static GamePacket playSound(final String sound) {
 		return environmentChange(sound, 4);
 	}
 
-	public static GamePacket environmentChange(String env, int mode) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket environmentChange(final String env, final int mode) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
 		builder.writeAsByte(mode);
@@ -2867,8 +2867,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket startMapEffect(String msg, int itemid, boolean active) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket startMapEffect(final String msg, final int itemid, final boolean active) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MAP_EFFECT.getValue());
 		builder.writeAsByte(active ? 0 : 1);
@@ -2880,7 +2880,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket removeMapEffect() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MAP_EFFECT.getValue());
 		builder.writeAsByte(0);
@@ -2890,7 +2890,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket showNullGuildInfo() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x1A); // signature for showing guild info
@@ -2899,8 +2899,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showGuildInfo(ChannelClient c, int guildId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showGuildInfo(final ChannelClient c, final int guildId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x1A); // signature for showing guild info
@@ -2929,8 +2929,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildMemberOnline(int gid, int cid, boolean bOnline) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildMemberOnline(final int gid, final int cid, final boolean bOnline) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x3d);
@@ -2941,8 +2941,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildInvite(int guildId, String sender, int senderLevel, int senderJob) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildInvite(final int guildId, final String sender, final int senderLevel, final int senderJob) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x05);
@@ -2954,8 +2954,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket denyGuildInvitation(String charname) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket denyGuildInvitation(final String charname) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x37);
@@ -2964,8 +2964,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket genericGuildMessage(byte code) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket genericGuildMessage(final byte code) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeByte(code);
@@ -2973,8 +2973,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket newGuildMember(GuildMember mgc) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket newGuildMember(final GuildMember mgc) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x27);
@@ -2994,8 +2994,8 @@ public final class ChannelPackets {
 	}
 
 	// someone leaving, mode == 0x2c for leaving, 0x2f for expelled
-	public static GamePacket memberLeft(GuildMember mgc, boolean bExpelled) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket memberLeft(final GuildMember mgc, final boolean bExpelled) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(bExpelled ? 0x2f : 0x2c);
@@ -3007,8 +3007,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket changeRank(GuildMember mgc) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket changeRank(final GuildMember mgc) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x40);
@@ -3019,8 +3019,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildNotice(int gid, String notice) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildNotice(final int gid, final String notice) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x44);
@@ -3030,8 +3030,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildMemberInfoUpdate(GuildMember member) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildMemberInfoUpdate(final GuildMember member) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x3C);
@@ -3043,21 +3043,21 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket rankTitleChange(int gid, String[] ranks) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket rankTitleChange(final int gid, final String[] ranks) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x3e);
 		builder.writeInt(gid);
-		for (String r : ranks) {
+		for (final String r : ranks) {
 			builder.writeLengthPrefixedString(r);
 		}
 
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildDisband(int gid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildDisband(final int gid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x32);
@@ -3067,8 +3067,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildEmblemChange(int gid, short bg, byte bgcolor, short logo, byte logocolor) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildEmblemChange(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x42);
@@ -3081,8 +3081,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildCapacityChange(int gid, int capacity) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket guildCapacityChange(final int gid, final int capacity) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x3a);
@@ -3093,7 +3093,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket showNullGuildUnionInfo() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ALLIANCE_OPERATION.getValue());
 		builder.writeAsByte(0x0C);
@@ -3101,8 +3101,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showBbsThreadList(ResultSet rs, int start) throws SQLException {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showBbsThreadList(final ResultSet rs, int start) throws SQLException {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BBS_OPERATION.getValue());
 		builder.writeAsByte(6);
@@ -3131,7 +3131,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	private static void addThread(PacketBuilder builder, ResultSet rs) throws SQLException {
+	private static void addThread(final PacketBuilder builder, final ResultSet rs) throws SQLException {
 		builder.writeInt(rs.getInt("localthreadid"));
 		builder.writeInt(rs.getInt("postercid"));
 		builder.writeLengthPrefixedString(rs.getString("name"));
@@ -3140,8 +3140,8 @@ public final class ChannelPackets {
 		builder.writeInt(rs.getInt("replycount"));
 	}
 
-	public static GamePacket showThread(int localthreadid, ResultSet threadRS, ResultSet repliesRS) throws SQLException, RuntimeException {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showThread(final int localthreadid, final ResultSet threadRS, final ResultSet repliesRS) throws SQLException, RuntimeException {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.BBS_OPERATION.getValue());
 		builder.writeAsByte(7);
@@ -3152,7 +3152,7 @@ public final class ChannelPackets {
 		builder.writeLengthPrefixedString(threadRS.getString("startpost"));
 		builder.writeInt(threadRS.getInt("icon"));
 		if (repliesRS != null) {
-			int replyCount = threadRS.getInt("replycount");
+			final int replyCount = threadRS.getInt("replycount");
 			builder.writeInt(replyCount);
 			int i;
 			for (i = 0; i < replyCount && repliesRS.next(); i++) {
@@ -3178,14 +3178,14 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showGuildRanks(int npcid, List<GuildRankingInfo> all) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showGuildRanks(final int npcid, final List<GuildRankingInfo> all) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x49);
 		builder.writeInt(npcid);
 		builder.writeInt(all.size());
-		for (GuildRankingInfo info : all) {
+		for (final GuildRankingInfo info : all) {
 			builder.writeLengthPrefixedString(info.getName());
 			builder.writeInt(info.getGP());
 			builder.writeInt(info.getLogo());
@@ -3197,8 +3197,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateGuildPoints(int gid, int GP) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateGuildPoints(final int gid, final int GP) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x48);
@@ -3208,8 +3208,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket skillEffect(ChannelCharacter from, int skillId, byte level, byte flags, byte speed, byte unk) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket skillEffect(final ChannelCharacter from, final int skillId, final byte level, final byte flags, final byte speed, final byte unk) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SKILL_EFFECT.getValue());
 		builder.writeInt(from.getId());
@@ -3222,8 +3222,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket skillCancel(ChannelCharacter from, int skillId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket skillCancel(final ChannelCharacter from, final int skillId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_SKILL_EFFECT.getValue());
 		builder.writeInt(from.getId());
@@ -3232,9 +3232,9 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showMagnet(int mobid, byte success) { // Monster
+	public static GamePacket showMagnet(final int mobid, final byte success) { // Monster
 																	// Magnet
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_MAGNET.getValue());
 		builder.writeInt(mobid);
@@ -3243,8 +3243,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket sendHint(String hint, int width, int height) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket sendHint(final String hint, int width, int height) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		if (width < 1) {
 			width = hint.length() * 10;
@@ -3264,8 +3264,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket messengerInvite(String from, int messengerid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket messengerInvite(final String from, final int messengerid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x03);
@@ -3277,8 +3277,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket addMessengerPlayer(String from, ChannelCharacter chr, int position, int channel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket addMessengerPlayer(final String from, final ChannelCharacter chr, final int position, final int channel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x00);
@@ -3291,8 +3291,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeMessengerPlayer(int position) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removeMessengerPlayer(final int position) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x02);
@@ -3301,8 +3301,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateMessengerPlayer(String from, ChannelCharacter chr, int position, int channel) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateMessengerPlayer(final String from, final ChannelCharacter chr, final int position, final int channel) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x07);
@@ -3315,8 +3315,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket joinMessenger(int position) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket joinMessenger(final int position) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x01);
@@ -3325,8 +3325,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket messengerChat(String text) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket messengerChat(final String text) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(0x06);
@@ -3335,8 +3335,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket messengerNote(String text, int mode, int mode2) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket messengerNote(final String text, final int mode, final int mode2) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MESSENGER.getValue());
 		builder.writeAsByte(mode);
@@ -3346,8 +3346,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getFindReplyWithCS(String target) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getFindReplyWithCS(final String target) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.WHISPER.getValue());
 		builder.writeAsByte(9);
@@ -3359,15 +3359,15 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket showEquipEffect() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_EQUIP_EFFECT.getValue());
 
 		return builder.getPacket();
 	}
 
-	public static GamePacket summonSkill(int cid, int summonSkillId, int newStance) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket summonSkill(final int cid, final int summonSkillId, final int newStance) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SUMMON_SKILL.getValue());
 		builder.writeInt(cid);
@@ -3377,8 +3377,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket skillCooldown(int sid, int time) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket skillCooldown(final int sid, final int time) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.COOLDOWN.getValue());
 		builder.writeInt(sid);
@@ -3387,8 +3387,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket useSkillBook(ChannelCharacter chr, int skillid, int maxlevel, boolean canuse, boolean success) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket useSkillBook(final ChannelCharacter chr, final int skillid, final int maxlevel, final boolean canuse, final boolean success) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.USE_SKILL_BOOK.getValue());
 		builder.writeInt(chr.getId());
@@ -3401,8 +3401,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getMacros(SkillMacro[] macros) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getMacros(final SkillMacro[] macros) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SKILL_MACRO.getValue());
 		int count = 0;
@@ -3413,7 +3413,7 @@ public final class ChannelPackets {
 		}
 		builder.writeAsByte(count); // number of macros
 		for (int i = 0; i < 5; i++) {
-			SkillMacro macro = macros[i];
+			final SkillMacro macro = macros[i];
 			if (macro != null) {
 				builder.writeLengthPrefixedString(macro.getName());
 				builder.writeAsByte(macro.getShout());
@@ -3426,8 +3426,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket updateAriantPQRanking(String name, int score, boolean empty) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket updateAriantPQRanking(final String name, final int score, final boolean empty) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ARIANT_PQ_START.getValue());
 		builder.writeAsByte(empty ? 0 : 1);
@@ -3438,8 +3438,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket catchMonster(int mobid, int itemid, byte success) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket catchMonster(final int mobid, final int itemid, final byte success) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CATCH_MONSTER.getValue());
 		builder.writeInt(mobid);
@@ -3450,15 +3450,15 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket showAriantScoreBoard() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ARIANT_SCOREBOARD.getValue());
 
 		return builder.getPacket();
 	}
 
-	public static GamePacket showZakumShrineTimeLeft(int timeleft) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showZakumShrineTimeLeft(final int timeleft) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ZAKUM_SHRINE.getValue());
 		builder.writeAsByte(0);
@@ -3467,8 +3467,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket boatPacket(int effect) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket boatPacket(final int effect) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		// 1034: balrog boat comes, 1548: boat comes, 3: boat leaves
 		builder.writeAsShort(ServerPacketOpcode.BOAT_EFFECT.getValue());
@@ -3477,8 +3477,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeItemFromDuey(boolean remove, int Package) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket removeItemFromDuey(final boolean remove, final int Package) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DUEY.getValue());
 		builder.writeAsByte(0x18);
@@ -3488,8 +3488,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket sendDuey(byte operation, List<DueyActions> packages) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket sendDuey(final byte operation, final List<DueyActions> packages) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DUEY.getValue());
 		builder.writeByte(operation);
@@ -3502,7 +3502,7 @@ public final class ChannelPackets {
 		case 10: { // Open duey
 			builder.writeAsByte(0);
 			builder.writeAsByte(packages.size());
-			for (DueyActions dp : packages) {
+			for (final DueyActions dp : packages) {
 				builder.writeInt(dp.getPackageId());
 				builder.writePaddedString(dp.getSender(), 13);
 				builder.writeInt(dp.getMesos());
@@ -3525,7 +3525,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket enableTV() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ENABLE_TV.getValue());
 		builder.writeInt(0);
@@ -3535,15 +3535,15 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket removeTV() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.REMOVE_TV.getValue());
 
 		return builder.getPacket();
 	}
 
-	public static GamePacket sendTV(ChannelCharacter chr, List<String> messages, int type, ChannelCharacter partner) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket sendTV(final ChannelCharacter chr, final List<String> messages, final int type, final ChannelCharacter partner) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SEND_TV.getValue());
 		builder.writeAsByte(partner != null ? 2 : 0);
@@ -3573,7 +3573,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket Mulung_DojoUp() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(0x0B);
@@ -3584,7 +3584,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket Mulung_DojoUp2() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(7);
@@ -3592,7 +3592,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket spawnDragon(Dragon d) {
+	public static GamePacket spawnDragon(final Dragon d) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DRAGON_SPAWN.getValue());
@@ -3606,7 +3606,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket removeDragon(int chrid) {
+	public static GamePacket removeDragon(final int chrid) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DRAGON_REMOVE.getValue());
@@ -3615,7 +3615,7 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket moveDragon(Dragon d, Point startPos, List<LifeMovementFragment> moves) {
+	public static GamePacket moveDragon(final Dragon d, final Point startPos, final List<LifeMovementFragment> moves) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DRAGON_MOVE.getValue()); // not
@@ -3628,8 +3628,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket Mulung_Pts(int recv, int total) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket Mulung_Pts(final int recv, final int total) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(10);
@@ -3638,8 +3638,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket MulungEnergy(int energy) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket MulungEnergy(final int energy) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ENERGY.getValue());
 		builder.writeLengthPrefixedString("energy");
@@ -3648,8 +3648,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket PyramidEnergy(byte type, int amount) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket PyramidEnergy(final byte type, final int amount) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.ENERGY.getValue());
 		builder.writeLengthPrefixedString("massacre_" + (type == 0 ? "cool" : type == 1 ? "kill" : "miss"));
@@ -3659,7 +3659,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket cancelHoming() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CANCEL_BUFF.getValue());
 		builder.writeLong(BuffStat.HOMING_BEACON.getValue());
@@ -3668,8 +3668,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket sendMapleTip(String message) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket sendMapleTip(final String message) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(0x46); // Header
 		builder.writeAsByte(0xFF);
@@ -3678,8 +3678,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket finishedSort(int type) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket finishedSort(final int type) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FINISH_SORT.getValue());
 		builder.writeAsByte(0);
@@ -3688,8 +3688,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket finishedSort2(int type) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket finishedGather(final int type) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FINISH_GATHER.getValue());
 		builder.writeAsByte(0);

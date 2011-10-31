@@ -41,11 +41,11 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 	@Override
 	public void sessionOpened(final IoSession session) throws Exception {
 		final String address = session.getRemoteAddress().toString().split(":")[0];
-		if (blockedIPs.contains(address)) {
+		if (this.blockedIPs.contains(address)) {
 			session.close(true);
 			return;
 		}
-		final Pair<Long, Byte> track = tracker.get(address);
+		final Pair<Long, Byte> track = this.tracker.get(address);
 		byte count;
 		if (track == null) {
 			count = 1;
@@ -58,13 +58,13 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 				count = 1;
 			}
 			if (count >= 10) {
-				blockedIPs.add(address);
-				tracker.remove(address);
+				this.blockedIPs.add(address);
+				this.tracker.remove(address);
 				session.close(true);
 				return;
 			}
 		}
-		tracker.put(address, new Pair<Long, Byte>(System.currentTimeMillis(), count));
+		this.tracker.put(address, new Pair<Long, Byte>(System.currentTimeMillis(), count));
 
 		final byte clientIv[] = { 70, 114, 122, (byte) Randomizer.nextInt(255) };
 		final byte serverIv[] = { 82, 48, 120, (byte) Randomizer.nextInt(255) };
@@ -72,9 +72,9 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 		final AesTransform serverCrypto = new AesTransform(serverIv, ServerConstants.GAME_VERSION, VersionType.COMPLEMENT);
 		final AesTransform clientCrypto = new AesTransform(clientIv, ServerConstants.GAME_VERSION, VersionType.REGULAR);
 
-		GameClient client = createClient(clientCrypto, serverCrypto, session);
+		final GameClient client = this.createClient(clientCrypto, serverCrypto, session);
 
-		PacketDecoder.DecoderState decoderState = new PacketDecoder.DecoderState();
+		final PacketDecoder.DecoderState decoderState = new PacketDecoder.DecoderState();
 		session.setAttribute(PacketDecoder.DECODER_STATE_KEY, decoderState);
 		final GamePacket helloPacket = getHello(ServerConstants.GAME_VERSION, clientIv, serverIv);
 		session.write(helloPacket);
@@ -109,7 +109,7 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 				}
 				try {
 					this.handlePacket(code, reader, client);
-				} catch (PacketFormatException ex) {
+				} catch (final PacketFormatException ex) {
 					client.disconnect();
 				}
 				return;

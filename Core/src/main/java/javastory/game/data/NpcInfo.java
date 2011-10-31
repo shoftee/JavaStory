@@ -29,83 +29,83 @@ public class NpcInfo {
 	private byte skin;
 	private int foothold, rangeXStart, rangeXEnd, centerY;
 
-	public NpcInfo(String name, boolean playerNpc) {
+	public NpcInfo(final String name, final boolean playerNpc) {
 		this.name = name;
 
 		if (playerNpc) {
-			equips = new HashMap<>();
+			this.equips = new HashMap<>();
 		}
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	public Map<Byte, Integer> getEquips() {
-		return equips;
+		return this.equips;
 	}
 
 	public int getFH() {
-		return foothold;
+		return this.foothold;
 	}
 
 	public int getRX0() {
-		return rangeXStart;
+		return this.rangeXStart;
 	}
 
 	public int getRX1() {
-		return rangeXEnd;
+		return this.rangeXEnd;
 	}
 
 	public int getCY() {
-		return centerY;
+		return this.centerY;
 	}
 
 	public byte getSkin() {
-		return skin;
+		return this.skin;
 	}
 
 	public int getFace() {
-		return face;
+		return this.face;
 	}
 
 	public int getHair() {
-		return hair;
+		return this.hair;
 	}
 
-	public void setEquips(Map<Byte, Integer> equips) {
+	public void setEquips(final Map<Byte, Integer> equips) {
 		this.equips = equips;
 	}
 
-	public void setFH(int FH) {
+	public void setFH(final int FH) {
 		this.foothold = FH;
 	}
 
-	public void setRX0(int RX0) {
+	public void setRX0(final int RX0) {
 		this.rangeXStart = RX0;
 	}
 
-	public void setRX1(int RX1) {
+	public void setRX1(final int RX1) {
 		this.rangeXEnd = RX1;
 	}
 
-	public void setCY(int CY) {
+	public void setCY(final int CY) {
 		this.centerY = CY;
 	}
 
-	public void setSkin(byte skin) {
+	public void setSkin(final byte skin) {
 		this.skin = skin;
 	}
 
-	public void setFace(int face) {
+	public void setFace(final int face) {
 		this.face = face;
 	}
 
-	public void setHair(int hair) {
+	public void setHair(final int hair) {
 		this.hair = hair;
 	}
 }

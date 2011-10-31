@@ -32,7 +32,9 @@ public class GenericPortal implements Portal {
 
 	private String name, target, scriptName;
 	private Point position;
-	private int targetmap, type, id;
+	private int targetmap;
+	private final int type;
+	private int id;
 
 	public GenericPortal(final int type) {
 		this.type = type;
@@ -40,41 +42,41 @@ public class GenericPortal implements Portal {
 
 	@Override
 	public final int getId() {
-		return id;
+		return this.id;
 	}
 
-	public final void setId(int id) {
+	public final void setId(final int id) {
 		this.id = id;
 	}
 
 	@Override
 	public final String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public final Point getPosition() {
-		return position;
+		return this.position;
 	}
 
 	@Override
 	public final String getTarget() {
-		return target;
+		return this.target;
 	}
 
 	@Override
 	public final int getTargetMapId() {
-		return targetmap;
+		return this.targetmap;
 	}
 
 	@Override
 	public final int getType() {
-		return type;
+		return this.type;
 	}
 
 	@Override
 	public final String getScriptName() {
-		return scriptName;
+		return this.scriptName;
 	}
 
 	public final void setName(final String name) {
@@ -102,10 +104,10 @@ public class GenericPortal implements Portal {
 	public final void enterPortal(final ChannelClient c) {
 		final ChannelCharacter player = c.getPlayer();
 
-		if (getPosition().distanceSq(player.getPosition()) > 22500) {
+		if (this.getPosition().distanceSq(player.getPosition()) > 22500) {
 			player.getCheatTracker().registerOffense(CheatingOffense.USING_FARAWAY_PORTAL);
 		}
-		if (getScriptName() != null) {
+		if (this.getScriptName() != null) {
 			final GameMap currentmap = player.getMap();
 			try {
 				PortalScriptManager.getInstance().executePortalScript(this, c);
@@ -117,9 +119,9 @@ public class GenericPortal implements Portal {
 				c.write(ChannelPackets.enableActions());
 				e.printStackTrace();
 			}
-		} else if (getTargetMapId() != 999999999) {
-			final GameMap to = ChannelServer.getMapFactory().getMap(getTargetMapId());
-			player.changeMap(to, to.getPortal(getTarget()) == null ? to.getPortal(0) : to.getPortal(getTarget()));
+		} else if (this.getTargetMapId() != 999999999) {
+			final GameMap to = ChannelServer.getMapFactory().getMap(this.getTargetMapId());
+			player.changeMap(to, to.getPortal(this.getTarget()) == null ? to.getPortal(0) : to.getPortal(this.getTarget()));
 		}
 	}
 }

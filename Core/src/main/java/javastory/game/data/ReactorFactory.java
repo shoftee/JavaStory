@@ -33,12 +33,12 @@ public class ReactorFactory {
 	private static final WzDataProvider data = WzDataProviderFactory.getDataProvider("Reactor.wz");
 	private static Map<Integer, ReactorInfo> reactorStats = new HashMap<>();
 
-	public static ReactorInfo getReactor(int rid) {
+	public static ReactorInfo getReactor(final int rid) {
 		ReactorInfo stats = reactorStats.get(Integer.valueOf(rid));
 		if (stats == null) {
 			int infoId = rid;
 			WzData reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
-			WzData link = reactorData.getChildByPath("info/link");
+			final WzData link = reactorData.getChildByPath("info/link");
 			if (link != null) {
 				infoId = WzDataTool.getIntConvert("info/link", reactorData);
 				stats = reactorStats.get(Integer.valueOf(infoId));
@@ -53,7 +53,7 @@ public class ReactorFactory {
 					int i = 0;
 					while (reactorInfoData != null) {
 						Pair<Integer, Integer> reactItem = null;
-						int type = WzDataTool.getIntConvert("type", reactorInfoData);
+						final int type = WzDataTool.getIntConvert("type", reactorInfoData);
 						if (type == 100) { // reactor waits for item
 							reactItem = new Pair<Integer, Integer>(WzDataTool.getIntConvert("0", reactorInfoData), WzDataTool.getIntConvert("1",
 								reactorInfoData));

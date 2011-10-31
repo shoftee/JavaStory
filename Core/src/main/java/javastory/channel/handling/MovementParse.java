@@ -213,7 +213,7 @@ public class MovementParse {
 		for (final LifeMovementFragment move : movement) {
 			if (move instanceof LifeMovement) {
 				if (move instanceof AbsoluteLifeMovement) {
-					Point position = ((LifeMovement) move).getPosition();
+					final Point position = ((LifeMovement) move).getPosition();
 					position.y += yoffset;
 					target.setPosition(position);
 				}

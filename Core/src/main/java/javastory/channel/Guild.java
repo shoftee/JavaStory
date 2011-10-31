@@ -42,38 +42,38 @@ public final class Guild {
 	private final Map<MemberRank, String> rankTitles = Maps.newEnumMap(MemberRank.class);
 	private final Map<Integer, GuildMember> members = new CopyOnWriteMap<>();
 	// Misc filds:
-	private Lock lock = new ReentrantLock();
+	private final Lock lock = new ReentrantLock();
 	private Multimap<Integer, Integer> channelIndex;
 
 	public Guild(final GuildMember initiator) {
 		super();
-		int guildid = initiator.getGuildId();
+		final int guildid = initiator.getGuildId();
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" + guildid);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.first()) {
 				rs.close();
 				ps.close();
-				id = -1;
+				this.id = -1;
 				return;
 			}
-			id = guildid;
-			name = rs.getString("name");
-			guildPoints = rs.getInt("GP");
-			logo = rs.getInt("logo");
-			logoColor = rs.getInt("logoColor");
-			logoBG = rs.getInt("logoBG");
-			logoBGColor = rs.getInt("logoBGColor");
-			capacity = rs.getInt("capacity");
-			rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
-			rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
-			rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
-			rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
-			rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
-			leader = rs.getInt("leader");
-			notice = rs.getString("notice");
-			signature = rs.getInt("signature");
+			this.id = guildid;
+			this.name = rs.getString("name");
+			this.guildPoints = rs.getInt("GP");
+			this.logo = rs.getInt("logo");
+			this.logoColor = rs.getInt("logoColor");
+			this.logoBG = rs.getInt("logoBG");
+			this.logoBGColor = rs.getInt("logoBGColor");
+			this.capacity = rs.getInt("capacity");
+			this.rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
+			this.rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
+			this.rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
+			this.rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
+			this.rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
+			this.leader = rs.getInt("leader");
+			this.notice = rs.getString("notice");
+			this.signature = rs.getInt("signature");
 			rs.close();
 			ps.close();
 			ps = con.prepareStatement("SELECT id, name, level, job, guildrank FROM characters WHERE guildid = ?");
@@ -88,12 +88,12 @@ public final class Guild {
 			do {
 				final GuildMember member = new GuildMember(rs);
 				final int characterId = member.getCharacterId();
-				members.put(characterId, member);
+				this.members.put(characterId, member);
 			} while (rs.next());
-			setOnline(initiator.getCharacterId(), true, initiator.getChannel());
+			this.setOnline(initiator.getCharacterId(), true, initiator.getChannel());
 			rs.close();
 			ps.close();
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("unable to read guild information from sql" + se);
 			return;
 		}
@@ -101,34 +101,34 @@ public final class Guild {
 
 	public Guild(final int guildId) {
 		// retrieves the guild from database, with guildid
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `guilds` WHERE `guildid` = ?")) {
 			ps.setInt(1, guildId);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (!rs.first()) { // no result... most likely to be someone from a disbanded guild that got rolled back
 					rs.close();
 					ps.close();
-					id = -1;
+					this.id = -1;
 					return;
 				}
-				id = guildId;
-				name = rs.getString("name");
-				guildPoints = rs.getInt("GP");
-				logo = rs.getInt("logo");
-				logoColor = rs.getInt("logoColor");
-				logoBG = rs.getInt("logoBG");
-				logoBGColor = rs.getInt("logoBGColor");
-				capacity = rs.getInt("capacity");
-				rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
-				rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
-				rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
-				rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
-				rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
-				leader = rs.getInt("leader");
-				notice = rs.getString("notice");
-				signature = rs.getInt("signature");
+				this.id = guildId;
+				this.name = rs.getString("name");
+				this.guildPoints = rs.getInt("GP");
+				this.logo = rs.getInt("logo");
+				this.logoColor = rs.getInt("logoColor");
+				this.logoBG = rs.getInt("logoBG");
+				this.logoBGColor = rs.getInt("logoBGColor");
+				this.capacity = rs.getInt("capacity");
+				this.rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
+				this.rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
+				this.rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
+				this.rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
+				this.rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
+				this.leader = rs.getInt("leader");
+				this.notice = rs.getString("notice");
+				this.signature = rs.getInt("signature");
 			}
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("unable to read guild information from sql" + se);
 			return;
 		}
@@ -136,165 +136,165 @@ public final class Guild {
 
 	private void writeToDB(final boolean bDisband) {
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			if (!bDisband) {
-				StringBuilder buf = new StringBuilder();
+				final StringBuilder buf = new StringBuilder();
 				buf.append("UPDATE guilds SET GP = ?, logo = ?, ");
 				buf.append("logoColor = ?, logoBG = ?, logoBGColor = ?, ");
 				buf.append("rank1title = ?, rank2title = ?, rank3title = ?, ");
 				buf.append("rank4title = ?, rank5title = ?, capacity = ?, ");
 				buf.append("notice = ? WHERE guildid = ?");
 				try (PreparedStatement ps = con.prepareStatement(buf.toString())) {
-					ps.setInt(1, guildPoints);
-					ps.setInt(2, logo);
-					ps.setInt(3, logoColor);
-					ps.setInt(4, logoBG);
-					ps.setInt(5, logoBGColor);
-					ps.setString(6, rankTitles.get(MemberRank.MASTER));
-					ps.setString(7, rankTitles.get(MemberRank.JR_MASTER));
-					ps.setString(8, rankTitles.get(MemberRank.MEMBER_HIGH));
-					ps.setString(9, rankTitles.get(MemberRank.MEMBER_MIDDLE));
-					ps.setString(10, rankTitles.get(MemberRank.MEMBER_LOW));
-					ps.setInt(11, capacity);
-					ps.setString(12, notice);
-					ps.setInt(13, id);
+					ps.setInt(1, this.guildPoints);
+					ps.setInt(2, this.logo);
+					ps.setInt(3, this.logoColor);
+					ps.setInt(4, this.logoBG);
+					ps.setInt(5, this.logoBGColor);
+					ps.setString(6, this.rankTitles.get(MemberRank.MASTER));
+					ps.setString(7, this.rankTitles.get(MemberRank.JR_MASTER));
+					ps.setString(8, this.rankTitles.get(MemberRank.MEMBER_HIGH));
+					ps.setString(9, this.rankTitles.get(MemberRank.MEMBER_MIDDLE));
+					ps.setString(10, this.rankTitles.get(MemberRank.MEMBER_LOW));
+					ps.setInt(11, this.capacity);
+					ps.setString(12, this.notice);
+					ps.setInt(13, this.id);
 					ps.execute();
 				}
 			} else {
 				PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = 0, guildrank = 5 WHERE guildid = ?");
-				ps.setInt(1, id);
+				ps.setInt(1, this.id);
 				ps.execute();
 				ps.close();
 
 				ps = con.prepareStatement("DELETE FROM guilds WHERE guildid = ?");
-				ps.setInt(1, id);
+				ps.setInt(1, this.id);
 				ps.execute();
 				ps.close();
-				broadcast(ChannelPackets.guildDisband(id));
+				this.broadcast(ChannelPackets.guildDisband(this.id));
 			}
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("Error saving guild to SQL" + se);
 		}
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public int getLeaderId() {
-		return leader;
+		return this.leader;
 	}
 
 	public int getGuildPoints() {
-		return guildPoints;
+		return this.guildPoints;
 	}
 
 	public int getLogo() {
-		return logo;
+		return this.logo;
 	}
 
 	public void setLogo(final int l) {
-		logo = l;
+		this.logo = l;
 	}
 
 	public int getLogoColor() {
-		return logoColor;
+		return this.logoColor;
 	}
 
 	public void setLogoColor(final int c) {
-		logoColor = c;
+		this.logoColor = c;
 	}
 
 	public int getLogoBG() {
-		return logoBG;
+		return this.logoBG;
 	}
 
 	public void setLogoBG(final int bg) {
-		logoBG = bg;
+		this.logoBG = bg;
 	}
 
 	public int getLogoBGColor() {
-		return logoBGColor;
+		return this.logoBGColor;
 	}
 
 	public void setLogoBGColor(final int c) {
-		logoBGColor = c;
+		this.logoBGColor = c;
 	}
 
 	public String getNotice() {
-		if (notice == null) {
+		if (this.notice == null) {
 			return "";
 		}
-		return notice;
+		return this.notice;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getCapacity() {
-		return capacity;
+		return this.capacity;
 	}
 
 	public int getSignature() {
-		return signature;
+		return this.signature;
 	}
 
 	public void broadcast(final GamePacket packet) {
-		broadcast(packet, -1, GuildOperationType.NONE);
+		this.broadcast(packet, -1, GuildOperationType.NONE);
 	}
 
 	public void broadcast(final GamePacket packet, final int exceptionId) {
-		broadcast(packet, exceptionId, GuildOperationType.NONE);
+		this.broadcast(packet, exceptionId, GuildOperationType.NONE);
 	}
 
 	// multi-purpose function that reaches every member of guild (except the character with exceptionId) in all channels with as little access to rmi as possible
 	private void broadcast(final GamePacket packet, final int exceptionId, final GuildOperationType operation) {
 		final WorldRegistry registry = GameService.getWorldRegistry();
-		lock.lock();
+		this.lock.lock();
 		try {
 			try {
-				rebuildChannelIndex();
+				this.rebuildChannelIndex();
 				final Set<Integer> activeChannels = registry.getActiveChannels();
 				for (final Integer channelId : activeChannels) {
 					final ChannelWorldInterface channel = registry.getChannel(channelId);
-					final Collection<Integer> channelMembers = channelIndex.get(channelId);
+					final Collection<Integer> channelMembers = this.channelIndex.get(channelId);
 
 					if (channelMembers.size() > 0) {
 						if (operation == GuildOperationType.DISBAND) {
 							channel.setGuildAndRank(channelMembers, 0, MemberRank.MEMBER_LOW, exceptionId);
 						} else if (operation == GuildOperationType.EMBELMCHANGE) {
-							channel.changeEmblem(id, channelMembers, new GuildSummary(this));
+							channel.changeEmblem(this.id, channelMembers, new GuildSummary(this));
 						} else {
 							channel.sendPacket(channelMembers, packet, exceptionId);
 						}
 					}
 				}
-			} catch (RemoteException re) {
+			} catch (final RemoteException re) {
 				System.err.println("Failed to contact channel(s) for broadcast." + re);
 			}
 		} finally {
-			lock.unlock();
+			this.lock.unlock();
 		}
 	}
 
 	private void rebuildChannelIndex() throws RemoteException {
 		// any function that calls this should be wrapped in synchronized(notifications) to make sure that it doesn't change before that function finishes with the updated notifications
-		if (!rebuildIndex) {
+		if (!this.rebuildIndex) {
 			return;
 		}
-		Set<Integer> activeChannels = GameService.getWorldRegistry().getActiveChannels();
-		channelIndex = HashMultimap.create();
-		for (Map.Entry<Integer, GuildMember> entry : members.entrySet()) {
+		final Set<Integer> activeChannels = GameService.getWorldRegistry().getActiveChannels();
+		this.channelIndex = HashMultimap.create();
+		for (final Map.Entry<Integer, GuildMember> entry : this.members.entrySet()) {
 			final GuildMember member = entry.getValue();
 			if (!member.isOnline()) {
 				continue;
 			}
 
-			channelIndex.put(member.getChannel(), member.getCharacterId());
+			this.channelIndex.put(member.getChannel(), member.getCharacterId());
 		}
-		channelIndex.keySet().retainAll(activeChannels);
-		rebuildIndex = false;
+		this.channelIndex.keySet().retainAll(activeChannels);
+		this.rebuildIndex = false;
 	}
 
 	public void guildMessage(final GamePacket packet) {
@@ -302,7 +302,7 @@ public final class Guild {
 	}
 
 	public void setOnline(final int cid, final boolean online, final int channel) {
-		final GuildMember member = getMember(cid);
+		final GuildMember member = this.getMember(cid);
 
 		// Only broadcast whatever if something /changed/.
 		// To begin with this shouldn't get called otherwise, but... *shrug*
@@ -312,31 +312,31 @@ public final class Guild {
 
 		member.setOnline(online);
 		member.setChannel((byte) channel);
-		broadcast(ChannelPackets.guildMemberOnline(id, cid, online), cid);
-		rebuildIndex = true;
+		this.broadcast(ChannelPackets.guildMemberOnline(this.id, cid, online), cid);
+		this.rebuildIndex = true;
 	}
 
-	private GuildMember getMember(int characterId) {
-		return members.get(characterId);
+	private GuildMember getMember(final int characterId) {
+		return this.members.get(characterId);
 	}
 
 	public void guildChat(final String name, final int cid, final String msg) {
-		broadcast(ChannelPackets.multiChat(name, msg, 2), cid);
+		this.broadcast(ChannelPackets.multiChat(name, msg, 2), cid);
 	}
 
 	public void allianceChat(final String name, final int cid, final String msg) {
-		broadcast(ChannelPackets.multiChat(name, msg, 3), cid);
+		this.broadcast(ChannelPackets.multiChat(name, msg, 3), cid);
 	}
 
 	public String getRankTitle(final MemberRank rank) {
 		Preconditions.checkNotNull(rank);
-		return rankTitles.get(rank);
+		return this.rankTitles.get(rank);
 	}
 
 	// function to create guild, returns the guild id if successful, 0 if not
 	public static int createGuild(final int leaderId, final String name) {
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT guildid FROM guilds WHERE name = ?");
 			ps.setString(1, name);
 			ResultSet rs = ps.executeQuery();
@@ -361,119 +361,119 @@ public final class Guild {
 			rs.close();
 			ps.close();
 			return result;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			System.err.println("SQL THROW" + se);
 			return 0;
 		}
 	}
 
 	public boolean addGuildMember(final GuildMember member) {
-		lock.lock();
+		this.lock.lock();
 		try {
-			if (members.size() >= capacity) {
+			if (this.members.size() >= this.capacity) {
 				return false;
 			}
-			members.put(member.getCharacterId(), member);
-			rebuildIndex = true;
+			this.members.put(member.getCharacterId(), member);
+			this.rebuildIndex = true;
 		} finally {
-			lock.unlock();
+			this.lock.unlock();
 		}
-		broadcast(ChannelPackets.newGuildMember(member));
+		this.broadcast(ChannelPackets.newGuildMember(member));
 		return true;
 	}
 
 	public void leaveGuild(final GuildMember member) {
-		broadcast(ChannelPackets.memberLeft(member, false));
-		lock.lock();
+		this.broadcast(ChannelPackets.memberLeft(member, false));
+		this.lock.lock();
 		try {
-			members.remove(member.getCharacterId());
-			rebuildIndex = true;
+			this.members.remove(member.getCharacterId());
+			this.rebuildIndex = true;
 		} finally {
-			lock.unlock();
+			this.lock.unlock();
 		}
 	}
 
 	public void expelMember(final GuildMember initiator, final int targetId) {
-		final GuildMember target = getMember(targetId);
-		broadcast(ChannelPackets.memberLeft(target, true));
-		rebuildIndex = true;
-		members.remove(targetId);
+		final GuildMember target = this.getMember(targetId);
+		this.broadcast(ChannelPackets.memberLeft(target, true));
+		this.rebuildIndex = true;
+		this.members.remove(targetId);
 		try {
 			if (target.isOnline()) {
 				GameService.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, 0, MemberRank.MEMBER_LOW);
 			} else {
 				Notes.send(initiator.getName(), target.getName(), "You have been expelled from the guild.");
 			}
-		} catch (RemoteException ex) {
+		} catch (final RemoteException ex) {
 			System.err.println("Could not expel member: " + ex);
 			return;
 		}
 	}
 
 	public void changeRank(final int targetId, final MemberRank newRank) {
-		final GuildMember target = getMember(targetId);
+		final GuildMember target = this.getMember(targetId);
 		try {
 			if (target.isOnline()) {
 				GameService.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, this.id, newRank);
 			}
-		} catch (RemoteException ex) {
+		} catch (final RemoteException ex) {
 			System.err.println("Could not change rank: " + ex);
 			return;
 		}
 		target.setGuildRank(newRank);
-		broadcast(ChannelPackets.changeRank(target));
+		this.broadcast(ChannelPackets.changeRank(target));
 	}
 
 	public void setGuildNotice(final String notice) {
 		this.notice = notice;
-		broadcast(ChannelPackets.guildNotice(id, notice));
-		Connection con = Database.getConnection();
+		this.broadcast(ChannelPackets.guildNotice(this.id, notice));
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET notice = ? WHERE guildid = ?")) {
 			ps.setString(1, notice);
-			ps.setInt(2, id);
+			ps.setInt(2, this.id);
 			ps.execute();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Could not save notice: " + ex);
 		}
 	}
 
 	public void updateMemberLevel(final int characterId, final int level) {
-		final GuildMember member = getMember(characterId);
+		final GuildMember member = this.getMember(characterId);
 		member.setLevel(level);
-		broadcast(ChannelPackets.guildMemberInfoUpdate(member));
+		this.broadcast(ChannelPackets.guildMemberInfoUpdate(member));
 	}
 
 	public void updateMemberJob(final int characterId, final int jobId) {
-		final GuildMember member = getMember(characterId);
-		member.setJobId(id);
-		broadcast(ChannelPackets.guildMemberInfoUpdate(member));
+		final GuildMember member = this.getMember(characterId);
+		member.setJobId(this.id);
+		this.broadcast(ChannelPackets.guildMemberInfoUpdate(member));
 	}
 
 	public void changeRankTitle(final String[] titles) {
 		for (int i = 1; i <= 5; i++) {
 			final MemberRank rank = MemberRank.fromNumber(i);
-			rankTitles.put(rank, titles[i - 1]);
+			this.rankTitles.put(rank, titles[i - 1]);
 		}
-		broadcast(ChannelPackets.rankTitleChange(id, titles));
+		this.broadcast(ChannelPackets.rankTitleChange(this.id, titles));
 
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con
 			.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?")) {
-			ps.setString(1, rankTitles.get(MemberRank.MASTER));
-			ps.setString(2, rankTitles.get(MemberRank.JR_MASTER));
-			ps.setString(3, rankTitles.get(MemberRank.MEMBER_HIGH));
-			ps.setString(4, rankTitles.get(MemberRank.MEMBER_MIDDLE));
-			ps.setString(5, rankTitles.get(MemberRank.MEMBER_LOW));
-			ps.setInt(6, id);
+			ps.setString(1, this.rankTitles.get(MemberRank.MASTER));
+			ps.setString(2, this.rankTitles.get(MemberRank.JR_MASTER));
+			ps.setString(3, this.rankTitles.get(MemberRank.MEMBER_HIGH));
+			ps.setString(4, this.rankTitles.get(MemberRank.MEMBER_MIDDLE));
+			ps.setString(5, this.rankTitles.get(MemberRank.MEMBER_LOW));
+			ps.setInt(6, this.id);
 			ps.execute();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Could not save rank titles: " + ex);
 		}
 	}
 
 	public void disbandGuild() {
-		writeToDB(true);
-		broadcast(null, -1, GuildOperationType.DISBAND);
+		this.writeToDB(true);
+		this.broadcast(null, -1, GuildOperationType.DISBAND);
 	}
 
 	public void setGuildEmblem(final short bg, final byte bgcolor, final short logo, final byte logocolor) {
@@ -481,63 +481,63 @@ public final class Guild {
 		this.logoBGColor = bgcolor;
 		this.logo = logo;
 		this.logoColor = logocolor;
-		broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
-		Connection con = Database.getConnection();
+		this.broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?")) {
 			ps.setInt(1, logo);
-			ps.setInt(2, logoColor);
-			ps.setInt(3, logoBG);
-			ps.setInt(4, logoBGColor);
-			ps.setInt(5, id);
+			ps.setInt(2, this.logoColor);
+			ps.setInt(3, this.logoBG);
+			ps.setInt(4, this.logoBGColor);
+			ps.setInt(5, this.id);
 			ps.execute();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Could not save guild emblem: " + ex);
 		}
 	}
 
 	public boolean increaseCapacity() {
-		if (capacity + GUILD_CAPACITY_STEP > GUILD_CAPACITY_MAX) {
+		if (this.capacity + GUILD_CAPACITY_STEP > GUILD_CAPACITY_MAX) {
 			return false;
 		}
-		capacity += 5;
-		broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
-		Connection con = Database.getConnection();
+		this.capacity += 5;
+		this.broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?")) {
 			ps.setInt(1, this.capacity);
 			ps.setInt(2, this.id);
 			ps.execute();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Could not save guild member capacity: " + ex);
 		}
 		return true;
 	}
 
 	public void gainGuildPoints(final int amount) {
-		guildPoints += amount;
-		guildMessage(ChannelPackets.updateGuildPoints(id, guildPoints));
-		Connection con = Database.getConnection();
+		this.guildPoints += amount;
+		this.guildMessage(ChannelPackets.updateGuildPoints(this.id, this.guildPoints));
+		final Connection con = Database.getConnection();
 
 		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?")) {
 			ps.setInt(1, this.guildPoints);
 			ps.setInt(2, this.id);
 			ps.execute();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Saving guild point ERROR" + e);
 		}
 	}
 
 	public void addMemberData(final PacketBuilder builder) {
-		builder.writeAsByte(members.size());
-		for (final GuildMember mgc : members.values()) {
+		builder.writeAsByte(this.members.size());
+		for (final GuildMember mgc : this.members.values()) {
 			builder.writeInt(mgc.getCharacterId());
 		}
-		for (final GuildMember member : members.values()) {
+		for (final GuildMember member : this.members.values()) {
 			builder.writePaddedString(member.getName(), 13);
 			builder.writeInt(member.getJobId());
 			builder.writeInt(member.getLevel());
 			builder.writeInt(member.getRank().asNumber());
 			builder.writeInt(member.isOnline() ? 1 : 0);
-			builder.writeInt(signature);
+			builder.writeInt(this.signature);
 			builder.writeInt(member.getRank().asNumber());
 		}
 	}

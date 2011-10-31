@@ -22,13 +22,13 @@ import javastory.io.GamePacket;
 public abstract class AbstractPlayerShop extends AbstractGameMapObject implements PlayerShop {
 
 	private boolean open;
-	private String ownerName, des;
-	private int ownerId, owneraccount, itemId;
-	private AtomicInteger meso = new AtomicInteger(0);
+	private final String ownerName, des;
+	private final int ownerId, owneraccount, itemId;
+	private final AtomicInteger meso = new AtomicInteger(0);
 	protected WeakReference[] visitors = new WeakReference[3];
 	protected List<PlayerShopItem> items = new LinkedList<>();
 
-	public AbstractPlayerShop(ChannelCharacter owner, int itemId, String desc) {
+	public AbstractPlayerShop(final ChannelCharacter owner, final int itemId, final String desc) {
 		this.setPosition(owner.getPosition());
 		this.ownerName = owner.getName();
 		this.ownerId = owner.getId();
@@ -39,71 +39,71 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	}
 
 	@Override
-	public void broadcastToVisitors(GamePacket packet) {
-		broadcastToVisitors(packet, true);
+	public void broadcastToVisitors(final GamePacket packet) {
+		this.broadcastToVisitors(packet, true);
 	}
 
-	public void broadcastToVisitors(GamePacket packet, boolean owner) {
+	public void broadcastToVisitors(final GamePacket packet, final boolean owner) {
 		ChannelCharacter visitor;
 		for (int i = 0; i < 3; i++) {
-			visitor = (ChannelCharacter) visitors[i].get();
+			visitor = (ChannelCharacter) this.visitors[i].get();
 			if (visitor != null) {
 				visitor.getClient().write(packet);
 			}
 		}
-		if (getShopType() == 2 && owner) {
+		if (this.getShopType() == 2 && owner) {
 			((GenericPlayerStore) this).getMCOwner().getClient().write(packet);
 		}
 	}
 
 	@Override
 	public int getMeso() {
-		return meso.get();
+		return this.meso.get();
 	}
 
 	@Override
-	public void setMeso(int meso) {
+	public void setMeso(final int meso) {
 		this.meso.set(meso);
 	}
 
 	public void removeVisitors() {
-		ChannelCharacter chr = (ChannelCharacter) visitors[0].get();
+		ChannelCharacter chr = (ChannelCharacter) this.visitors[0].get();
 		if (chr != null) {
-			removeVisitor(chr);
+			this.removeVisitor(chr);
 		}
-		chr = (ChannelCharacter) visitors[1].get();
+		chr = (ChannelCharacter) this.visitors[1].get();
 		if (chr != null) {
-			removeVisitor(chr);
+			this.removeVisitor(chr);
 		}
-		chr = (ChannelCharacter) visitors[2].get();
+		chr = (ChannelCharacter) this.visitors[2].get();
 		if (chr != null) {
-			removeVisitor(chr);
+			this.removeVisitor(chr);
 		}
 	}
 
 	@Override
-	public void setOpen(boolean open) {
+	public void setOpen(final boolean open) {
 		this.open = open;
 	}
 
 	@Override
 	public boolean isOpen() {
-		return open;
+		return this.open;
 	}
 
 	public boolean saveItems() {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)",
+			final PreparedStatement ps = con.prepareStatement("INSERT INTO hiredmerch (characterid, accountid, Mesos, time) VALUES (?, ?, ?, ?)",
 				Statement.RETURN_GENERATED_KEYS);
-			ps.setInt(1, ownerId);
-			ps.setInt(2, owneraccount);
-			ps.setInt(3, meso.get());
+			ps.setInt(1, this.ownerId);
+			ps.setInt(2, this.owneraccount);
+			ps.setInt(3, this.meso.get());
 			ps.setLong(4, System.currentTimeMillis());
 
 			ps.executeUpdate();
 
-			ResultSet rs = ps.getGeneratedKeys();
+			final ResultSet rs = ps.getGeneratedKeys();
 			rs.next();
 			final int packageid = rs.getInt(1);
 			rs.close();
@@ -111,7 +111,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 
 			PreparedStatement ps2;
 
-			for (PlayerShopItem pItems : items) {
+			for (final PlayerShopItem pItems : this.items) {
 				if (pItems.bundles <= 0) {
 					continue;
 				}
@@ -163,48 +163,28 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 				ps2.close();
 			}
 			return true;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 		}
 		return false;
 	}
 
-	public ChannelCharacter getVisitor(int num) {
+	public ChannelCharacter getVisitor(final int num) {
 		if (1 <= num && num <= 3) {
-			return (ChannelCharacter) visitors[num - 1].get();
+			return (ChannelCharacter) this.visitors[num - 1].get();
 		}
 		return null;
 	}
 
 	@Override
-	public void addVisitor(ChannelCharacter visitor) {
-		int i = getFreeSlot();
+	public void addVisitor(final ChannelCharacter visitor) {
+		final int i = this.getFreeSlot();
 		if (i > -1) {
-			broadcastToVisitors(PlayerShopPacket.shopVisitorAdd(visitor, i));
-			visitors[i - 1] = new WeakReference<ChannelCharacter>(visitor);
+			this.broadcastToVisitors(PlayerShopPacket.shopVisitorAdd(visitor, i));
+			this.visitors[i - 1] = new WeakReference<ChannelCharacter>(visitor);
 
 			if (i == 3) {
-				if (getShopType() == 1) {
-					final HiredMerchantStore hiredMerchant = (HiredMerchantStore) this;
-					(hiredMerchant).getMap().broadcastMessage(PlayerShopPacket.updateHiredMerchant(hiredMerchant));
-				} else {
-					final ChannelCharacter owner = ((GenericPlayerStore) this).getMCOwner();
-					owner.getMap().broadcastMessage(PlayerShopPacket.sendPlayerShopBox(owner));
-				}
-			}
-		}
-	}
-
-	@Override
-	public void removeVisitor(ChannelCharacter visitor) {
-		final byte slot = getVisitorSlot(visitor);
-		boolean shouldUpdate = getFreeSlot() == -1;
-		if (slot != -1) {
-			broadcastToVisitors(PlayerShopPacket.shopVisitorLeave(slot));
-			visitors[slot - 1] = new WeakReference<ChannelCharacter>(null);
-
-			if (shouldUpdate) {
-				if (getShopType() == 1) {
+				if (this.getShopType() == 1) {
 					final HiredMerchantStore hiredMerchant = (HiredMerchantStore) this;
 					hiredMerchant.getMap().broadcastMessage(PlayerShopPacket.updateHiredMerchant(hiredMerchant));
 				} else {
@@ -216,10 +196,30 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	}
 
 	@Override
-	public byte getVisitorSlot(ChannelCharacter visitor) {
+	public void removeVisitor(final ChannelCharacter visitor) {
+		final byte slot = this.getVisitorSlot(visitor);
+		final boolean shouldUpdate = this.getFreeSlot() == -1;
+		if (slot != -1) {
+			this.broadcastToVisitors(PlayerShopPacket.shopVisitorLeave(slot));
+			this.visitors[slot - 1] = new WeakReference<ChannelCharacter>(null);
+
+			if (shouldUpdate) {
+				if (this.getShopType() == 1) {
+					final HiredMerchantStore hiredMerchant = (HiredMerchantStore) this;
+					hiredMerchant.getMap().broadcastMessage(PlayerShopPacket.updateHiredMerchant(hiredMerchant));
+				} else {
+					final ChannelCharacter owner = ((GenericPlayerStore) this).getMCOwner();
+					owner.getMap().broadcastMessage(PlayerShopPacket.sendPlayerShopBox(owner));
+				}
+			}
+		}
+	}
+
+	@Override
+	public byte getVisitorSlot(final ChannelCharacter visitor) {
 		ChannelCharacter chr;
 		for (byte i = 1; i <= 3; i++) {
-			chr = (ChannelCharacter) visitors[i - 1].get();
+			chr = (ChannelCharacter) this.visitors[i - 1].get();
 			if (chr == visitor) {
 				return i;
 			}
@@ -228,48 +228,48 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	}
 
 	@Override
-	public void removeAllVisitors(int error, int type) {
+	public void removeAllVisitors(final int error, final int type) {
 		for (int i = 1; i <= 3; i++) {
-			ChannelCharacter visitor = getVisitor(i);
+			final ChannelCharacter visitor = this.getVisitor(i);
 			if (visitor != null) {
 				if (type != -1) {
 					visitor.getClient().write(PlayerShopPacket.shopErrorMessage(error, type));
 				}
 				visitor.setPlayerShop(null);
-				visitors[i - 1] = new WeakReference<>(null);
+				this.visitors[i - 1] = new WeakReference<>(null);
 			}
 		}
 	}
 
 	@Override
 	public String getOwnerName() {
-		return ownerName;
+		return this.ownerName;
 	}
 
 	@Override
 	public int getOwnerId() {
-		return ownerId;
+		return this.ownerId;
 	}
 
 	@Override
 	public int getOwnerAccountId() {
-		return owneraccount;
+		return this.owneraccount;
 	}
 
 	@Override
 	public String getDescription() {
-		if (des == null) {
+		if (this.des == null) {
 			return "";
 		}
-		return des;
+		return this.des;
 	}
 
 	@Override
 	public List<ChannelCharacter> getVisitors() {
-		List<ChannelCharacter> chars = new LinkedList<>();
+		final List<ChannelCharacter> chars = new LinkedList<>();
 		ChannelCharacter visitor;
 		for (int i = 1; i <= 3; i++) {
-			visitor = (ChannelCharacter) visitors[i - 1].get();
+			visitor = (ChannelCharacter) this.visitors[i - 1].get();
 			if (visitor != null) {
 				chars.add(visitor);
 			}
@@ -279,40 +279,41 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 
 	@Override
 	public List<PlayerShopItem> getItems() {
-		return items;
+		return this.items;
 	}
 
 	@Override
-	public void addItem(PlayerShopItem item) {
-		items.add(item);
+	public void addItem(final PlayerShopItem item) {
+		this.items.add(item);
 	}
 
 	@Override
-	public boolean removeItem(int item) {
+	public boolean removeItem(final int item) {
 		return false;
 	}
 
 	@Override
-	public void removeFromSlot(int slot) {
-		items.remove(slot);
+	public void removeFromSlot(final int slot) {
+		this.items.remove(slot);
 	}
 
 	@Override
 	public byte getFreeSlot() {
 		for (byte i = 1; i <= 3; i++) {
-			if (visitors[i].get() == null)
+			if (this.visitors[i].get() == null) {
 				return i;
+			}
 		}
 		return -1;
 	}
 
 	@Override
 	public int getItemId() {
-		return itemId;
+		return this.itemId;
 	}
 
 	@Override
-	public boolean isOwner(ChannelCharacter chr) {
-		return chr.getId() == ownerId && chr.getName().equals(ownerName);
+	public boolean isOwner(final ChannelCharacter chr) {
+		return chr.getId() == this.ownerId && chr.getName().equals(this.ownerName);
 	}
 }

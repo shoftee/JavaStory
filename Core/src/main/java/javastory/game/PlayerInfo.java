@@ -13,11 +13,11 @@ import java.sql.SQLException;
 @SuppressWarnings("serial")
 public class PlayerInfo implements Serializable {
 
-	private int worldId;
-	private int id;
-	private String name;
-	private Gender gender;
-	private byte gmLevel;
+	private final int worldId;
+	private final int id;
+	private final String name;
+	private final Gender gender;
+	private final byte gmLevel;
 	//
 	private int hairId;
 	private int faceId;
@@ -27,7 +27,7 @@ public class PlayerInfo implements Serializable {
 	private int level;
 	private int fame;
 
-	public PlayerInfo(ResultSet rs) throws SQLException {
+	public PlayerInfo(final ResultSet rs) throws SQLException {
 		this.worldId = rs.getInt("world");
 		this.id = rs.getInt("id");
 		this.name = rs.getString("name");
@@ -44,70 +44,70 @@ public class PlayerInfo implements Serializable {
 	}
 
 	public int getWorldId() {
-		return worldId;
+		return this.worldId;
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public Gender getGender() {
-		return gender;
+		return this.gender;
 	}
 
 	public byte getGmLevel() {
-		return gmLevel;
+		return this.gmLevel;
 	}
 
 	public int getHairId() {
-		return hairId;
+		return this.hairId;
 	}
 
-	public void setHairId(int hairId) {
+	public void setHairId(final int hairId) {
 		this.hairId = hairId;
 	}
 
 	public int getFaceId() {
-		return faceId;
+		return this.faceId;
 	}
 
-	public void setFaceId(int faceId) {
+	public void setFaceId(final int faceId) {
 		this.faceId = faceId;
 	}
 
 	public int getSkinColorId() {
-		return skinColorId;
+		return this.skinColorId;
 	}
 
-	public void setSkinColorId(int skinColorId) {
+	public void setSkinColorId(final int skinColorId) {
 		this.skinColorId = skinColorId;
 	}
 
 	public int getJobId() {
-		return jobId;
+		return this.jobId;
 	}
 
-	public void setJobId(int jobId) {
+	public void setJobId(final int jobId) {
 		this.jobId = jobId;
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(final int level) {
 		this.level = level;
 	}
 
 	public int getFame() {
-		return fame;
+		return this.fame;
 	}
 
-	public void setFame(int fame) {
+	public void setFame(final int fame) {
 		this.fame = fame;
 	}
 }

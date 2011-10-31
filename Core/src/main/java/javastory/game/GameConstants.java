@@ -58,15 +58,15 @@ public class GameConstants {
 	}
 
 	public static int getBookLevel(final int level) {
-		return ((5 * level) * (level + 1));
+		return 5 * level * (level + 1);
 	}
 
 	public static int getTimelessRequiredEXP(final int level) {
-		return 70 + (level * 10);
+		return 70 + level * 10;
 	}
 
 	public static int getReverseRequiredEXP(final int level) {
-		return 60 + (level * 5);
+		return 60 + level * 5;
 	}
 
 	public static int maxViewRangeSq() {
@@ -184,11 +184,11 @@ public class GameConstants {
 		return itemId / 1000000 == 1;
 	}
 
-	public static boolean isCleanSlate(int itemId) {
+	public static boolean isCleanSlate(final int itemId) {
 		return itemId / 100 == 20490;
 	}
 
-	public static boolean isChaosScroll(int itemId) {
+	public static boolean isChaosScroll(final int itemId) {
 		return itemId / 100 == 20491;
 	}
 
@@ -744,25 +744,25 @@ public class GameConstants {
 		4031629, 1 // Pot
 	};
 
-	public static boolean isKatara(int itemId) {
+	public static boolean isKatara(final int itemId) {
 		return itemId / 10000 == 134;
 	}
 
-	public static boolean isDagger(int itemId) {
+	public static boolean isDagger(final int itemId) {
 		return itemId / 10000 == 133;
 	}
 
-	public static boolean isApplicableSkill(int skillId) {
+	public static boolean isApplicableSkill(final int skillId) {
 		return skillId < 22190000 && (skillId % 10000 < 8000 || skillId % 10000 > 8003); // no
 																							// additional/resistance/db/decent
 																							// skills
 	}
 
-	public static boolean isApplicableSkill_(int skillId) { // not applicable to
+	public static boolean isApplicableSkill_(final int skillId) { // not applicable to
 															// saving but is
 															// more of temporary
 		return skillId >= 90000000 ||
-				(skillId % 10000 >= 8000 && skillId % 10000 <= 8003);
+				skillId % 10000 >= 8000 && skillId % 10000 <= 8003;
 	}
 
 	public static boolean isEvanDragonItem(final int itemId) {

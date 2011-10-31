@@ -27,33 +27,33 @@ public class BounceMovement extends AbstractLifeMovement {
 	private int unk;
 	private int fh;
 
-	public BounceMovement(int type, Point position, int duration, int newstate) {
+	public BounceMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	public int getUnk() {
-		return unk;
+		return this.unk;
 	}
 
-	public void setUnk(int unk) {
+	public void setUnk(final int unk) {
 		this.unk = unk;
 	}
 
 	public int getFH() {
-		return fh;
+		return this.fh;
 	}
 
-	public void setFH(int fh) {
+	public void setFH(final int fh) {
 		this.fh = fh;
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeVector(getPosition());
-		builder.writeAsShort(getUnk());
-		builder.writeAsShort(getFH());
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeVector(this.getPosition());
+		builder.writeAsShort(this.getUnk());
+		builder.writeAsShort(this.getFH());
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

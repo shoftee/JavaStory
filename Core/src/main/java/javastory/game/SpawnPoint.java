@@ -29,14 +29,14 @@ import javastory.tools.packets.ChannelPackets;
 
 public class SpawnPoint extends Spawns {
 
-	private Monster monster;
-	private Point pos;
+	private final Monster monster;
+	private final Point pos;
 	private long nextPossibleSpawn;
-	private int mobTime;
-	private AtomicInteger spawnedMonsters = new AtomicInteger(0);
-	private boolean immobile;
-	private String msg;
-	private byte carnivalTeam;
+	private final int mobTime;
+	private final AtomicInteger spawnedMonsters = new AtomicInteger(0);
+	private final boolean immobile;
+	private final String msg;
+	private final byte carnivalTeam;
 
 	public SpawnPoint(final Monster monster, final Point pos, final int mobTime, final byte carnivalTeam, final String msg) {
 		this.monster = monster;
@@ -50,50 +50,50 @@ public class SpawnPoint extends Spawns {
 
 	@Override
 	public final Monster getMonster() {
-		return monster;
+		return this.monster;
 	}
 
 	@Override
 	public final byte getCarnivalTeam() {
-		return carnivalTeam;
+		return this.carnivalTeam;
 	}
 
 	@Override
 	public final boolean shouldSpawn() {
-		if (mobTime < 0) {
+		if (this.mobTime < 0) {
 			return false;
 		}
 		// regular spawnpoints should spawn a maximum of 3 monsters; immobile
 		// spawnpoints or spawnpoints with mobtime a
 		// maximum of 1
-		if (((mobTime != 0 || immobile) && spawnedMonsters.get() > 0) || spawnedMonsters.get() > 1) {
+		if ((this.mobTime != 0 || this.immobile) && this.spawnedMonsters.get() > 0 || this.spawnedMonsters.get() > 1) {
 			return false;
 		}
-		return nextPossibleSpawn <= System.currentTimeMillis();
+		return this.nextPossibleSpawn <= System.currentTimeMillis();
 	}
 
 	@Override
 	public final Monster spawnMonster(final GameMap map) {
-		final Monster mob = new Monster(monster);
-		mob.setPosition(pos);
-		mob.setCarnivalTeam(carnivalTeam);
-		spawnedMonsters.incrementAndGet();
+		final Monster mob = new Monster(this.monster);
+		mob.setPosition(this.pos);
+		mob.setCarnivalTeam(this.carnivalTeam);
+		this.spawnedMonsters.incrementAndGet();
 		mob.addListener(new MonsterListener() {
 
 			@Override
 			public void monsterKilled() {
-				nextPossibleSpawn = System.currentTimeMillis();
+				SpawnPoint.this.nextPossibleSpawn = System.currentTimeMillis();
 
-				if (mobTime > 0) {
-					nextPossibleSpawn += mobTime;
+				if (SpawnPoint.this.mobTime > 0) {
+					SpawnPoint.this.nextPossibleSpawn += SpawnPoint.this.mobTime;
 				}
-				spawnedMonsters.decrementAndGet();
+				SpawnPoint.this.spawnedMonsters.decrementAndGet();
 			}
 		});
 		map.spawnMonster(mob, -2);
 
-		if (msg != null) {
-			map.broadcastMessage(ChannelPackets.serverNotice(6, msg));
+		if (this.msg != null) {
+			map.broadcastMessage(ChannelPackets.serverNotice(6, this.msg));
 		}
 		return mob;
 	}

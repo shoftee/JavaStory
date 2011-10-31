@@ -20,10 +20,10 @@ package javastory.server.channel;
 
 public class GuildRankingInfo {
 
-	private String name;
-	private int gp, logo, logocolor, logobg, logobgcolor;
+	private final String name;
+	private final int gp, logo, logocolor, logobg, logobgcolor;
 
-	public GuildRankingInfo(String name, int gp, int logo, int logocolor, int logobg, int logobgcolor) {
+	public GuildRankingInfo(final String name, final int gp, final int logo, final int logocolor, final int logobg, final int logobgcolor) {
 		this.name = name;
 		this.gp = gp;
 		this.logo = logo;
@@ -33,26 +33,26 @@ public class GuildRankingInfo {
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getGP() {
-		return gp;
+		return this.gp;
 	}
 
 	public int getLogo() {
-		return logo;
+		return this.logo;
 	}
 
 	public int getLogoColor() {
-		return logocolor;
+		return this.logocolor;
 	}
 
 	public int getLogoBg() {
-		return logobg;
+		return this.logobg;
 	}
 
 	public int getLogoBgColor() {
-		return logobgcolor;
+		return this.logobgcolor;
 	}
 }

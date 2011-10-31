@@ -24,7 +24,7 @@ public final class WorldConfig {
 		return ChannelConfig.loadForWorld(worldId);
 	}
 
-	public static WorldInfo load(int worldId) {
+	public static WorldInfo load(final int worldId) {
 		try (	final PreparedStatement ps = getSelectById(worldId);
 				final ResultSet rs = ps.executeQuery()) {
 			if (!rs.next()) {
@@ -37,7 +37,7 @@ public final class WorldConfig {
 			final String host = rs.getString("host");
 			final int port = rs.getInt("port");
 			return new WorldInfo(worldId, name, expRate, mesoRate, itemRate, host, port);
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			Logger.getLogger(WorldConfig.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}

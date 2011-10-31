@@ -44,7 +44,7 @@ public class MonsterCarnivalHandler {
 	}
 
 	private static Point randomizePosition(final int mapid, final int team) {
-		int posx = 0;
+		final int posx = 0;
 		int posy = 0;
 		if (mapid == 980000301) { // room 3 iirc
 			posy = 162;

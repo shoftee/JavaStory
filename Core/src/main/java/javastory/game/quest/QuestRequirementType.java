@@ -46,16 +46,16 @@ public enum QuestRequirementType {
 		return ITEM;
 	}
 
-	private QuestRequirementType(int type) {
+	private QuestRequirementType(final int type) {
 		this.type = (byte) type;
 	}
 
 	public byte getType() {
-		return type;
+		return this.type;
 	}
 
-	public static QuestRequirementType getByType(byte type) {
-		for (QuestRequirementType l : QuestRequirementType.values()) {
+	public static QuestRequirementType getByType(final byte type) {
+		for (final QuestRequirementType l : QuestRequirementType.values()) {
 			if (l.getType() == type) {
 				return l;
 			}
@@ -63,7 +63,7 @@ public enum QuestRequirementType {
 		return null;
 	}
 
-	public static QuestRequirementType getByWZName(String name) {
+	public static QuestRequirementType getByWZName(final String name) {
 		switch (name) {
 		case "job":
 			return JOB;

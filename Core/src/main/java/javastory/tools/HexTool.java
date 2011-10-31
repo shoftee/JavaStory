@@ -42,7 +42,7 @@ public class HexTool {
 	 */
 	public static final String toString(final byte byteValue) {
 		final int tmp = byteValue << 8;
-		char[] retstr = new char[] { HEX[(tmp >> 12) & 0x0F], HEX[(tmp >> 8) & 0x0F] };
+		final char[] retstr = new char[] { HEX[tmp >> 12 & 0x0F], HEX[tmp >> 8 & 0x0F] };
 		return String.valueOf(retstr);
 	}
 
@@ -58,7 +58,7 @@ public class HexTool {
 		buf.flip();
 		final byte arr[] = new byte[buf.remaining()];
 		buf.get(arr);
-		String ret = toString(arr);
+		final String ret = toString(arr);
 		buf.flip();
 		buf.put(arr);
 		return ret;
@@ -83,9 +83,9 @@ public class HexTool {
 	 * @return The hexadecimal representation of <code>bytes</code>
 	 */
 	public static final String toString(final byte[] bytes) {
-		StringBuilder hexed = new StringBuilder();
-		for (int i = 0; i < bytes.length; i++) {
-			hexed.append(toString(bytes[i]));
+		final StringBuilder hexed = new StringBuilder();
+		for (final byte b : bytes) {
+			hexed.append(toString(b));
 			hexed.append(' ');
 		}
 		return hexed.substring(0, hexed.length() - 1);
@@ -100,12 +100,12 @@ public class HexTool {
 	 * @return The ASCII hexadecimal representation of <code>bytes</code>
 	 */
 	public static final String toStringFromAscii(final byte[] bytes) {
-		char[] ret = new char[bytes.length];
+		final char[] ret = new char[bytes.length];
 		for (int x = 0; x < bytes.length; x++) {
 			if (bytes[x] < 32 && bytes[x] >= 0) {
 				ret[x] = '.';
 			} else {
-				int chr = bytes[x] & 0xFF;
+				final int chr = bytes[x] & 0xFF;
 				ret[x] = (char) chr;
 			}
 		}
@@ -114,7 +114,7 @@ public class HexTool {
 
 	public static final String toPaddedStringFromAscii(final byte[] bytes) {
 		final String str = toStringFromAscii(bytes);
-		StringBuilder ret = new StringBuilder(str.length() * 3);
+		final StringBuilder ret = new StringBuilder(str.length() * 3);
 		for (int i = 0; i < str.length(); i++) {
 			ret.append(str.charAt(i));
 			ret.append("  ");
@@ -130,7 +130,7 @@ public class HexTool {
 	 * @return The byte array representation of <code>hex</code>
 	 */
 	public static byte[] getByteArrayFromHexString(final String hex) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int nexti = 0;
 		int nextb = 0;
 		boolean highoc = true;
@@ -141,7 +141,7 @@ public class HexTool {
 				if (nexti == hex.length()) {
 					break outer;
 				}
-				char chr = hex.charAt(nexti);
+				final char chr = hex.charAt(nexti);
 				if (chr >= '0' && chr <= '9') {
 					number = chr - '0';
 				} else if (chr >= 'a' && chr <= 'f') {

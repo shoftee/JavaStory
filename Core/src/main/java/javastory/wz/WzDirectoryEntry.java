@@ -26,11 +26,11 @@ import java.util.Map;
 
 public class WzDirectoryEntry extends WzEntry implements WzDataDirectoryEntry {
 
-	private List<WzDataDirectoryEntry> subdirs = new ArrayList<>();
-	private List<WzDataFileEntry> files = new ArrayList<>();
-	private Map<String, WzDataEntry> entries = new HashMap<>();
+	private final List<WzDataDirectoryEntry> subdirs = new ArrayList<>();
+	private final List<WzDataFileEntry> files = new ArrayList<>();
+	private final Map<String, WzDataEntry> entries = new HashMap<>();
 
-	public WzDirectoryEntry(String name, int size, int checksum, WzDataEntity parent) {
+	public WzDirectoryEntry(final String name, final int size, final int checksum, final WzDataEntity parent) {
 		super(name, size, checksum, parent);
 	}
 
@@ -38,28 +38,28 @@ public class WzDirectoryEntry extends WzEntry implements WzDataDirectoryEntry {
 		super(null, 0, 0, null);
 	}
 
-	public void addDirectory(WzDataDirectoryEntry dir) {
-		subdirs.add(dir);
-		entries.put(dir.getName(), dir);
+	public void addDirectory(final WzDataDirectoryEntry dir) {
+		this.subdirs.add(dir);
+		this.entries.put(dir.getName(), dir);
 	}
 
-	public void addFile(WzDataFileEntry fileEntry) {
-		files.add(fileEntry);
-		entries.put(fileEntry.getName(), fileEntry);
+	public void addFile(final WzDataFileEntry fileEntry) {
+		this.files.add(fileEntry);
+		this.entries.put(fileEntry.getName(), fileEntry);
 	}
 
 	@Override
 	public List<WzDataDirectoryEntry> getSubdirectories() {
-		return Collections.unmodifiableList(subdirs);
+		return Collections.unmodifiableList(this.subdirs);
 	}
 
 	@Override
 	public List<WzDataFileEntry> getFiles() {
-		return Collections.unmodifiableList(files);
+		return Collections.unmodifiableList(this.files);
 	}
 
 	@Override
-	public WzDataEntry getEntry(String name) {
-		return entries.get(name);
+	public WzDataEntry getEntry(final String name) {
+		return this.entries.get(name);
 	}
 }

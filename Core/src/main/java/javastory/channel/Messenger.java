@@ -28,69 +28,69 @@ public final class Messenger implements Serializable {
 	private static final int MAX_MEMBERS = 3;
 	private static final long serialVersionUID = 9179541993413738569L;
 	private int id;
-	private MessengerMember[] m = new MessengerMember[MAX_MEMBERS];
+	private final MessengerMember[] m = new MessengerMember[MAX_MEMBERS];
 
 	// TODO: Observer!
-	public Messenger(int id, MessengerMember member) {
-		addMember(member);
+	public Messenger(final int id, final MessengerMember member) {
+		this.addMember(member);
 		this.id = id;
 	}
 
-	public boolean containsMembers(MessengerMember member) {
+	public boolean containsMembers(final MessengerMember member) {
 		for (int i = 0; i < MAX_MEMBERS; i++) {
-			if (m[i].equals(member)) {
+			if (this.m[i].equals(member)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void addMember(MessengerMember member) {
-		int position = getLowestPosition();
+	public void addMember(final MessengerMember member) {
+		final int position = this.getLowestPosition();
 		if (position == -1) {
 			throw new IllegalStateException("Cannot add more members.");
 		}
-		m[position] = member;
+		this.m[position] = member;
 		member.setPosition(position);
 	}
 
-	public void removeMember(MessengerMember member) {
-		int position = member.getPosition();
-		if (!m[position].equals(member)) {
+	public void removeMember(final MessengerMember member) {
+		final int position = member.getPosition();
+		if (!this.m[position].equals(member)) {
 			throw new IllegalArgumentException("'member' doesn't match the position.");
 		}
-		m[position] = null;
+		this.m[position] = null;
 	}
 
-	public void silentRemoveMember(MessengerMember member) {
-		m[member.getPosition()] = null;
+	public void silentRemoveMember(final MessengerMember member) {
+		this.m[member.getPosition()] = null;
 	}
 
-	public void silentAddMember(MessengerMember member, int position) {
-		m[position] = member;
+	public void silentAddMember(final MessengerMember member, final int position) {
+		this.m[position] = member;
 		member.setPosition(position);
 	}
 
-	public void updateMember(MessengerMember member) {
-		m[member.getPosition()] = member;
+	public void updateMember(final MessengerMember member) {
+		this.m[member.getPosition()] = member;
 	}
 
 	public Collection<MessengerMember> getMembers() {
-		return ImmutableList.copyOf(m);
+		return ImmutableList.copyOf(this.m);
 	}
 
 	public int getLowestPosition() {
 		for (int position = 0; position < MAX_MEMBERS; position++) {
-			if (m[position] == null) {
+			if (this.m[position] == null) {
 				return position;
 			}
 		}
 		return -1;
 	}
 
-	public int getPositionByName(String name) {
+	public int getPositionByName(final String name) {
 		for (int position = 0; position < 3; position++) {
-			if (m[position].getName().equals(name)) {
+			if (this.m[position].getName().equals(name)) {
 				return position;
 			}
 		}
@@ -98,26 +98,26 @@ public final class Messenger implements Serializable {
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final Messenger other = (Messenger) obj;
-		if (id != other.id) {
+		if (this.id != other.id) {
 			return false;
 		}
 		return true;

@@ -37,9 +37,9 @@ import javastory.game.data.ReactorDropEntry;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {
 
-	private Reactor reactor;
+	private final Reactor reactor;
 
-	public ReactorActionManager(ChannelClient c, Reactor reactor) {
+	public ReactorActionManager(final ChannelClient c, final Reactor reactor) {
 		super(c);
 		this.reactor = reactor;
 	}
@@ -47,19 +47,19 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 	// only used for meso = false, really. No minItems because meso is used to
 	// fill the gap
 	public void dropItems() {
-		dropItems(false, 0, 0, 0, 0);
+		this.dropItems(false, 0, 0, 0, 0);
 	}
 
-	public void dropItems(boolean meso, int mesoChance, int minMeso, int maxMeso) {
-		dropItems(meso, mesoChance, minMeso, maxMeso, 0);
+	public void dropItems(final boolean meso, final int mesoChance, final int minMeso, final int maxMeso) {
+		this.dropItems(meso, mesoChance, minMeso, maxMeso, 0);
 	}
 
-	public void dropItems(boolean meso, int mesoChance, int minMeso, int maxMeso, int minItems) {
-		final List<ReactorDropEntry> chances = ReactorScriptManager.getInstance().getDrops(reactor.getReactorId());
+	public void dropItems(final boolean meso, final int mesoChance, final int minMeso, final int maxMeso, final int minItems) {
+		final List<ReactorDropEntry> chances = ReactorScriptManager.getInstance().getDrops(this.reactor.getReactorId());
 		final List<ReactorDropEntry> items = new LinkedList<>();
 
 		if (meso) {
-			if (Math.random() < (1 / (double) mesoChance)) {
+			if (Math.random() < 1 / (double) mesoChance) {
 				items.add(new ReactorDropEntry(0, mesoChance, -1));
 			}
 		}
@@ -69,8 +69,8 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 		final Iterator<ReactorDropEntry> iter = chances.iterator();
 		// for (DropEntry d : chances){
 		while (iter.hasNext()) {
-			ReactorDropEntry d = iter.next();
-			if (Math.random() < (1 / (double) d.chance)) {
+			final ReactorDropEntry d = iter.next();
+			if (Math.random() < 1 / (double) d.chance) {
 				numItems++;
 				items.add(d);
 			}
@@ -81,9 +81,9 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 			items.add(new ReactorDropEntry(0, mesoChance, -1));
 			numItems++;
 		}
-		final Point dropPos = reactor.getPosition();
+		final Point dropPos = this.reactor.getPosition();
 
-		dropPos.x -= (12 * numItems);
+		dropPos.x -= 12 * numItems;
 
 		int range, mesoDrop;
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
@@ -93,7 +93,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 				final double randomMeso = Math.random() * range + minMeso;
 				final float mesoRate = ChannelServer.getInstance().getMesoRate();
 				mesoDrop = (int) (randomMeso * mesoRate);
-				reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, reactor, getPlayer(), false, (byte) 0);
+				this.reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, this.reactor, this.getPlayer(), false, (byte) 0);
 			} else {
 				IItem drop;
 				if (GameConstants.getInventoryType(d.itemId) != InventoryType.EQUIP) {
@@ -101,90 +101,90 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 				} else {
 					drop = ii.randomizeStats((Equip) ii.getEquipById(d.itemId));
 				}
-				reactor.getMap().spawnItemDrop(reactor, getPlayer(), drop, dropPos, false, false);
+				this.reactor.getMap().spawnItemDrop(this.reactor, this.getPlayer(), drop, dropPos, false, false);
 			}
 			dropPos.x += 25;
 		}
 	}
 
 	// summon one monster on reactor location
-	public void spawnMonster(int id) {
-		spawnMonster(id, 1, getPosition());
+	public void spawnMonster(final int id) {
+		this.spawnMonster(id, 1, this.getPosition());
 	}
 
 	// summon one monster, remote location
-	public void spawnMonster(int id, int x, int y) {
-		spawnMonster(id, 1, new Point(x, y));
+	public void spawnMonster(final int id, final int x, final int y) {
+		this.spawnMonster(id, 1, new Point(x, y));
 	}
 
 	// multiple monsters, reactor location
-	public void spawnMonster(int id, int qty) {
-		spawnMonster(id, qty, getPosition());
+	public void spawnMonster(final int id, final int qty) {
+		this.spawnMonster(id, qty, this.getPosition());
 	}
 
 	// multiple monsters, remote location
-	public void spawnMonster(int id, int qty, int x, int y) {
-		spawnMonster(id, qty, new Point(x, y));
+	public void spawnMonster(final int id, final int qty, final int x, final int y) {
+		this.spawnMonster(id, qty, new Point(x, y));
 	}
 
 	// handler for all spawnMonster
-	private void spawnMonster(int id, int qty, Point pos) {
+	private void spawnMonster(final int id, final int qty, final Point pos) {
 		for (int i = 0; i < qty; i++) {
-			reactor.getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
+			this.reactor.getMap().spawnMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
 		}
 	}
 
 	@Override
-	public void spawnNpc(int npcId) {
-		spawnNpc(npcId, getPosition());
+	public void spawnNpc(final int npcId) {
+		this.spawnNpc(npcId, this.getPosition());
 	}
 
 	// returns slightly above the reactor's position for monster spawns
 	public Point getPosition() {
-		Point pos = reactor.getPosition();
+		final Point pos = this.reactor.getPosition();
 		pos.y -= 10;
 		return pos;
 	}
 
 	public Reactor getReactor() {
-		return reactor;
+		return this.reactor;
 	}
 
 	public void spawnZakum() {
-		reactor.getMap().spawnZakum(getPosition());
+		this.reactor.getMap().spawnZakum(this.getPosition());
 	}
 
-	public void spawnFakeMonster(int id) {
-		spawnFakeMonster(id, 1, getPosition());
+	public void spawnFakeMonster(final int id) {
+		this.spawnFakeMonster(id, 1, this.getPosition());
 	}
 
 	// summon one monster, remote location
-	public void spawnFakeMonster(int id, int x, int y) {
-		spawnFakeMonster(id, 1, new Point(x, y));
+	public void spawnFakeMonster(final int id, final int x, final int y) {
+		this.spawnFakeMonster(id, 1, new Point(x, y));
 	}
 
 	// multiple monsters, reactor location
-	public void spawnFakeMonster(int id, int qty) {
-		spawnFakeMonster(id, qty, getPosition());
+	public void spawnFakeMonster(final int id, final int qty) {
+		this.spawnFakeMonster(id, qty, this.getPosition());
 	}
 
 	// multiple monsters, remote location
-	public void spawnFakeMonster(int id, int qty, int x, int y) {
-		spawnFakeMonster(id, qty, new Point(x, y));
+	public void spawnFakeMonster(final int id, final int qty, final int x, final int y) {
+		this.spawnFakeMonster(id, qty, new Point(x, y));
 	}
 
 	// handler for all spawnFakeMonster
-	private void spawnFakeMonster(int id, int qty, Point pos) {
+	private void spawnFakeMonster(final int id, final int qty, final Point pos) {
 		for (int i = 0; i < qty; i++) {
-			reactor.getMap().spawnFakeMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
+			this.reactor.getMap().spawnFakeMonsterOnGroundBelow(LifeFactory.getMonster(id), pos);
 		}
 	}
 
 	public void killAll() {
-		reactor.getMap().killAllMonsters(true);
+		this.reactor.getMap().killAllMonsters(true);
 	}
 
-	public void killMonster(int monsId) {
-		reactor.getMap().killMonster(monsId);
+	public void killMonster(final int monsId) {
+		this.reactor.getMap().killMonster(monsId);
 	}
 }

@@ -43,23 +43,23 @@ public final class MonsterStatusEffect {
 	}
 
 	public Map<MonsterStatus, Integer> getEffects() {
-		return effects;
+		return this.effects;
 	}
 
 	public Integer setEffect(final MonsterStatus status, final Integer newVal) {
-		return effects.put(status, newVal);
+		return this.effects.put(status, newVal);
 	}
 
 	public ISkill getSkill() {
-		return skill;
+		return this.skill;
 	}
 
 	public MobSkill getMobSkill() {
-		return mobskill;
+		return this.mobskill;
 	}
 
 	public boolean isMonsterSkill() {
-		return monsterSkill;
+		return this.monsterSkill;
 	}
 
 	public void setCancelTask(final ScheduledFuture<?> cancelTask) {
@@ -67,7 +67,7 @@ public final class MonsterStatusEffect {
 	}
 
 	public void removeActiveStatus(final MonsterStatus stat) {
-		effects.remove(stat);
+		this.effects.remove(stat);
 	}
 
 	public void setPoisonSchedule(final ScheduledFuture<?> poisonSchedule) {
@@ -75,16 +75,16 @@ public final class MonsterStatusEffect {
 	}
 
 	public void cancelTask() {
-		if (cancelTask != null) {
-			cancelTask.cancel(false);
+		if (this.cancelTask != null) {
+			this.cancelTask.cancel(false);
 		}
-		cancelTask = null;
+		this.cancelTask = null;
 	}
 
 	public void cancelPoisonSchedule() {
-		if (poisonSchedule != null) {
-			poisonSchedule.cancel(false);
+		if (this.poisonSchedule != null) {
+			this.poisonSchedule.cancel(false);
 		}
-		poisonSchedule = null;
+		this.poisonSchedule = null;
 	}
 }

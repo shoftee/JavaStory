@@ -29,12 +29,12 @@ public class GameCodecFactory implements ProtocolCodecFactory {
 	private final ProtocolDecoder decoder = new PacketDecoder();
 
 	@Override
-	public ProtocolEncoder getEncoder(IoSession session) throws Exception {
-		return encoder;
+	public ProtocolEncoder getEncoder(final IoSession session) throws Exception {
+		return this.encoder;
 	}
 
 	@Override
-	public ProtocolDecoder getDecoder(IoSession session) throws Exception {
-		return decoder;
+	public ProtocolDecoder getDecoder(final IoSession session) throws Exception {
+		return this.decoder;
 	}
 }

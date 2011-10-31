@@ -16,7 +16,7 @@ public class Event_DojoAgent {
 
 	public static boolean warpStartAgent(final ChannelCharacter c, final boolean party) {
 		final int stage = 1;
-		final int mapid = baseAgentMapId + (stage * 100);
+		final int mapid = baseAgentMapId + stage * 100;
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
@@ -52,7 +52,7 @@ public class Event_DojoAgent {
 			c.changeMap(map, map.getPortal(0));
 			return true;
 		}
-		final int nextmapid = baseAgentMapId + ((thisStage + 1) * 100);
+		final int nextmapid = baseAgentMapId + (thisStage + 1) * 100;
 		for (int i = nextmapid; i < nextmapid + 7; i++) {
 			map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
@@ -70,7 +70,7 @@ public class Event_DojoAgent {
 		if (party || stage == -1 || stage > 38) {
 			stage = 1;
 		}
-		final int mapid = 925020000 + (stage * 100);
+		final int mapid = 925020000 + stage * 100;
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
 			if (map.getCharactersSize() == 0) {
@@ -112,8 +112,8 @@ public class Event_DojoAgent {
 			return true;
 		}
 		final int temp = (currentmap - 925000000) / 100;
-		final int thisStage = (int) (temp - (Math.floor(temp / 100) * 100));
-		final int nextmapid = 925020000 + ((thisStage + 1) * 100);
+		final int thisStage = (int) (temp - Math.floor(temp / 100) * 100);
+		final int nextmapid = 925020000 + (thisStage + 1) * 100;
 
 		for (int i = nextmapid; i < nextmapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);

@@ -33,27 +33,28 @@ import javastory.tools.packets.ChannelPackets;
 
 public class Mist extends AbstractGameMapObject {
 
-	private Rectangle mistPosition;
+	private final Rectangle mistPosition;
 	private ChannelCharacter owner = null; // Assume this is removed, else
 											// weakref will be required
 	private Monster mob = null;
 	private StatEffect source;
 	private MobSkill skill;
 	private boolean isMobMist, isPoisonMist;
-	private int skillDelay, skilllevel;
+	private int skillDelay;
+	private final int skilllevel;
 
-	public Mist(Rectangle mistPosition, Monster mob, MobSkill skill) {
+	public Mist(final Rectangle mistPosition, final Monster mob, final MobSkill skill) {
 		this.mistPosition = mistPosition;
 		this.mob = mob;
 		this.skill = skill;
-		skilllevel = skill.getSkillId();
+		this.skilllevel = skill.getSkillId();
 
-		isMobMist = true;
-		isPoisonMist = true;
-		skillDelay = 0;
+		this.isMobMist = true;
+		this.isPoisonMist = true;
+		this.skillDelay = 0;
 	}
 
-	public Mist(Rectangle mistPosition, ChannelCharacter owner, StatEffect source) {
+	public Mist(final Rectangle mistPosition, final ChannelCharacter owner, final StatEffect source) {
 		this.mistPosition = mistPosition;
 		this.owner = owner;
 		this.source = source;
@@ -61,15 +62,15 @@ public class Mist extends AbstractGameMapObject {
 
 		switch (source.getSourceId()) {
 		case 4221006: // Smoke Screen
-			isMobMist = false;
-			isPoisonMist = false;
-			skillDelay = 8;
+			this.isMobMist = false;
+			this.isPoisonMist = false;
+			this.skillDelay = 8;
 			break;
 		case 2111003: // FP mist
 		case 12111005: // Flame wizard, [Flame Gear]
-			isMobMist = false;
-			isPoisonMist = true;
-			skillDelay = 8;
+			this.isMobMist = false;
+			this.isPoisonMist = true;
+			this.skillDelay = 8;
 			break;
 		}
 	}
@@ -81,35 +82,35 @@ public class Mist extends AbstractGameMapObject {
 
 	@Override
 	public Point getPosition() {
-		return mistPosition.getLocation();
+		return this.mistPosition.getLocation();
 	}
 
 	public ISkill getSourceSkill() {
-		return SkillFactory.getSkill(source.getSourceId());
+		return SkillFactory.getSkill(this.source.getSourceId());
 	}
 
 	public boolean isMobMist() {
-		return isMobMist;
+		return this.isMobMist;
 	}
 
 	public boolean isPoisonMist() {
-		return isPoisonMist;
+		return this.isPoisonMist;
 	}
 
 	public int getSkillDelay() {
-		return skillDelay;
+		return this.skillDelay;
 	}
 
 	public int getSkillLevel() {
-		return skilllevel;
+		return this.skilllevel;
 	}
 
 	public Monster getMobOwner() {
-		return mob;
+		return this.mob;
 	}
 
 	public ChannelCharacter getOwner() {
-		return owner;
+		return this.owner;
 	}
 
 	public MobSkill getMobSkill() {
@@ -117,15 +118,15 @@ public class Mist extends AbstractGameMapObject {
 	}
 
 	public Rectangle getBox() {
-		return mistPosition;
+		return this.mistPosition;
 	}
 
 	@Override
-	public void setPosition(Point position) {
+	public void setPosition(final Point position) {
 	}
 
-	public GamePacket fakeSpawnData(int level) {
-		if (owner != null) {
+	public GamePacket fakeSpawnData(final int level) {
+		if (this.owner != null) {
 			return ChannelPackets.spawnMist(this);
 		}
 		return ChannelPackets.spawnMist(this);
@@ -138,10 +139,10 @@ public class Mist extends AbstractGameMapObject {
 
 	@Override
 	public void sendDestroyData(final ChannelClient c) {
-		c.write(ChannelPackets.removeMist(getObjectId()));
+		c.write(ChannelPackets.removeMist(this.getObjectId()));
 	}
 
 	public boolean makeChanceResult() {
-		return source.makeChanceResult();
+		return this.source.makeChanceResult();
 	}
 }

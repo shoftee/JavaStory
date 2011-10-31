@@ -24,7 +24,7 @@ import javastory.tools.packets.ChannelPackets;
 public class NpcHandler {
 
 	public static void handleNpcAnimation(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 		final int length = (int) reader.remaining();
 
 		if (length == 6) { // NPC Talk
@@ -194,24 +194,24 @@ public class NpcHandler {
 		int meso = reader.readInt();
 		final int storageMesos = storage.getMeso();
 		final int playerMesos = chr.getMeso();
-		if ((meso > 0 && storageMesos >= meso) || (meso < 0 && playerMesos >= -meso)) {
-			if (meso < 0 && (storageMesos - meso) < 0) {
+		if (meso > 0 && storageMesos >= meso || meso < 0 && playerMesos >= -meso) {
+			if (meso < 0 && storageMesos - meso < 0) {
 				// storing with overflow
 				meso = -(Integer.MAX_VALUE - storageMesos);
-				if ((-meso) > playerMesos) {
+				if (-meso > playerMesos) {
 					return;
 				}
-			} else if (meso > 0 && (playerMesos + meso) < 0) {
+			} else if (meso > 0 && playerMesos + meso < 0) {
 				// taking out with overflow
-				meso = (Integer.MAX_VALUE - playerMesos);
-				if ((meso) > storageMesos) {
+				meso = Integer.MAX_VALUE - playerMesos;
+				if (meso > storageMesos) {
 					return;
 				}
 			}
 			storage.setMeso(storageMesos - meso);
 			chr.gainMeso(meso, false, true, false);
 		} else {
-			StringBuilder builder = new StringBuilder();
+			final StringBuilder builder = new StringBuilder();
 			builder.append("Trying to store or take out unavailable amount of mesos (");
 			builder.append(meso).append("/");
 			builder.append(storage.getMeso()).append("/");
@@ -237,8 +237,8 @@ public class NpcHandler {
 		if (chr.getMeso() < 100) {
 			chr.sendNotice(1, "You don't have enough mesos to store the item");
 		} else {
-			Inventory inventory = chr.getInventoryForItem(itemId);
-			IItem item = inventory.getItem(slot).copy();
+			final Inventory inventory = chr.getInventoryForItem(itemId);
+			final IItem item = inventory.getItem(slot).copy();
 			if (GameConstants.isPet(item.getItemId())) {
 				c.write(ChannelPackets.enableActions());
 				return;

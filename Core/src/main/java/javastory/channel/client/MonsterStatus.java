@@ -69,18 +69,18 @@ public enum MonsterStatus implements Serializable {
     private final long i;
     private final boolean first;
 
-    private MonsterStatus(long i) {
+    private MonsterStatus(final long i) {
 	this.i = i;
-	first = false;
+	this.first = false;
     }
 
-    private MonsterStatus(int i, boolean first) {
+    private MonsterStatus(final int i, final boolean first) {
 	this.i = i;
 	this.first = first;
     }
 
     public boolean isFirst() {
-	return first;
+	return this.first;
     }
 
     public boolean isEmpty() {
@@ -88,6 +88,6 @@ public enum MonsterStatus implements Serializable {
     }
 
     public long getValue() {
-	return i;
+	return this.i;
     }
 }

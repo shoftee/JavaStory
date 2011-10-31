@@ -1,9 +1,9 @@
 package javastory.server;
 
 public class CashItemInfo {
-	private int itemId, count, price, period;
+	private final int itemId, count, price, period;
 
-	public CashItemInfo(int itemId, int count, int price, int period) {
+	public CashItemInfo(final int itemId, final int count, final int price, final int period) {
 		this.itemId = itemId;
 		this.count = count;
 		this.price = price;
@@ -11,18 +11,18 @@ public class CashItemInfo {
 	}
 
 	public int getId() {
-		return itemId;
+		return this.itemId;
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public int getPeriod() {
-		return period;
+		return this.period;
 	}
 
 	public int getPrice() {
-		return price;
+		return this.price;
 	}
 }

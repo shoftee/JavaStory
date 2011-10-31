@@ -32,62 +32,62 @@ import java.util.Set;
 
 public class CPUSampler {
 
-	private List<String> included = new LinkedList<>();
+	private final List<String> included = new LinkedList<>();
 	private static CPUSampler instance = new CPUSampler();
 	private long interval = 5;
 	private SamplerThread sampler = null;
-	private Map<StackTrace, Integer> recorded = new HashMap<>();
+	private final Map<StackTrace, Integer> recorded = new HashMap<>();
 	private int totalSamples = 0;
 
 	public static CPUSampler getInstance() {
 		return instance;
 	}
 
-	public void setInterval(long millis) {
-		interval = millis;
+	public void setInterval(final long millis) {
+		this.interval = millis;
 	}
 
-	public void addIncluded(String include) {
-		for (String alreadyIncluded : included) {
+	public void addIncluded(final String include) {
+		for (final String alreadyIncluded : this.included) {
 			if (include.startsWith(alreadyIncluded)) {
 				return;
 			}
 		}
-		included.add(include);
+		this.included.add(include);
 	}
 
 	public void reset() {
-		recorded.clear();
-		totalSamples = 0;
+		this.recorded.clear();
+		this.totalSamples = 0;
 	}
 
 	public void start() {
-		if (sampler == null) {
-			sampler = new SamplerThread();
-			sampler.start();
+		if (this.sampler == null) {
+			this.sampler = new SamplerThread();
+			this.sampler.start();
 		}
 	}
 
 	public void stop() {
-		if (sampler != null) {
-			sampler.stop();
-			sampler = null;
+		if (this.sampler != null) {
+			this.sampler.stop();
+			this.sampler = null;
 		}
 	}
 
 	public SampledStacktraces getTopConsumers() {
-		List<StacktraceWithCount> ret = new ArrayList<>();
-		Set<Entry<StackTrace, Integer>> entrySet = recorded.entrySet();
-		for (Entry<StackTrace, Integer> entry : entrySet) {
+		final List<StacktraceWithCount> ret = new ArrayList<>();
+		final Set<Entry<StackTrace, Integer>> entrySet = this.recorded.entrySet();
+		for (final Entry<StackTrace, Integer> entry : entrySet) {
 			ret.add(new StacktraceWithCount(entry.getValue(), entry.getKey()));
 		}
 		Collections.sort(ret);
-		return new SampledStacktraces(ret, totalSamples);
+		return new SampledStacktraces(ret, this.totalSamples);
 	}
 
-	public void save(Writer writer, int minInvocations, int topMethods) throws IOException {
-		SampledStacktraces topConsumers = getTopConsumers();
-		StringBuilder builder = new StringBuilder(); // build our summary :o
+	public void save(final Writer writer, final int minInvocations, final int topMethods) throws IOException {
+		final SampledStacktraces topConsumers = this.getTopConsumers();
+		final StringBuilder builder = new StringBuilder(); // build our summary :o
 		builder.append("Top Methods:\n");
 		for (int i = 0; i < topMethods && i < topConsumers.getTopConsumers().size(); i++) {
 			builder.append(topConsumers.getTopConsumers().get(i).toString(topConsumers.getTotalInvocations(), 1));
@@ -98,32 +98,32 @@ public class CPUSampler {
 		writer.flush();
 	}
 
-	private void consumeStackTraces(Map<Thread, StackTraceElement[]> traces) {
-		for (Entry<Thread, StackTraceElement[]> trace : traces.entrySet()) {
-			int relevant = findRelevantElement(trace.getValue());
+	private void consumeStackTraces(final Map<Thread, StackTraceElement[]> traces) {
+		for (final Entry<Thread, StackTraceElement[]> trace : traces.entrySet()) {
+			final int relevant = this.findRelevantElement(trace.getValue());
 			if (relevant != -1) {
-				StackTrace st = new StackTrace(trace.getValue(), relevant, trace.getKey().getState());
-				Integer i = recorded.get(st);
-				totalSamples++;
+				final StackTrace st = new StackTrace(trace.getValue(), relevant, trace.getKey().getState());
+				final Integer i = this.recorded.get(st);
+				this.totalSamples++;
 				if (i == null) {
-					recorded.put(st, Integer.valueOf(1));
+					this.recorded.put(st, Integer.valueOf(1));
 				} else {
-					recorded.put(st, Integer.valueOf(i.intValue() + 1));
+					this.recorded.put(st, Integer.valueOf(i.intValue() + 1));
 				}
 			}
 		}
 	}
 
-	private int findRelevantElement(StackTraceElement[] trace) {
+	private int findRelevantElement(final StackTraceElement[] trace) {
 		if (trace.length == 0) {
 			return -1;
-		} else if (included.isEmpty()) {
+		} else if (this.included.isEmpty()) {
 			return 0;
 		}
 		int firstIncluded = -1;
-		for (String myIncluded : included) {
+		for (final String myIncluded : this.included) {
 			for (int i = 0; i < trace.length; i++) {
-				StackTraceElement ste = trace[i];
+				final StackTraceElement ste = trace[i];
 				if (ste.getClassName().startsWith(myIncluded)) {
 					if (i < firstIncluded || firstIncluded == -1) {
 						firstIncluded = i;
@@ -141,9 +141,9 @@ public class CPUSampler {
 	private static class StackTrace {
 
 		private StackTraceElement[] trace;
-		private State state;
+		private final State state;
 
-		public StackTrace(StackTraceElement[] trace, int startAt, State state) {
+		public StackTrace(final StackTraceElement[] trace, final int startAt, final State state) {
 			this.state = state;
 			if (startAt == 0) {
 				this.trace = trace;
@@ -154,19 +154,19 @@ public class CPUSampler {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(final Object obj) {
 			if (!(obj instanceof StackTrace)) {
 				return false;
 			}
-			StackTrace other = (StackTrace) obj;
-			if (other.trace.length != trace.length) {
+			final StackTrace other = (StackTrace) obj;
+			if (other.trace.length != this.trace.length) {
 				return false;
 			}
 			if (!(other.state == this.state)) {
 				return false;
 			}
-			for (int i = 0; i < trace.length; i++) {
-				if (!trace[i].equals(other.trace[i])) {
+			for (int i = 0; i < this.trace.length; i++) {
+				if (!this.trace[i].equals(other.trace[i])) {
 					return false;
 				}
 			}
@@ -175,32 +175,32 @@ public class CPUSampler {
 
 		@Override
 		public int hashCode() {
-			int ret = 13 * trace.length + state.hashCode();
-			for (StackTraceElement ste : trace) {
+			int ret = 13 * this.trace.length + this.state.hashCode();
+			for (final StackTraceElement ste : this.trace) {
 				ret ^= ste.hashCode();
 			}
 			return ret;
 		}
 
 		public StackTraceElement[] getTrace() {
-			return trace;
+			return this.trace;
 		}
 
 		@Override
 		public String toString() {
-			return toString(-1);
+			return this.toString(-1);
 		}
 
-		public String toString(int traceLength) {
-			StringBuilder ret = new StringBuilder("State: ");
-			ret.append(state.name());
+		public String toString(final int traceLength) {
+			final StringBuilder ret = new StringBuilder("State: ");
+			ret.append(this.state.name());
 			if (traceLength > 1) {
 				ret.append("\n");
 			} else {
 				ret.append(" ");
 			}
 			int i = 0;
-			for (StackTraceElement ste : trace) {
+			for (final StackTraceElement ste : this.trace) {
 				i++;
 				if (i > traceLength) {
 					break;
@@ -223,31 +223,31 @@ public class CPUSampler {
 		private Thread rthread;
 
 		public void start() {
-			if (!running) {
-				shouldRun = true;
-				rthread = new Thread(this, "CPU Sampling Thread");
-				rthread.start();
-				running = true;
+			if (!this.running) {
+				this.shouldRun = true;
+				this.rthread = new Thread(this, "CPU Sampling Thread");
+				this.rthread.start();
+				this.running = true;
 			}
 		}
 
 		public void stop() {
 			this.shouldRun = false;
-			rthread.interrupt();
+			this.rthread.interrupt();
 			try {
-				rthread.join();
-			} catch (InterruptedException e) {
+				this.rthread.join();
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 
 		@Override
 		public void run() {
-			while (shouldRun) {
-				consumeStackTraces(Thread.getAllStackTraces());
+			while (this.shouldRun) {
+				CPUSampler.this.consumeStackTraces(Thread.getAllStackTraces());
 				try {
-					Thread.sleep(interval);
-				} catch (InterruptedException e) {
+					Thread.sleep(CPUSampler.this.interval);
+				} catch (final InterruptedException e) {
 					return;
 				}
 			}
@@ -256,39 +256,39 @@ public class CPUSampler {
 
 	public static class StacktraceWithCount implements Comparable<StacktraceWithCount> {
 
-		private int count;
-		private StackTrace trace;
+		private final int count;
+		private final StackTrace trace;
 
-		public StacktraceWithCount(int count, StackTrace trace) {
+		public StacktraceWithCount(final int count, final StackTrace trace) {
 			super();
 			this.count = count;
 			this.trace = trace;
 		}
 
 		public int getCount() {
-			return count;
+			return this.count;
 		}
 
 		public StackTraceElement[] getTrace() {
-			return trace.getTrace();
+			return this.trace.getTrace();
 		}
 
 		@Override
-		public int compareTo(StacktraceWithCount o) {
-			return -Integer.valueOf(count).compareTo(Integer.valueOf(o.count));
+		public int compareTo(final StacktraceWithCount o) {
+			return -Integer.valueOf(this.count).compareTo(Integer.valueOf(o.count));
 		}
 
 		@Override
 		public String toString() {
-			return count + " Sampled Invocations\n" + trace.toString();
+			return this.count + " Sampled Invocations\n" + this.trace.toString();
 		}
 
-		private double getPercentage(int total) {
-			return Math.round((((double) count) / total) * 10000.0) / 100.0;
+		private double getPercentage(final int total) {
+			return Math.round((double) this.count / total * 10000.0) / 100.0;
 		}
 
-		public String toString(int totalInvoations, int traceLength) {
-			return count + "/" + totalInvoations + " Sampled Invocations (" + getPercentage(totalInvoations) + "%) " + trace.toString(traceLength);
+		public String toString(final int totalInvoations, final int traceLength) {
+			return this.count + "/" + totalInvoations + " Sampled Invocations (" + this.getPercentage(totalInvoations) + "%) " + this.trace.toString(traceLength);
 		}
 	}
 
@@ -297,30 +297,30 @@ public class CPUSampler {
 		List<StacktraceWithCount> topConsumers;
 		int totalInvocations;
 
-		public SampledStacktraces(List<StacktraceWithCount> topConsumers, int totalInvocations) {
+		public SampledStacktraces(final List<StacktraceWithCount> topConsumers, final int totalInvocations) {
 			super();
 			this.topConsumers = topConsumers;
 			this.totalInvocations = totalInvocations;
 		}
 
 		public List<StacktraceWithCount> getTopConsumers() {
-			return topConsumers;
+			return this.topConsumers;
 		}
 
 		public int getTotalInvocations() {
-			return totalInvocations;
+			return this.totalInvocations;
 		}
 
 		@Override
 		public String toString() {
-			return toString(0);
+			return this.toString(0);
 		}
 
-		public String toString(int minInvocation) {
-			StringBuilder ret = new StringBuilder();
-			for (StacktraceWithCount swc : topConsumers) {
+		public String toString(final int minInvocation) {
+			final StringBuilder ret = new StringBuilder();
+			for (final StacktraceWithCount swc : this.topConsumers) {
 				if (swc.getCount() >= minInvocation) {
-					ret.append(swc.toString(totalInvocations, Integer.MAX_VALUE));
+					ret.append(swc.toString(this.totalInvocations, Integer.MAX_VALUE));
 					ret.append("\n");
 				}
 			}

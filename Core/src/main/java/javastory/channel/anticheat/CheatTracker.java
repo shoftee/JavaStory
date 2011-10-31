@@ -39,21 +39,21 @@ public class CheatTracker {
 
 	public CheatTracker(final ChannelCharacter chr) {
 		this.chr = new WeakReference<>(chr);
-		invalidationTask = TimerManager.getInstance().register(new InvalidationTask(), 60000);
-		takingDamageSince = System.currentTimeMillis();
+		this.invalidationTask = TimerManager.getInstance().register(new InvalidationTask(), 60000);
+		this.takingDamageSince = System.currentTimeMillis();
 	}
 
 	public final void checkAttack(final int skillId, final int tickcount) {
 		final short AtkDelay = GameConstants.getAttackDelay(skillId);
-		if ((tickcount - lastAttackTickCount) < AtkDelay) {
-			registerOffense(CheatingOffense.FASTATTACK);
+		if (tickcount - this.lastAttackTickCount < AtkDelay) {
+			this.registerOffense(CheatingOffense.FASTATTACK);
 		}
 		final long STime_TC = System.currentTimeMillis() - tickcount; // hack =
 																		// -
 																		// more
-		if (Server_ClientAtkTickDiff - STime_TC > 250) { // 250 is the ping,
+		if (this.Server_ClientAtkTickDiff - STime_TC > 250) { // 250 is the ping,
 															// TODO
-			registerOffense(CheatingOffense.FASTATTACK2);
+			this.registerOffense(CheatingOffense.FASTATTACK2);
 		}
 		// if speed hack, client tickcount values will be running at a faster
 		// pace
@@ -63,30 +63,30 @@ public class CheatTracker {
 
 		// System.out.println("Delay [" + skillId + "] = " + (tickcount -
 		// lastAttackTickCount) + ", " + (Server_ClientAtkTickDiff - STime_TC));
-		Attack_tickResetCount++; // Without this, the difference will always be
+		this.Attack_tickResetCount++; // Without this, the difference will always be
 									// at 100
-		if (Attack_tickResetCount >= (AtkDelay <= 200 ? 2 : 4)) {
-			Attack_tickResetCount = 0;
-			Server_ClientAtkTickDiff = STime_TC;
+		if (this.Attack_tickResetCount >= (AtkDelay <= 200 ? 2 : 4)) {
+			this.Attack_tickResetCount = 0;
+			this.Server_ClientAtkTickDiff = STime_TC;
 		}
-		lastAttackTickCount = tickcount;
+		this.lastAttackTickCount = tickcount;
 	}
 
 	public final void checkTakeDamage(final int damage) {
-		numSequentialDamage++;
-		lastDamageTakenTime = System.currentTimeMillis();
+		this.numSequentialDamage++;
+		this.lastDamageTakenTime = System.currentTimeMillis();
 
 		// System.out.println("tb" + timeBetweenDamage);
 		// System.out.println("ns" + numSequentialDamage);
 		// System.out.println(timeBetweenDamage / 1500 + "(" + timeBetweenDamage
 		// / numSequentialDamage + ")");
 
-		if (lastDamageTakenTime - takingDamageSince / 500 < numSequentialDamage) {
-			registerOffense(CheatingOffense.FAST_TAKE_DAMAGE);
+		if (this.lastDamageTakenTime - this.takingDamageSince / 500 < this.numSequentialDamage) {
+			this.registerOffense(CheatingOffense.FAST_TAKE_DAMAGE);
 		}
-		if (lastDamageTakenTime - takingDamageSince > 4500) {
-			takingDamageSince = lastDamageTakenTime;
-			numSequentialDamage = 0;
+		if (this.lastDamageTakenTime - this.takingDamageSince > 4500) {
+			this.takingDamageSince = this.lastDamageTakenTime;
+			this.numSequentialDamage = 0;
 		}
 		/*
 		 * (non-thieves)
@@ -97,60 +97,60 @@ public class CheatTracker {
 		 * Max Miss Rate: 95%
 		 */
 		if (damage == 0) {
-			numZeroDamageTaken++;
-			if (numZeroDamageTaken >= 35) { // Num count MSEA a/b players
-				numZeroDamageTaken = 0;
-				registerOffense(CheatingOffense.HIGH_AVOID);
+			this.numZeroDamageTaken++;
+			if (this.numZeroDamageTaken >= 35) { // Num count MSEA a/b players
+				this.numZeroDamageTaken = 0;
+				this.registerOffense(CheatingOffense.HIGH_AVOID);
 			}
 		} else if (damage != -1) {
-			numZeroDamageTaken = 0;
+			this.numZeroDamageTaken = 0;
 		}
 	}
 
 	public final void checkSameDamage(final int dmg) {
-		if (dmg > 1 && lastDamage == dmg) {
-			numSameDamage++;
+		if (dmg > 1 && this.lastDamage == dmg) {
+			this.numSameDamage++;
 
-			if (numSameDamage > 5) {
-				numSameDamage = 0;
-				registerOffense(CheatingOffense.SAME_DAMAGE, numSameDamage + " times: " + dmg);
+			if (this.numSameDamage > 5) {
+				this.numSameDamage = 0;
+				this.registerOffense(CheatingOffense.SAME_DAMAGE, this.numSameDamage + " times: " + dmg);
 			}
 		} else {
-			lastDamage = dmg;
-			numSameDamage = 0;
+			this.lastDamage = dmg;
+			this.numSameDamage = 0;
 		}
 	}
 
 	public final void checkMoveMonster(final Point pos) {
-		if (pos == lastMonsterMove) {
-			monsterMoveCount++;
-			if (monsterMoveCount > 15) {
-				registerOffense(CheatingOffense.MOVE_MONSTERS);
+		if (pos == this.lastMonsterMove) {
+			this.monsterMoveCount++;
+			if (this.monsterMoveCount > 15) {
+				this.registerOffense(CheatingOffense.MOVE_MONSTERS);
 			}
 		} else {
-			lastMonsterMove = pos;
-			monsterMoveCount = 1;
+			this.lastMonsterMove = pos;
+			this.monsterMoveCount = 1;
 		}
 	}
 
 	public final void resetSummonAttack() {
-		summonSummonTime = System.currentTimeMillis();
-		numSequentialSummonAttack = 0;
+		this.summonSummonTime = System.currentTimeMillis();
+		this.numSequentialSummonAttack = 0;
 	}
 
 	public final boolean checkSummonAttack() {
-		numSequentialSummonAttack++;
+		this.numSequentialSummonAttack++;
 		// estimated
 		// System.out.println(numMPRegens + "/" + allowedRegens);
-		if ((System.currentTimeMillis() - summonSummonTime) / (2000 + 1) < numSequentialSummonAttack) {
-			registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);
+		if ((System.currentTimeMillis() - this.summonSummonTime) / (2000 + 1) < this.numSequentialSummonAttack) {
+			this.registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);
 			return false;
 		}
 		return true;
 	}
 
 	public final int getAttacksWithoutHit() {
-		return attacksWithoutHit;
+		return this.attacksWithoutHit;
 	}
 
 	public final void setAttacksWithoutHit(final boolean increase) {
@@ -162,17 +162,17 @@ public class CheatTracker {
 	}
 
 	public final void registerOffense(final CheatingOffense offense) {
-		registerOffense(offense, null);
+		this.registerOffense(offense, null);
 	}
 
 	public final void registerOffense(final CheatingOffense offense, final String param) {
-		final ChannelCharacter character = chr.get();
+		final ChannelCharacter character = this.chr.get();
 		if (character == null || !offense.isEnabled()) {
 			return;
 		}
-		CheatingOffenseEntry entry = offenses.get(offense);
+		CheatingOffenseEntry entry = this.offenses.get(offense);
 		if (entry != null && entry.isExpired()) {
-			expireEntry(entry);
+			this.expireEntry(entry);
 			entry = null;
 		}
 		if (entry == null) {
@@ -196,22 +196,22 @@ public class CheatTracker {
 			}
 			return;
 		}
-		offenses.put(offense, entry);
+		this.offenses.put(offense, entry);
 		CheatingOffensePersister.getInstance().persistEntry(entry);
 	}
 
 	public final void expireEntry(final CheatingOffenseEntry coe) {
-		offenses.remove(coe.getOffense());
+		this.offenses.remove(coe.getOffense());
 	}
 
 	public final int getPoints() {
 		int ret = 0;
 		CheatingOffenseEntry[] offenses_copy;
-		offenses_copy = offenses.values().toArray(new CheatingOffenseEntry[offenses.size()]);
+		offenses_copy = this.offenses.values().toArray(new CheatingOffenseEntry[this.offenses.size()]);
 
 		for (final CheatingOffenseEntry entry : offenses_copy) {
 			if (entry.isExpired()) {
-				expireEntry(entry);
+				this.expireEntry(entry);
 			} else {
 				ret += entry.getPoints();
 			}
@@ -220,14 +220,14 @@ public class CheatTracker {
 	}
 
 	public final Map<CheatingOffense, CheatingOffenseEntry> getOffenses() {
-		return Collections.unmodifiableMap(offenses);
+		return Collections.unmodifiableMap(this.offenses);
 	}
 
 	public final String getSummary() {
 		final StringBuilder ret = new StringBuilder();
 		final List<CheatingOffenseEntry> offenseList = new ArrayList<>();
 
-		for (final CheatingOffenseEntry entry : offenses.values()) {
+		for (final CheatingOffenseEntry entry : this.offenses.values()) {
 			if (!entry.isExpired()) {
 				offenseList.add(entry);
 			}
@@ -239,7 +239,7 @@ public class CheatTracker {
 			public final int compare(final CheatingOffenseEntry o1, final CheatingOffenseEntry o2) {
 				final int thisVal = o1.getPoints();
 				final int anotherVal = o2.getPoints();
-				return (thisVal < anotherVal ? 1 : (thisVal == anotherVal ? 0 : -1));
+				return thisVal < anotherVal ? 1 : thisVal == anotherVal ? 0 : -1;
 			}
 		});
 		final int to = Math.min(offenseList.size(), 4);
@@ -255,10 +255,10 @@ public class CheatTracker {
 	}
 
 	public final void dispose() {
-		if (invalidationTask != null) {
-			invalidationTask.cancel(false);
+		if (this.invalidationTask != null) {
+			this.invalidationTask.cancel(false);
 		}
-		invalidationTask = null;
+		this.invalidationTask = null;
 	}
 
 	private final class InvalidationTask implements Runnable {
@@ -266,16 +266,16 @@ public class CheatTracker {
 		@Override
 		public final void run() {
 			CheatingOffenseEntry[] offenses_copy;
-			synchronized (offenses) {
-				offenses_copy = offenses.values().toArray(new CheatingOffenseEntry[offenses.size()]);
+			synchronized (CheatTracker.this.offenses) {
+				offenses_copy = CheatTracker.this.offenses.values().toArray(new CheatingOffenseEntry[CheatTracker.this.offenses.size()]);
 			}
-			for (CheatingOffenseEntry offense : offenses_copy) {
+			for (final CheatingOffenseEntry offense : offenses_copy) {
 				if (offense.isExpired()) {
-					expireEntry(offense);
+					CheatTracker.this.expireEntry(offense);
 				}
 			}
-			if (chr.get() == null) {
-				dispose();
+			if (CheatTracker.this.chr.get() == null) {
+				CheatTracker.this.dispose();
 			}
 		}
 	}

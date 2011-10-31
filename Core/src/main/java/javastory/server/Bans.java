@@ -17,17 +17,17 @@ public final class Bans {
 	}
 
 	// TODO: Extract prepare statement calls into methods.
-	public static boolean banByCharacterName(String name, String reason) {
+	public static boolean banByCharacterName(final String name, final String reason) {
 		boolean success = false;
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps;
 			ps = con.prepareStatement("SELECT accountid FROM characters WHERE name = ?");
 			ps.setString(1, name);
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 
 			if (rs.next()) {
-				PreparedStatement psb = con.prepareStatement("UPDATE accounts SET banned = 1, banreason = ? WHERE id = ?");
+				final PreparedStatement psb = con.prepareStatement("UPDATE accounts SET banned = 1, banreason = ? WHERE id = ?");
 				psb.setString(1, reason);
 				psb.setInt(2, rs.getInt(1));
 				psb.execute();
@@ -36,14 +36,14 @@ public final class Bans {
 			}
 			rs.close();
 			ps.close();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error while banning" + ex);
 		}
 		return success;
 	}
 
-	public static boolean banBySessionIP(String ip, String reason) {
-		Connection con = Database.getConnection();
+	public static boolean banBySessionIP(final String ip, final String reason) {
+		final Connection con = Database.getConnection();
 		if (!ip.matches("/[0-9]{1,3}\\..*")) {
 			return false;
 		}
@@ -52,7 +52,7 @@ public final class Bans {
 			ps.setString(1, ip);
 			ps.execute();
 			return true;
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error while banning" + ex);
 		}
 
@@ -60,13 +60,13 @@ public final class Bans {
 	}
 
 	// TODO: Extract prepare statement calls into methods.
-	public static byte unban(String charname) {
+	public static byte unban(final String charname) {
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT accountid from characters where name = ?");
 			ps.setString(1, charname);
 
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
 				return -1;
 			}
@@ -78,7 +78,7 @@ public final class Bans {
 			ps.setInt(1, accid);
 			ps.executeUpdate();
 			ps.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Error while unbanning" + e);
 			return -2;
 		}

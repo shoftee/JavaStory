@@ -7,7 +7,7 @@ public class PartyMember implements Serializable {
 	private static final long serialVersionUID = 6215463252132450750L;
 	private int partyId;
 	private int characterId;
-	private String name;
+	private final String name;
 	private int level;
 	private int channelId;
 	private int mapId;
@@ -15,7 +15,7 @@ public class PartyMember implements Serializable {
 	private boolean isOnline;
 	private boolean isLeader;
 
-	public PartyMember(int partyId, ChannelCharacter character) {
+	public PartyMember(final int partyId, final ChannelCharacter character) {
 		this.partyId = partyId;
 		this.characterId = character.getId();
 		this.name = character.getName();
@@ -32,47 +32,47 @@ public class PartyMember implements Serializable {
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public int getChannel() {
-		return channelId;
+		return this.channelId;
 	}
 
 	public boolean isLeader() {
-		return isLeader;
+		return this.isLeader;
 	}
 
-	public void setLeader(boolean isLeader) {
+	public void setLeader(final boolean isLeader) {
 		this.isLeader = isLeader;
 	}
 
 	public boolean isOnline() {
-		return isOnline;
+		return this.isOnline;
 	}
 
-	public void setOnline(boolean online) {
+	public void setOnline(final boolean online) {
 		this.isOnline = online;
 	}
 
 	public int getPartyId() {
-		return partyId;
+		return this.partyId;
 	}
 
 	public int getMapId() {
-		return mapId;
+		return this.mapId;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public int getCharacterId() {
-		return characterId;
+		return this.characterId;
 	}
 
 	public int getJobId() {
-		return jobId;
+		return this.jobId;
 	}
 
 	@Override
@@ -83,14 +83,14 @@ public class PartyMember implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final PartyMember other = (PartyMember) obj;

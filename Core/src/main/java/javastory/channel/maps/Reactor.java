@@ -28,58 +28,58 @@ import javastory.tools.packets.ChannelPackets;
 
 public class Reactor extends AbstractGameMapObject {
 
-	private int rid;
-	private ReactorInfo stats;
+	private final int rid;
+	private final ReactorInfo stats;
 	private byte state;
 	private int delay;
 	private GameMap map;
 	private String name;
 	private boolean timerActive, alive;
 
-	public Reactor(ReactorInfo stats, int rid) {
+	public Reactor(final ReactorInfo stats, final int rid) {
 		this.stats = stats;
 		this.rid = rid;
-		alive = true;
+		this.alive = true;
 	}
 
 	public final byte getFacingDirection() {
-		return stats.getFacingDirection();
+		return this.stats.getFacingDirection();
 	}
 
-	public void setTimerActive(boolean active) {
+	public void setTimerActive(final boolean active) {
 		this.timerActive = active;
 	}
 
 	public boolean isTimerActive() {
-		return timerActive;
+		return this.timerActive;
 	}
 
 	public int getReactorId() {
-		return rid;
+		return this.rid;
 	}
 
-	public void setState(byte state) {
+	public void setState(final byte state) {
 		this.state = state;
 	}
 
 	public byte getState() {
-		return state;
+		return this.state;
 	}
 
 	public boolean isAlive() {
-		return alive;
+		return this.alive;
 	}
 
-	public void setAlive(boolean alive) {
+	public void setAlive(final boolean alive) {
 		this.alive = alive;
 	}
 
-	public void setDelay(int delay) {
+	public void setDelay(final int delay) {
 		this.delay = delay;
 	}
 
 	public int getDelay() {
-		return delay;
+		return this.delay;
 	}
 
 	@Override
@@ -88,63 +88,63 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public int getReactorType() {
-		return stats.getType(state);
+		return this.stats.getType(this.state);
 	}
 
-	public void setMap(GameMap map) {
+	public void setMap(final GameMap map) {
 		this.map = map;
 	}
 
 	public GameMap getMap() {
-		return map;
+		return this.map;
 	}
 
 	public Pair<Integer, Integer> getReactItem() {
-		return stats.getReactItem(state);
+		return this.stats.getReactItem(this.state);
 	}
 
 	@Override
-	public void sendDestroyData(ChannelClient client) {
+	public void sendDestroyData(final ChannelClient client) {
 		client.write(ChannelPackets.destroyReactor(this));
 	}
 
 	@Override
-	public void sendSpawnData(ChannelClient client) {
+	public void sendSpawnData(final ChannelClient client) {
 		client.write(ChannelPackets.spawnReactor(this));
 	}
 
-	public void forceStartReactor(ChannelClient c) {
+	public void forceStartReactor(final ChannelClient c) {
 		ReactorScriptManager.getInstance().act(c, this);
 	}
 
 	// hitReactor command for item-triggered reactors
-	public void hitReactor(ChannelClient c) {
-		hitReactor(0, (short) 0, c);
+	public void hitReactor(final ChannelClient c) {
+		this.hitReactor(0, (short) 0, c);
 	}
 
-	public void hitReactor(int charPos, short stance, ChannelClient c) {
-		if (stats.getType(state) < 999 && stats.getType(state) != -1) {
+	public void hitReactor(final int charPos, final short stance, final ChannelClient c) {
+		if (this.stats.getType(this.state) < 999 && this.stats.getType(this.state) != -1) {
 			// type 2 = only hit from right (kerning swamp plants), 00 is air
 			// left 02 is ground left
 
-			if (!(stats.getType(state) == 2 && (charPos == 0 || charPos == 2))) { // next
+			if (!(this.stats.getType(this.state) == 2 && (charPos == 0 || charPos == 2))) { // next
 																					// state
-				state = stats.getNextState(state);
+				this.state = this.stats.getNextState(this.state);
 
-				if (stats.getNextState(state) == -1) { // end of reactor
-					if (stats.getType(state) < 100) { // reactor broken
-						if (delay > 0) {
-							map.destroyReactor(getObjectId());
+				if (this.stats.getNextState(this.state) == -1) { // end of reactor
+					if (this.stats.getType(this.state) < 100) { // reactor broken
+						if (this.delay > 0) {
+							this.map.destroyReactor(this.getObjectId());
 						} else {// trigger as normal
-							map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
+							this.map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
 						}
 					} else { // item-triggered on final step
-						map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
+						this.map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
 					}
 					ReactorScriptManager.getInstance().act(c, this);
 				} else { // reactor not broken yet
-					map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
-					if (state == stats.getNextState(state)) { // current state =
+					this.map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
+					if (this.state == this.stats.getNextState(this.state)) { // current state =
 																// next state,
 																// looping
 																// reactor
@@ -156,24 +156,24 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public Rectangle getArea() {
-		int height = stats.getBottomRight().y - stats.getTopLeft().y;
-		int width = stats.getBottomRight().x - stats.getTopLeft().x;
-		int origX = getPosition().x + stats.getTopLeft().x;
-		int origY = getPosition().y + stats.getTopLeft().y;
+		final int height = this.stats.getBottomRight().y - this.stats.getTopLeft().y;
+		final int width = this.stats.getBottomRight().x - this.stats.getTopLeft().x;
+		final int origX = this.getPosition().x + this.stats.getTopLeft().x;
+		final int origY = this.getPosition().y + this.stats.getTopLeft().y;
 
 		return new Rectangle(origX, origY, width, height);
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	@Override
 	public String toString() {
-		return "Reactor " + getObjectId() + " of id " + rid + " at position " + getPosition().toString() + " state" + state + " type " + stats.getType(state);
+		return "Reactor " + this.getObjectId() + " of id " + this.rid + " at position " + this.getPosition().toString() + " state" + this.state + " type " + this.stats.getType(this.state);
 	}
 }

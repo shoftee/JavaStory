@@ -15,37 +15,37 @@ import com.google.common.collect.Lists;
  */
 public class RandomRewardList {
 
-	private List<RandomRewardEntry> entries;
+	private final List<RandomRewardEntry> entries;
 
 	public RandomRewardList() {
-		entries = Lists.newLinkedList();
+		this.entries = Lists.newLinkedList();
 	}
 
-	public void addEntry(int probability, int itemId) {
-		entries.add(new RandomRewardEntry(probability, itemId));
+	public void addEntry(final int probability, final int itemId) {
+		this.entries.add(new RandomRewardEntry(probability, itemId));
 	}
 
-	public void addEntry(RandomRewardEntry entry) {
-		entries.add(entry);
+	public void addEntry(final RandomRewardEntry entry) {
+		this.entries.add(entry);
 	}
 
 	public RandomRewardFactory build() {
-		return new ConcreteRandomRewardFactory(entries);
+		return new ConcreteRandomRewardFactory(this.entries);
 	}
 
 	static class ConcreteRandomRewardFactory implements RandomRewardFactory {
 
-		private List<RandomRewardEntry> entries;
+		private final List<RandomRewardEntry> entries;
 		private int total;
 
-		public ConcreteRandomRewardFactory(List<RandomRewardEntry> list) {
+		public ConcreteRandomRewardFactory(final List<RandomRewardEntry> list) {
 
-			ArrayList<RandomRewardEntry> shuffledList = Lists.newArrayList(list);
+			final ArrayList<RandomRewardEntry> shuffledList = Lists.newArrayList(list);
 			Collections.shuffle(shuffledList);
 
 			this.entries = Lists.newArrayListWithExpectedSize(shuffledList.size());
 
-			for (RandomRewardEntry entry : shuffledList) {
+			for (final RandomRewardEntry entry : shuffledList) {
 				this.entries.add(entry);
 				this.total += entry.Probability;
 			}
@@ -53,9 +53,9 @@ public class RandomRewardList {
 
 		@Override
 		public int getRandomItem() {
-			int factor = Randomizer.nextInt(total);
+			int factor = Randomizer.nextInt(this.total);
 			int itemId = -1;
-			for (RandomRewardEntry entry : entries) {
+			for (final RandomRewardEntry entry : this.entries) {
 				factor -= entry.Probability;
 				if (factor <= 0) {
 					itemId = entry.ItemId;

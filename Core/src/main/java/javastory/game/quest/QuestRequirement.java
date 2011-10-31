@@ -32,8 +32,8 @@ import javastory.wz.WzDataTool;
 public class QuestRequirement implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	private int questId;
-	private QuestRequirementType type;
+	private final int questId;
+	private final QuestRequirementType type;
 	private int intStore;
 	private String stringStore;
 	private List<Entry> dataStore;
@@ -43,54 +43,54 @@ public class QuestRequirement implements Serializable {
 		public int key;
 		public int value;
 
-		public Entry(int key, int value) {
+		public Entry(final int key, final int value) {
 			this.key = key;
 			this.value = value;
 		}
 	}
 
 	/** Creates a new instance of MapleQuestRequirement */
-	public QuestRequirement(int questId, QuestRequirementType type, WzData data) {
+	public QuestRequirement(final int questId, final QuestRequirementType type, final WzData data) {
 		this.type = type;
 		this.questId = questId;
 
 		switch (type) {
 		case JOB: {
 			final List<WzData> child = data.getChildren();
-			dataStore = new LinkedList<>();
+			this.dataStore = new LinkedList<>();
 
 			for (int i = 0; i < child.size(); i++) {
-				dataStore.add(new Entry(i, WzDataTool.getInt(child.get(i), -1)));
+				this.dataStore.add(new Entry(i, WzDataTool.getInt(child.get(i), -1)));
 			}
 			break;
 		}
 		case SKILL: {
 			final List<WzData> child = data.getChildren();
-			dataStore = new LinkedList<>();
+			this.dataStore = new LinkedList<>();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
-				dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id"), 0), WzDataTool.getInt(childdata.getChildByPath("acquire"), 0)));
+				this.dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id"), 0), WzDataTool.getInt(childdata.getChildByPath("acquire"), 0)));
 			}
 			break;
 		}
 		case QUEST: {
 			final List<WzData> child = data.getChildren();
-			dataStore = new LinkedList<>();
+			this.dataStore = new LinkedList<>();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
-				dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id")), WzDataTool.getInt(childdata.getChildByPath("state"), 0)));
+				this.dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id")), WzDataTool.getInt(childdata.getChildByPath("state"), 0)));
 			}
 			break;
 		}
 		case ITEM: {
 			final List<WzData> child = data.getChildren();
-			dataStore = new LinkedList<>();
+			this.dataStore = new LinkedList<>();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
-				dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id")), WzDataTool.getInt(childdata.getChildByPath("count"), 0)));
+				this.dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id")), WzDataTool.getInt(childdata.getChildByPath("count"), 0)));
 			}
 			break;
 		}
@@ -101,46 +101,46 @@ public class QuestRequirement implements Serializable {
 		case MIN_MONSTER_BOOK:
 		case MAX_LEVEL:
 		case MIN_LEVEL: {
-			intStore = WzDataTool.getInt(data, -1);
+			this.intStore = WzDataTool.getInt(data, -1);
 			break;
 		}
 		case AVAILABLE_UNTIL: {
-			stringStore = WzDataTool.getString(data, null);
+			this.stringStore = WzDataTool.getString(data, null);
 			break;
 		}
 		case MONSTER: {
 			final List<WzData> child = data.getChildren();
-			dataStore = new LinkedList<>();
+			this.dataStore = new LinkedList<>();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
-				dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id"), 0), WzDataTool.getInt(childdata.getChildByPath("count"), 0)));
+				this.dataStore.add(new Entry(WzDataTool.getInt(childdata.getChildByPath("id"), 0), WzDataTool.getInt(childdata.getChildByPath("count"), 0)));
 			}
 			break;
 		}
 		case FIELD_ENTER: {
 			final WzData zeroField = data.getChildByPath("0");
 			if (zeroField != null) {
-				intStore = WzDataTool.getInt(zeroField);
+				this.intStore = WzDataTool.getInt(zeroField);
 			} else {
-				intStore = -1;
+				this.intStore = -1;
 			}
 			break;
 		}
 		}
 	}
 
-	public boolean check(ChannelCharacter c, Integer npcId) {
-		switch (type) {
+	public boolean check(final ChannelCharacter c, final Integer npcId) {
+		switch (this.type) {
 		case JOB:
-			for (Entry entry : dataStore) {
+			for (final Entry entry : this.dataStore) {
 				if (entry.value == c.getJobId() || c.isGM()) {
 					return true;
 				}
 			}
 			return false;
 		case SKILL: {
-			for (Entry entry : dataStore) {
+			for (final Entry entry : this.dataStore) {
 				final boolean acquire = entry.value > 0;
 				final int skill = entry.key;
 
@@ -158,7 +158,7 @@ public class QuestRequirement implements Serializable {
 			return true;
 		}
 		case QUEST:
-			for (Entry entry : dataStore) {
+			for (final Entry entry : this.dataStore) {
 				final QuestStatus q = c.getQuestStatus(entry.key);
 				final int state = entry.value;
 				if (state != 0) {
@@ -175,10 +175,10 @@ public class QuestRequirement implements Serializable {
 			int itemId;
 			short quantity;
 
-			for (Entry entry : dataStore) {
+			for (final Entry entry : this.dataStore) {
 				itemId = entry.key;
 				quantity = 0;
-				for (IItem item : c.getInventoryForItem(itemId).listById(itemId)) {
+				for (final IItem item : c.getInventoryForItem(itemId).listById(itemId)) {
 					quantity += item.getQuantity();
 				}
 				final int count = entry.value;
@@ -188,46 +188,46 @@ public class QuestRequirement implements Serializable {
 			}
 			return true;
 		case MIN_LEVEL:
-			return c.getLevel() >= intStore;
+			return c.getLevel() >= this.intStore;
 		case MAX_LEVEL:
-			return c.getLevel() <= intStore;
+			return c.getLevel() <= this.intStore;
 		case AVAILABLE_UNTIL:
-			final String timeStr = stringStore;
+			final String timeStr = this.stringStore;
 			final Calendar cal = Calendar.getInstance();
 			cal.set(Integer.parseInt(timeStr.substring(0, 4)), Integer.parseInt(timeStr.substring(4, 6)), Integer.parseInt(timeStr.substring(6, 8)), Integer
 				.parseInt(timeStr.substring(8, 10)), 0);
 			return cal.getTimeInMillis() >= System.currentTimeMillis();
 		case MONSTER:
-			for (Entry entry : dataStore) {
+			for (final Entry entry : this.dataStore) {
 				final int mobId = entry.key;
 				final int killReq = entry.value;
-				if (c.getQuestStatus(questId).getMobKills(mobId) < killReq) {
+				if (c.getQuestStatus(this.questId).getMobKills(mobId) < killReq) {
 					return false;
 				}
 			}
 			return true;
 		case NPC:
-			return npcId == null || npcId == intStore;
+			return npcId == null || npcId == this.intStore;
 		case FIELD_ENTER:
-			if (intStore != -1) {
-				return intStore == c.getMapId();
+			if (this.intStore != -1) {
+				return this.intStore == c.getMapId();
 			}
 			return false;
 		case MIN_MONSTER_BOOK:
-			if (c.getMonsterBook().getTotalCards() >= intStore) {
+			if (c.getMonsterBook().getTotalCards() >= this.intStore) {
 				return true;
 			}
 			return false;
 		case FAME:
-			return c.getFame() <= intStore;
+			return c.getFame() <= this.intStore;
 		case QUEST_COMPLETED:
-			if (c.getNumQuest() >= intStore) {
+			if (c.getNumQuest() >= this.intStore) {
 				return true;
 			}
 			return false;
 		case INTERVAL:
-			return c.getQuestStatus(questId).getState() != 2
-				|| c.getQuestStatus(questId).getCompletionTime() <= System.currentTimeMillis() - intStore * 60 * 1000L;
+			return c.getQuestStatus(this.questId).getState() != 2
+				|| c.getQuestStatus(this.questId).getCompletionTime() <= System.currentTimeMillis() - this.intStore * 60 * 1000L;
 //			case PET:
 //			case MIN_PET_TAMENESS:
 		default:
@@ -236,11 +236,11 @@ public class QuestRequirement implements Serializable {
 	}
 
 	public QuestRequirementType getType() {
-		return type;
+		return this.type;
 	}
 
 	@Override
 	public String toString() {
-		return type.toString();
+		return this.type.toString();
 	}
 }

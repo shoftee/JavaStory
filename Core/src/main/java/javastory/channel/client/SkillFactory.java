@@ -30,17 +30,17 @@ public final class SkillFactory {
 		int skillId;
 		WzData summonData;
 		SummonSkillEntry summonSkillEntry;
-		for (WzDataFileEntry topDir : root.getFiles()) {
+		for (final WzDataFileEntry topDir : root.getFiles()) {
 			// Loop thru jobs
 			if (topDir.getName().length() > 8) {
 				continue;
 			}
-			for (WzData job : datasource.getData(topDir.getName())) {
+			for (final WzData job : datasource.getData(topDir.getName())) {
 				// Loop thru each jobs
 				if (!job.getName().equals("skill")) {
 					continue;
 				}
-				for (WzData skill : job) {
+				for (final WzData skill : job) {
 					// Loop thru each jobs
 					if (skill == null) {
 						continue;
@@ -65,7 +65,7 @@ public final class SkillFactory {
 	public static String getSkillName(final int id) {
 		String strId = Integer.toString(id);
 		strId = StringUtil.getLeftPaddedStr(strId, '0', 7);
-		WzData skillroot = stringData.getChildByPath(strId);
+		final WzData skillroot = stringData.getChildByPath(strId);
 		if (skillroot != null) {
 			return WzDataTool.getString(skillroot.getChildByPath("name"), "");
 		}

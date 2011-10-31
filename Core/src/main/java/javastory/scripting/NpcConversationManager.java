@@ -43,12 +43,12 @@ import javastory.tools.packets.ChannelPackets;
 
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
-	private int npcId, questId;
+	private final int npcId, questId;
 	private String getText;
-	private byte type; // -1 = NPC, 0 = start quest, 1 = end quest
+	private final byte type; // -1 = NPC, 0 = start quest, 1 = end quest
 	private boolean isPendingDisposal;
 
-	public NpcConversationManager(ChannelClient client, int npcId, int questId, byte type) {
+	public NpcConversationManager(final ChannelClient client, final int npcId, final int questId, final byte type) {
 		super(client);
 		this.npcId = npcId;
 		this.questId = questId;
@@ -57,45 +57,45 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public int getNpcId() {
-		return npcId;
+		return this.npcId;
 	}
 
 	public static int MAX_REBORNS = 3;
 
 	public int getReborns() {
-		return getPlayer().getReborns();
+		return this.getPlayer().getReborns();
 	}
 
 	public int getVPoints() {
-		return getPlayer().getVPoints();
+		return this.getPlayer().getVPoints();
 	}
 
-	public void gainVPoints(int gainedpoints) {
+	public void gainVPoints(final int gainedpoints) {
 		super.client.getPlayer().gainVPoints(gainedpoints);
 	}
 
 	public int getNX() {
-		return getPlayer().getNX();
+		return this.getPlayer().getNX();
 	}
 
 	public int getWorld() {
-		return getPlayer().getWorldId();
+		return this.getPlayer().getWorldId();
 	}
 
 	public int getQuest() {
-		return questId;
+		return this.questId;
 	}
 
-	public void giveBuff(int skill, int level) {
+	public void giveBuff(final int skill, final int level) {
 		SkillFactory.getSkill(skill).getEffect(level).applyTo(super.client.getPlayer());
 	}
 
 	public byte getType() {
-		return type;
+		return this.type;
 	}
 
 	public void safeDispose() {
-		isPendingDisposal = true;
+		this.isPendingDisposal = true;
 	}
 
 	public void dispose() {
@@ -103,87 +103,87 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void askMapSelection(final String sel) {
-		super.client.write(ChannelPackets.getMapSelection(npcId, sel));
+		super.client.write(ChannelPackets.getMapSelection(this.npcId, sel));
 	}
 
-	public void sendNext(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "00 01", (byte) 0));
+	public void sendNext(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "00 01", (byte) 0));
 	}
 
-	public void sendNextS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "00 01", type));
+	public void sendNextS(final String text, final byte type) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "00 01", type));
 	}
 
-	public void sendPrev(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "01 00", (byte) 0));
+	public void sendPrev(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "01 00", (byte) 0));
 	}
 
-	public void sendPrevS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "01 00", type));
+	public void sendPrevS(final String text, final byte type) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "01 00", type));
 	}
 
-	public void sendNextPrev(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "01 01", (byte) 0));
+	public void sendNextPrev(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "01 01", (byte) 0));
 	}
 
-	public void sendNextPrevS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "01 01", type));
+	public void sendNextPrevS(final String text, final byte type) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "01 01", type));
 	}
 
-	public void sendOk(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "00 00", (byte) 0));
+	public void sendOk(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "00 00", (byte) 0));
 	}
 
-	public void sendOkS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0, text, "00 00", type));
+	public void sendOkS(final String text, final byte type) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0, text, "00 00", type));
 	}
 
-	public void sendYesNo(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 2, text, "", (byte) 0));
+	public void sendYesNo(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 2, text, "", (byte) 0));
 	}
 
-	public void sendYesNoS(String text, byte type) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 2, text, "", type));
+	public void sendYesNoS(final String text, final byte type) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 2, text, "", type));
 	}
 
-	public void askAcceptDecline(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0x0C, text, "", (byte) 0));
+	public void askAcceptDecline(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0x0C, text, "", (byte) 0));
 	}
 
-	public void askAcceptDeclineNoESC(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 0x0E, text, "", (byte) 0));
+	public void askAcceptDeclineNoESC(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 0x0E, text, "", (byte) 0));
 	}
 
-	public void askAvatar(String text, int... args) {
-		super.client.write(ChannelPackets.getNPCTalkStyle(npcId, text, args));
+	public void askAvatar(final String text, final int... args) {
+		super.client.write(ChannelPackets.getNPCTalkStyle(this.npcId, text, args));
 	}
 
-	public void sendSimple(String text) {
-		super.client.write(ChannelPackets.getNPCTalk(npcId, (byte) 5, text, "", (byte) 0));
+	public void sendSimple(final String text) {
+		super.client.write(ChannelPackets.getNPCTalk(this.npcId, (byte) 5, text, "", (byte) 0));
 	}
 
-	public void sendGetNumber(String text, int def, int min, int max) {
-		super.client.write(ChannelPackets.getNPCTalkNum(npcId, text, def, min, max));
+	public void sendGetNumber(final String text, final int def, final int min, final int max) {
+		super.client.write(ChannelPackets.getNPCTalkNum(this.npcId, text, def, min, max));
 	}
 
-	public void sendGetText(String text) {
-		super.client.write(ChannelPackets.getNPCTalkText(npcId, text));
+	public void sendGetText(final String text) {
+		super.client.write(ChannelPackets.getNPCTalkText(this.npcId, text));
 	}
 
-	public void setGetText(String text) {
+	public void setGetText(final String text) {
 		this.getText = text;
 	}
 
 	public String getText() {
-		return getText;
+		return this.getText;
 	}
 
-	public int setRandomAvatar(int ticket, int... args_all) {
-		if (!haveItem(ticket)) {
+	public int setRandomAvatar(final int ticket, final int... args_all) {
+		if (!this.haveItem(ticket)) {
 			return -1;
 		}
-		gainItem(ticket, (short) -1);
-		int args = args_all[Randomizer.nextInt(args_all.length)];
+		this.gainItem(ticket, (short) -1);
+		final int args = args_all[Randomizer.nextInt(args_all.length)];
 
 		final ChannelCharacter player = super.client.getPlayer();
 		if (args < 100) {
@@ -200,11 +200,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		return 1;
 	}
 
-	public int setAvatar(int ticket, int args) {
-		if (!haveItem(ticket)) {
+	public int setAvatar(final int ticket, final int args) {
+		if (!this.haveItem(ticket)) {
 			return -1;
 		}
-		gainItem(ticket, (short) -1);
+		this.gainItem(ticket, (short) -1);
 
 		final ChannelCharacter player = super.client.getPlayer();
 		if (args < 100) {
@@ -225,14 +225,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		final ChannelCharacter player = super.client.getPlayer();
 
 		player.setConversationState(4);
-		player.getStorage().sendStorage(super.client, npcId);
+		player.getStorage().sendStorage(super.client, this.npcId);
 	}
 
-	public void openShop(int id) {
+	public void openShop(final int id) {
 		ShopFactory.getInstance().getShop(id).sendShop(super.client);
 	}
 
-	public int gainGachaponItem(int id, int quantity) {
+	public int gainGachaponItem(final int id, final int quantity) {
 		final IItem item = InventoryManipulator.addbyId_Gachapon(super.client, id, (short) quantity);
 		if (item == null) {
 			return -1;
@@ -242,73 +242,73 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			try {
 				ChannelServer.getWorldInterface().broadcastMessage(
 					ChannelPackets.getGachaponMega(super.client.getPlayer().getName(), " : Lucky winner of Gachapon! Congratulations~", item, rareness));
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				ChannelServer.pingWorld();
 			}
 		}
 		return item.getItemId();
 	}
 
-	public void changeJob(int job) {
+	public void changeJob(final int job) {
 		super.client.getPlayer().changeJob(job);
 	}
 
-	public void startQuest(int id) {
-		QuestInfoProvider.getInfo(id).start(getPlayer(), npcId);
+	public void startQuest(final int id) {
+		QuestInfoProvider.getInfo(id).start(this.getPlayer(), this.npcId);
 	}
 
-	public void completeQuest(int id) {
-		QuestInfoProvider.getInfo(id).complete(getPlayer(), npcId);
+	public void completeQuest(final int id) {
+		QuestInfoProvider.getInfo(id).complete(this.getPlayer(), this.npcId);
 	}
 
-	public void forfeitQuest(int id) {
-		QuestInfoProvider.getInfo(id).forfeit(getPlayer());
+	public void forfeitQuest(final int id) {
+		QuestInfoProvider.getInfo(id).forfeit(this.getPlayer());
 	}
 
 	public String getQuestCustomData() {
-		return super.client.getPlayer().getAddQuestStatus(questId).getCustomData();
+		return super.client.getPlayer().getAddQuestStatus(this.questId).getCustomData();
 	}
 
-	public void setQuestCustomData(String customData) {
-		getPlayer().getAddQuestStatus(questId).setCustomData(customData);
+	public void setQuestCustomData(final String customData) {
+		this.getPlayer().getAddQuestStatus(this.questId).setCustomData(customData);
 	}
 
 	public int getMeso() {
-		return getPlayer().getMeso();
+		return this.getPlayer().getMeso();
 	}
 
 	public void gainAp(final int amount) {
 		super.client.getPlayer().gainAp(amount);
 	}
 
-	public void gainMeso(int gain) {
+	public void gainMeso(final int gain) {
 		super.client.getPlayer().gainMeso(gain, true, false, true);
 	}
 
-	public void gainExp(int gain) {
+	public void gainExp(final int gain) {
 		super.client.getPlayer().gainExp(gain, true, true, true);
 	}
 
-	public void expandInventory(byte type, int amt) {
+	public void expandInventory(final byte type, final int amt) {
 		super.client.getPlayer().getInventoryByTypeByte(type).addSlot((byte) 4);
 	}
 
 	public void unequipEverything() {
-		Inventory equipped = getPlayer().getEquippedItemsInventory();
-		Inventory equip = getPlayer().getEquipInventory();
-		List<Short> ids = new LinkedList<>();
-		for (IItem item : equipped) {
+		final Inventory equipped = this.getPlayer().getEquippedItemsInventory();
+		final Inventory equip = this.getPlayer().getEquipInventory();
+		final List<Short> ids = new LinkedList<>();
+		for (final IItem item : equipped) {
 			ids.add(item.getPosition());
 		}
-		for (short id : ids) {
+		for (final short id : ids) {
 			InventoryManipulator.unequip(super.client, id, equip.getNextFreeSlot());
 		}
 	}
 
 	public final void clearSkills() {
-		Map<ISkill, SkillEntry> skills = getPlayer().getSkills();
-		for (Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
-			getPlayer().changeSkillLevel(skill.getKey(), (byte) 0, (byte) 0);
+		final Map<ISkill, SkillEntry> skills = this.getPlayer().getSkills();
+		for (final Entry<ISkill, SkillEntry> skill : skills.entrySet()) {
+			this.getPlayer().changeSkillLevel(skill.getKey(), (byte) 0, (byte) 0);
 		}
 	}
 
@@ -316,15 +316,15 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		return ItemInfoProvider.getInstance().isCash(itemid);
 	}
 
-	public boolean hasSkill(int skillid) {
-		ISkill theSkill = SkillFactory.getSkill(skillid);
+	public boolean hasSkill(final int skillid) {
+		final ISkill theSkill = SkillFactory.getSkill(skillid);
 		if (theSkill != null) {
 			return super.client.getPlayer().getCurrentSkillLevel(theSkill) > 0;
 		}
 		return false;
 	}
 
-	public void showEffect(boolean broadcast, String effect) {
+	public void showEffect(final boolean broadcast, final String effect) {
 		if (broadcast) {
 			super.client.getPlayer().getMap().broadcastMessage(ChannelPackets.showEffect(effect));
 		} else {
@@ -332,7 +332,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 	}
 
-	public void playSound(boolean broadcast, String sound) {
+	public void playSound(final boolean broadcast, final String sound) {
 		if (broadcast) {
 			super.client.getPlayer().getMap().broadcastMessage(ChannelPackets.playSound(sound));
 		} else {
@@ -340,7 +340,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 	}
 
-	public void environmentChange(boolean broadcast, String env) {
+	public void environmentChange(final boolean broadcast, final String env) {
 		if (broadcast) {
 			super.client.getPlayer().getMap().broadcastMessage(ChannelPackets.environmentChange(env, 2));
 		} else {
@@ -348,7 +348,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 	}
 
-	public void updateBuddyCapacity(int capacity) {
+	public void updateBuddyCapacity(final int capacity) {
 		super.client.getPlayer().setBuddyCapacity(capacity);
 	}
 
@@ -358,9 +358,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public int partyMembersInMap() {
 		int inMap = 0;
-		for (ChannelCharacter char2 : getPlayer().getMap().getCharacters()) {
+		for (final ChannelCharacter char2 : this.getPlayer().getMap().getCharacters()) {
 			final PartyMember char2member = char2.getPartyMembership();
-			final PartyMember member = getPlayer().getPartyMembership();
+			final PartyMember member = this.getPlayer().getPartyMembership();
 			if (char2member != null && member != null && char2member.getPartyId() == member.getPartyId()) {
 				inMap++;
 			}
@@ -369,30 +369,30 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public List<ChannelCharacter> getPartyMembers() {
-		if (!getPlayer().hasParty()) {
+		if (!this.getPlayer().hasParty()) {
 			return null;
 		}
-		List<ChannelCharacter> chars = new LinkedList<>();
+		final List<ChannelCharacter> chars = new LinkedList<>();
 		// TODO: Not done. Finish when ChannelServer remoting is done.
 		return chars;
 	}
 
-	public void warpPartyWithExp(int mapId, int exp) {
-		GameMap target = getMap(mapId);
-		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = ChannelServer.getPlayerStorage().getCharacterByName(chr.getName());
-			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
+	public void warpPartyWithExp(final int mapId, final int exp) {
+		final GameMap target = this.getMap(mapId);
+		for (final PartyMember chr : this.getPlayer().getParty().getMembers()) {
+			final ChannelCharacter curChar = ChannelServer.getPlayerStorage().getCharacterByName(chr.getName());
+			if (curChar.getEventInstance() == null && this.getPlayer().getEventInstance() == null || curChar.getEventInstance() == this.getPlayer().getEventInstance()) {
 				curChar.changeMap(target, target.getPortal(0));
 				curChar.gainExp(exp, true, false, true);
 			}
 		}
 	}
 
-	public void warpPartyWithExpMeso(int mapId, int exp, int meso) {
-		GameMap target = getMap(mapId);
-		for (PartyMember chr : getPlayer().getParty().getMembers()) {
-			ChannelCharacter curChar = ChannelServer.getPlayerStorage().getCharacterByName(chr.getName());
-			if ((curChar.getEventInstance() == null && getPlayer().getEventInstance() == null) || curChar.getEventInstance() == getPlayer().getEventInstance()) {
+	public void warpPartyWithExpMeso(final int mapId, final int exp, final int meso) {
+		final GameMap target = this.getMap(mapId);
+		for (final PartyMember chr : this.getPlayer().getParty().getMembers()) {
+			final ChannelCharacter curChar = ChannelServer.getPlayerStorage().getCharacterByName(chr.getName());
+			if (curChar.getEventInstance() == null && this.getPlayer().getEventInstance() == null || curChar.getEventInstance() == this.getPlayer().getEventInstance()) {
 				curChar.changeMap(target, target.getPortal(0));
 				curChar.gainExp(exp, true, false, true);
 				curChar.gainMeso(meso, true);
@@ -400,19 +400,19 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 	}
 
-	public int itemQuantity(int itemid) {
-		return getPlayer().getInventoryForItem(itemid).countById(itemid);
+	public int itemQuantity(final int itemid) {
+		return this.getPlayer().getInventoryForItem(itemid).countById(itemid);
 	}
 
-	public int getSkillLevel(int skillid) {
-		return getPlayer().getSkillLevel(skillid);
+	public int getSkillLevel(final int skillid) {
+		return this.getPlayer().getSkillLevel(skillid);
 	}
 
-	public Squad getSquad(String type) {
+	public Squad getSquad(final String type) {
 		return ChannelServer.getInstance().getMapleSquad(type);
 	}
 
-	public int getSquadAvailability(String type) {
+	public int getSquadAvailability(final String type) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
@@ -420,7 +420,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		return squad.getStatus();
 	}
 
-	public void registerSquad(String type, int minutes, String startText) {
+	public void registerSquad(final String type, final int minutes, final String startText) {
 		final ChannelCharacter player = super.client.getPlayer();
 
 		final Squad squad = new Squad(type, player, minutes * 60 * 1000);
@@ -431,27 +431,27 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		ChannelServer.getInstance().addMapleSquad(squad, type);
 	}
 
-	public boolean getSquadList(String type, byte type_) {
+	public boolean getSquadList(final String type, final byte type_) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return false;
 		}
 		if (type_ == 0) { // Normal viewing
-			sendNext(squad.getSquadMemberString(type_));
+			this.sendNext(squad.getSquadMemberString(type_));
 		} else if (type_ == 1) { // Squad Leader banning, Check out banned
 									// participant
-			sendSimple(squad.getSquadMemberString(type_));
+			this.sendSimple(squad.getSquadMemberString(type_));
 		} else if (type_ == 2) {
 			if (squad.getBannedMemberSize() > 0) {
-				sendSimple(squad.getSquadMemberString(type_));
+				this.sendSimple(squad.getSquadMemberString(type_));
 			} else {
-				sendNext(squad.getSquadMemberString(type_));
+				this.sendNext(squad.getSquadMemberString(type_));
 			}
 		}
 		return true;
 	}
 
-	public byte isSquadLeader(String type) {
+	public byte isSquadLeader(final String type) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
@@ -464,21 +464,21 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 	}
 
-	public void banMember(String type, int pos) {
+	public void banMember(final String type, final int pos) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			squad.banMember(pos);
 		}
 	}
 
-	public void acceptMember(String type, int pos) {
+	public void acceptMember(final String type, final int pos) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			squad.acceptMember(pos);
 		}
 	}
 
-	public int addMember(String type, boolean join) {
+	public int addMember(final String type, final boolean join) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad != null) {
 			return squad.addMember(super.client.getPlayer(), join);
@@ -486,7 +486,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		return -1;
 	}
 
-	public byte isSquadMember(String type) {
+	public byte isSquadMember(final String type) {
 		final Squad squad = ChannelServer.getInstance().getMapleSquad(type);
 		if (squad == null) {
 			return -1;
@@ -504,10 +504,10 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void resetReactors() {
-		getPlayer().getMap().resetReactors();
+		this.getPlayer().getMap().resetReactors();
 	}
 
-	public void genericGuildMessage(int code) {
+	public void genericGuildMessage(final int code) {
 		super.client.write(ChannelPackets.genericGuildMessage((byte) code));
 	}
 
@@ -519,28 +519,28 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 		try {
 			ChannelServer.getWorldInterface().disbandGuild(gid);
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			System.err.println("Error while disbanding guild." + e);
 		}
 	}
 
 	public void doReborn() {
-		if (getWorld() == 2) {
+		if (this.getWorld() == 2) {
 			MAX_REBORNS += 3;
 		}
-		if (getPlayer().getReborns() < MAX_REBORNS) {
-			getPlayer().setReborns(getPlayer().getReborns() + 1);
+		if (this.getPlayer().getReborns() < MAX_REBORNS) {
+			this.getPlayer().setReborns(this.getPlayer().getReborns() + 1);
 			// unequipEverything();
-			List<StatValue> reborns = new ArrayList<>(4);
-			getPlayer().setLevel(1);
-			getPlayer().setExp(0);
+			final List<StatValue> reborns = new ArrayList<>(4);
+			this.getPlayer().setLevel(1);
+			this.getPlayer().setExp(0);
 			reborns.add(new StatValue(Stat.LEVEL, Integer.valueOf(1)));
 			reborns.add(new StatValue(Stat.EXP, Integer.valueOf(0)));
 			// getPlayer().super.client.write(MaplePacketCreator.updatePlayerStats(reborns));
 			// getPlayer().getMap().broadcastMessage(getPlayer(),
 			// MaplePacketCreator.showJobChange(getPlayer().getId()), false);
 		} else {
-			getPlayer().getClient().write(ChannelPackets.serverNotice(6, "You have reached the maximum amount of rebirths!"));
+			this.getPlayer().getClient().write(ChannelPackets.serverNotice(6, "You have reached the maximum amount of rebirths!"));
 		}
 	}
 
@@ -557,7 +557,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		}
 		try {
 			ChannelServer.getWorldInterface().increaseGuildCapacity(gid);
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			System.err.println("Error while increasing capacity." + e);
 			return;
 		}
@@ -565,7 +565,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void displayGuildRanks() {
-		super.client.write(ChannelPackets.showGuildRanks(npcId, GuildRanking.getInstance().getRank()));
+		super.client.write(ChannelPackets.showGuildRanks(this.npcId, GuildRanking.getInstance().getRank()));
 	}
 
 	public boolean removePlayerFromInstance() {
@@ -584,8 +584,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		return false;
 	}
 
-	public void changeStat(byte slot, int type, short amount) {
-		Equip sel = (Equip) super.client.getPlayer().getEquippedItemsInventory().getItem(slot);
+	public void changeStat(final byte slot, final int type, final short amount) {
+		final Equip sel = (Equip) super.client.getPlayer().getEquippedItemsInventory().getItem(slot);
 		switch (type) {
 		case 0:
 			sel.setStr(amount);
@@ -650,10 +650,10 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void giveMerchantMesos() {
 		long mesos = 0;
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?");
-			ps.setInt(1, getPlayer().getId());
-			ResultSet rs = ps.executeQuery();
+			ps.setInt(1, this.getPlayer().getId());
+			final ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
 				rs.close();
 				ps.close();
@@ -664,11 +664,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 			ps.close();
 
 			ps = con.prepareStatement("UPDATE hiredmerchants SET mesos = 0 WHERE merchantid = ?");
-			ps.setInt(1, getPlayer().getId());
+			ps.setInt(1, this.getPlayer().getId());
 			ps.executeUpdate();
 			ps.close();
 
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error gaining mesos in hired merchant" + ex);
 		}
 		super.client.getPlayer().gainMeso((int) mesos, true);
@@ -676,15 +676,15 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 	public long getMerchantMesos() {
 		long mesos = 0;
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("SELECT * FROM hiredmerchants WHERE merchantid = ?")) {
-			ps.setInt(1, getPlayer().getId());
+			ps.setInt(1, this.getPlayer().getId());
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					mesos = rs.getLong("mesos");
 				}
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error gaining mesos in hired merchant" + ex);
 		}
 		return mesos;
@@ -728,7 +728,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		AramiaFireWorks.getInstance().giveKegs(super.client.getPlayer(), kegs);
 	}
 
-	public final Inventory getInventory(byte type) {
+	public final Inventory getInventory(final byte type) {
 		return super.client.getPlayer().getInventoryByTypeByte(type);
 	}
 
@@ -741,7 +741,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void resetStats(final int str, final int dex, final int int_, final int luk) {
-		List<StatValue> stats = new ArrayList<>(2);
+		final List<StatValue> stats = new ArrayList<>(2);
 		final ChannelCharacter chr = super.client.getPlayer();
 		int total = chr.getStats().getStr() + chr.getStats().getDex() + chr.getStats().getLuk() + chr.getStats().getInt() + chr.getRemainingAp();
 		total -= str;
@@ -761,7 +761,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		super.client.write(ChannelPackets.updatePlayerStats(stats, false, chr.getJobId()));
 	}
 
-	public final boolean dropItem(int slot, int invType, int quantity) {
+	public final boolean dropItem(final int slot, final int invType, final int quantity) {
 		final Inventory inventory = super.client.getPlayer().getInventoryByTypeByte((byte) invType);
 		if (inventory == null) {
 			return false;
@@ -771,7 +771,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void maxStats() {
-		List<StatValue> statup = new ArrayList<>(2);
+		final List<StatValue> statup = new ArrayList<>(2);
 		final ChannelCharacter player = super.client.getPlayer();
 
 		player.setRemainingAp(0);
@@ -800,15 +800,15 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		super.client.write(ChannelPackets.updatePlayerStats(statup, player.getJobId()));
 	}
 
-	public void gainFame(int fame) {
+	public void gainFame(final int fame) {
 		final ChannelCharacter player = super.client.getPlayer();
 
 		player.setFame(fame);
-		player.updateSingleStat(Stat.FAME, Integer.valueOf(getPlayer().getFame()));
+		player.updateSingleStat(Stat.FAME, Integer.valueOf(this.getPlayer().getFame()));
 		super.client.write(ChannelPackets.serverNotice(6, "You have gained (+" + fame + ") fame."));
 	}
 
 	public boolean isPendingDisposal() {
-		return isPendingDisposal;
+		return this.isPendingDisposal;
 	}
 }

@@ -34,213 +34,213 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 	}
 
 	public final void init() {
-		relocHeal();
-		recalcLocalStats();
+		this.relocHeal();
+		this.recalcLocalStats();
 	}
 
 	public final void setStr(final int str) {
 		this.STR = str;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final void setDex(final int dex) {
 		this.DEX = dex;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final void setLuk(final int luk) {
 		this.LUK = luk;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final void setInt(final int int_) {
 		this.INT = int_;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final boolean setHp(final int newhp) {
-		return setHp(newhp, false);
+		return this.setHp(newhp, false);
 	}
 
-	public final boolean setHp(int newhp, boolean silent) {
-		final int oldHp = HP;
+	public final boolean setHp(final int newhp, final boolean silent) {
+		final int oldHp = this.HP;
 		int thp = newhp;
 		if (thp < 0) {
 			thp = 0;
 		}
-		if (thp > localmaxhp) {
-			thp = localmaxhp;
+		if (thp > this.localmaxhp) {
+			thp = this.localmaxhp;
 		}
 		this.HP = thp;
 
-		final ChannelCharacter chra = character.get();
+		final ChannelCharacter chra = this.character.get();
 		if (chra != null) {
 			if (!silent) {
 				chra.updatePartyMemberHP();
 			}
-			if (oldHp > HP && !chra.isAlive()) {
+			if (oldHp > this.HP && !chra.isAlive()) {
 				chra.playerDead();
 			}
 		}
-		return HP != oldHp;
+		return this.HP != oldHp;
 	}
 
 	public final boolean setMp(final int newmp) {
-		final int oldMp = MP;
+		final int oldMp = this.MP;
 		int tmp = newmp;
 		if (tmp < 0) {
 			tmp = 0;
 		}
-		if (tmp > localmaxmp) {
-			tmp = localmaxmp;
+		if (tmp > this.localmaxmp) {
+			tmp = this.localmaxmp;
 		}
 		this.MP = tmp;
-		return MP != oldMp;
+		return this.MP != oldMp;
 	}
 
 	public final void setMaxHp(final int hp) {
 		this.MaxHP = hp;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final void setMaxMp(final int mp) {
 		this.MaxMP = mp;
-		recalcLocalStats();
+		this.recalcLocalStats();
 	}
 
 	public final int getTotalDex() {
-		return localDEX;
+		return this.localDEX;
 	}
 
 	public final int getTotalInt() {
-		return localint_;
+		return this.localint_;
 	}
 
 	public final int getTotalStr() {
-		return localSTR;
+		return this.localSTR;
 	}
 
 	public final int getTotalLuk() {
-		return localLUK;
+		return this.localLUK;
 	}
 
 	public final int getTotalMagic() {
-		return magic;
+		return this.magic;
 	}
 
 	public final double getSpeedMod() {
-		return speedMod;
+		return this.speedMod;
 	}
 
 	public final double getJumpMod() {
-		return jumpMod;
+		return this.jumpMod;
 	}
 
 	public final int getTotalWatk() {
-		return watk;
+		return this.watk;
 	}
 
 	public final int getCurrentMaxHp() {
-		return localmaxhp;
+		return this.localmaxhp;
 	}
 
 	public final int getCurrentMaxMp() {
-		return localmaxmp;
+		return this.localmaxmp;
 	}
 
 	public final int getHands() {
-		return hands;
+		return this.hands;
 	}
 
 	public final float getCurrentMaxBaseDamage() {
-		return localmaxbasedamage;
+		return this.localmaxbasedamage;
 	}
 
 	public void recalcLocalStats() {
-		final ChannelCharacter chra = character.get();
+		final ChannelCharacter chra = this.character.get();
 		if (chra == null) {
 			return;
 		}
-		int oldmaxhp = localmaxhp;
-		localmaxhp = getMaxHp();
-		localmaxmp = getMaxMp();
-		localDEX = getDex();
-		localint_ = getInt();
-		localSTR = getStr();
-		localLUK = getLuk();
+		final int oldmaxhp = this.localmaxhp;
+		this.localmaxhp = this.getMaxHp();
+		this.localmaxmp = this.getMaxMp();
+		this.localDEX = this.getDex();
+		this.localint_ = this.getInt();
+		this.localSTR = this.getStr();
+		this.localLUK = this.getLuk();
 		int speed = 100;
 		int jump = 100;
-		magic = localint_;
-		watk = 0;
-		for (IItem item : chra.getEquippedItemsInventory()) {
+		this.magic = this.localint_;
+		this.watk = 0;
+		for (final IItem item : chra.getEquippedItemsInventory()) {
 			final IEquip equip = (IEquip) item;
 
 			if (equip.getPosition() == -11) {
 				if (GameConstants.isMagicWeapon(equip.getItemId())) {
 					final Map<String, Integer> eqstat = ItemInfoProvider.getInstance().getEquipStats(equip.getItemId());
 
-					element_fire = eqstat.get("incRMAF");
-					element_ice = eqstat.get("incRMAI");
-					element_light = eqstat.get("incRMAL");
-					element_psn = eqstat.get("incRMAS");
-					def = eqstat.get("elemDefault");
+					this.element_fire = eqstat.get("incRMAF");
+					this.element_ice = eqstat.get("incRMAI");
+					this.element_light = eqstat.get("incRMAL");
+					this.element_psn = eqstat.get("incRMAS");
+					this.def = eqstat.get("elemDefault");
 				} else {
-					element_fire = 100;
-					element_ice = 100;
-					element_light = 100;
-					element_psn = 100;
-					def = 100;
+					this.element_fire = 100;
+					this.element_ice = 100;
+					this.element_light = 100;
+					this.element_psn = 100;
+					this.def = 100;
 				}
 			}
-			accuracy += equip.getAcc();
-			localmaxhp += equip.getHp();
-			localmaxmp += equip.getMp();
-			localDEX += equip.getDex();
-			localint_ += equip.getInt();
-			localSTR += equip.getStr();
-			localLUK += equip.getLuk();
-			magic += equip.getMatk() + equip.getInt();
-			watk += equip.getWatk();
+			this.accuracy += equip.getAcc();
+			this.localmaxhp += equip.getHp();
+			this.localmaxmp += equip.getMp();
+			this.localDEX += equip.getDex();
+			this.localint_ += equip.getInt();
+			this.localSTR += equip.getStr();
+			this.localLUK += equip.getLuk();
+			this.magic += equip.getMatk() + equip.getInt();
+			this.watk += equip.getWatk();
 			speed += equip.getSpeed();
 			jump += equip.getJump();
 		}
 		Integer buff = chra.getBuffedValue(BuffStat.MAPLE_WARRIOR);
 		if (buff != null) {
 			final double d = buff.doubleValue() / 100;
-			localSTR += d * localSTR;
-			localDEX += d * localDEX;
-			localLUK += d * localLUK;
+			this.localSTR += d * this.localSTR;
+			this.localDEX += d * this.localDEX;
+			this.localLUK += d * this.localLUK;
 
-			final int before = localint_;
-			localint_ += d * localint_;
-			magic += localint_ - before;
+			final int before = this.localint_;
+			this.localint_ += d * this.localint_;
+			this.magic += this.localint_ - before;
 		}
 		buff = chra.getBuffedValue(BuffStat.ECHO_OF_HERO);
 		if (buff != null) {
 			final double d = buff.doubleValue() / 100;
-			watk += watk / 100 * d;
-			magic += magic / 100 * d;
+			this.watk += this.watk / 100 * d;
+			this.magic += this.magic / 100 * d;
 		}
 		buff = chra.getBuffedValue(BuffStat.ARAN_COMBO);
 		if (buff != null) {
-			watk += buff / 10;
+			this.watk += buff / 10;
 		}
 		buff = chra.getBuffedValue(BuffStat.MAXHP);
 		if (buff != null) {
-			localmaxhp += (buff.doubleValue() / 100) * localmaxhp;
+			this.localmaxhp += buff.doubleValue() / 100 * this.localmaxhp;
 		}
 		buff = chra.getBuffedValue(BuffStat.MAXMP);
 		if (buff != null) {
-			localmaxmp += (buff.doubleValue() / 100) * localmaxmp;
+			this.localmaxmp += buff.doubleValue() / 100 * this.localmaxmp;
 		}
-		element_amp_percent = 100;
+		this.element_amp_percent = 100;
 
 		switch (chra.getJobId()) {
 		case 322: { // Crossbowman
 			final ISkill expert = SkillFactory.getSkill(3220004);
 			final int boostLevel = chra.getCurrentSkillLevel(expert);
 			if (boostLevel > 0) {
-				watk += expert.getEffect(boostLevel).getX();
+				this.watk += expert.getEffect(boostLevel).getX();
 			}
 			break;
 		}
@@ -248,7 +248,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill expert = SkillFactory.getSkill(3120005);
 			final int boostLevel = chra.getCurrentSkillLevel(expert);
 			if (boostLevel > 0) {
-				watk += expert.getEffect(boostLevel).getX();
+				this.watk += expert.getEffect(boostLevel).getX();
 			}
 			break;
 		}
@@ -257,7 +257,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill amp = SkillFactory.getSkill(2110001);
 			final int level = chra.getCurrentSkillLevel(amp);
 			if (level > 0) {
-				element_amp_percent = amp.getEffect(level).getY();
+				this.element_amp_percent = amp.getEffect(level).getY();
 			}
 			break;
 		}
@@ -266,7 +266,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill amp = SkillFactory.getSkill(2210001);
 			final int level = chra.getCurrentSkillLevel(amp);
 			if (level > 0) {
-				element_amp_percent = amp.getEffect(level).getY();
+				this.element_amp_percent = amp.getEffect(level).getY();
 			}
 			break;
 		}
@@ -275,7 +275,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill amp = SkillFactory.getSkill(12110001);
 			final int level = chra.getCurrentSkillLevel(amp);
 			if (level > 0) {
-				element_amp_percent = amp.getEffect(level).getY();
+				this.element_amp_percent = amp.getEffect(level).getY();
 			}
 			break;
 		}
@@ -286,7 +286,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill amp = SkillFactory.getSkill(22150000);
 			final int level = chra.getCurrentSkillLevel(amp);
 			if (level > 0) {
-				element_amp_percent = amp.getEffect(level).getY();
+				this.element_amp_percent = amp.getEffect(level).getY();
 			}
 			break;
 		}
@@ -294,7 +294,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill expert = SkillFactory.getSkill(21120001);
 			final int boostLevel = chra.getCurrentSkillLevel(expert);
 			if (boostLevel > 0) {
-				watk += expert.getEffect(boostLevel).getX();
+				this.watk += expert.getEffect(boostLevel).getX();
 			}
 			break;
 		}
@@ -302,8 +302,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 		final ISkill blessoffairy = SkillFactory.getSkill(Skills.getBlessOfFairyForJob(chra.getJobId()));
 		final int boflevel = chra.getCurrentSkillLevel(blessoffairy);
 		if (boflevel > 0) {
-			watk += blessoffairy.getEffect(boflevel).getX();
-			magic += blessoffairy.getEffect(boflevel).getY();
+			this.watk += blessoffairy.getEffect(boflevel).getX();
+			this.magic += blessoffairy.getEffect(boflevel).getY();
 		}
 
 		// switch (chra.getJob() / 100) {
@@ -313,15 +313,15 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 
 		buff = chra.getBuffedValue(BuffStat.ACC);
 		if (buff != null) {
-			accuracy += buff.intValue();
+			this.accuracy += buff.intValue();
 		}
 		buff = chra.getBuffedValue(BuffStat.WATK);
 		if (buff != null) {
-			watk += buff.intValue();
+			this.watk += buff.intValue();
 		}
 		buff = chra.getBuffedValue(BuffStat.MATK);
 		if (buff != null) {
-			magic += buff.intValue();
+			this.magic += buff.intValue();
 		}
 		buff = chra.getBuffedValue(BuffStat.SPEED);
 		if (buff != null) {
@@ -345,35 +345,35 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 		if (jump > 123) {
 			jump = 123;
 		}
-		speedMod = speed / 100.0f;
-		jumpMod = jump / 100.0f;
-		Integer mount = chra.getBuffedValue(BuffStat.MONSTER_RIDING);
+		this.speedMod = speed / 100.0f;
+		this.jumpMod = jump / 100.0f;
+		final Integer mount = chra.getBuffedValue(BuffStat.MONSTER_RIDING);
 		if (mount != null) {
-			jumpMod = 1.23f;
+			this.jumpMod = 1.23f;
 			switch (mount.intValue()) {
 			case 1:
-				speedMod = 1.5f;
+				this.speedMod = 1.5f;
 				break;
 			case 2:
-				speedMod = 1.7f;
+				this.speedMod = 1.7f;
 				break;
 			case 3:
-				speedMod = 1.8f;
+				this.speedMod = 1.8f;
 				break;
 			default:
-				System.err.println("Unhandeled monster riding level, Speedmod = " + speedMod + "");
+				System.err.println("Unhandeled monster riding level, Speedmod = " + this.speedMod + "");
 			}
 		}
-		hands = this.localDEX + this.localint_ + this.localLUK;
+		this.hands = this.localDEX + this.localint_ + this.localLUK;
 
-		magic = Math.min(magic, ChannelCharacter.magicCap);
-		localmaxhp = Math.min(30000, localmaxhp);
-		localmaxmp = Math.min(30000, localmaxmp);
+		this.magic = Math.min(this.magic, ChannelCharacter.magicCap);
+		this.localmaxhp = Math.min(30000, this.localmaxhp);
+		this.localmaxmp = Math.min(30000, this.localmaxmp);
 
-		CalcPassive_SharpEye(chra);
+		this.CalcPassive_SharpEye(chra);
 
-		localmaxbasedamage = calculateMaxBaseDamage(watk);
-		if (oldmaxhp != 0 && oldmaxhp != localmaxhp) {
+		this.localmaxbasedamage = this.calculateMaxBaseDamage(this.watk);
+		if (oldmaxhp != 0 && oldmaxhp != this.localmaxhp) {
 			chra.updatePartyMemberHP();
 		}
 	}
@@ -432,7 +432,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill critSkill = SkillFactory.getSkill(21110000);
 			final int critlevel = player.getCurrentSkillLevel(critSkill);
 			if (critlevel > 0) {
-				this.passive_sharpeye_percent = (critSkill.getEffect(critlevel).getDamage());
+				this.passive_sharpeye_percent = critSkill.getEffect(critlevel).getDamage();
 				this.passive_sharpeye_rate = critSkill.getEffect(critlevel).getProb();
 				return;
 			}
@@ -487,15 +487,15 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 	}
 
 	public final short passive_sharpeye_percent() {
-		return passive_sharpeye_percent;
+		return this.passive_sharpeye_percent;
 	}
 
 	public final short passive_sharpeye_rate() {
-		return passive_sharpeye_rate;
+		return this.passive_sharpeye_rate;
 	}
 
 	public final float calculateMaxBaseDamage(final int watk) {
-		final ChannelCharacter chra = character.get();
+		final ChannelCharacter chra = this.character.get();
 		if (chra == null) {
 			return 0;
 		}
@@ -513,42 +513,42 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 				switch (weapon) {
 				case BOW:
 				case CROSSBOW:
-					primary = localDEX;
-					secondary = localSTR;
+					primary = this.localDEX;
+					secondary = this.localSTR;
 					break;
 				case CLAW:
 				case DAGGER:
-					if ((job >= 400 && job <= 422) || (job >= 1400 && job <= 1412)) {
-						primary = localLUK;
-						secondary = localDEX + localSTR;
+					if (job >= 400 && job <= 422 || job >= 1400 && job <= 1412) {
+						primary = this.localLUK;
+						secondary = this.localDEX + this.localSTR;
 					} else { // Non Thieves
-						primary = localSTR;
-						secondary = localDEX;
+						primary = this.localSTR;
+						secondary = this.localDEX;
 					}
 					break;
 				case KNUCKLE:
-					primary = localSTR;
-					secondary = localDEX;
+					primary = this.localSTR;
+					secondary = this.localDEX;
 					break;
 				case GUN:
-					primary = localDEX;
-					secondary = localSTR;
+					primary = this.localDEX;
+					secondary = this.localSTR;
 					break;
 				case NOT_A_WEAPON:
-					if ((job >= 500 && job <= 522) || (job >= 1500 && job <= 1512)) {
-						primary = localSTR;
-						secondary = localDEX;
+					if (job >= 500 && job <= 522 || job >= 1500 && job <= 1512) {
+						primary = this.localSTR;
+						secondary = this.localDEX;
 					} else {
 						primary = 0;
 						secondary = 0;
 					}
 					break;
 				default:
-					primary = localSTR;
-					secondary = localDEX;
+					primary = this.localSTR;
+					secondary = this.localDEX;
 					break;
 				}
-				maxBaseDamage = ((weapon.getMaxDamageMultiplier() * primary) + secondary) * watk / 100;
+				maxBaseDamage = (weapon.getMaxDamageMultiplier() * primary + secondary) * watk / 100;
 			} else {
 				maxBaseDamage = 0;
 			}
@@ -557,32 +557,32 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 	}
 
 	public final float getHealHP() {
-		return shouldHealHP;
+		return this.shouldHealHP;
 	}
 
 	public final float getHealMP() {
-		return shouldHealMP;
+		return this.shouldHealMP;
 	}
 
 	public final void relocHeal() {
-		final ChannelCharacter chra = character.get();
+		final ChannelCharacter chra = this.character.get();
 		if (chra == null) {
 			return;
 		}
 		final int jobId = chra.getJobId();
 
-		shouldHealHP = 10; // Reset
-		shouldHealMP = 3;
+		this.shouldHealHP = 10; // Reset
+		this.shouldHealMP = 3;
 
 		if (Jobs.isJobFamily(200, jobId)) {
 			// Improving MP recovery
-			shouldHealMP += (((float) chra.getCurrentSkillLevel(SkillFactory.getSkill(2000000)) / 10) * chra.getLevel());
+			this.shouldHealMP += (float) chra.getCurrentSkillLevel(SkillFactory.getSkill(2000000)) / 10 * chra.getLevel();
 		} else if (Jobs.isJobFamily(111, jobId)) {
 			final ISkill effect = SkillFactory.getSkill(1110000);
 			// Improving MP Recovery
 			final int lvl = chra.getCurrentSkillLevel(effect);
 			if (lvl > 0) {
-				shouldHealMP += effect.getEffect(lvl).getMp();
+				this.shouldHealMP += effect.getEffect(lvl).getMp();
 			}
 
 		} else if (Jobs.isJobFamily(121, jobId)) {
@@ -590,7 +590,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill effect = SkillFactory.getSkill(1210000);
 			final int lvl = chra.getCurrentSkillLevel(effect);
 			if (lvl > 0) {
-				shouldHealMP += effect.getEffect(lvl).getMp();
+				this.shouldHealMP += effect.getEffect(lvl).getMp();
 			}
 
 		} else if (Jobs.isJobFamily(1111, jobId)) {
@@ -598,7 +598,7 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill effect = SkillFactory.getSkill(11110000);
 			final int lvl = chra.getCurrentSkillLevel(effect);
 			if (lvl > 0) {
-				shouldHealMP += effect.getEffect(lvl).getMp();
+				this.shouldHealMP += effect.getEffect(lvl).getMp();
 			}
 
 		} else if (Jobs.isJobFamily(410, jobId)) {
@@ -606,8 +606,8 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill effect = SkillFactory.getSkill(4100002);
 			final int lvl = chra.getCurrentSkillLevel(effect);
 			if (lvl > 0) {
-				shouldHealHP += effect.getEffect(lvl).getHp();
-				shouldHealMP += effect.getEffect(lvl).getMp();
+				this.shouldHealHP += effect.getEffect(lvl).getHp();
+				this.shouldHealMP += effect.getEffect(lvl).getMp();
 			}
 
 		} else if (Jobs.isJobFamily(420, jobId)) {
@@ -615,29 +615,29 @@ public class ActivePlayerStats extends PlayerStats implements Serializable {
 			final ISkill effect = SkillFactory.getSkill(4200001);
 			final int lvl = chra.getCurrentSkillLevel(effect);
 			if (lvl > 0) {
-				shouldHealHP += effect.getEffect(lvl).getHp();
-				shouldHealMP += effect.getEffect(lvl).getMp();
+				this.shouldHealHP += effect.getEffect(lvl).getHp();
+				this.shouldHealMP += effect.getEffect(lvl).getMp();
 			}
 		}
 		if (chra.isGM()) {
-			shouldHealHP += 1000;
-			shouldHealMP += 1000;
+			this.shouldHealHP += 1000;
+			this.shouldHealMP += 1000;
 		}
 		if (chra.getChair() != 0) {
 			// Is sitting on a chair.
 			// Until the values of Chair heal has been fixed,
 			// MP is different here, if chair data MP = 0, heal + 1.5
-			shouldHealHP += 99;
-			shouldHealMP += 99;
+			this.shouldHealHP += 99;
+			this.shouldHealMP += 99;
 		} else {
 			// Because Heal isn't multipled when there's a chair :)
 			final float recvRate = chra.getMap().getRecoveryRate();
-			shouldHealHP *= recvRate;
-			shouldHealMP *= recvRate;
+			this.shouldHealHP *= recvRate;
+			this.shouldHealMP *= recvRate;
 		}
 		// To avoid any problem with bathrobe / Sauna >.<
 		// 1.5
-		shouldHealHP *= 2;
-		shouldHealMP *= 2;
+		this.shouldHealHP *= 2;
+		this.shouldHealMP *= 2;
 	}
 }

@@ -16,67 +16,67 @@ import javastory.tools.packets.ChannelPackets;
 public class CarnivalParty {
 
 	private List<ChannelCharacter> members = new LinkedList<ChannelCharacter>();
-	private ChannelCharacter leader;
-	private byte team;
+	private final ChannelCharacter leader;
+	private final byte team;
 	private short availableCP = 0, totalCP = 0;
 	private boolean winner = false;
 
 	public CarnivalParty(final ChannelCharacter owner, final List<ChannelCharacter> members1, final byte team1) {
-		leader = owner;
-		members = members1;
-		team = team1;
+		this.leader = owner;
+		this.members = members1;
+		this.team = team1;
 
-		for (final ChannelCharacter chr : members) {
+		for (final ChannelCharacter chr : this.members) {
 			chr.setCarnivalParty(this);
 		}
 	}
 
 	public final ChannelCharacter getLeader() {
-		return leader;
+		return this.leader;
 	}
 
-	public void addCP(ChannelCharacter player, int ammount) {
-		totalCP += ammount;
-		availableCP += ammount;
+	public void addCP(final ChannelCharacter player, final int ammount) {
+		this.totalCP += ammount;
+		this.availableCP += ammount;
 		player.addCP(ammount);
 	}
 
 	public int getTotalCP() {
-		return totalCP;
+		return this.totalCP;
 	}
 
 	public int getAvailableCP() {
-		return availableCP;
+		return this.availableCP;
 	}
 
-	public void useCP(ChannelCharacter player, int ammount) {
-		availableCP -= ammount;
+	public void useCP(final ChannelCharacter player, final int ammount) {
+		this.availableCP -= ammount;
 		player.useCP(ammount);
 	}
 
 	public List<ChannelCharacter> getMembers() {
-		return members;
+		return this.members;
 	}
 
 	public int getTeam() {
-		return team;
+		return this.team;
 	}
 
 	public void warp(final GameMap map, final String portalname) {
-		for (ChannelCharacter chr : members) {
+		for (final ChannelCharacter chr : this.members) {
 			chr.changeMap(map, map.getPortal(portalname));
 		}
 	}
 
 	public void warp(final GameMap map, final int portalid) {
-		for (ChannelCharacter chr : members) {
+		for (final ChannelCharacter chr : this.members) {
 			chr.changeMap(map, map.getPortal(portalid));
 		}
 	}
 
-	public boolean allInMap(GameMap map) {
+	public boolean allInMap(final GameMap map) {
 		boolean status = true;
-		for (ChannelCharacter chr : members) {
+		for (final ChannelCharacter chr : this.members) {
 			if (chr.getMap() != map) {
 				status = false;
 			}
@@ -84,23 +84,23 @@ public class CarnivalParty {
 		return status;
 	}
 
-	public void removeMember(ChannelCharacter chr) {
-		members.remove(chr);
+	public void removeMember(final ChannelCharacter chr) {
+		this.members.remove(chr);
 		chr.setCarnivalParty(null);
 	}
 
 	public boolean isWinner() {
-		return winner;
+		return this.winner;
 	}
 
-	public void setWinner(boolean status) {
-		winner = status;
+	public void setWinner(final boolean status) {
+		this.winner = status;
 	}
 
 	public void displayMatchResult() {
-		final String effect = winner ? "quest/carnival/win" : "quest/carnival/lose";
+		final String effect = this.winner ? "quest/carnival/win" : "quest/carnival/lose";
 
-		for (final ChannelCharacter chr : members) {
+		for (final ChannelCharacter chr : this.members) {
 			chr.getClient().write(ChannelPackets.showEffect(effect));
 		}
 

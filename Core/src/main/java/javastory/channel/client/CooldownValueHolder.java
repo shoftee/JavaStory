@@ -27,7 +27,7 @@ public class CooldownValueHolder {
 	public long length;
 	public ScheduledFuture<?> timer;
 
-	public CooldownValueHolder(int skillId, long startTime, long length, ScheduledFuture<?> timer) {
+	public CooldownValueHolder(final int skillId, final long startTime, final long length, final ScheduledFuture<?> timer) {
 		super();
 		this.skillId = skillId;
 		this.startTime = startTime;

@@ -31,23 +31,23 @@ import javastory.wz.WzFileEntry;
 
 public class XmlWzFile implements WzDataProvider {
 
-	private File root;
-	private WzDirectoryEntry rootForNavigation;
+	private final File root;
+	private final WzDirectoryEntry rootForNavigation;
 
-	public XmlWzFile(File fileIn) {
-		root = fileIn;
-		rootForNavigation = new WzDirectoryEntry(fileIn.getName(), 0, 0, null);
-		fillMapleDataEntitys(root, rootForNavigation);
+	public XmlWzFile(final File fileIn) {
+		this.root = fileIn;
+		this.rootForNavigation = new WzDirectoryEntry(fileIn.getName(), 0, 0, null);
+		this.fillMapleDataEntitys(this.root, this.rootForNavigation);
 	}
 
-	private void fillMapleDataEntitys(File lroot, WzDirectoryEntry wzdir) {
-		for (File file : lroot.listFiles()) {
-			String fileName = file.getName();
+	private void fillMapleDataEntitys(final File lroot, final WzDirectoryEntry wzdir) {
+		for (final File file : lroot.listFiles()) {
+			final String fileName = file.getName();
 
 			if (file.isDirectory() && !fileName.endsWith(".img")) {
-				WzDirectoryEntry newDir = new WzDirectoryEntry(fileName, 0, 0, wzdir);
+				final WzDirectoryEntry newDir = new WzDirectoryEntry(fileName, 0, 0, wzdir);
 				wzdir.addDirectory(newDir);
-				fillMapleDataEntitys(file, newDir);
+				this.fillMapleDataEntitys(file, newDir);
 
 			} else if (fileName.endsWith(".xml")) { // get the real size here?
 				wzdir.addFile(new WzFileEntry(fileName.substring(0, fileName.length() - 4), 0, 0, wzdir));
@@ -56,9 +56,9 @@ public class XmlWzFile implements WzDataProvider {
 	}
 
 	@Override
-	public WzData getData(String path) {
-		File dataFile = new File(root, path + ".xml");
-		File imageDataDir = new File(root, path);
+	public WzData getData(final String path) {
+		final File dataFile = new File(this.root, path + ".xml");
+		final File imageDataDir = new File(this.root, path);
 		/*
 		 * if (!dataFile.exists()) {
 		 * throw new RuntimeException("Datafile " + path + " does not exist in "
@@ -68,8 +68,8 @@ public class XmlWzFile implements WzDataProvider {
 		FileInputStream fis;
 		try {
 			fis = new FileInputStream(dataFile);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Datafile " + path + " does not exist in " + root.getAbsolutePath());
+		} catch (final FileNotFoundException e) {
+			throw new RuntimeException("Datafile " + path + " does not exist in " + this.root.getAbsolutePath());
 		}
 		final XmlDomWzData domMapleData;
 		try {
@@ -77,7 +77,7 @@ public class XmlWzFile implements WzDataProvider {
 		} finally {
 			try {
 				fis.close();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -86,6 +86,6 @@ public class XmlWzFile implements WzDataProvider {
 
 	@Override
 	public WzDataDirectoryEntry getRoot() {
-		return rootForNavigation;
+		return this.rootForNavigation;
 	}
 }

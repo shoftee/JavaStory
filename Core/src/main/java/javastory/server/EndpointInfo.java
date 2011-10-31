@@ -21,7 +21,7 @@ public class EndpointInfo implements Serializable {
 	private final int port;
 	private final SocketAddress address;
 
-	public EndpointInfo(int port) {
+	public EndpointInfo(final int port) {
 		Preconditions.checkArgument(0 <= port && port <= 65535);
 
 		this.host = "127.0.0.1";
@@ -30,7 +30,7 @@ public class EndpointInfo implements Serializable {
 		this.address = new InetSocketAddress(port);
 	}
 
-	public EndpointInfo(String host, int port) {
+	public EndpointInfo(final String host, final int port) {
 		Preconditions.checkNotNull(host);
 
 		this.host = host;

@@ -119,8 +119,8 @@ public class CharacterTransfer implements Externalizable {
 		}
 		this.BuddyListCapacity = chr.getBuddyCapacity();
 
-		PartyMember member = chr.getPartyMembership();
-		this.PartyId = (member != null) ? member.getPartyId() : -1;
+		final PartyMember member = chr.getPartyMembership();
+		this.PartyId = member != null ? member.getPartyId() : -1;
 
 		final Messenger messenger = chr.getMessenger();
 		if (messenger != null) {
@@ -238,7 +238,7 @@ public class CharacterTransfer implements Externalizable {
 		this.BuddyListCapacity = in.readShort();
 		final short buddyEntrySize = in.readShort();
 		for (int i = 0; i < buddyEntrySize; i++) {
-			BuddyListEntries.put(new SimpleCharacterInfo(in.readInt(), in.readUTF(), in.readInt(), in.readInt()), in.readBoolean());
+			this.BuddyListEntries.put(new SimpleCharacterInfo(in.readInt(), in.readUTF(), in.readInt(), in.readInt()), in.readBoolean());
 		}
 
 		final int questStatusEntryCount = in.readShort();
@@ -251,7 +251,7 @@ public class CharacterTransfer implements Externalizable {
 		}
 		this.ondmg = in.readByte() == 1;
 		this.callgm = in.readByte() == 1;
-		TranferTime = System.currentTimeMillis();
+		this.TranferTime = System.currentTimeMillis();
 	}
 
 	@Override

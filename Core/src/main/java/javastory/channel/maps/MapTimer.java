@@ -38,7 +38,7 @@ public class MapTimer {
 	}
 
 	public void start() {
-		if (ses != null && !ses.isShutdown() && !ses.isTerminated()) {
+		if (this.ses != null && !this.ses.isShutdown() && !this.ses.isTerminated()) {
 			return; // starting the same timermanager twice is no - op
 		}
 
@@ -47,9 +47,9 @@ public class MapTimer {
 			private final AtomicInteger threadNumber = new AtomicInteger(1);
 
 			@Override
-			public Thread newThread(Runnable r) {
+			public Thread newThread(final Runnable r) {
 				final Thread t = new Thread(r);
-				t.setName("Timermanager-Worker-" + threadNumber.getAndIncrement());
+				t.setName("Timermanager-Worker-" + this.threadNumber.getAndIncrement());
 				return t;
 			}
 		};
@@ -59,27 +59,27 @@ public class MapTimer {
 		stpe.allowCoreThreadTimeOut(true);
 		stpe.setCorePoolSize(3);
 		stpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-		ses = stpe;
+		this.ses = stpe;
 	}
 
 	public void stop() {
-		ses.shutdown();
+		this.ses.shutdown();
 	}
 
-	public ScheduledFuture<?> register(Runnable r, long repeatTime, long delay) {
-		return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> register(final Runnable r, final long repeatTime, final long delay) {
+		return this.ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), delay, repeatTime, TimeUnit.MILLISECONDS);
 	}
 
-	public ScheduledFuture<?> register(Runnable r, long repeatTime) {
-		return ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), 0, repeatTime, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> register(final Runnable r, final long repeatTime) {
+		return this.ses.scheduleAtFixedRate(new LoggingSaveRunnable(r), 0, repeatTime, TimeUnit.MILLISECONDS);
 	}
 
-	public ScheduledFuture<?> schedule(Runnable r, long delay) {
-		return ses.schedule(new LoggingSaveRunnable(r), delay, TimeUnit.MILLISECONDS);
+	public ScheduledFuture<?> schedule(final Runnable r, final long delay) {
+		return this.ses.schedule(new LoggingSaveRunnable(r), delay, TimeUnit.MILLISECONDS);
 	}
 
-	public ScheduledFuture<?> scheduleAtTimestamp(Runnable r, long timestamp) {
-		return schedule(r, timestamp - System.currentTimeMillis());
+	public ScheduledFuture<?> scheduleAtTimestamp(final Runnable r, final long timestamp) {
+		return this.schedule(r, timestamp - System.currentTimeMillis());
 	}
 
 	private static class LoggingSaveRunnable implements Runnable {
@@ -93,8 +93,8 @@ public class MapTimer {
 		@Override
 		public void run() {
 			try {
-				r.run();
-			} catch (Throwable t) {
+				this.r.run();
+			} catch (final Throwable t) {
 				LogUtil.outputFileError(LogUtil.MapTimer_Log, t);
 			}
 		}

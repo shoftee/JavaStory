@@ -134,7 +134,7 @@ public class StatEffect implements Serializable {
 		ret.speed = (short) WzDataTool.getInt("speed", source, 0);
 		ret.jump = (short) WzDataTool.getInt("jump", source, 0);
 
-		List<Disease> cure = new ArrayList<>(5);
+		final List<Disease> cure = new ArrayList<>(5);
 		if (WzDataTool.getInt("poison", source, 0) > 0) {
 			cure.add(Disease.POISON);
 		}
@@ -185,7 +185,7 @@ public class StatEffect implements Serializable {
 		ret.itemConNo = WzDataTool.getInt("itemConNo", source, 0);
 		ret.moveTo = WzDataTool.getInt("moveTo", source, -1);
 
-		Map<MonsterStatus, Integer> monsterStatus = Maps.newEnumMap(MonsterStatus.class);
+		final Map<MonsterStatus, Integer> monsterStatus = Maps.newEnumMap(MonsterStatus.class);
 
 		if (skill) { // hack because we can't get from the datafile...
 			switch (sourceid) {
@@ -568,8 +568,8 @@ public class StatEffect implements Serializable {
 	 *            damage done by the skill
 	 */
 	public final void applyPassive(final ChannelCharacter applyto, final GameMapObject obj) {
-		if (makeChanceResult()) {
-			switch (sourceid) { // MP eater
+		if (this.makeChanceResult()) {
+			switch (this.sourceid) { // MP eater
 			case 2100000:
 			case 2200000:
 			case 2300000:
@@ -578,12 +578,12 @@ public class StatEffect implements Serializable {
 				}
 				final Monster mob = (Monster) obj; // x is absorb percentage
 				if (!mob.getStats().isBoss()) {
-					final int absorbMp = Math.min((int) (mob.getMobMaxMp() * (getX() / 100.0)), mob.getMp());
+					final int absorbMp = Math.min((int) (mob.getMobMaxMp() * (this.getX() / 100.0)), mob.getMp());
 					if (absorbMp > 0) {
 						mob.setMp(mob.getMp() - absorbMp);
 						applyto.getStats().setMp(applyto.getStats().getMp() + absorbMp);
-						applyto.getClient().write(ChannelPackets.showOwnBuffEffect(sourceid, 1));
-						applyto.getMap().broadcastMessage(applyto, ChannelPackets.showBuffeffect(applyto.getId(), sourceid, 1), false);
+						applyto.getClient().write(ChannelPackets.showOwnBuffEffect(this.sourceid, 1));
+						applyto.getMap().broadcastMessage(applyto, ChannelPackets.showBuffeffect(applyto.getId(), this.sourceid, 1), false);
 					}
 				}
 				break;
@@ -591,57 +591,57 @@ public class StatEffect implements Serializable {
 		}
 	}
 
-	public final boolean applyTo(ChannelCharacter chr) {
-		return applyTo(chr, chr, true, null);
+	public final boolean applyTo(final ChannelCharacter chr) {
+		return this.applyTo(chr, chr, true, null);
 	}
 
-	public final boolean applyTo(ChannelCharacter chr, Point pos) {
-		return applyTo(chr, chr, true, pos);
+	public final boolean applyTo(final ChannelCharacter chr, final Point pos) {
+		return this.applyTo(chr, chr, true, pos);
 	}
 
 	private boolean applyTo(final ChannelCharacter applyfrom, final ChannelCharacter applyto, final boolean primary, final Point pos) {
 		/*	if (sourceid == 4341006 && applyfrom.getBuffedValue(BuffStat.MIRROR_IMAGE) == null) {
 		return false;
 		} */
-		int hpchange = calcHPChange(applyfrom, primary);
-		int mpchange = calcMPChange(applyfrom, primary);
+		int hpchange = this.calcHPChange(applyfrom, primary);
+		int mpchange = this.calcMPChange(applyfrom, primary);
 
 		final ActivePlayerStats stat = applyto.getStats();
 
 		if (primary) {
-			if (itemConNo != 0) {
-				InventoryManipulator.removeById(applyto.getClient(), applyto.getInventoryForItem(itemCon), itemCon, itemConNo, false, true);
+			if (this.itemConNo != 0) {
+				InventoryManipulator.removeById(applyto.getClient(), applyto.getInventoryForItem(this.itemCon), this.itemCon, this.itemConNo, false, true);
 			}
-		} else if (!primary && isResurrection()) {
+		} else if (!primary && this.isResurrection()) {
 			hpchange = stat.getMaxHp();
 			applyto.setStance(0); //TODO fix death bug, player doesnt spawn on other screen
 		}
-		if (isDispel() && makeChanceResult()) {
+		if (this.isDispel() && this.makeChanceResult()) {
 			applyto.dispelDebuffs();
-		} else if (isHeroWill()) {
+		} else if (this.isHeroWill()) {
 			applyto.dispelDebuff(Disease.SEDUCE);
-		} else if (cureDebuffs.size() > 0) {
-			for (final Disease debuff : cureDebuffs) {
+		} else if (this.cureDebuffs.size() > 0) {
+			for (final Disease debuff : this.cureDebuffs) {
 				applyfrom.dispelDebuff(debuff);
 			}
-		} else if (isMPRecovery()) {
-			final int toDecreaseHP = ((stat.getMaxHp() / 100) * 10);
+		} else if (this.isMPRecovery()) {
+			final int toDecreaseHP = stat.getMaxHp() / 100 * 10;
 			if (stat.getHp() > toDecreaseHP) {
 				hpchange += -toDecreaseHP; // -10% of max HP
 			} else {
 				hpchange = stat.getHp() == 1 ? 0 : stat.getHp() - 1;
 			}
-			mpchange += ((toDecreaseHP / 100) * getY());
+			mpchange += toDecreaseHP / 100 * this.getY();
 		}
 		final List<StatValue> hpmpupdate = new ArrayList<>(2);
 		if (hpchange != 0) {
-			if (hpchange < 0 && (-hpchange) > stat.getHp() && !applyto.hasDisease(Disease.ZOMBIFY)) {
+			if (hpchange < 0 && -hpchange > stat.getHp() && !applyto.hasDisease(Disease.ZOMBIFY)) {
 				return false;
 			}
 			stat.setHp(stat.getHp() + hpchange);
 		}
 		if (mpchange != 0) {
-			if (mpchange < 0 && (-mpchange) > stat.getMp()) {
+			if (mpchange < 0 && -mpchange > stat.getMp()) {
 				return false;
 			}
 			stat.setMp(stat.getMp() + mpchange);
@@ -652,13 +652,13 @@ public class StatEffect implements Serializable {
 
 		applyto.getClient().write(ChannelPackets.updatePlayerStats(hpmpupdate, true, applyto.getJobId()));
 
-		if (expinc != 0) {
-			applyto.gainExp(expinc, true, true, false);
+		if (this.expinc != 0) {
+			applyto.gainExp(this.expinc, true, true, false);
 			applyto.getClient().write(ChannelPackets.showSpecialEffect(19));
-		} else if (GameConstants.isMonsterCard(sourceid)) {
-			applyto.getMonsterBook().addCard(applyto.getClient(), sourceid);
-		} else if (isSpiritClaw()) {
-			Inventory use = applyto.getUseInventory();
+		} else if (GameConstants.isMonsterCard(this.sourceid)) {
+			applyto.getMonsterBook().addCard(applyto.getClient(), this.sourceid);
+		} else if (this.isSpiritClaw()) {
+			final Inventory use = applyto.getUseInventory();
 			IItem item;
 			for (int i = 0; i < use.getSlotLimit(); i++) { // impose order...
 				item = use.getItem((byte) i);
@@ -670,38 +670,38 @@ public class StatEffect implements Serializable {
 				}
 			}
 		}
-		if (overTime) {
-			applyBuffEffect(applyfrom, applyto, primary);
+		if (this.overTime) {
+			this.applyBuffEffect(applyfrom, applyto, primary);
 		}
 		if (primary) {
-			if (overTime || isHeal()) {
-				applyBuff(applyfrom);
+			if (this.overTime || this.isHeal()) {
+				this.applyBuff(applyfrom);
 			}
-			if (isMonsterBuff()) {
-				applyMonsterBuff(applyfrom);
+			if (this.isMonsterBuff()) {
+				this.applyMonsterBuff(applyfrom);
 			}
 		}
-		final SummonMovementType summonMovementType = getSummonMovementType();
+		final SummonMovementType summonMovementType = this.getSummonMovementType();
 		if (summonMovementType != null && pos != null) {
-			final Summon tosummon = new Summon(applyfrom, sourceid, pos, summonMovementType);
+			final Summon tosummon = new Summon(applyfrom, this.sourceid, pos, summonMovementType);
 			if (!tosummon.isPuppet()) {
 				applyfrom.getCheatTracker().resetSummonAttack();
 			}
 			applyfrom.getMap().spawnSummon(tosummon);
-			applyfrom.getSummons().put(sourceid, tosummon);
-			tosummon.addHP((short) x);
-			if (isBeholder()) {
+			applyfrom.getSummons().put(this.sourceid, tosummon);
+			tosummon.addHP((short) this.x);
+			if (this.isBeholder()) {
 				tosummon.addHP((short) 1);
 			}
 			/*if (sourceid == 4341006) {
 			applyfrom.cancelEffectFromBuffStat(BuffStat.MIRROR_IMAGE);
 			}*/
-		} else if (isMagicDoor()) { // Magic Door
-			Door door = new Door(applyto, new Point(applyto.getPosition())); // Current Map door
+		} else if (this.isMagicDoor()) { // Magic Door
+			final Door door = new Door(applyto, new Point(applyto.getPosition())); // Current Map door
 			applyto.getMap().spawnDoor(door);
 			applyto.addDoor(door);
 
-			Door townDoor = new Door(door); // Town door
+			final Door townDoor = new Door(door); // Town door
 			applyto.addDoor(townDoor);
 			door.getTown().spawnDoor(townDoor);
 
@@ -710,13 +710,13 @@ public class StatEffect implements Serializable {
 			}
 			applyto.disableDoor();
 
-		} else if (isMist()) {
-			final Rectangle bounds = calculateBoundingBox(pos != null ? pos : applyfrom.getPosition(), applyfrom.isFacingLeft());
+		} else if (this.isMist()) {
+			final Rectangle bounds = this.calculateBoundingBox(pos != null ? pos : applyfrom.getPosition(), applyfrom.isFacingLeft());
 			final Mist mist = new Mist(bounds, applyfrom, this);
-			applyfrom.getMap().spawnMist(mist, getDuration(), isMistPoison(), false);
+			applyfrom.getMap().spawnMist(mist, this.getDuration(), this.isMistPoison(), false);
 
-		} else if (isTimeLeap()) { // Time Leap
-			for (PlayerCooldownValueHolder i : applyto.getAllCooldowns()) {
+		} else if (this.isTimeLeap()) { // Time Leap
+			for (final PlayerCooldownValueHolder i : applyto.getAllCooldowns()) {
 				if (i.skillId != 5121010) {
 					applyto.removeCooldown(i.skillId);
 					applyto.getClient().write(ChannelPackets.skillCooldown(i.skillId, 0));
@@ -727,13 +727,13 @@ public class StatEffect implements Serializable {
 	}
 
 	public final boolean applyReturnScroll(final ChannelCharacter applyto) {
-		if (moveTo != -1) {
+		if (this.moveTo != -1) {
 			if (applyto.getMap().getReturnMapId() != applyto.getMapId()) {
 				GameMap target;
-				if (moveTo == 999999999) {
+				if (this.moveTo == 999999999) {
 					target = applyto.getMap().getReturnMap();
 				} else {
-					target = ChannelServer.getMapFactory().getMap(moveTo);
+					target = ChannelServer.getMapFactory().getMap(this.moveTo);
 					if (target.getId() / 10000000 != 60 && applyto.getMapId() / 10000000 != 61) {
 						if (target.getId() / 10000000 != 21 && applyto.getMapId() / 10000000 != 20) {
 							if (target.getId() / 10000000 != applyto.getMapId() / 10000000) {
@@ -750,21 +750,21 @@ public class StatEffect implements Serializable {
 	}
 
 	private void applyBuff(final ChannelCharacter applyfrom) {
-		if (isPartyBuff() && (applyfrom.hasParty() || isGmBuff())) {
-			final Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
+		if (this.isPartyBuff() && (applyfrom.hasParty() || this.isGmBuff())) {
+			final Rectangle bounds = this.calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
 			final List<GameMapObject> affecteds = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(GameMapObjectType.PLAYER));
 
 			for (final GameMapObject affectedmo : affecteds) {
 				final ChannelCharacter affected = (ChannelCharacter) affectedmo;
 
-				if (affected != applyfrom && (isGmBuff() || applyfrom.getPartyMembership().getPartyId() == affected.getPartyMembership().getPartyId())) {
-					if ((isResurrection() && !affected.isAlive()) || (!isResurrection() && affected.isAlive())) {
-						applyTo(applyfrom, affected, false, null);
-						affected.getClient().write(ChannelPackets.showOwnBuffEffect(sourceid, 2));
-						affected.getMap().broadcastMessage(affected, ChannelPackets.showBuffeffect(affected.getId(), sourceid, 2), false);
+				if (affected != applyfrom && (this.isGmBuff() || applyfrom.getPartyMembership().getPartyId() == affected.getPartyMembership().getPartyId())) {
+					if (this.isResurrection() && !affected.isAlive() || !this.isResurrection() && affected.isAlive()) {
+						this.applyTo(applyfrom, affected, false, null);
+						affected.getClient().write(ChannelPackets.showOwnBuffEffect(this.sourceid, 2));
+						affected.getMap().broadcastMessage(affected, ChannelPackets.showBuffeffect(affected.getId(), this.sourceid, 2), false);
 					}
-					if (isTimeLeap()) {
-						for (PlayerCooldownValueHolder i : affected.getAllCooldowns()) {
+					if (this.isTimeLeap()) {
+						for (final PlayerCooldownValueHolder i : affected.getAllCooldowns()) {
 							if (i.skillId != 5121010) {
 								affected.removeCooldown(i.skillId);
 								affected.getClient().write(ChannelPackets.skillCooldown(i.skillId, 0));
@@ -777,17 +777,17 @@ public class StatEffect implements Serializable {
 	}
 
 	private void applyMonsterBuff(final ChannelCharacter applyfrom) {
-		final Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
+		final Rectangle bounds = this.calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
 		final List<GameMapObject> affected = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(GameMapObjectType.MONSTER));
 		int i = 0;
 
 		for (final GameMapObject mo : affected) {
-			if (makeChanceResult()) {
-				((Monster) mo).applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), SkillFactory.getSkill(sourceid), null, false), isPoison(),
-					getDuration(), false);
+			if (this.makeChanceResult()) {
+				((Monster) mo).applyStatus(applyfrom, new MonsterStatusEffect(this.getMonsterStati(), SkillFactory.getSkill(this.sourceid), null, false), this.isPoison(),
+					this.getDuration(), false);
 			}
 			i++;
-			if (i >= mobCount) {
+			if (i >= this.mobCount) {
 				break;
 			}
 		}
@@ -797,35 +797,35 @@ public class StatEffect implements Serializable {
 		Point mylt;
 		Point myrb;
 		if (facingLeft) {
-			mylt = new Point(lt.x + posFrom.x, lt.y + posFrom.y);
-			myrb = new Point(rb.x + posFrom.x, rb.y + posFrom.y);
+			mylt = new Point(this.lt.x + posFrom.x, this.lt.y + posFrom.y);
+			myrb = new Point(this.rb.x + posFrom.x, this.rb.y + posFrom.y);
 		} else {
-			myrb = new Point(lt.x * -1 + posFrom.x, rb.y + posFrom.y);
-			mylt = new Point(rb.x * -1 + posFrom.x, lt.y + posFrom.y);
+			myrb = new Point(this.lt.x * -1 + posFrom.x, this.rb.y + posFrom.y);
+			mylt = new Point(this.rb.x * -1 + posFrom.x, this.lt.y + posFrom.y);
 		}
 		return new Rectangle(mylt.x, mylt.y, myrb.x - mylt.x, myrb.y - mylt.y);
 	}
 
 	public final void silentApplyBuff(final ChannelCharacter chr, final long starttime) {
-		final int localDuration = alchemistModifyVal(chr, duration, false);
+		final int localDuration = this.alchemistModifyVal(chr, this.duration, false);
 		chr.registerEffect(this, starttime, TimerManager.getInstance().schedule(new CancelEffectAction(chr, this, starttime),
-			((starttime + localDuration) - System.currentTimeMillis())));
+			starttime + localDuration - System.currentTimeMillis()));
 
-		final SummonMovementType summonMovementType = getSummonMovementType();
+		final SummonMovementType summonMovementType = this.getSummonMovementType();
 		if (summonMovementType != null) {
-			final Summon tosummon = new Summon(chr, sourceid, chr.getPosition(), summonMovementType);
+			final Summon tosummon = new Summon(chr, this.sourceid, chr.getPosition(), summonMovementType);
 			if (!tosummon.isPuppet()) {
 				chr.getCheatTracker().resetSummonAttack();
 				chr.getMap().spawnSummon(tosummon);
-				chr.getSummons().put(sourceid, tosummon);
-				tosummon.addHP((short) x);
+				chr.getSummons().put(this.sourceid, tosummon);
+				tosummon.addHP((short) this.x);
 			}
 		}
 	}
 
-	public final void applyComboBuff(final ChannelCharacter applyto, short combo) {
+	public final void applyComboBuff(final ChannelCharacter applyto, final short combo) {
 		final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.ARAN_COMBO, combo));
-		applyto.getClient().write(ChannelPackets.giveBuff(sourceid, 99999, stat, this)); // Hackish timing, todo find out
+		applyto.getClient().write(ChannelPackets.giveBuff(this.sourceid, 99999, stat, this)); // Hackish timing, todo find out
 
 		final long starttime = System.currentTimeMillis();
 //	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
@@ -842,29 +842,29 @@ public class StatEffect implements Serializable {
 			applyto.registerEffect(this, starttime, null);
 		} else {
 			final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-			final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + duration) - System.currentTimeMillis()));
+			final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, starttime + this.duration - System.currentTimeMillis());
 			applyto.registerEffect(this, starttime, schedule);
 		}
 	}
 
 	private void applyBuffEffect(final ChannelCharacter applyfrom, final ChannelCharacter applyto, final boolean primary) {
-		if (!isMonsterRiding_()) {
+		if (!this.isMonsterRiding_()) {
 			applyto.cancelEffect(this, true, -1);
 		}
-		int localDuration = duration;
+		int localDuration = this.duration;
 
 		if (primary) {
-			localDuration = alchemistModifyVal(applyfrom, localDuration, false);
-			applyto.getMap().broadcastMessage(applyto, ChannelPackets.showBuffeffect(applyto.getId(), sourceid, 1), false);
+			localDuration = this.alchemistModifyVal(applyfrom, localDuration, false);
+			applyto.getMap().broadcastMessage(applyto, ChannelPackets.showBuffeffect(applyto.getId(), this.sourceid, 1), false);
 		}
 		boolean normal = true;
 
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 5001005: // Dash
 		case 4321000: //tornado spin
 		case 15001003: {
-			applyto.getClient().write(ChannelPackets.givePirate(statups, localDuration / 1000, sourceid));
-			applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignPirate(statups, localDuration / 1000, applyto.getId(), sourceid), false);
+			applyto.getClient().write(ChannelPackets.givePirate(this.statups, localDuration / 1000, this.sourceid));
+			applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignPirate(this.statups, localDuration / 1000, applyto.getId(), this.sourceid), false);
 			normal = false;
 			break;
 		}
@@ -873,7 +873,7 @@ public class StatEffect implements Serializable {
 		case 5220011: {// Bullseye
 			if (applyto.getLinkedMonsterId() > 0) {
 				applyto.getClient().write(ChannelPackets.cancelHoming());
-				applyto.getClient().write(ChannelPackets.giveHoming(sourceid, applyto.getLinkedMonsterId()));
+				applyto.getClient().write(ChannelPackets.giveHoming(this.sourceid, applyto.getLinkedMonsterId()));
 			} else {
 				return;
 			}
@@ -884,11 +884,11 @@ public class StatEffect implements Serializable {
 		case 10001004:
 		case 5221006:
 		case 20001004: {
-			final int mountid = parseMountInfo(applyto, sourceid);
+			final int mountid = parseMountInfo(applyto, this.sourceid);
 			if (mountid != 0) {
 				final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.MONSTER_RIDING, 0));
-				applyto.getClient().write(ChannelPackets.giveMount(mountid, sourceid, stat));
-				applyto.getMap().broadcastMessage(applyto, ChannelPackets.showMonsterRiding(applyto.getId(), stat, mountid, sourceid), false);
+				applyto.getClient().write(ChannelPackets.giveMount(mountid, this.sourceid, stat));
+				applyto.getMap().broadcastMessage(applyto, ChannelPackets.showMonsterRiding(applyto.getId(), stat, mountid, this.sourceid), false);
 				normal = false;
 			}
 			break;
@@ -903,8 +903,8 @@ public class StatEffect implements Serializable {
 		}
 		case 5121009: // Speed Infusion
 		case 15111005:
-			applyto.getClient().write(ChannelPackets.giveInfusion(statups, sourceid, localDuration));
-			applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignInfusion(applyto.getId(), x, localDuration), false);
+			applyto.getClient().write(ChannelPackets.giveInfusion(this.statups, this.sourceid, localDuration));
+			applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignInfusion(applyto.getId(), this.x, localDuration), false);
 			normal = false;
 			break;
 		case 13101006:
@@ -916,14 +916,14 @@ public class StatEffect implements Serializable {
 			break;
 		}
 		case 4341002: { // Final Cut
-			final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.FINAL_CUT, y));
-			applyto.getClient().write(ChannelPackets.giveBuff(sourceid, localDuration, stat, this));
+			final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.FINAL_CUT, this.y));
+			applyto.getClient().write(ChannelPackets.giveBuff(this.sourceid, localDuration, stat, this));
 			normal = false;
 			break;
 		}
 		case 4331003: { // Owl Spirit
-			final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.OWL_SPIRIT, y));
-			applyto.getClient().write(ChannelPackets.giveBuff(sourceid, localDuration, stat, this));
+			final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.OWL_SPIRIT, this.y));
+			applyto.getClient().write(ChannelPackets.giveBuff(this.sourceid, localDuration, stat, this));
 			normal = false;
 			break;
 		}
@@ -955,35 +955,35 @@ public class StatEffect implements Serializable {
 			applyto.handleOrbconsume();
 			break;
 		default:
-			if (isMorph() || isPirateMorph()) {
-				final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
+			if (this.isMorph() || this.isPirateMorph()) {
+				final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.MORPH, Integer.valueOf(this.getMorph(applyto))));
 				applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignBuff(applyto.getId(), stat, this), false);
-			} else if (isMonsterRiding()) {
-				final int mountid = parseMountInfo(applyto, sourceid);
+			} else if (this.isMonsterRiding()) {
+				final int mountid = parseMountInfo(applyto, this.sourceid);
 				if (mountid != 0) {
 					final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.MONSTER_RIDING, 0));
 					applyto.getClient().write(ChannelPackets.cancelBuff(null));
-					applyto.getClient().write(ChannelPackets.giveMount(mountid, sourceid, stat));
-					applyto.getMap().broadcastMessage(applyto, ChannelPackets.showMonsterRiding(applyto.getId(), stat, mountid, sourceid), false);
+					applyto.getClient().write(ChannelPackets.giveMount(mountid, this.sourceid, stat));
+					applyto.getMap().broadcastMessage(applyto, ChannelPackets.showMonsterRiding(applyto.getId(), stat, mountid, this.sourceid), false);
 				} else {
 					return;
 				}
 				normal = false;
-			} else if (isSoaring()) {
+			} else if (this.isSoaring()) {
 				final List<BuffStatValue> stat = Collections.singletonList(new BuffStatValue(BuffStat.SOARING, 1));
 				applyto.getMap().broadcastMessage(applyto, ChannelPackets.giveForeignBuff(applyto.getId(), stat, this), false);
-				applyto.getClient().write(ChannelPackets.giveBuff(sourceid, localDuration, stat, this));
+				applyto.getClient().write(ChannelPackets.giveBuff(this.sourceid, localDuration, stat, this));
 				normal = false;
 			}
 			break;
 		}
 		// Broadcast effect to self
-		if (normal && statups.size() > 0) {
-			applyto.getClient().write(ChannelPackets.giveBuff((skill ? sourceid : -sourceid), localDuration, statups, this));
+		if (normal && this.statups.size() > 0) {
+			applyto.getClient().write(ChannelPackets.giveBuff(this.skill ? this.sourceid : -this.sourceid, localDuration, this.statups, this));
 		}
 		final long starttime = System.currentTimeMillis();
 		final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-		final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + localDuration) - System.currentTimeMillis()));
+		final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, starttime + localDuration - System.currentTimeMillis());
 		applyto.registerEffect(this, starttime, schedule);
 	}
 
@@ -1006,30 +1006,30 @@ public class StatEffect implements Serializable {
 
 	private int calcHPChange(final ChannelCharacter applyfrom, final boolean primary) {
 		int hpchange = 0;
-		if (hp != 0) {
-			if (!skill) {
+		if (this.hp != 0) {
+			if (!this.skill) {
 				if (primary) {
-					hpchange += alchemistModifyVal(applyfrom, hp, true);
+					hpchange += this.alchemistModifyVal(applyfrom, this.hp, true);
 				} else {
-					hpchange += hp;
+					hpchange += this.hp;
 				}
 				if (applyfrom.hasDisease(Disease.ZOMBIFY)) {
 					hpchange /= 2;
 				}
 			} else { // assumption: this is heal
-				hpchange += makeHealHP(hp / 100.0, applyfrom.getStats().getTotalMagic(), 3, 5);
+				hpchange += makeHealHP(this.hp / 100.0, applyfrom.getStats().getTotalMagic(), 3, 5);
 				if (applyfrom.hasDisease(Disease.ZOMBIFY)) {
 					hpchange = -hpchange;
 				}
 			}
 		}
-		if (hpR != 0) {
-			hpchange += (int) (applyfrom.getStats().getCurrentMaxHp() * hpR);
+		if (this.hpR != 0) {
+			hpchange += (int) (applyfrom.getStats().getCurrentMaxHp() * this.hpR);
 		}
 		// actually receivers probably never get any hp when it's not heal but whatever
 		if (primary) {
-			if (hpCon != 0) {
-				hpchange -= hpCon;
+			if (this.hpCon != 0) {
+				hpchange -= this.hpCon;
 			}
 		}
 		switch (this.sourceid) {
@@ -1038,14 +1038,14 @@ public class StatEffect implements Serializable {
 //		int v42 = getY() + 100;
 //		int v38 = Randomizer.rand(100, 200) % 0x64 + 100;
 //		hpchange = (int) ((v38 * stat.getLuk() * 0.033 + stat.getDex()) * v42 * 0.002);
-			hpchange += makeHealHP(getY() / 100.0, applyfrom.getStats().getTotalLuk(), 2.3, 3.5);
+			hpchange += makeHealHP(this.getY() / 100.0, applyfrom.getStats().getTotalLuk(), 2.3, 3.5);
 			break;
 		}
 		return hpchange;
 	}
 
-	private static int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor) {
-		return (int) ((Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1)) + (int) (stat * lowerfactor * rate));
+	private static int makeHealHP(final double rate, final double stat, final double lowerfactor, final double upperfactor) {
+		return (int) (Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1) + (int) (stat * lowerfactor * rate));
 	}
 
 	private static int getElementalAmp(final int job) {
@@ -1070,18 +1070,18 @@ public class StatEffect implements Serializable {
 
 	private int calcMPChange(final ChannelCharacter applyfrom, final boolean primary) {
 		int mpchange = 0;
-		if (mp != 0) {
+		if (this.mp != 0) {
 			if (primary) {
-				mpchange += alchemistModifyVal(applyfrom, mp, true);
+				mpchange += this.alchemistModifyVal(applyfrom, this.mp, true);
 			} else {
-				mpchange += mp;
+				mpchange += this.mp;
 			}
 		}
-		if (mpR != 0) {
-			mpchange += (int) (applyfrom.getStats().getCurrentMaxMp() * mpR);
+		if (this.mpR != 0) {
+			mpchange += (int) (applyfrom.getStats().getCurrentMaxMp() * this.mpR);
 		}
 		if (primary) {
-			if (mpCon != 0) {
+			if (this.mpCon != 0) {
 				double mod = 1.0;
 
 				final int ElemSkillId = getElementalAmp(applyfrom.getJobId());
@@ -1089,14 +1089,14 @@ public class StatEffect implements Serializable {
 					final ISkill amp = SkillFactory.getSkill(ElemSkillId);
 					final int ampLevel = applyfrom.getCurrentSkillLevel(amp);
 					if (ampLevel > 0) {
-						StatEffect ampStat = amp.getEffect(ampLevel);
+						final StatEffect ampStat = amp.getEffect(ampLevel);
 						mod = ampStat.getX() / 100.0;
 					}
 				}
 				if (applyfrom.getBuffedValue(BuffStat.INFINITY) != null) {
 					mpchange = 0;
 				} else {
-					mpchange -= mpCon * mod;
+					mpchange -= this.mpCon * mod;
 				}
 			}
 		}
@@ -1104,8 +1104,8 @@ public class StatEffect implements Serializable {
 	}
 
 	private int alchemistModifyVal(final ChannelCharacter chr, final int val, final boolean withX) {
-		if (!skill) {
-			final StatEffect alchemistEffect = getAlchemistEffect(chr);
+		if (!this.skill) {
+			final StatEffect alchemistEffect = this.getAlchemistEffect(chr);
 			if (alchemistEffect != null) {
 				return (int) (val * ((withX ? alchemistEffect.getX() : alchemistEffect.getY()) / 100.0));
 			}
@@ -1135,11 +1135,11 @@ public class StatEffect implements Serializable {
 	}
 
 	public final void setSourceId(final int newid) {
-		sourceid = newid;
+		this.sourceid = newid;
 	}
 
 	private boolean isGmBuff() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1005: // echo of hero acts like a gm buff
 		case 10001005: // cygnus Echo
 		case 20001005: // Echo
@@ -1157,7 +1157,7 @@ public class StatEffect implements Serializable {
 	}
 
 	private boolean isMonsterBuff() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1201006: // threaten
 		case 2101003: // fp slow
 		case 2201003: // il slow
@@ -1175,24 +1175,24 @@ public class StatEffect implements Serializable {
 		case 22121000:
 		case 22161002:
 		case 4321002:
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	public final boolean isMonsterRiding_() {
-		return skill && (sourceid == 1004 || sourceid == 10001004 || sourceid == 20001004 || sourceid == 20011004);
+		return this.skill && (this.sourceid == 1004 || this.sourceid == 10001004 || this.sourceid == 20001004 || this.sourceid == 20011004);
 	}
 
 	public final boolean isMonsterRiding() {
-		return skill && (isMonsterRiding_());
+		return this.skill && this.isMonsterRiding_();
 	}
 
 	private boolean isPartyBuff() {
-		if (lt == null || rb == null) {
+		if (this.lt == null || this.rb == null) {
 			return false;
 		}
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1211003:
 		case 1211004:
 		case 1211005:
@@ -1209,75 +1209,75 @@ public class StatEffect implements Serializable {
 	}
 
 	public final boolean isHeal() {
-		return sourceid == 2301002 || sourceid == 9101000;
+		return this.sourceid == 2301002 || this.sourceid == 9101000;
 	}
 
 	public final boolean isResurrection() {
-		return sourceid == 9001005 || sourceid == 2321006;
+		return this.sourceid == 9001005 || this.sourceid == 2321006;
 	}
 
 	public final boolean isTimeLeap() {
-		return sourceid == 5121010;
+		return this.sourceid == 5121010;
 	}
 
 	public final short getHp() {
-		return hp;
+		return this.hp;
 	}
 
 	public final short getMp() {
-		return mp;
+		return this.mp;
 	}
 
 	public final byte getMastery() {
-		return mastery;
+		return this.mastery;
 	}
 
 	public final short getWatk() {
-		return watk;
+		return this.watk;
 	}
 
 	public final short getMatk() {
-		return matk;
+		return this.matk;
 	}
 
 	public final short getWdef() {
-		return wdef;
+		return this.wdef;
 	}
 
 	public final short getMdef() {
-		return mdef;
+		return this.mdef;
 	}
 
 	public final short getAcc() {
-		return acc;
+		return this.acc;
 	}
 
 	public final short getAvoid() {
-		return avoid;
+		return this.avoid;
 	}
 
 	public final short getHands() {
-		return hands;
+		return this.hands;
 	}
 
 	public final short getSpeed() {
-		return speed;
+		return this.speed;
 	}
 
 	public final short getJump() {
-		return jump;
+		return this.jump;
 	}
 
 	public final int getDuration() {
-		return duration;
+		return this.duration;
 	}
 
 	public final boolean isOverTime() {
-		return overTime;
+		return this.overTime;
 	}
 
 	public final List<BuffStatValue> getStatups() {
-		return statups;
+		return this.statups;
 	}
 
 	public final boolean sameSource(final StatEffect effect) {
@@ -1285,92 +1285,92 @@ public class StatEffect implements Serializable {
 	}
 
 	public final int getX() {
-		return x;
+		return this.x;
 	}
 
 	public final int getY() {
-		return y;
+		return this.y;
 	}
 
 	public final int getZ() {
-		return z;
+		return this.z;
 	}
 
 	public final short getDamage() {
-		return damage;
+		return this.damage;
 	}
 
 	public final byte getAttackCount() {
-		return attackCount;
+		return this.attackCount;
 	}
 
 	public final byte getBulletCount() {
-		return bulletCount;
+		return this.bulletCount;
 	}
 
 	public final int getBulletConsume() {
-		return bulletConsume;
+		return this.bulletConsume;
 	}
 
 	public final byte getMobCount() {
-		return mobCount;
+		return this.mobCount;
 	}
 
 	public final int getMoneyCon() {
-		return moneyCon;
+		return this.moneyCon;
 	}
 
 	public final int getCooldown() {
-		return cooldown;
+		return this.cooldown;
 	}
 
 	public final Map<MonsterStatus, Integer> getMonsterStati() {
-		return monsterStatus;
+		return this.monsterStatus;
 	}
 
 	public final boolean isHide() {
-		return skill && sourceid == 9001004;
+		return this.skill && this.sourceid == 9001004;
 	}
 
 	public final boolean isDragonBlood() {
-		return skill && sourceid == 1311008;
+		return this.skill && this.sourceid == 1311008;
 	}
 
 	public final boolean isBerserk() {
-		return skill && sourceid == 1320006;
+		return this.skill && this.sourceid == 1320006;
 	}
 
 	public final boolean isBeholder() {
-		return skill && sourceid == 1321007;
+		return this.skill && this.sourceid == 1321007;
 	}
 
 	public final boolean isMPRecovery() {
-		return skill && sourceid == 5101005;
+		return this.skill && this.sourceid == 5101005;
 	}
 
 	public final boolean isMagicDoor() {
-		return skill && sourceid == 2311002;
+		return this.skill && this.sourceid == 2311002;
 	}
 
 	public final boolean isMesoGuard() {
-		return skill && sourceid == 4211005;
+		return this.skill && this.sourceid == 4211005;
 	}
 
 	public final boolean isCharge() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1211003:
 		case 1211008:
 		case 11111007:
 		case 12101005:
 		case 15101006:
 		case 21111005:
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	public final boolean isMistPoison() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 2111003:
 		case 12111005: // Flame gear
 		case 14111006: // Poison bomb
@@ -1380,7 +1380,7 @@ public class StatEffect implements Serializable {
 	}
 
 	public final boolean isPoison() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 2111003:
 		case 2101005:
 		case 2111006:
@@ -1389,25 +1389,25 @@ public class StatEffect implements Serializable {
 		case 12111005: // Flame gear
 		case 3111003: //inferno, new
 		case 22161002: //phantom imprint
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	private boolean isMist() {
-		return skill && (sourceid == 2111003 || sourceid == 4221006 || sourceid == 12111005 || sourceid == 14111006); // poison mist, smokescreen and flame gear
+		return this.skill && (this.sourceid == 2111003 || this.sourceid == 4221006 || this.sourceid == 12111005 || this.sourceid == 14111006); // poison mist, smokescreen and flame gear
 	}
 
 	private boolean isSpiritClaw() {
-		return skill && sourceid == 4121006;
+		return this.skill && this.sourceid == 4121006;
 	}
 
 	private boolean isDispel() {
-		return skill && (sourceid == 2311001 || sourceid == 9001000);
+		return this.skill && (this.sourceid == 2311001 || this.sourceid == 9001000);
 	}
 
 	private boolean isHeroWill() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1121011:
 		case 1221012:
 		case 1321010:
@@ -1423,50 +1423,50 @@ public class StatEffect implements Serializable {
 		case 21121008:
 		case 22171004:
 		case 4341008:
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	public final boolean isAranCombo() {
-		return sourceid == 21000000;
+		return this.sourceid == 21000000;
 	}
 
 	public final boolean isPirateMorph() {
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 15111002:
 		case 5111005:
 		case 5121003:
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	public final boolean isMorph() {
-		return morphId > 0;
+		return this.morphId > 0;
 	}
 
 	public final int getMorph() {
-		return morphId;
+		return this.morphId;
 	}
 
 	public final int getMorph(final ChannelCharacter chr) {
 		final byte genderByte = chr.getGender().asNumber();
-		switch (morphId) {
+		switch (this.morphId) {
 		case 1000:
 		case 1100:
-			return morphId + genderByte;
+			return this.morphId + genderByte;
 		case 1003:
-			return morphId + (genderByte * 100);
+			return this.morphId + genderByte * 100;
 		}
-		return morphId;
+		return this.morphId;
 	}
 
 	public final SummonMovementType getSummonMovementType() {
-		if (!skill) {
+		if (!this.skill) {
 			return null;
 		}
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 3211002: // puppet sniper
 		case 3111002: // puppet ranger
 		case 13111004: // puppet cygnus
@@ -1498,22 +1498,22 @@ public class StatEffect implements Serializable {
 
 	public final boolean isSoaring() {
 
-		switch (sourceid) {
+		switch (this.sourceid) {
 		case 1026: // Soaring
 		case 10001026: // Soaring
 		case 20001026: // Soaring
 		case 20011026: // Soaring
-			return skill;
+			return this.skill;
 		}
 		return false;
 	}
 
 	public final boolean isSkill() {
-		return skill;
+		return this.skill;
 	}
 
 	public final int getSourceId() {
-		return sourceid;
+		return this.sourceid;
 	}
 
 	/**
@@ -1522,11 +1522,11 @@ public class StatEffect implements Serializable {
 	 *         otherwise
 	 */
 	public final boolean makeChanceResult() {
-		return prop == 100 || Randomizer.nextInt(99) < prop;
+		return this.prop == 100 || Randomizer.nextInt(99) < this.prop;
 	}
 
 	public final short getProb() {
-		return prop;
+		return this.prop;
 	}
 
 	public static class CancelEffectAction implements Runnable {
@@ -1543,9 +1543,9 @@ public class StatEffect implements Serializable {
 
 		@Override
 		public void run() {
-			final ChannelCharacter realTarget = target.get();
+			final ChannelCharacter realTarget = this.target.get();
 			if (realTarget != null) {
-				realTarget.cancelEffect(effect, false, startTime);
+				realTarget.cancelEffect(this.effect, false, this.startTime);
 			}
 		}
 	}

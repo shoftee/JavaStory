@@ -56,16 +56,16 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	public XmlDomWzData(final FileInputStream fis, final File imageDataDir) {
 		try {
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.parse(fis);
+			final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			final Document document = documentBuilder.parse(fis);
 			this.node = document.getFirstChild();
 
-		} catch (ParserConfigurationException e) {
+		} catch (final ParserConfigurationException e) {
 			throw new RuntimeException(e);
-		} catch (SAXException e) {
+		} catch (final SAXException e) {
 			throw new RuntimeException(e);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 		this.imageDataDir = imageDataDir;
@@ -75,16 +75,16 @@ public class XmlDomWzData implements WzData, Serializable {
 	public WzData getChildByPath(final String path) {
 		final String segments[] = path.split("/");
 		if (segments[0].equals("..")) {
-			return ((WzData) getParent()).getChildByPath(path.substring(path.indexOf("/") + 1));
+			return ((WzData) this.getParent()).getChildByPath(path.substring(path.indexOf("/") + 1));
 		}
 
-		Node myNode = node;
-		for (int x = 0; x < segments.length; x++) {
-			NodeList childNodes = myNode.getChildNodes();
+		Node myNode = this.node;
+		for (final String segment : segments) {
+			final NodeList childNodes = myNode.getChildNodes();
 			boolean foundChild = false;
 			for (int i = 0; i < childNodes.getLength(); i++) {
 				final Node childNode = childNodes.item(i);
-				if (childNode.getNodeType() == Node.ELEMENT_NODE && childNode.getAttributes().getNamedItem("name").getNodeValue().equals(segments[x])) {
+				if (childNode.getNodeType() == Node.ELEMENT_NODE && childNode.getAttributes().getNamedItem("name").getNodeValue().equals(segment)) {
 					myNode = childNode;
 					foundChild = true;
 					break;
@@ -95,19 +95,19 @@ public class XmlDomWzData implements WzData, Serializable {
 			}
 		}
 		final XmlDomWzData ret = new XmlDomWzData(myNode);
-		ret.imageDataDir = new File(imageDataDir, getName() + "/" + path).getParentFile();
+		ret.imageDataDir = new File(this.imageDataDir, this.getName() + "/" + path).getParentFile();
 		return ret;
 	}
 
 	@Override
 	public List<WzData> getChildren() {
 		final List<WzData> ret = new ArrayList<WzData>();
-		final NodeList childNodes = node.getChildNodes();
+		final NodeList childNodes = this.node.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			final Node childNode = childNodes.item(i);
 			if (childNode.getNodeType() == Node.ELEMENT_NODE) {
 				final XmlDomWzData child = new XmlDomWzData(childNode);
-				child.imageDataDir = new File(imageDataDir, getName());
+				child.imageDataDir = new File(this.imageDataDir, this.getName());
 				ret.add(child);
 			}
 		}
@@ -116,8 +116,8 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	@Override
 	public Object getData() {
-		final NamedNodeMap attributes = node.getAttributes();
-		final WzDataType type = getType();
+		final NamedNodeMap attributes = this.node.getAttributes();
+		final WzDataType type = this.getType();
 		switch (type) {
 		case DOUBLE:
 			final double doubleValue = Double.parseDouble(attributes.getNamedItem("value").getNodeValue());
@@ -149,7 +149,7 @@ public class XmlDomWzData implements WzData, Serializable {
 			final int width = Integer.parseInt(widthNode);
 			final int height = Integer.parseInt(heightNode);
 
-			final File file = new File(imageDataDir, getName() + ".png");
+			final File file = new File(this.imageDataDir, this.getName() + ".png");
 			return new FileStoredPngWzCanvas(width, height, file);
 		}
 		return null;
@@ -157,7 +157,7 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	@Override
 	public final WzDataType getType() {
-		final String nodeName = node.getNodeName();
+		final String nodeName = this.node.getNodeName();
 		switch (nodeName) {
 		case "imgdir":
 			return WzDataType.PROPERTY;
@@ -190,23 +190,23 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	@Override
 	public WzDataEntity getParent() {
-		final Node parentNode = node.getParentNode();
+		final Node parentNode = this.node.getParentNode();
 		if (parentNode.getNodeType() == Node.DOCUMENT_NODE) {
 			return null; // can't traverse outside the img file - TODO is this a
 							// problem?
 		}
 		final XmlDomWzData parentData = new XmlDomWzData(parentNode);
-		parentData.imageDataDir = imageDataDir.getParentFile();
+		parentData.imageDataDir = this.imageDataDir.getParentFile();
 		return parentData;
 	}
 
 	@Override
 	public String getName() {
-		return node.getAttributes().getNamedItem("name").getNodeValue();
+		return this.node.getAttributes().getNamedItem("name").getNodeValue();
 	}
 
 	@Override
 	public Iterator<WzData> iterator() {
-		return getChildren().iterator();
+		return this.getChildren().iterator();
 	}
 }

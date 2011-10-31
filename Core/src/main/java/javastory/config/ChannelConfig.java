@@ -23,7 +23,7 @@ public final class ChannelConfig {
 
 		try (final PreparedStatement ps = getSelectByWorldId(worldId)) {
 			return loadWithPreparedStatement(ps);
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			Logger.getLogger(ChannelConfig.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}
@@ -39,14 +39,14 @@ public final class ChannelConfig {
 			final String host = rs.getString("host");
 			final int port = rs.getInt("port");
 			return new ChannelInfo(worldId, channelId, name, host, port);
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			Logger.getLogger(ChannelConfig.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}
 	}
 
 	private static ImmutableMap<Integer, ChannelInfo> loadWithPreparedStatement(final PreparedStatement ps) throws SQLException {
-		ImmutableMap.Builder<Integer, ChannelInfo> builder = ImmutableMap.builder();
+		final ImmutableMap.Builder<Integer, ChannelInfo> builder = ImmutableMap.builder();
 
 		try (final ResultSet rs = ps.executeQuery()) {
 			while (rs.next()) {

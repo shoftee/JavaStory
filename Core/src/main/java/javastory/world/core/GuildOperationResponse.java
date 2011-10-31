@@ -23,11 +23,11 @@ public enum GuildOperationResponse {
 	NOT_IN_CHANNEL(0x2a), ALREADY_IN_GUILD(0x28), NOT_IN_GUILD(0x2d);
 	private int value;
 
-	private GuildOperationResponse(int val) {
-		value = val;
+	private GuildOperationResponse(final int val) {
+		this.value = val;
 	}
 
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 }

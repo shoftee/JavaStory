@@ -31,17 +31,17 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
 	}
 
 	public final Portal getPortal() {
-		return portal;
+		return this.portal;
 	}
 
 	public final void inFreeMarket() {
-		if (getMapId() != 910000000) {
-			if (getPlayer().getLevel() > 10) {
-				saveLocation("FREE_MARKET");
-				playPortalSE();
-				warp(910000000, "st00");
+		if (this.getMapId() != 910000000) {
+			if (this.getPlayer().getLevel() > 10) {
+				this.saveLocation("FREE_MARKET");
+				this.playPortalSE();
+				this.warp(910000000, "st00");
 			} else {
-				playerMessage(5, "You must be over level 10 to enter here.");
+				this.playerMessage(5, "You must be over level 10 to enter here.");
 			}
 		}
 	}

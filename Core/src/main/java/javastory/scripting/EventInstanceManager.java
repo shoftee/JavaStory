@@ -50,7 +50,7 @@ public class EventInstanceManager {
 	private Map<ChannelCharacter, Integer> killCount = new HashMap<>();
 	private EventManager eventManager;
 	private GameMapFactory mapFactory;
-	private String name;
+	private final String name;
 	private Properties props = new Properties();
 	private long timeStarted = 0;
 	private long eventTime = 0;
@@ -58,22 +58,22 @@ public class EventInstanceManager {
 	private ScheduledFuture<?> eventTimer;
 	private final Lock mutex = new ReentrantLock();
 
-	public EventInstanceManager(EventManager em, String name, GameMapFactory factory) {
+	public EventInstanceManager(final EventManager em, final String name, final GameMapFactory factory) {
 		this.eventManager = em;
 		this.name = name;
-		mapFactory = factory;
+		this.mapFactory = factory;
 	}
 
-	public void registerPlayer(ChannelCharacter chr) {
+	public void registerPlayer(final ChannelCharacter chr) {
 		try {
-			mutex.lock();
+			this.mutex.lock();
 			try {
-				chars.add(chr);
+				this.chars.add(chr);
 			} finally {
-				mutex.unlock();
+				this.mutex.unlock();
 			}
 			chr.setEventInstance(this);
-			eventManager.getInvocable().invokeFunction("playerEntry", this, chr);
+			this.eventManager.getInvocable().invokeFunction("playerEntry", this, chr);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -81,26 +81,26 @@ public class EventInstanceManager {
 
 	public void changedMap(final ChannelCharacter chr, final int mapid) {
 		try {
-			eventManager.getInvocable().invokeFunction("changedMap", this, chr, mapid);
-		} catch (NullPointerException npe) {
-		} catch (ScriptException ex) {
+			this.eventManager.getInvocable().invokeFunction("changedMap", this, chr, mapid);
+		} catch (final NullPointerException npe) {
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
 	public void timeOut(final long delay, final EventInstanceManager eim) {
-		eventTimer = TimerManager.getInstance().schedule(new Runnable() {
+		this.eventTimer = TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					eventManager.getInvocable().invokeFunction("scheduledTimeout", eim);
-				} catch (NullPointerException npe) {
-				} catch (ScriptException ex) {
+					EventInstanceManager.this.eventManager.getInvocable().invokeFunction("scheduledTimeout", eim);
+				} catch (final NullPointerException npe) {
+				} catch (final ScriptException ex) {
 					ex.printStackTrace();
-				} catch (NoSuchMethodException ex) {
+				} catch (final NoSuchMethodException ex) {
 					ex.printStackTrace();
 				}
 			}
@@ -108,70 +108,70 @@ public class EventInstanceManager {
 	}
 
 	public void stopEventTimer() {
-		eventTime = 0;
-		timeStarted = 0;
-		if (eventTimer != null) {
-			eventTimer.cancel(false);
+		this.eventTime = 0;
+		this.timeStarted = 0;
+		if (this.eventTimer != null) {
+			this.eventTimer.cancel(false);
 		}
 	}
 
-	public void restartEventTimer(long time) {
-		timeStarted = System.currentTimeMillis();
-		eventTime = time;
-		if (eventTimer != null) {
-			eventTimer.cancel(false);
+	public void restartEventTimer(final long time) {
+		this.timeStarted = System.currentTimeMillis();
+		this.eventTime = time;
+		if (this.eventTimer != null) {
+			this.eventTimer.cancel(false);
 		}
-		eventTimer = null;
+		this.eventTimer = null;
 		final int timesend = (int) time / 1000;
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			for (final ChannelCharacter chr : chars) {
+			for (final ChannelCharacter chr : this.chars) {
 				chr.getClient().write(ChannelPackets.getClock(timesend));
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
-		timeOut(time, this);
+		this.timeOut(time, this);
 	}
 
-	public void startEventTimer(long time) {
-		timeStarted = System.currentTimeMillis();
-		eventTime = time;
+	public void startEventTimer(final long time) {
+		this.timeStarted = System.currentTimeMillis();
+		this.eventTime = time;
 		final int timesend = (int) time / 1000;
 
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			for (final ChannelCharacter chr : chars) {
+			for (final ChannelCharacter chr : this.chars) {
 				chr.getClient().write(ChannelPackets.getClock(timesend));
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
-		timeOut(time, this);
+		this.timeOut(time, this);
 	}
 
 	public boolean isTimerStarted() {
-		return eventTime > 0 && timeStarted > 0;
+		return this.eventTime > 0 && this.timeStarted > 0;
 	}
 
 	public long getTimeLeft() {
-		return eventTime - (System.currentTimeMillis() - timeStarted);
+		return this.eventTime - (System.currentTimeMillis() - this.timeStarted);
 	}
 
-	public void registerParty(Party party, GameMap map) {
-		for (PartyMember pc : party.getMembers()) {
-			ChannelCharacter c = map.getCharacterById_InMap(pc.getCharacterId());
-			registerPlayer(c);
+	public void registerParty(final Party party, final GameMap map) {
+		for (final PartyMember pc : party.getMembers()) {
+			final ChannelCharacter c = map.getCharacterById_InMap(pc.getCharacterId());
+			this.registerPlayer(c);
 		}
 	}
 
 	public void unregisterPlayer(final ChannelCharacter chr) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			chars.remove(chr);
+			this.chars.remove(chr);
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		chr.setEventInstance(null);
 	}
@@ -181,32 +181,32 @@ public class EventInstanceManager {
 		if (towarp != 0) {
 			map = this.getMapFactory().getMap(towarp);
 		}
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			if (chars.size() <= size) {
+			if (this.chars.size() <= size) {
 
 				ChannelCharacter chr;
-				for (int i = 0; i < chars.size(); i++) {
-					chr = chars.get(i);
-					unregisterPlayer(chr);
+				for (int i = 0; i < this.chars.size(); i++) {
+					chr = this.chars.get(i);
+					this.unregisterPlayer(chr);
 
 					if (towarp != 0) {
 						chr.changeMap(map, map.getPortal(0));
 					}
 				}
-				dispose();
+				this.dispose();
 				return true;
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 		return false;
 	}
 
 	public final void saveBossQuest(final int points) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			for (ChannelCharacter chr : chars) {
+			for (final ChannelCharacter chr : this.chars) {
 				final QuestStatus record = chr.getQuestStatus(150001);
 				final String customData = record.getCustomData();
 
@@ -217,46 +217,46 @@ public class EventInstanceManager {
 				}
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public List<ChannelCharacter> getPlayers() {
-		return Collections.unmodifiableList(chars);
+		return Collections.unmodifiableList(this.chars);
 	}
 
 	public final int getPlayerCount() {
-		return chars.size();
+		return this.chars.size();
 	}
 
-	public void registerMonster(Monster mob) {
-		mobs.add(mob);
+	public void registerMonster(final Monster mob) {
+		this.mobs.add(mob);
 		mob.setEventInstance(this);
 	}
 
-	public void unregisterMonster(Monster mob) {
-		mobs.remove(mob);
+	public void unregisterMonster(final Monster mob) {
+		this.mobs.remove(mob);
 		mob.setEventInstance(null);
-		if (mobs.isEmpty()) {
+		if (this.mobs.isEmpty()) {
 			try {
-				eventManager.getInvocable().invokeFunction("allMonstersDead", this);
+				this.eventManager.getInvocable().invokeFunction("allMonstersDead", this);
 			} catch (ScriptException | NoSuchMethodException ex) {
 				ex.printStackTrace();
 			}
 		}
 	}
 
-	public void playerKilled(ChannelCharacter chr) {
+	public void playerKilled(final ChannelCharacter chr) {
 		try {
-			eventManager.getInvocable().invokeFunction("playerDead", this, chr);
+			this.eventManager.getInvocable().invokeFunction("playerDead", this, chr);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public boolean revivePlayer(ChannelCharacter chr) {
+	public boolean revivePlayer(final ChannelCharacter chr) {
 		try {
-			Object b = eventManager.getInvocable().invokeFunction("playerRevive", this, chr);
+			final Object b = this.eventManager.getInvocable().invokeFunction("playerRevive", this, chr);
 			if (b instanceof Boolean) {
 				return (Boolean) b;
 			}
@@ -268,44 +268,44 @@ public class EventInstanceManager {
 
 	public void playerDisconnected(final ChannelCharacter chr) {
 		try {
-			byte ret = ((Double) eventManager.getInvocable().invokeFunction("playerDisconnected", this, chr)).byteValue();
+			byte ret = ((Double) this.eventManager.getInvocable().invokeFunction("playerDisconnected", this, chr)).byteValue();
 
 			if (ret == 0) {
-				unregisterPlayer(chr);
-				if (getPlayerCount() <= 0) {
-					dispose();
+				this.unregisterPlayer(chr);
+				if (this.getPlayerCount() <= 0) {
+					this.dispose();
 				}
 			} else {
-				mutex.lock();
+				this.mutex.lock();
 				try {
 					if (ret > 0) {
-						unregisterPlayer(chr);
-						if (getPlayerCount() < ret) {
-							for (ChannelCharacter player : chars) {
-								removePlayer(player);
+						this.unregisterPlayer(chr);
+						if (this.getPlayerCount() < ret) {
+							for (final ChannelCharacter player : this.chars) {
+								this.removePlayer(player);
 							}
-							dispose();
+							this.dispose();
 						}
 					} else {
-						unregisterPlayer(chr);
+						this.unregisterPlayer(chr);
 						ret *= -1;
 
-						if (isLeader(chr)) {
-							for (ChannelCharacter player : chars) {
-								removePlayer(player);
+						if (this.isLeader(chr)) {
+							for (final ChannelCharacter player : this.chars) {
+								this.removePlayer(player);
 							}
-							dispose();
+							this.dispose();
 						} else {
-							if (getPlayerCount() < ret) {
-								for (ChannelCharacter player : chars) {
-									removePlayer(player);
+							if (this.getPlayerCount() < ret) {
+								for (final ChannelCharacter player : this.chars) {
+									this.removePlayer(player);
 								}
-								dispose();
+								this.dispose();
 							}
 						}
 					}
 				} finally {
-					mutex.unlock();
+					this.mutex.unlock();
 				}
 			}
 		} catch (ScriptException | NoSuchMethodException ex) {
@@ -320,24 +320,24 @@ public class EventInstanceManager {
 	 */
 	public void monsterKilled(final ChannelCharacter chr, final Monster mob) {
 		try {
-			Integer kc = killCount.get(chr);
-			int inc = ((Double) eventManager.getInvocable().invokeFunction("monsterValue", this, mob.getId())).intValue();
+			Integer kc = this.killCount.get(chr);
+			final int inc = ((Double) this.eventManager.getInvocable().invokeFunction("monsterValue", this, mob.getId())).intValue();
 			if (kc == null) {
 				kc = inc;
 			} else {
 				kc += inc;
 			}
-			killCount.put(chr, kc);
+			this.killCount.put(chr, kc);
 			if (chr.getCarnivalParty() != null) {
-				eventManager.getInvocable().invokeFunction("monsterKilled", this, chr, mob.getStats().getCP());
+				this.eventManager.getInvocable().invokeFunction("monsterKilled", this, chr, mob.getStats().getCP());
 			}
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public int getKillCount(ChannelCharacter chr) {
-		Integer kc = killCount.get(chr);
+	public int getKillCount(final ChannelCharacter chr) {
+		final Integer kc = this.killCount.get(chr);
 		if (kc == null) {
 			return 0;
 		} else {
@@ -346,63 +346,63 @@ public class EventInstanceManager {
 	}
 
 	public void dispose() {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			chars.clear();
-			chars = null;
+			this.chars.clear();
+			this.chars = null;
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
-		mobs.clear();
-		mobs = null;
-		killCount.clear();
-		killCount = null;
-		timeStarted = 0;
-		eventTime = 0;
-		props.clear();
-		props = null;
-		for (final Integer i : mapIds) {
-			mapFactory.removeInstanceMap(i);
+		this.mobs.clear();
+		this.mobs = null;
+		this.killCount.clear();
+		this.killCount = null;
+		this.timeStarted = 0;
+		this.eventTime = 0;
+		this.props.clear();
+		this.props = null;
+		for (final Integer i : this.mapIds) {
+			this.mapFactory.removeInstanceMap(i);
 		}
-		mapIds = null;
-		mapFactory = null;
-		eventManager.disposeInstance(name);
-		eventManager = null;
+		this.mapIds = null;
+		this.mapFactory = null;
+		this.eventManager.disposeInstance(this.name);
+		this.eventManager = null;
 	}
 
 	public final void broadcastPlayerMsg(final int type, final String msg) {
-		mutex.lock();
+		this.mutex.lock();
 		try {
-			for (final ChannelCharacter chr : chars) {
+			for (final ChannelCharacter chr : this.chars) {
 				chr.getClient().write(ChannelPackets.serverNotice(type, msg));
 			}
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 
 	public final GameMap createInstanceMap(final int mapid) {
-		int assignedid = ChannelServer.getInstance().getEventSM().getNewInstanceMapId();
-		mapIds.add(assignedid);
-		return mapFactory.createInstanceMap(mapid, true, true, true, assignedid);
+		final int assignedid = ChannelServer.getInstance().getEventSM().getNewInstanceMapId();
+		this.mapIds.add(assignedid);
+		return this.mapFactory.createInstanceMap(mapid, true, true, true, assignedid);
 	}
 
 	public final GameMap createInstanceMapS(final int mapid) {
 		final int assignedid = ChannelServer.getInstance().getEventSM().getNewInstanceMapId();
-		mapIds.add(assignedid);
-		return mapFactory.createInstanceMap(mapid, false, false, false, assignedid);
+		this.mapIds.add(assignedid);
+		return this.mapFactory.createInstanceMap(mapid, false, false, false, assignedid);
 	}
 
 	public final GameMapFactory getMapFactory() {
-		return mapFactory;
+		return this.mapFactory;
 	}
 
-	public final GameMap getMapInstance(int args) {
-		final GameMap map = mapFactory.getInstanceMap(mapIds.get(args));
+	public final GameMap getMapInstance(final int args) {
+		final GameMap map = this.mapFactory.getInstanceMap(this.mapIds.get(args));
 
 		// in case reactors need shuffling and we are actually loading the map
-		if (!mapFactory.isInstanceMapLoaded(mapIds.get(args))) {
-			if (eventManager.getProperty("shuffleReactors") != null && eventManager.getProperty("shuffleReactors").equals("true")) {
+		if (!this.mapFactory.isInstanceMapLoaded(this.mapIds.get(args))) {
+			if (this.eventManager.getProperty("shuffleReactors") != null && this.eventManager.getProperty("shuffleReactors").equals("true")) {
 				map.shuffleReactors();
 			}
 		}
@@ -415,11 +415,11 @@ public class EventInstanceManager {
 			@Override
 			public void run() {
 				try {
-					eventManager.getInvocable().invokeFunction(methodName, EventInstanceManager.this);
-				} catch (NullPointerException npe) {
-				} catch (ScriptException ex) {
+					EventInstanceManager.this.eventManager.getInvocable().invokeFunction(methodName, EventInstanceManager.this);
+				} catch (final NullPointerException npe) {
+				} catch (final ScriptException ex) {
 					ex.printStackTrace();
-				} catch (NoSuchMethodException ex) {
+				} catch (final NoSuchMethodException ex) {
 					ex.printStackTrace();
 				}
 			}
@@ -427,24 +427,24 @@ public class EventInstanceManager {
 	}
 
 	public final String getName() {
-		return name;
+		return this.name;
 	}
 
 	public final void setProperty(final String key, final String value) {
-		props.setProperty(key, value);
+		this.props.setProperty(key, value);
 	}
 
 	public final Object setProperty(final String key, final String value, final boolean prev) {
-		return props.setProperty(key, value);
+		return this.props.setProperty(key, value);
 	}
 
 	public final String getProperty(final String key) {
-		return props.getProperty(key);
+		return this.props.getProperty(key);
 	}
 
 	public final void leftParty(final ChannelCharacter chr) {
 		try {
-			eventManager.getInvocable().invokeFunction("leftParty", this, chr);
+			this.eventManager.getInvocable().invokeFunction("leftParty", this, chr);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -452,7 +452,7 @@ public class EventInstanceManager {
 
 	public final void disbandParty() {
 		try {
-			eventManager.getInvocable().invokeFunction("disbandParty", this);
+			this.eventManager.getInvocable().invokeFunction("disbandParty", this);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -461,7 +461,7 @@ public class EventInstanceManager {
 	//Separate function to warp players to a "finish" map, if applicable
 	public final void finishPQ() {
 		try {
-			eventManager.getInvocable().invokeFunction("clearPQ", this);
+			this.eventManager.getInvocable().invokeFunction("clearPQ", this);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -469,7 +469,7 @@ public class EventInstanceManager {
 
 	public final void removePlayer(final ChannelCharacter chr) {
 		try {
-			eventManager.getInvocable().invokeFunction("playerExit", this, chr);
+			this.eventManager.getInvocable().invokeFunction("playerExit", this, chr);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -477,21 +477,21 @@ public class EventInstanceManager {
 
 	public final void registerCarnivalParty(final ChannelCharacter leader, final GameMap map, final byte team) {
 		leader.clearCarnivalRequests();
-		List<ChannelCharacter> characters = new LinkedList<>();
+		final List<ChannelCharacter> characters = new LinkedList<>();
 		final Party party = leader.getParty();
 
 		if (party == null) {
 			return;
 		}
-		for (PartyMember pc : party.getMembers()) {
+		for (final PartyMember pc : party.getMembers()) {
 			final ChannelCharacter c = map.getCharacterById_InMap(pc.getCharacterId());
 			characters.add(c);
-			registerPlayer(c);
+			this.registerPlayer(c);
 			c.resetCP();
 		}
 		final CarnivalParty carnivalParty = new CarnivalParty(leader, characters, team);
 		try {
-			eventManager.getInvocable().invokeFunction("registerCarnivalParty", this, carnivalParty);
+			this.eventManager.getInvocable().invokeFunction("registerCarnivalParty", this, carnivalParty);
 		} catch (ScriptException | NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
@@ -499,24 +499,24 @@ public class EventInstanceManager {
 
 	public void onMapLoad(final ChannelCharacter chr) {
 		try {
-			eventManager.getInvocable().invokeFunction("onMapLoad", this, chr);
-		} catch (ScriptException ex) {
+			this.eventManager.getInvocable().invokeFunction("onMapLoad", this, chr);
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			// Ignore, we don't want to update this for all events.
 		}
 	}
 
 	public boolean isLeader(final ChannelCharacter chr) {
-		return (chr.getParty().getLeader().getCharacterId() == chr.getId());
+		return chr.getParty().getLeader().getCharacterId() == chr.getId();
 	}
 
-	public void registerSquad(Squad squad, GameMap map) {
+	public void registerSquad(final Squad squad, final GameMap map) {
 		final int mapid = map.getId();
 
-		for (ChannelCharacter player : squad.getMembers()) {
+		for (final ChannelCharacter player : squad.getMembers()) {
 			if (player != null && player.getMapId() == mapid) {
-				registerPlayer(player);
+				this.registerPlayer(player);
 			}
 		}
 	}

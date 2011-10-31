@@ -42,11 +42,11 @@ public enum ServerMessageType {
 	//
 	private int type;
 
-	private ServerMessageType(int type) {
+	private ServerMessageType(final int type) {
 		this.type = type;
 	}
 
 	public int asNumber() {
-		return type;
+		return this.type;
 	}
 }

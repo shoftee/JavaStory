@@ -28,10 +28,10 @@ public class MapScriptMethods {
 
 		dojang_Eff, PinkBeen_before, onRewordMap, StageMsg_together, astaroth_summon, boss_Ravana, killing_BonusSetting, killing_MapSetting, NULL;
 
-		private static onFirstUserEnter fromString(String Str) {
+		private static onFirstUserEnter fromString(final String Str) {
 			try {
 				return valueOf(Str);
-			} catch (IllegalArgumentException ex) {
+			} catch (final IllegalArgumentException ex) {
 				return NULL;
 			}
 		}
@@ -92,21 +92,21 @@ public class MapScriptMethods {
 		dojang_QcheckSet,
 		NULL;
 
-		private static onUserEnter fromString(String Str) {
+		private static onUserEnter fromString(final String Str) {
 			try {
 				return valueOf(Str);
-			} catch (IllegalArgumentException ex) {
+			} catch (final IllegalArgumentException ex) {
 				return NULL;
 			}
 		}
 	};
 
-	public static void startScript_FirstUser(ChannelClient c, String scriptName) {
+	public static void startScript_FirstUser(final ChannelClient c, final String scriptName) {
 		final ChannelCharacter player = c.getPlayer();
 		switch (onFirstUserEnter.fromString(scriptName)) {
 		case dojang_Eff: {
-			int temp = (player.getMapId() - 925000000) / 100;
-			int stage = (int) (temp - (Math.floor(temp / 100) * 100));
+			final int temp = (player.getMapId() - 925000000) / 100;
+			final int stage = (int) (temp - Math.floor(temp / 100) * 100);
 			sendDojoClock(c, getTiming(stage) * 60);
 			sendDojoStart(c, stage - getDojoStageDec(stage));
 			break;
@@ -130,7 +130,7 @@ public class MapScriptMethods {
 		}
 	}
 
-	public static void startScript_User(ChannelClient c, String scriptName) {
+	public static void startScript_User(final ChannelClient c, final String scriptName) {
 		String data = "";
 		final ChannelCharacter player = c.getPlayer();
 		final byte genderByte = player.getGender().asNumber();
@@ -336,7 +336,7 @@ public class MapScriptMethods {
 		}
 	}
 
-	private static int getTiming(int ids) {
+	private static int getTiming(final int ids) {
 		if (ids <= 5) {
 			return 5;
 		} else if (ids >= 7 && ids <= 11) {
@@ -355,7 +355,7 @@ public class MapScriptMethods {
 		return 0;
 	}
 
-	private static int getDojoStageDec(int ids) {
+	private static int getDojoStageDec(final int ids) {
 		if (ids <= 5) {
 			return 0;
 		} else if (ids >= 7 && ids <= 11) {
@@ -380,16 +380,16 @@ public class MapScriptMethods {
 		c.write(UIPacket.ShowWZEffect(data));
 	}
 
-	private static void sendDojoClock(ChannelClient c, int time) {
+	private static void sendDojoClock(final ChannelClient c, final int time) {
 		c.write(ChannelPackets.getClock(time));
 	}
 
-	private static void sendDojoStart(ChannelClient c, int stage) {
+	private static void sendDojoStart(final ChannelClient c, final int stage) {
 		c.write(ChannelPackets.environmentChange("Dojang/start", 4));
 		c.write(ChannelPackets.environmentChange("dojang/start/stage", 3));
 		c.write(ChannelPackets.environmentChange("dojang/start/number/" + stage, 3));
 
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		// 79 00 01 00 01 00 00 00
 		builder.writeAsShort(ServerPacketOpcode.BOSS_ENV.getValue());
@@ -400,7 +400,7 @@ public class MapScriptMethods {
 		c.write(builder.getPacket());
 	}
 
-	private static void handlePinkBeanStart(ChannelClient c) {
+	private static void handlePinkBeanStart(final ChannelClient c) {
 		final GameMap map = c.getPlayer().getMap();
 		map.killAllMonsters(true);
 		map.respawn(true);
@@ -410,7 +410,7 @@ public class MapScriptMethods {
 		}
 	}
 
-	private static void reloadWitchTower(ChannelClient c) {
+	private static void reloadWitchTower(final ChannelClient c) {
 		final ChannelCharacter player = c.getPlayer();
 		final GameMap map = player.getMap();
 		map.killAllMonsters(false);

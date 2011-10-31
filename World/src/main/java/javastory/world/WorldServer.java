@@ -41,7 +41,7 @@ public class WorldServer {
     }
 
     public final int getWorldId() {
-        return worldId;
+        return this.worldId;
     }
 
     public static void startWorld_Main() {

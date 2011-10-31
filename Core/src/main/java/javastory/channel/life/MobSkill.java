@@ -38,7 +38,12 @@ import com.google.common.collect.Maps;
 
 public class MobSkill {
 
-	private int skillId, skillLevel, mpCon, spawnEffect, hp, x, y;
+	private final int skillId, skillLevel;
+	private int mpCon;
+	private int spawnEffect;
+	private int hp;
+	private int x;
+	private int y;
 	private long duration, cooltime;
 	private float prop;
 	// private short effect_delay;
@@ -46,16 +51,16 @@ public class MobSkill {
 	private List<Integer> toSummon = new ArrayList<>();
 	private Point lt, rb;
 
-	public MobSkill(int skillId, int level) {
+	public MobSkill(final int skillId, final int level) {
 		this.skillId = skillId;
 		this.skillLevel = level;
 	}
 
-	public void setMpCon(int mpCon) {
+	public void setMpCon(final int mpCon) {
 		this.mpCon = mpCon;
 	}
 
-	public void addSummons(List<Integer> toSummon) {
+	public void addSummons(final List<Integer> toSummon) {
 		this.toSummon = toSummon;
 	}
 
@@ -63,46 +68,46 @@ public class MobSkill {
 //	 	this.effect_delay =* effect_delay; 
 //	}
 
-	public void setSpawnEffect(int spawnEffect) {
+	public void setSpawnEffect(final int spawnEffect) {
 		this.spawnEffect = spawnEffect;
 	}
 
-	public void setHp(int hp) {
+	public void setHp(final int hp) {
 		this.hp = hp;
 	}
 
-	public void setX(int x) {
+	public void setX(final int x) {
 		this.x = x;
 	}
 
-	public void setY(int y) {
+	public void setY(final int y) {
 		this.y = y;
 	}
 
-	public void setDuration(long duration) {
+	public void setDuration(final long duration) {
 		this.duration = duration;
 	}
 
-	public void setCoolTime(long cooltime) {
+	public void setCoolTime(final long cooltime) {
 		this.cooltime = cooltime;
 	}
 
-	public void setProp(float prop) {
+	public void setProp(final float prop) {
 		this.prop = prop;
 	}
 
-	public void setLtRb(Point lt, Point rb) {
+	public void setLtRb(final Point lt, final Point rb) {
 		this.lt = lt;
 		this.rb = rb;
 	}
 
-	public void setLimit(short limit) {
+	public void setLimit(final short limit) {
 		this.limit = limit;
 	}
 
-	public boolean checkCurrentBuff(ChannelCharacter player, Monster monster) {
+	public boolean checkCurrentBuff(final ChannelCharacter player, final Monster monster) {
 		boolean stop = false;
-		switch (skillId) {
+		switch (this.skillId) {
 		case 100:
 		case 110:
 			stop = monster.isBuffed(MonsterStatus.WEAPON_ATTACK_UP);
@@ -133,43 +138,43 @@ public class MobSkill {
 			// count++;
 			// }
 			// }
-			stop = player.getMap().getAllMonster().size() >= limit;
+			stop = player.getMap().getAllMonster().size() >= this.limit;
 			break;
 		}
 		return stop;
 	}
 
-	public void applyEffect(ChannelCharacter player, Monster monster, boolean skill) {
+	public void applyEffect(final ChannelCharacter player, final Monster monster, final boolean skill) {
 		Disease disease = null;
-		Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
-		List<Integer> reflection = new LinkedList<>();
+		final Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
+		final List<Integer> reflection = new LinkedList<>();
 
-		switch (skillId) {
+		switch (this.skillId) {
 		case 100:
 		case 110:
-			stats.put(MonsterStatus.WEAPON_ATTACK_UP, Integer.valueOf(x));
+			stats.put(MonsterStatus.WEAPON_ATTACK_UP, Integer.valueOf(this.x));
 			break;
 		case 101:
 		case 111:
-			stats.put(MonsterStatus.MAGIC_ATTACK_UP, Integer.valueOf(x));
+			stats.put(MonsterStatus.MAGIC_ATTACK_UP, Integer.valueOf(this.x));
 			break;
 		case 102:
 		case 112:
-			stats.put(MonsterStatus.WEAPON_DEFENSE_UP, Integer.valueOf(x));
+			stats.put(MonsterStatus.WEAPON_DEFENSE_UP, Integer.valueOf(this.x));
 			break;
 		case 103:
 		case 113:
-			stats.put(MonsterStatus.MAGIC_DEFENSE_UP, Integer.valueOf(x));
+			stats.put(MonsterStatus.MAGIC_DEFENSE_UP, Integer.valueOf(this.x));
 			break;
 		case 114:
-			if (lt != null && rb != null && skill) {
-				List<GameMapObject> objects = getObjectsInRange(monster, GameMapObjectType.MONSTER);
-				final int hp = (getX() / 1000) * (int) (950 + 1050 * Math.random());
-				for (GameMapObject mons : objects) {
-					((Monster) mons).heal(hp, getY(), true);
+			if (this.lt != null && this.rb != null && skill) {
+				final List<GameMapObject> objects = this.getObjectsInRange(monster, GameMapObjectType.MONSTER);
+				final int hp = this.getX() / 1000 * (int) (950 + 1050 * Math.random());
+				for (final GameMapObject mons : objects) {
+					((Monster) mons).heal(hp, this.getY(), true);
 				}
 			} else {
-				monster.heal(getX(), getY(), true);
+				monster.heal(this.getX(), this.getY(), true);
 			}
 			break;
 		case 120:
@@ -194,8 +199,8 @@ public class MobSkill {
 			disease = Disease.SLOW;
 			break;
 		case 127:
-			if (lt != null && rb != null && skill) {
-				for (ChannelCharacter character : getPlayersInRange(monster, player)) {
+			if (this.lt != null && this.rb != null && skill) {
+				for (final ChannelCharacter character : this.getPlayersInRange(monster, player)) {
 					character.dispel();
 				}
 			} else {
@@ -207,8 +212,8 @@ public class MobSkill {
 			break;
 		case 129: // Banish
 			final BanishInfo info = monster.getStats().getBanishInfo();
-			if (lt != null && rb != null && skill) {
-				for (ChannelCharacter chr : getPlayersInRange(monster, player)) {
+			if (this.lt != null && this.rb != null && skill) {
+				for (final ChannelCharacter chr : this.getPlayersInRange(monster, player)) {
 					chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
 				}
 			} else {
@@ -216,7 +221,7 @@ public class MobSkill {
 			}
 			break;
 		case 131: // Mist
-			monster.getMap().spawnMist(new Mist(calculateBoundingBox(monster.getPosition(), true), monster, this), x * 10, false, false);
+			monster.getMap().spawnMist(new Mist(this.calculateBoundingBox(monster.getPosition(), true), monster, this), this.x * 10, false, false);
 			break;
 		case 132:
 			disease = Disease.REVERSE_DIRECTION;
@@ -225,35 +230,35 @@ public class MobSkill {
 			disease = Disease.ZOMBIFY;
 			break;
 		case 140:
-			if (makeChanceResult()) {
-				stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
+			if (this.makeChanceResult()) {
+				stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(this.x));
 			}
 			break;
 		case 141:
-			if (makeChanceResult()) {
-				stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
+			if (this.makeChanceResult()) {
+				stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(this.x));
 			}
 			break;
 		case 143: // Weapon Reflect
-			stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(x));
-			stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
-			reflection.add(x);
+			stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(this.x));
+			stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(this.x));
+			reflection.add(this.x);
 			break;
 		case 144: // Magic Reflect
-			stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(x));
-			stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
-			reflection.add(x);
+			stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(this.x));
+			stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(this.x));
+			reflection.add(this.x);
 			break;
 		case 145: // Weapon / Magic reflect
-			stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(x));
-			stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
-			stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(x));
-			stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
-			reflection.add(x);
-			reflection.add(x);
+			stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(this.x));
+			stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(this.x));
+			stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(this.x));
+			stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(this.x));
+			reflection.add(this.x);
+			reflection.add(this.x);
 			break;
 		case 200:
-			for (Integer mobId : getSummons()) {
+			for (final Integer mobId : this.getSummons()) {
 				final Monster toSpawn = LifeFactory.getMonster(mobId);
 				toSpawn.setPosition(monster.getPosition());
 				int ypos = (int) monster.getPosition().getY(), xpos = (int) monster.getPosition().getX();
@@ -271,7 +276,7 @@ public class MobSkill {
 				case 8510100: // Pianus bomb
 					if (Math.ceil(Math.random() * 5) == 1) {
 						ypos = 78;
-						xpos = (int) (0 + Math.ceil(Math.random() * 5)) + ((Math.ceil(Math.random() * 2) == 1) ? 180 : 0);
+						xpos = (int) (0 + Math.ceil(Math.random() * 5)) + (Math.ceil(Math.random() * 2) == 1 ? 180 : 0);
 					} else {
 						xpos = (int) (monster.getPosition().getX() + Math.ceil(Math.random() * 1000.0) - 500);
 					}
@@ -295,114 +300,114 @@ public class MobSkill {
 					}
 					break;
 				}
-				monster.getMap().spawnMonsterWithEffect(toSpawn, getSpawnEffect(), monster.getMap().calcPointBelow(new Point(xpos, ypos - 1)));
+				monster.getMap().spawnMonsterWithEffect(toSpawn, this.getSpawnEffect(), monster.getMap().calcPointBelow(new Point(xpos, ypos - 1)));
 			}
 			break;
 		}
 
 		if (stats.size() > 0) {
-			if (lt != null && rb != null && skill) {
-				for (GameMapObject mons : getObjectsInRange(monster, GameMapObjectType.MONSTER)) {
-					((Monster) mons).applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
+			if (this.lt != null && this.rb != null && skill) {
+				for (final GameMapObject mons : this.getObjectsInRange(monster, GameMapObjectType.MONSTER)) {
+					((Monster) mons).applyMonsterBuff(stats, this.getX(), this.getSkillId(), this.getDuration(), this, reflection);
 				}
 			} else {
-				monster.applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
+				monster.applyMonsterBuff(stats, this.getX(), this.getSkillId(), this.getDuration(), this, reflection);
 			}
 		}
 		if (disease != null) {
-			if (lt != null && rb != null && skill) {
-				for (ChannelCharacter chr : getPlayersInRange(monster, player)) {
+			if (this.lt != null && this.rb != null && skill) {
+				for (final ChannelCharacter chr : this.getPlayersInRange(monster, player)) {
 					chr.giveDebuff(disease, this);
 				}
 			} else {
 				player.giveDebuff(disease, this);
 			}
 		}
-		monster.setMp(monster.getMp() - getMpCon());
+		monster.setMp(monster.getMp() - this.getMpCon());
 	}
 
 	public int getSkillId() {
-		return skillId;
+		return this.skillId;
 	}
 
 	public int getSkillLevel() {
-		return skillLevel;
+		return this.skillLevel;
 	}
 
 	public int getMpCon() {
-		return mpCon;
+		return this.mpCon;
 	}
 
 	public List<Integer> getSummons() {
-		return Collections.unmodifiableList(toSummon);
+		return Collections.unmodifiableList(this.toSummon);
 	}
 
 	/*
 	 * public short getEffectDelay() { return effect_delay; }
 	 */
 	public int getSpawnEffect() {
-		return spawnEffect;
+		return this.spawnEffect;
 	}
 
 	public int getHP() {
-		return hp;
+		return this.hp;
 	}
 
 	public int getX() {
-		return x;
+		return this.x;
 	}
 
 	public int getY() {
-		return y;
+		return this.y;
 	}
 
 	public long getDuration() {
-		return duration;
+		return this.duration;
 	}
 
 	public long getCoolTime() {
-		return cooltime;
+		return this.cooltime;
 	}
 
 	public Point getLt() {
-		return lt;
+		return this.lt;
 	}
 
 	public Point getRb() {
-		return rb;
+		return this.rb;
 	}
 
 	public int getLimit() {
-		return limit;
+		return this.limit;
 	}
 
 	public boolean makeChanceResult() {
-		return prop == 1.0 || Math.random() < prop;
+		return this.prop == 1.0 || Math.random() < this.prop;
 	}
 
-	private Rectangle calculateBoundingBox(Point posFrom, boolean facingLeft) {
+	private Rectangle calculateBoundingBox(final Point posFrom, final boolean facingLeft) {
 		Point mylt, myrb;
 		if (facingLeft) {
-			mylt = new Point(lt.x + posFrom.x, lt.y + posFrom.y);
-			myrb = new Point(rb.x + posFrom.x, rb.y + posFrom.y);
+			mylt = new Point(this.lt.x + posFrom.x, this.lt.y + posFrom.y);
+			myrb = new Point(this.rb.x + posFrom.x, this.rb.y + posFrom.y);
 		} else {
-			myrb = new Point(lt.x * -1 + posFrom.x, rb.y + posFrom.y);
-			mylt = new Point(rb.x * -1 + posFrom.x, lt.y + posFrom.y);
+			myrb = new Point(this.lt.x * -1 + posFrom.x, this.rb.y + posFrom.y);
+			mylt = new Point(this.rb.x * -1 + posFrom.x, this.lt.y + posFrom.y);
 		}
 		final Rectangle bounds = new Rectangle(mylt.x, mylt.y, myrb.x - mylt.x, myrb.y - mylt.y);
 		return bounds;
 	}
 
-	private List<ChannelCharacter> getPlayersInRange(Monster monster, ChannelCharacter player) {
-		final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-		List<ChannelCharacter> players = new ArrayList<>();
+	private List<ChannelCharacter> getPlayersInRange(final Monster monster, final ChannelCharacter player) {
+		final Rectangle bounds = this.calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
+		final List<ChannelCharacter> players = new ArrayList<>();
 		players.add(player);
 		return monster.getMap().getPlayersInRect(bounds, players);
 	}
 
-	private List<GameMapObject> getObjectsInRange(Monster monster, GameMapObjectType objectType) {
-		final Rectangle bounds = calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-		List<GameMapObjectType> objectTypes = new ArrayList<>();
+	private List<GameMapObject> getObjectsInRange(final Monster monster, final GameMapObjectType objectType) {
+		final Rectangle bounds = this.calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
+		final List<GameMapObjectType> objectTypes = new ArrayList<>();
 		objectTypes.add(objectType);
 		return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
 	}

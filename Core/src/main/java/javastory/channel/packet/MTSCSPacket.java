@@ -14,7 +14,7 @@ import javastory.tools.packets.GameCharacterPacket;
 
 public class MTSCSPacket {
 
-	public static GamePacket warpCS(ChannelClient c) {
+	public static GamePacket warpCS(final ChannelClient c) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPEN.getValue());
@@ -44,8 +44,8 @@ public class MTSCSPacket {
 
 	}
 
-	public static GamePacket useCharm(byte charmsleft, byte daysleft) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket useCharm(final byte charmsleft, final byte daysleft) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
 		builder.writeAsByte(6);
@@ -56,8 +56,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket itemExpired(int itemid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket itemExpired(final int itemid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_STATUS_INFO.getValue());
 		builder.writeAsByte(2);
@@ -66,8 +66,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket ViciousHammer(boolean start, int hammered) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket ViciousHammer(final boolean start, final int hammered) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.VICIOUS_HAMMER.getValue());
 		if (start) {
@@ -82,8 +82,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket changePetName(ChannelCharacter chr, String newname, int slot) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket changePetName(final ChannelCharacter chr, final String newname, final int slot) {
+		final PacketBuilder builder = new PacketBuilder();
 		builder.writeAsShort(ServerPacketOpcode.PET_NAMECHANGE.getValue());
 
 		builder.writeInt(chr.getId());
@@ -94,8 +94,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showNotes(List<Note> notes) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showNotes(final List<Note> notes) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_NOTES.getValue());
 		builder.writeAsByte(3);
@@ -111,7 +111,7 @@ public class MTSCSPacket {
 	}
 
 	public static GamePacket useChalkboard(final int charid, final String msg) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 		builder.writeAsShort(ServerPacketOpcode.CHALKBOARD.getValue());
 
 		builder.writeInt(charid);
@@ -125,33 +125,33 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket getTrockRefresh(ChannelCharacter chr, boolean vip, boolean delete) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket getTrockRefresh(final ChannelCharacter chr, final boolean vip, final boolean delete) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.TROCK_LOCATIONS.getValue());
 		builder.writeAsByte(delete ? 2 : 3);
 		builder.writeAsByte(vip ? 1 : 0);
-		int[] map = chr.getRocks();
+		final int[] map = chr.getRocks();
 		for (int i = 0; i < 10; i++) {
 			builder.writeInt(map[i]);
 		}
 		return builder.getPacket();
 	}
 
-	public static GamePacket sendWishList(ChannelCharacter chr, boolean update) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket sendWishList(final ChannelCharacter chr, final boolean update) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(update ? 0x58 : 0x52);
-		int[] list = chr.getWishlist();
+		final int[] list = chr.getWishlist();
 		for (int i = 0; i < 10; i++) {
 			builder.writeInt(list[i] != -1 ? list[i] : 0);
 		}
 		return builder.getPacket();
 	}
 
-	public static GamePacket showNXMapleTokens(ChannelCharacter chr) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showNXMapleTokens(final ChannelCharacter chr) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_UPDATE.getValue());
 		builder.writeInt(chr.getCSPoints(1)); // A-cash
@@ -160,8 +160,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showBoughtCSItem(int itemid, int accountId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showBoughtCSItem(final int itemid, final int accountId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x5A);
@@ -179,8 +179,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket showBoughtCSQuestItem(short position, int itemid) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket showBoughtCSQuestItem(final short position, final int itemid) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x92); // MapleSEA v1.01
@@ -194,8 +194,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket transferFromCSToInv(IItem item, int position) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket transferFromCSToInv(final IItem item, final int position) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x6D);
@@ -205,8 +205,8 @@ public class MTSCSPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket transferFromInvToCS(IItem item, int accountId) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket transferFromInvToCS(final IItem item, final int accountId) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x4E);
@@ -216,7 +216,7 @@ public class MTSCSPacket {
 	}
 
 	public static GamePacket enableUse0() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsByte(0x0B);
 		builder.writeBytes(HexTool.getByteArrayFromHexString("01 00 00 00 00"));
@@ -225,7 +225,7 @@ public class MTSCSPacket {
 	}
 
 	public static GamePacket enableUse1() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeBytes(HexTool.getByteArrayFromHexString("4E 00 00 04 00 07 00 00 00 04 00"));
@@ -234,7 +234,7 @@ public class MTSCSPacket {
 	}
 
 	public static GamePacket enableUse2() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x50);
@@ -244,7 +244,7 @@ public class MTSCSPacket {
 	}
 
 	public static GamePacket enableUse3() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CS_OPERATION.getValue());
 		builder.writeAsByte(0x52);

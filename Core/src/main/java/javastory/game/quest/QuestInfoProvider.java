@@ -35,8 +35,8 @@ public final class QuestInfoProvider {
 	private QuestInfoProvider() {
 	}
 
-	private static QuestInfo loadQuest(int questId) {
-		QuestInfo quest = new QuestInfo();
+	private static QuestInfo loadQuest(final int questId) {
+		final QuestInfo quest = new QuestInfo();
 		quest.questId = questId;
 		quest.relevantMobs = new LinkedHashMap<>();
 		// read reqs
@@ -50,14 +50,14 @@ public final class QuestInfoProvider {
 		final WzData startReqData = questRequirements.getChildByPath("0");
 		quest.startRequirements = new LinkedList<>();
 		if (startReqData != null) {
-			for (WzData startReq : startReqData.getChildren()) {
+			for (final WzData startReq : startReqData.getChildren()) {
 				final QuestRequirementType type = QuestRequirementType.getByWZName(startReq.getName());
 				if (type.equals(QuestRequirementType.INTERVAL)) {
 					quest.repeatable = true;
 				}
 				final QuestRequirement req = new QuestRequirement(quest.questId, type, startReq);
 				if (req.getType().equals(QuestRequirementType.MONSTER)) {
-					for (WzData mob : startReq.getChildren()) {
+					for (final WzData mob : startReq.getChildren()) {
 						quest.relevantMobs.put(WzDataTool.getInt(mob.getChildByPath("id")), WzDataTool.getInt(mob.getChildByPath("count"), 0));
 					}
 				}
@@ -72,10 +72,10 @@ public final class QuestInfoProvider {
 				quest.customend = true;
 			}
 			quest.completionRequirements = new LinkedList<>();
-			for (WzData completeReq : completeReqData.getChildren()) {
-				QuestRequirement req = new QuestRequirement(quest.questId, QuestRequirementType.getByWZName(completeReq.getName()), completeReq);
+			for (final WzData completeReq : completeReqData.getChildren()) {
+				final QuestRequirement req = new QuestRequirement(quest.questId, QuestRequirementType.getByWZName(completeReq.getName()), completeReq);
 				if (req.getType().equals(QuestRequirementType.MONSTER)) {
-					for (WzData mob : completeReq.getChildren()) {
+					for (final WzData mob : completeReq.getChildren()) {
 						quest.relevantMobs.put(WzDataTool.getInt(mob.getChildByPath("id")), WzDataTool.getInt(mob.getChildByPath("count"), 0));
 					}
 				}
@@ -86,7 +86,7 @@ public final class QuestInfoProvider {
 		final WzData startActionData = questActions.getChildByPath("0");
 		quest.startActions = new LinkedList<>();
 		if (startActionData != null) {
-			for (WzData startAct : startActionData.getChildren()) {
+			for (final WzData startAct : startActionData.getChildren()) {
 				final QuestAction action = new QuestAction(quest.questId, QuestActionType.getByWZName(startAct.getName()), startAct);
 				quest.startActions.add(action);
 			}
@@ -95,7 +95,7 @@ public final class QuestInfoProvider {
 		final WzData completeActionData = questActions.getChildByPath("1");
 		quest.completionActions = new LinkedList<>();
 		if (completeActionData != null) {
-			for (WzData completeAct : completeActionData.getChildren()) {
+			for (final WzData completeAct : completeActionData.getChildren()) {
 				final QuestAction action = new QuestAction(quest.questId, QuestActionType.getByWZName(completeAct.getName()), completeAct);
 				quest.completionActions.add(action);
 			}
@@ -108,7 +108,7 @@ public final class QuestInfoProvider {
 		return quest;
 	}
 
-	public static QuestInfo getInfo(int questId) {
+	public static QuestInfo getInfo(final int questId) {
 		QuestInfo quest = QUESTS.get(questId);
 		if (quest == null) {
 			quest = loadQuest(questId);
@@ -137,14 +137,14 @@ public final class QuestInfoProvider {
 		private QuestInfo() {
 		}
 
-		public boolean canStart(ChannelCharacter c, Integer npcId) {
-			QuestStatus status = c.getQuestStatus(questId);
+		public boolean canStart(final ChannelCharacter c, final Integer npcId) {
+			final QuestStatus status = c.getQuestStatus(this.questId);
 			final boolean isActive = status.getState() == 0;
-			final boolean canRepeat = status.getState() == 2 && repeatable;
+			final boolean canRepeat = status.getState() == 2 && this.repeatable;
 			if (isActive || !canRepeat) {
 				return false;
 			}
-			for (QuestRequirement requirement : startRequirements) {
+			for (final QuestRequirement requirement : this.startRequirements) {
 				if (!requirement.check(c, npcId)) {
 					return false;
 				}
@@ -152,13 +152,13 @@ public final class QuestInfoProvider {
 			return true;
 		}
 
-		public boolean canComplete(ChannelCharacter c, Integer npcId) {
-			QuestStatus status = c.getQuestStatus(questId);
+		public boolean canComplete(final ChannelCharacter c, final Integer npcId) {
+			final QuestStatus status = c.getQuestStatus(this.questId);
 
 			if (status == null || status.getState() != 1) {
 				return false;
 			}
-			for (QuestRequirement requirement : completionRequirements) {
+			for (final QuestRequirement requirement : this.completionRequirements) {
 				if (!requirement.check(c, npcId)) {
 					return false;
 				}
@@ -167,7 +167,7 @@ public final class QuestInfoProvider {
 		}
 
 		public void restoreLostItems(final ChannelCharacter c, final int itemId) {
-			for (final QuestAction action : startActions) {
+			for (final QuestAction action : this.startActions) {
 				if (action.restoreLostItem(c, itemId)) {
 					break;
 				}
@@ -175,45 +175,45 @@ public final class QuestInfoProvider {
 		}
 
 		public Map<Integer, Integer> getRelevantMobs() {
-			return relevantMobs;
+			return this.relevantMobs;
 		}
 
-		public void start(ChannelCharacter c, int npcId) {
-			if ((autoStart || checkNpcOnMap(c, npcId)) && canStart(c, npcId)) {
-				for (QuestAction a : startActions) {
+		public void start(final ChannelCharacter c, final int npcId) {
+			if ((this.autoStart || this.checkNpcOnMap(c, npcId)) && this.canStart(c, npcId)) {
+				for (final QuestAction a : this.startActions) {
 					a.runStart(c, null);
 				}
-				if (!customend) {
-					c.startQuest(questId, npcId);
+				if (!this.customend) {
+					c.startQuest(this.questId, npcId);
 				} else {
-					NpcScriptManager.getInstance().endQuest(c.getClient(), npcId, questId, true);
+					NpcScriptManager.getInstance().endQuest(c.getClient(), npcId, this.questId, true);
 				}
 			}
 		}
 
-		public void forfeit(ChannelCharacter c) {
-			QuestStatus status = c.getQuestStatus(questId);
+		public void forfeit(final ChannelCharacter c) {
+			final QuestStatus status = c.getQuestStatus(this.questId);
 			if (status.getState() != 1) {
 				return;
 			}
-			c.forfeitQuest(questId);
+			c.forfeitQuest(this.questId);
 		}
 
-		public void complete(ChannelCharacter c, int npcId) {
-			complete(c, npcId, null);
+		public void complete(final ChannelCharacter c, final int npcId) {
+			this.complete(c, npcId, null);
 		}
 
-		public void complete(ChannelCharacter c, int npcId, Integer selection) {
-			if ((autoPreComplete || checkNpcOnMap(c, npcId)) && canComplete(c, npcId)) {
-				for (QuestAction a : completionActions) {
+		public void complete(final ChannelCharacter c, final int npcId, final Integer selection) {
+			if ((this.autoPreComplete || this.checkNpcOnMap(c, npcId)) && this.canComplete(c, npcId)) {
+				for (final QuestAction a : this.completionActions) {
 					if (!a.checkEnd(c, selection)) {
 						return;
 					}
 				}
-				for (QuestAction a : completionActions) {
+				for (final QuestAction a : this.completionActions) {
 					a.runEnd(c, selection);
 				}
-				c.completeQuest(questId, npcId);
+				c.completeQuest(this.questId, npcId);
 
 				// Quest completion
 				c.getClient().write(ChannelPackets.showSpecialEffect(9));
@@ -222,7 +222,7 @@ public final class QuestInfoProvider {
 			}
 		}
 
-		private boolean checkNpcOnMap(ChannelCharacter player, int npcid) {
+		private boolean checkNpcOnMap(final ChannelCharacter player, final int npcid) {
 			return player.getMap().containsNPC(npcid) != -1;
 		}
 	}

@@ -35,19 +35,19 @@ public class Npc extends AbstractLoadedLife {
 	}
 
 	public final boolean hasShop() {
-		return ShopFactory.getInstance().getShopForNPC(getId()) != null;
+		return ShopFactory.getInstance().getShopForNPC(this.getId()) != null;
 	}
 
 	public final void sendShop(final ChannelClient c) {
-		ShopFactory.getInstance().getShopForNPC(getId()).sendShop(c);
+		ShopFactory.getInstance().getShopForNPC(this.getId()).sendShop(c);
 	}
 
 	@Override
 	public final void sendSpawnData(final ChannelClient client) {
 
-		if (getId() >= 9901000 && getId() <= 9901551) {
-			if (!stats.getName().equals("")) {
-				client.write(ChannelPackets.spawnPlayerNpc(stats, getId()));
+		if (this.getId() >= 9901000 && this.getId() <= 9901551) {
+			if (!this.stats.getName().equals("")) {
+				client.write(ChannelPackets.spawnPlayerNpc(this.stats, this.getId()));
 				client.write(ChannelPackets.spawnNpcRequestController(this, false));
 			}
 		} else {
@@ -58,7 +58,7 @@ public class Npc extends AbstractLoadedLife {
 
 	@Override
 	public final void sendDestroyData(final ChannelClient client) {
-		client.write(ChannelPackets.removeNpc(getObjectId()));
+		client.write(ChannelPackets.removeNpc(this.getObjectId()));
 	}
 
 	@Override
@@ -67,11 +67,11 @@ public class Npc extends AbstractLoadedLife {
 	}
 
 	public final String getName() {
-		return stats.getName();
+		return this.stats.getName();
 	}
 
 	public final boolean isCustom() {
-		return custom;
+		return this.custom;
 	}
 
 	public final void setCustom(final boolean custom) {

@@ -13,7 +13,7 @@ public final class Jobs {
 	private Jobs() {
 	}
 
-	public static boolean isBeginner(int jobId) {
+	public static boolean isBeginner(final int jobId) {
 		return jobId == 0 || jobId == 1000 || jobId == 2000 || jobId == 2001;
 	}
 
@@ -34,10 +34,10 @@ public final class Jobs {
 	}
 
 	public static boolean isEvan(final int job) {
-		return job == 2001 || (job >= 2200 && job <= 2218);
+		return job == 2001 || job >= 2200 && job <= 2218;
 	}
 
-	public static String getJobNameById(int job) {
+	public static String getJobNameById(final int job) {
 		switch (job) {
 		case 100:
 			return "Warrior";

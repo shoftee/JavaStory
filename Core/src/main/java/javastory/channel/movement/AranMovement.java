@@ -24,14 +24,14 @@ import javastory.io.PacketBuilder;
 
 public class AranMovement extends AbstractLifeMovement {
 
-	public AranMovement(int type, Point position, int duration, int newstate) {
+	public AranMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

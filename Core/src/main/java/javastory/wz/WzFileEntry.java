@@ -22,17 +22,17 @@ public class WzFileEntry extends WzEntry implements WzDataFileEntry {
 
 	private int offset;
 
-	public WzFileEntry(String name, int size, int checksum, WzDataEntity parent) {
+	public WzFileEntry(final String name, final int size, final int checksum, final WzDataEntity parent) {
 		super(name, size, checksum, parent);
 	}
 
 	@Override
 	public int getOffset() {
-		return offset;
+		return this.offset;
 	}
 
 	@Override
-	public void setOffset(int offset) {
+	public void setOffset(final int offset) {
 		this.offset = offset;
 	}
 }

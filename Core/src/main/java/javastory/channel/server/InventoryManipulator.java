@@ -23,11 +23,11 @@ import javastory.tools.packets.ChannelPackets;
 public final class InventoryManipulator {
 
 	public static boolean addRing(final ChannelCharacter chr, final int itemId, final int ringId) {
-		ItemInfoProvider infoProvider = ItemInfoProvider.getInstance();
-		Inventory inventory = chr.getInventoryForItem(itemId);
-		IItem nEquip = infoProvider.getEquipById(itemId, ringId);
+		final ItemInfoProvider infoProvider = ItemInfoProvider.getInstance();
+		final Inventory inventory = chr.getInventoryForItem(itemId);
+		final IItem nEquip = infoProvider.getEquipById(itemId, ringId);
 
-		short newSlot = inventory.addItem(nEquip);
+		final short newSlot = inventory.addItem(nEquip);
 		if (newSlot == -1) {
 			return false;
 		}
@@ -36,7 +36,7 @@ public final class InventoryManipulator {
 	}
 
 	public static boolean addbyItem(final ChannelClient c, final IItem item) {
-		Inventory inventory = c.getPlayer().getInventoryForItem(item.getItemId());
+		final Inventory inventory = c.getPlayer().getInventoryForItem(item.getItemId());
 		final short newSlot = inventory.addItem(item);
 		if (newSlot == -1) {
 			c.write(ChannelPackets.getInventoryFull());
@@ -47,19 +47,19 @@ public final class InventoryManipulator {
 		return true;
 	}
 
-	public static boolean addById(ChannelClient c, int itemId, short quantity) {
+	public static boolean addById(final ChannelClient c, final int itemId, final short quantity) {
 		return addById(c, itemId, quantity, null, null, 0);
 	}
 
-	public static boolean addById(ChannelClient c, int itemId, short quantity, String owner) {
+	public static boolean addById(final ChannelClient c, final int itemId, final short quantity, final String owner) {
 		return addById(c, itemId, quantity, owner, null, 0);
 	}
 
-	public static boolean addById(ChannelClient c, int itemId, short quantity, String owner, Pet pet) {
+	public static boolean addById(final ChannelClient c, final int itemId, final short quantity, final String owner, final Pet pet) {
 		return addById(c, itemId, quantity, owner, pet, 0);
 	}
 
-	public static boolean addById(ChannelClient c, int itemId, short quantity, String owner, Pet pet, long period) {
+	public static boolean addById(final ChannelClient c, final int itemId, short quantity, final String owner, final Pet pet, final long period) {
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
 		final Inventory inventory = c.getPlayer().getInventoryForItem(itemId);
@@ -69,14 +69,14 @@ public final class InventoryManipulator {
 			final List<IItem> existing = inventory.listById(itemId);
 			if (!GameConstants.isThrowingStar(itemId) && !GameConstants.isBullet(itemId)) {
 				if (existing.size() > 0) { // first update all existing slots to slotMax
-					Iterator<IItem> i = existing.iterator();
+					final Iterator<IItem> i = existing.iterator();
 					while (quantity > 0) {
 						if (i.hasNext()) {
-							Item eItem = (Item) i.next();
-							short oldQ = eItem.getQuantity();
+							final Item eItem = (Item) i.next();
+							final short oldQ = eItem.getQuantity();
 							if (oldQ < slotMax && (eItem.getOwner().equals(owner) || owner == null) && eItem.getExpiration() == -1) {
-								short newQ = (short) Math.min(oldQ + quantity, slotMax);
-								quantity -= (newQ - oldQ);
+								final short newQ = (short) Math.min(oldQ + quantity, slotMax);
+								quantity -= newQ - oldQ;
 								eItem.setQuantity(newQ);
 								c.write(ChannelPackets.updateInventorySlot(inventory.getType(), eItem, false));
 							}
@@ -89,7 +89,7 @@ public final class InventoryManipulator {
 				Item nItem;
 				// add new slots if there is still something left
 				while (quantity > 0) {
-					short newQ = (short) Math.min(quantity, slotMax);
+					final short newQ = (short) Math.min(quantity, slotMax);
 					if (newQ != 0) {
 						quantity -= newQ;
 						nItem = new Item(itemId, (byte) 0, newQ, (byte) 0);
@@ -104,7 +104,7 @@ public final class InventoryManipulator {
 							nItem.setOwner(owner);
 						}
 						if (period > 0) {
-							nItem.setExpiration(System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000));
+							nItem.setExpiration(System.currentTimeMillis() + period * 24 * 60 * 60 * 1000);
 						}
 						if (pet != null) {
 							nItem.setPet(pet);
@@ -130,7 +130,7 @@ public final class InventoryManipulator {
 					return false;
 				}
 				if (period > 0) {
-					nItem.setExpiration(System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000));
+					nItem.setExpiration(System.currentTimeMillis() + period * 24 * 60 * 60 * 1000);
 				}
 
 				c.write(ChannelPackets.addInventorySlot(inventory.getType(), nItem));
@@ -143,9 +143,9 @@ public final class InventoryManipulator {
 					nEquip.setOwner(owner);
 				}
 				if (period > 0) {
-					nEquip.setExpiration(System.currentTimeMillis() + (period * 24 * 60 * 60 * 1000));
+					nEquip.setExpiration(System.currentTimeMillis() + period * 24 * 60 * 60 * 1000);
 				}
-				short newSlot = inventory.addItem(nEquip);
+				final short newSlot = inventory.addItem(nEquip);
 				if (newSlot == -1) {
 					c.write(ChannelPackets.getInventoryFull());
 					c.write(ChannelPackets.getShowInventoryFull());
@@ -161,7 +161,7 @@ public final class InventoryManipulator {
 	}
 
 	public static IItem addbyId_Gachapon(final ChannelClient c, final int itemId, short quantity) {
-		ChannelCharacter chr = c.getPlayer();
+		final ChannelCharacter chr = c.getPlayer();
 		if (chr.getEquipInventory().getNextFreeSlot() == -1 || chr.getUseInventory().getNextFreeSlot() == -1 || chr.getEtcInventory().getNextFreeSlot() == -1
 			|| chr.getSetupInventory().getNextFreeSlot() == -1) {
 			return null;
@@ -170,7 +170,7 @@ public final class InventoryManipulator {
 		final Inventory inventory = chr.getInventoryForItem(itemId);
 
 		if (!inventory.getType().equals(InventoryType.EQUIP)) {
-			short slotMax = ii.getSlotMax(itemId);
+			final short slotMax = ii.getSlotMax(itemId);
 			final List<IItem> existing = inventory.listById(itemId);
 
 			if (!GameConstants.isThrowingStar(itemId) && !GameConstants.isBullet(itemId)) {
@@ -178,17 +178,17 @@ public final class InventoryManipulator {
 				boolean recieved = false;
 
 				if (existing.size() > 0) { // first update all existing slots to slotMax
-					Iterator<IItem> i = existing.iterator();
+					final Iterator<IItem> i = existing.iterator();
 					while (quantity > 0) {
 						if (i.hasNext()) {
 							nItem = i.next();
-							short oldQ = nItem.getQuantity();
+							final short oldQ = nItem.getQuantity();
 
 							if (oldQ < slotMax) {
 								recieved = true;
 
-								short newQ = (short) Math.min(oldQ + quantity, slotMax);
-								quantity -= (newQ - oldQ);
+								final short newQ = (short) Math.min(oldQ + quantity, slotMax);
+								quantity -= newQ - oldQ;
 								nItem.setQuantity(newQ);
 								c.write(ChannelPackets.updateInventorySlot(inventory.getType(), nItem, false));
 							}
@@ -199,7 +199,7 @@ public final class InventoryManipulator {
 				}
 				// add new slots if there is still something left
 				while (quantity > 0) {
-					short newQ = (short) Math.min(quantity, slotMax);
+					final short newQ = (short) Math.min(quantity, slotMax);
 					if (newQ != 0) {
 						quantity -= newQ;
 						nItem = new Item(itemId, (byte) 0, newQ, (byte) 0);
@@ -268,14 +268,14 @@ public final class InventoryManipulator {
 			final List<IItem> existing = inventory.listById(item.getItemId());
 			if (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId())) {
 				if (existing.size() > 0) { // first update all existing slots to slotMax
-					Iterator<IItem> i = existing.iterator();
+					final Iterator<IItem> i = existing.iterator();
 					while (quantity > 0) {
 						if (i.hasNext()) {
 							final Item eItem = (Item) i.next();
 							final short oldQ = eItem.getQuantity();
 							if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner()) && item.getExpiration() == eItem.getExpiration()) {
 								final short newQ = (short) Math.min(oldQ + quantity, slotMax);
-								quantity -= (newQ - oldQ);
+								quantity -= newQ - oldQ;
 								eItem.setQuantity(newQ);
 								c.write(ChannelPackets.updateInventorySlot(inventory.getType(), eItem, true));
 							}
@@ -345,11 +345,11 @@ public final class InventoryManipulator {
 			final List<IItem> existing = inventory.listById(itemId);
 			if (!GameConstants.isThrowingStar(itemId) && !GameConstants.isBullet(itemId)) {
 				if (existing.size() > 0) { // first update all existing slots to slotMax
-					for (IItem eItem : existing) {
+					for (final IItem eItem : existing) {
 						final short oldQ = eItem.getQuantity();
 						if (oldQ < slotMax && owner.equals(eItem.getOwner())) {
 							final short newQ = (short) Math.min(oldQ + quantity, slotMax);
-							quantity -= (newQ - oldQ);
+							quantity -= newQ - oldQ;
 						}
 						if (quantity <= 0) {
 							break;
@@ -360,7 +360,7 @@ public final class InventoryManipulator {
 			// add new slots if there is still something left
 			final int numSlotsNeeded;
 			if (slotMax > 0) {
-				numSlotsNeeded = (int) (Math.ceil(((double) quantity) / slotMax));
+				numSlotsNeeded = (int) Math.ceil((double) quantity / slotMax);
 			} else {
 				numSlotsNeeded = 1;
 			}
@@ -374,7 +374,7 @@ public final class InventoryManipulator {
 		removeFromSlot(c, type, slot, quantity, fromDrop, false);
 	}
 
-	public static void removeFromSlot(final ChannelClient c, final Inventory inventory, final short slot, short quantity, final boolean fromDrop,
+	public static void removeFromSlot(final ChannelClient c, final Inventory inventory, final short slot, final short quantity, final boolean fromDrop,
 		final boolean consume) {
 		final IItem item = inventory.getItem(slot);
 		final boolean allowZero = consume && (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId()));
@@ -390,7 +390,7 @@ public final class InventoryManipulator {
 	public static void removeById(final ChannelClient c, final Inventory inventory, final int itemId, final int quantity, final boolean fromDrop,
 		final boolean consume) {
 		int remremove = quantity;
-		for (IItem item : inventory.listById(itemId)) {
+		for (final IItem item : inventory.listById(itemId)) {
 			if (remremove <= item.getQuantity()) {
 				removeFromSlot(c, inventory, item.getPosition(), (short) remremove, fromDrop, consume);
 				remremove = 0;
@@ -427,8 +427,8 @@ public final class InventoryManipulator {
 		if (!inventory.getType().equals(InventoryType.EQUIP) && initialTarget != null && initialTarget.getItemId() == source.getItemId()
 			&& initialTarget.getExpiration() == source.getExpiration() && !GameConstants.isThrowingStar(source.getItemId())
 			&& !GameConstants.isBullet(source.getItemId())) {
-			if ((olddstQ + oldsrcQ) > slotMax) {
-				c.write(ChannelPackets.moveAndMergeWithRestInventoryItem(inventory.getType(), src, dst, (short) ((olddstQ + oldsrcQ) - slotMax), slotMax));
+			if (olddstQ + oldsrcQ > slotMax) {
+				c.write(ChannelPackets.moveAndMergeWithRestInventoryItem(inventory.getType(), src, dst, (short) (olddstQ + oldsrcQ - slotMax), slotMax));
 			} else {
 				c.write(ChannelPackets.moveAndMergeInventoryItem(inventory.getType(), src, dst, ((Item) inventory.getItem(dst)).getQuantity()));
 			}
@@ -459,7 +459,7 @@ public final class InventoryManipulator {
 			c.write(ChannelPackets.enableActions());
 			return;
 		}
-		if (GameConstants.isWeapon(source.getItemId()) && (dst != -10 && dst != -11)) {
+		if (GameConstants.isWeapon(source.getItemId()) && dst != -10 && dst != -11) {
 			////AutobanManager.getInstance().autoban(c, "Equipment hack, itemid " + source.getItemId() + " to slot " + dst);
 			return;
 		}
@@ -505,9 +505,9 @@ public final class InventoryManipulator {
 			break;
 		}
 		case -10: { // Weapon
-			IItem weapon = chr.getEquippedItemsInventory().getItem((byte) -11);
+			final IItem weapon = chr.getEquippedItemsInventory().getItem((byte) -11);
 			if (GameConstants.isKatara(source.getItemId())) {
-				if ((chr.getJobId() != 900 && (chr.getJobId() < 430 || chr.getJobId() > 434)) || weapon == null || !GameConstants.isDagger(weapon.getItemId())) {
+				if (chr.getJobId() != 900 && (chr.getJobId() < 430 || chr.getJobId() > 434) || weapon == null || !GameConstants.isDagger(weapon.getItemId())) {
 					c.write(ChannelPackets.getInventoryFull());
 					c.write(ChannelPackets.getShowInventoryFull());
 					return;
@@ -523,7 +523,7 @@ public final class InventoryManipulator {
 			break;
 		}
 		case -11: { // Shield
-			IItem shield = chr.getEquippedItemsInventory().getItem((byte) -10);
+			final IItem shield = chr.getEquippedItemsInventory().getItem((byte) -10);
 			if (shield != null && GameConstants.isTwoHanded(source.getItemId())) {
 				if (chr.getEquipInventory().isFull()) {
 					c.write(ChannelPackets.getInventoryFull());
@@ -566,8 +566,8 @@ public final class InventoryManipulator {
 
 	public static void unequip(final ChannelClient c, final short src, final short dst) {
 		final ChannelCharacter player = c.getPlayer();
-		Equip source = (Equip) player.getEquippedItemsInventory().getItem(src);
-		Equip target = (Equip) player.getEquipInventory().getItem(dst);
+		final Equip source = (Equip) player.getEquippedItemsInventory().getItem(src);
+		final Equip target = (Equip) player.getEquipInventory().getItem(dst);
 
 		if (dst < 0 || source == null) {
 			return;
@@ -595,7 +595,7 @@ public final class InventoryManipulator {
 		player.equipChanged();
 	}
 
-	public static void drop(final ChannelClient c, Inventory inventory, final short src, final short quantity) {
+	public static void drop(final ChannelClient c, final Inventory inventory, final short src, final short quantity) {
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
 		final IItem source = inventory.getItem(src);

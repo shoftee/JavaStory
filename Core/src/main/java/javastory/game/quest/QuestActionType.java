@@ -24,16 +24,16 @@ public enum QuestActionType {
 	//
 	final byte type;
 
-	private QuestActionType(int type) {
+	private QuestActionType(final int type) {
 		this.type = (byte) type;
 	}
 
 	public byte getType() {
-		return type;
+		return this.type;
 	}
 
-	public static QuestActionType getByType(byte type) {
-		for (QuestActionType l : QuestActionType.values()) {
+	public static QuestActionType getByType(final byte type) {
+		for (final QuestActionType l : QuestActionType.values()) {
 			if (l.getType() == type) {
 				return l;
 			}
@@ -41,7 +41,7 @@ public enum QuestActionType {
 		return null;
 	}
 
-	public static QuestActionType getByWZName(String name) {
+	public static QuestActionType getByWZName(final String name) {
 		switch (name) {
 		case "exp":
 			return EXP;

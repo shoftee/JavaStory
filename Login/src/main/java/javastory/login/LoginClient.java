@@ -11,12 +11,12 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 
-import javastory.db.Database;
 import javastory.channel.client.MemberRank;
 import javastory.client.GameCharacterUtil;
 import javastory.client.GameClient;
 import javastory.client.LoginCrypto;
 import javastory.cryptography.AesTransform;
+import javastory.db.Database;
 import javastory.game.Gender;
 import javastory.game.IItem;
 import javastory.game.Inventory;
@@ -25,8 +25,9 @@ import javastory.io.PacketReader;
 import javastory.tools.FiletimeUtil;
 import javastory.tools.packets.CommonPackets;
 
-import com.google.common.collect.Lists;
 import org.apache.mina.core.session.IoSession;
+
+import com.google.common.collect.Lists;
 
 /**
  *
@@ -45,16 +46,16 @@ public final class LoginClient extends GameClient {
     private int characterSlots = 0;
     //
     private int loginAttempt = 0;
-    private List<Integer> allowedChar = Lists.newLinkedList();
+    private final List<Integer> allowedChar = Lists.newLinkedList();
 
-    public LoginClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
+    public LoginClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
         super(clientCrypto, serverCrypto, session);
-        loggedIn = false;
+        this.loggedIn = false;
     }
 
     public boolean hasBannedIP() {
         boolean ret = false;
-        Connection con = Database.getConnection();
+        final Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM ipbans WHERE ? LIKE CONCAT(ip, '%')")) {
             ps.setString(1, super.getSessionIP());
             try (ResultSet rs = ps.executeQuery()) {
@@ -63,7 +64,7 @@ public final class LoginClient extends GameClient {
                     ret = true;
                 }
             }
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             System.err.println("Error checking ip bans" + ex);
         }
         return ret;
@@ -121,20 +122,20 @@ public final class LoginClient extends GameClient {
                 if (ps != null) {
                     ps.close();
                 }
-            } catch (SQLException ex) {
+            } catch (final SQLException ex) {
                 System.err.println("Error while closing SQL connection: " + ex);
             }
         }
         return false;
     }
 
-    private Calendar getTempBanCalendar(ResultSet rs) throws SQLException {
-        Calendar lTempban = Calendar.getInstance();
+    private Calendar getTempBanCalendar(final ResultSet rs) throws SQLException {
+        final Calendar lTempban = Calendar.getInstance();
         if (rs.getLong("tempban") == 0) { // basically if timestamp in db is 0000-00-00
             lTempban.setTimeInMillis(0);
             return lTempban;
         }
-        Calendar today = Calendar.getInstance();
+        final Calendar today = Calendar.getInstance();
         lTempban.setTimeInMillis(rs.getTimestamp("tempban").getTime());
         if (today.getTimeInMillis() < lTempban.getTimeInMillis()) {
             return lTempban;
@@ -145,16 +146,16 @@ public final class LoginClient extends GameClient {
     }
 
     public Calendar getTempBanCalendar() {
-        return temporaryBan;
+        return this.temporaryBan;
     }
 
     public byte getTempBanReason() {
-        return temporaryBanReason;
+        return this.temporaryBanReason;
     }
 
-    public AuthReplyCode authenticate(String username, String inputPassword) {
+    public AuthReplyCode authenticate(final String username, final String inputPassword) {
         AuthReplyCode replyCode = AuthReplyCode.NOT_REGISTERED;
-        Connection con = Database.getConnection();
+        final Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `accounts` WHERE `name` = ?")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -164,39 +165,39 @@ public final class LoginClient extends GameClient {
                         replyCode = AuthReplyCode.DELETED_OR_BLOCKED;
                         return replyCode;
                     } else if (banned == -1) {
-                        unban();
+                        this.unban();
                     }
                     super.setAccountId(rs.getInt("id"));
                     super.setAccountName(rs.getString("name"));
 
-                    loginPassword = rs.getString("password");
-                    loginPasswordSalt = rs.getString("salt");
+                    this.loginPassword = rs.getString("password");
+                    this.loginPasswordSalt = rs.getString("salt");
 
-                    characterPassword = rs.getString("char_password");
-                    characterPasswordSalt = rs.getString("char_salt");
+                    this.characterPassword = rs.getString("char_password");
+                    this.characterPasswordSalt = rs.getString("char_salt");
 
-                    isGm = rs.getInt("gm") > 0;
-                    temporaryBanReason = rs.getByte("tempban_reason");
-                    temporaryBan = getTempBanCalendar(rs);
-                    gender = Gender.fromNumber(rs.getByte("gender"));
+                    this.isGm = rs.getInt("gm") > 0;
+                    this.temporaryBanReason = rs.getByte("tempban_reason");
+                    this.temporaryBan = this.getTempBanCalendar(rs);
+                    this.gender = Gender.fromNumber(rs.getByte("gender"));
 
-                    characterSlots = rs.getInt("character_slots");
+                    this.characterSlots = rs.getInt("character_slots");
                 }
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             System.err.println("ERROR" + e);
         }
 
-        if (characterPassword != null && characterPasswordSalt != null) {
-            characterPassword = LoginCrypto.getPadding(characterPassword);
+        if (this.characterPassword != null && this.characterPasswordSalt != null) {
+            this.characterPassword = LoginCrypto.getPadding(this.characterPassword);
         }
 
-        if (!LoginCrypto.checkSaltedSha512Hash(loginPassword, inputPassword, loginPasswordSalt)) {
+        if (!LoginCrypto.checkSaltedSha512Hash(this.loginPassword, inputPassword, this.loginPasswordSalt)) {
             replyCode = AuthReplyCode.WRONG_PASSWORD;
         }
 
-        loggedIn = logOn();
-        if (loggedIn) {
+        this.loggedIn = this.logOn();
+        if (this.loggedIn) {
             replyCode = AuthReplyCode.SUCCESS;
         } else {
             replyCode = AuthReplyCode.ALREADY_LOGGED_IN;
@@ -207,7 +208,7 @@ public final class LoginClient extends GameClient {
 
     private boolean logOn() {
         boolean success = false;
-        Connection con = Database.getConnection();
+        final Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement(
                         "UPDATE `accounts` "
                         + "SET `loggedin` = ?, `session_ip` = ?, `lastlogin` = CURRENT_TIMESTAMP() "
@@ -215,17 +216,17 @@ public final class LoginClient extends GameClient {
             ps.setBoolean(1, true);
             ps.setBoolean(4, false);
             ps.setString(2, super.getSessionIP());
-            ps.setInt(3, getAccountId());
-            int updatedRows = ps.executeUpdate();
+            ps.setInt(3, this.getAccountId());
+            final int updatedRows = ps.executeUpdate();
             success = updatedRows == 1;
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             System.err.println("error updating login state" + e);
         }
         return success;
     }
 
     public final Gender getGender() {
-        return gender;
+        return this.gender;
     }
 
     public final void setGender(final Gender gender) {
@@ -233,41 +234,41 @@ public final class LoginClient extends GameClient {
     }
 
     public final boolean isGm() {
-        return isGm;
+        return this.isGm;
     }
 
-    private boolean checkCharacterPassword(String password) {
+    private boolean checkCharacterPassword(final String password) {
         boolean allow = false;
-        if (LoginCrypto.checkSaltedSha512Hash(characterPassword, password, characterPasswordSalt)) {
+        if (LoginCrypto.checkSaltedSha512Hash(this.characterPassword, password, this.characterPasswordSalt)) {
             allow = true;
         }
         return allow;
     }
 
     @Override
-    public void disconnect(boolean immediately) {
+    public void disconnect(final boolean immediately) {
         super.getSession().close(immediately);
     }
 
     private void allowNewCharacter(final int characterId) {
-        allowedChar.add(characterId);
+        this.allowedChar.add(characterId);
     }
 
     private boolean isCharacterAuthorized(final int characterId) {
-        return allowedChar.contains(characterId);
+        return this.allowedChar.contains(characterId);
     }
 
     private List<LoginCharacter> loadCharacters(final int serverId) { // TODO make this less costly zZz
         final List<LoginCharacter> list = Lists.newArrayList(
                 LoginCharacter.loadCharacters(super.getAccountId(), serverId));
         for (final LoginCharacter character : list) {
-            allowedChar.add(character.getId());
+            this.allowedChar.add(character.getId());
         }
         return list;
     }
 
     public final String getCharacterPassword() {
-        return characterPassword;
+        return this.characterPassword;
     }
 
     private boolean canAttemptAgain() {
@@ -280,15 +281,15 @@ public final class LoginClient extends GameClient {
         final boolean ipBan = this.hasBannedIP();
         AuthReplyCode code = this.authenticate(login, password);
         final Calendar tempbannedTill = this.getTempBanCalendar();
-        if (code == AuthReplyCode.SUCCESS && (ipBan)) {
+        if (code == AuthReplyCode.SUCCESS && ipBan) {
             code = AuthReplyCode.DELETED_OR_BLOCKED;
         }
         if (code != AuthReplyCode.SUCCESS) {
-            if (canAttemptAgain()) {
+            if (this.canAttemptAgain()) {
                 this.write(LoginPacket.getLoginFailed(code));
             }
         } else if (tempbannedTill.getTimeInMillis() != 0) {
-            if (canAttemptAgain()) {
+            if (this.canAttemptAgain()) {
                 this.write(LoginPacket.getTempBan(FiletimeUtil.getFiletime(tempbannedTill.getTimeInMillis()), this.getTempBanReason()));
             }
         } else {
@@ -300,7 +301,7 @@ public final class LoginClient extends GameClient {
     public void handleWithoutSecondPassword(final PacketReader reader) throws PacketFormatException {
         reader.skip(1);
         final int characterId = reader.readInt();
-        if (!isCharacterAuthorized(characterId)) {
+        if (!this.isCharacterAuthorized(characterId)) {
             this.disconnect(true);
             return;
         }
@@ -320,7 +321,7 @@ public final class LoginClient extends GameClient {
                 this.write(LoginPacket.characterPasswordError((byte) 0x14));
                 return;
             }
-        } else if (!canAttemptAgain() || password != null) {
+        } else if (!this.canAttemptAgain() || password != null) {
             this.disconnect();
             return;
         }
@@ -332,7 +333,7 @@ public final class LoginClient extends GameClient {
         this.write(CommonPackets.getServerIP(port, characterId));
     }
 
-    private void updateCharacterPassword(String newPassword) {
+    private void updateCharacterPassword(final String newPassword) {
         final Connection con = Database.getConnection();
         try (PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `char_password` = ?, `char_salt` = ? WHERE id = ?")) {
             final String newSalt = LoginCrypto.makeSalt();
@@ -342,7 +343,7 @@ public final class LoginClient extends GameClient {
             ps.executeUpdate();
             this.characterPassword = newPassword;
             this.characterPasswordSalt = newSalt;
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             System.err.println("error updating login state" + e);
         }
     }
@@ -350,15 +351,15 @@ public final class LoginClient extends GameClient {
     public void handleWithSecondPassword(final PacketReader reader) throws PacketFormatException {
         final String password = reader.readLengthPrefixedString();
         final int characterId = reader.readInt();
-        if (!canAttemptAgain() || this.getCharacterPassword() == null
-                || !isCharacterAuthorized(characterId)) {
+        if (!this.canAttemptAgain() || this.getCharacterPassword() == null
+                || !this.isCharacterAuthorized(characterId)) {
             this.disconnect();
             return;
         }
-        if (checkCharacterPassword(password)) {
+        if (this.checkCharacterPassword(password)) {
             // TODO: transfer() method
-            if (getIdleTask() != null) {
-                getIdleTask().cancel(true);
+            if (this.getIdleTask() != null) {
+                this.getIdleTask().cancel(true);
             }
             final int port = LoginServer.getInstance().getChannelServerPort(this.getChannelId());
             this.write(CommonPackets.getServerIP(port, characterId));
@@ -388,8 +389,8 @@ public final class LoginClient extends GameClient {
         this.setChannelId(channel);
         final List<LoginCharacter> chars = this.loadCharacters(server);
         if (chars != null) {
-            this.write(LoginPacket.getCharacterList(getCharacterPassword()
-                    != null, chars, characterSlots));
+            this.write(LoginPacket.getCharacterList(this.getCharacterPassword()
+                    != null, chars, this.characterSlots));
         } else {
             this.disconnect();
         }
@@ -417,14 +418,14 @@ public final class LoginClient extends GameClient {
         final int shoes = reader.readInt();
         final int weapon = reader.readInt();
 
-        LoginCharacter newchar = LoginCharacter.getDefault(jobCategory);
+        final LoginCharacter newchar = LoginCharacter.getDefault(jobCategory);
         newchar.setName(name);
         newchar.setWorldId(this.getWorldId());
         newchar.setFaceId(faceId);
         newchar.setHairId(hairId + hairColor);
-        newchar.setGender(gender);
+        newchar.setGender(this.gender);
         newchar.setSkinColorId(skinColorId);
-        Inventory equip = newchar.getEquippedItemsInventory();
+        final Inventory equip = newchar.getEquippedItemsInventory();
         final LoginInfoProvider li = LoginInfoProvider.getInstance();
         IItem item = li.getEquipById(top);
         item.setPosition((byte) -5);
@@ -463,23 +464,23 @@ public final class LoginClient extends GameClient {
         reader.readLengthPrefixedString();
         
         final int characterId = reader.readInt();
-        if (!isCharacterAuthorized(characterId)) {
-            disconnect(true);
+        if (!this.isCharacterAuthorized(characterId)) {
+            this.disconnect(true);
             return;
         }
         byte state = 0;
-        if (characterPassword != null) {
+        if (this.characterPassword != null) {
             if (password == null) {
-                disconnect(true);
+                this.disconnect(true);
                 return;
             } else {
-                if (!checkCharacterPassword(password)) {
+                if (!this.checkCharacterPassword(password)) {
                     state = 12;
                 }
             }
         }
         if (state == 0) {
-            if (!deleteCharacter(characterId)) {
+            if (!this.deleteCharacter(characterId)) {
                 state = 1;
             }
         }

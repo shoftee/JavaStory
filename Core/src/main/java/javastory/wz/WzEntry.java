@@ -20,13 +20,13 @@ package javastory.wz;
 
 public class WzEntry implements WzDataEntry {
 
-	private String name;
-	private int size;
-	private int checksum;
+	private final String name;
+	private final int size;
+	private final int checksum;
 	private int offset;
-	private WzDataEntity parent;
+	private final WzDataEntity parent;
 
-	public WzEntry(String name, int size, int checksum, WzDataEntity parent) {
+	public WzEntry(final String name, final int size, final int checksum, final WzDataEntity parent) {
 		super();
 		this.name = name;
 		this.size = size;
@@ -36,26 +36,26 @@ public class WzEntry implements WzDataEntry {
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	@Override
 	public int getChecksum() {
-		return checksum;
+		return this.checksum;
 	}
 
 	@Override
 	public int getOffset() {
-		return offset;
+		return this.offset;
 	}
 
 	@Override
 	public WzDataEntity getParent() {
-		return parent;
+		return this.parent;
 	}
 }

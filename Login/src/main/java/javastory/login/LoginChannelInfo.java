@@ -19,16 +19,16 @@ public class LoginChannelInfo extends ChannelInfo {
 	private static final long serialVersionUID = 1791926284473788530L;
 	private int load;
     
-    public LoginChannelInfo(ChannelInfo info, int load) {
+    public LoginChannelInfo(final ChannelInfo info, final int load) {
         super(info.getWorldId(), info.getId(), info.getName(), info.getHost(), info.getPort());
         this.load = load;
     }
 
     public int getLoad() {
-        return load;
+        return this.load;
     }
     
-    public void setLoad(int load) {
+    public void setLoad(final int load) {
         this.load = load;
     }
 }

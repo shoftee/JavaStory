@@ -34,148 +34,159 @@ import javastory.world.core.WorldRegistry;
 public class WorldChannelInterfaceImpl extends GenericRemoteObject implements WorldChannelInterface {
 
 	private static final long serialVersionUID = -5568606556235590482L;
-	private ChannelWorldInterface channel;
+	private final ChannelWorldInterface channel;
 	private static final WorldRegistry registry = WorldRegistryImpl.getInstance();
 	private boolean ready = false;
 
-	public WorldChannelInterfaceImpl(ChannelWorldInterface channelInterface, int dbId) throws RemoteException {
+	public WorldChannelInterfaceImpl(final ChannelWorldInterface channelInterface, final int dbId) throws RemoteException {
 		super();
 		this.channel = channelInterface;
 	}
 
+	@Override
 	public void serverReady() throws RemoteException {
-		ready = true;
-		for (LoginWorldInterface wli : registry.getLoginServer()) {
+		this.ready = true;
+		for (final LoginWorldInterface wli : registry.getLoginServer()) {
 			try {
-				wli.channelOnline(channel.getChannelInfo());
-			} catch (RemoteException e) {
+				wli.channelOnline(this.channel.getChannelInfo());
+			} catch (final RemoteException e) {
 				registry.deregisterLoginServer(wli);
 			}
 		}
-		System.out.println(":: Channel " + channel.getChannelId() + " is online ::");
+		System.out.println(":: Channel " + this.channel.getChannelId() + " is online ::");
 	}
 
 	public boolean isReady() {
-		return ready;
+		return this.ready;
 	}
 
-	public String getIP(int channel) throws RemoteException {
+	@Override
+	public String getIP(final int channel) throws RemoteException {
 		final ChannelWorldInterface cwi = registry.getChannel(channel);
 		if (cwi == null) {
 			return "0.0.0.0:0";
 		} else {
 			try {
 				return cwi.getIP();
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(channel);
 				return "0.0.0.0:0";
 			}
 		}
 	}
 
-	public void whisper(String sender, String target, int channel, String message) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void whisper(final String sender, final String target, final int channel, final String message) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.whisper(sender, target, channel, message);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public boolean isConnected(String charName) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public boolean isConnected(final String charName) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				if (cwi.isConnected(charName)) {
 					return true;
 				}
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 		return false;
 	}
 
-	public boolean isCharacterListConnected(List<String> charName) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public boolean isCharacterListConnected(final List<String> charName) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				if (cwi.isCharacterListConnected(charName)) {
 					return true;
 				}
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 		return false;
 	}
 
-	public void broadcastMessage(GamePacket packet) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void broadcastMessage(final GamePacket packet) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.broadcastMessage(packet);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void broadcastSmega(GamePacket packet) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void broadcastSmega(final GamePacket packet) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.broadcastSmega(packet);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void broadcastGMMessage(GamePacket packet) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void broadcastGMMessage(final GamePacket packet) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.broadcastGMMessage(packet);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
+	@Override
 	public void toggleMegaphoneMuteState() throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.toggleMegaphoneMuteState();
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public boolean hasMerchant(int accountId) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public boolean hasMerchant(final int accountId) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				return cwi.hasMerchant(accountId);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 		return false;
 	}
 
-	public int find(String charName) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public int find(final String charName) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				if (cwi.isConnected(charName)) {
 					return cwi.getChannelId();
 				}
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
@@ -184,58 +195,61 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 
 	// can we generify this
 	@Override
-	public int find(int characterId) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	public int find(final int characterId) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				if (cwi.isConnected(characterId)) {
 					return cwi.getChannelInfo().getId();
 				}
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 		return -1;
 	}
 
+	@Override
 	public void shutdownLogin() throws RemoteException {
-		for (LoginWorldInterface lwi : registry.getLoginServer()) {
+		for (final LoginWorldInterface lwi : registry.getLoginServer()) {
 			try {
 				lwi.shutdown();
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterLoginServer(lwi);
 			}
 		}
 	}
 
-	public void shutdown(int time) throws RemoteException {
-		for (LoginWorldInterface lwi : registry.getLoginServer()) {
+	@Override
+	public void shutdown(final int time) throws RemoteException {
+		for (final LoginWorldInterface lwi : registry.getLoginServer()) {
 			try {
 				lwi.shutdown();
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterLoginServer(lwi);
 			}
 		}
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.shutdown(time);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
+	@Override
 	public Map<Integer, Integer> getConnected() throws RemoteException {
-		Map<Integer, Integer> ret = new HashMap<>();
+		final Map<Integer, Integer> ret = new HashMap<>();
 		int total = 0;
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
-				int curConnected = cwi.getConnected();
+				final int curConnected = cwi.getConnected();
 				ret.put(i, curConnected);
 				total += curConnected;
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
@@ -243,31 +257,33 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 		return ret;
 	}
 
-	public void loggedOn(String name, int characterId, int channel, int[] buddies) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void loggedOn(final String name, final int characterId, final int channel, final int[] buddies) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.loggedOn(name, characterId, channel, buddies);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
 	@Override
-	public void loggedOff(String name, int characterId, int channel, int[] buddies) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	public void loggedOff(final String name, final int characterId, final int channel, final int[] buddies) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.loggedOff(name, characterId, channel, buddies);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
 	//TODO only notify channels where partymembers are?
-	public void updateParty(int partyid, PartyOperation operation, PartyMember target) throws RemoteException {
+	@Override
+	public void updateParty(final int partyid, final PartyOperation operation, final PartyMember target) throws RemoteException {
 		final Party party = registry.getParty(partyid);
 		if (party == null) {
 			throw new IllegalArgumentException("no party with the specified partyid exists");
@@ -293,35 +309,37 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 		default:
 			throw new RuntimeException("Unhandeled updateParty operation " + operation.name());
 		}
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.updateParty(party, operation, target);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
+	@Override
 	public Party createParty() throws RemoteException {
 		return registry.createParty();
 	}
 
-	public Party getParty(int partyid) throws RemoteException {
+	@Override
+	public Party getParty(final int partyid) throws RemoteException {
 		return registry.getParty(partyid);
 	}
 
 	@Override
-	public void partyChat(int partyid, String chattext, String namefrom) throws RemoteException {
+	public void partyChat(final int partyid, final String chattext, final String namefrom) throws RemoteException {
 		final Party party = registry.getParty(partyid);
 		if (party == null) {
 			throw new IllegalArgumentException("no party with the specified partyid exists");
 		}
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.partyChat(party, chattext, namefrom);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
@@ -331,27 +349,29 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 		return true;
 	}
 
-	public Location getLocation(String charName) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public Location getLocation(final String charName) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				if (cwi.isConnected(charName)) {
 					return new Location(cwi.getLocation(charName), (byte) cwi.getChannelId());
 				}
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 		return null;
 	}
 
+	@Override
 	public List<CheaterData> getCheaters() throws RemoteException {
-		List<CheaterData> allCheaters = new ArrayList<>();
-		for (int i : registry.getActiveChannels()) {
+		final List<CheaterData> allCheaters = new ArrayList<>();
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				allCheaters.addAll(cwi.getCheaters());
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
@@ -360,23 +380,23 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 	}
 
 	@Override
-	public ChannelWorldInterface getChannelInterface(int channel) throws RemoteException {
+	public ChannelWorldInterface getChannelInterface(final int channel) throws RemoteException {
 		return registry.getChannel(channel);
 	}
 
 	@Override
-	public void buddyChat(int[] recipientCharacterIds, int cidFrom, String nameFrom, String chattext) throws RemoteException {
-		for (ChannelWorldInterface cwi : registry.getAllChannelServers()) {
+	public void buddyChat(final int[] recipientCharacterIds, final int cidFrom, final String nameFrom, final String chattext) throws RemoteException {
+		for (final ChannelWorldInterface cwi : registry.getAllChannelServers()) {
 			cwi.buddyChat(recipientCharacterIds, cidFrom, nameFrom, chattext);
 		}
 	}
 
 	@Override
-	public CharacterIdChannelPair[] multiBuddyFind(int charIdFrom, int[] characterIds) throws RemoteException {
-		List<CharacterIdChannelPair> foundsChars = new ArrayList<>(characterIds.length);
-		for (int i : registry.getActiveChannels()) {
+	public CharacterIdChannelPair[] multiBuddyFind(final int charIdFrom, final int[] characterIds) throws RemoteException {
+		final List<CharacterIdChannelPair> foundsChars = new ArrayList<>(characterIds.length);
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
-			for (int charid : cwi.multiBuddyFind(charIdFrom, characterIds)) {
+			for (final int charid : cwi.multiBuddyFind(charIdFrom, characterIds)) {
 				foundsChars.add(new CharacterIdChannelPair(charid, i));
 			}
 		}
@@ -384,13 +404,13 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 	}
 
 	@Override
-	public void transfer(CharacterTransfer Data, int characterid, int toChannel) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	public void transfer(final CharacterTransfer Data, final int characterid, final int toChannel) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			if (i == toChannel) {
 				final ChannelWorldInterface cwi = registry.getChannel(i);
 				try {
 					cwi.ChannelChange_Data(Data, characterid);
-				} catch (RemoteException e) {
+				} catch (final RemoteException e) {
 					registry.deregisterChannelServer(i);
 				}
 			}
@@ -399,177 +419,186 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 	}
 
 	@Override
-	public Guild getGuild(int id) throws RemoteException {
+	public Guild getGuild(final int id) throws RemoteException {
 		return registry.getGuild(id);
 	}
 
 	@Override
-	public void setGuildMemberOnline(GuildMember mgc, boolean bOnline, int channel) throws RemoteException {
+	public void setGuildMemberOnline(final GuildMember mgc, final boolean bOnline, final int channel) throws RemoteException {
 		registry.setGuildMemberOnline(mgc, bOnline, channel);
 	}
 
 	@Override
-	public boolean addGuildMember(GuildMember mgc) throws RemoteException {
+	public boolean addGuildMember(final GuildMember mgc) throws RemoteException {
 		return registry.addGuildMember(mgc);
 	}
 
 	@Override
-	public void guildChat(int gid, String name, int cid, String msg) throws RemoteException {
+	public void guildChat(final int gid, final String name, final int cid, final String msg) throws RemoteException {
 		registry.guildChat(gid, name, cid, msg);
 	}
 
 	@Override
-	public void leaveGuild(GuildMember mgc) throws RemoteException {
+	public void leaveGuild(final GuildMember mgc) throws RemoteException {
 		registry.leaveGuild(mgc);
 	}
 
 	@Override
-	public void changeRank(int gid, int cid, MemberRank newRank) throws RemoteException {
+	public void changeRank(final int gid, final int cid, final MemberRank newRank) throws RemoteException {
 		registry.changeRank(gid, cid, newRank);
 	}
 
 	@Override
-	public void expelMember(GuildMember initiator, int cid) throws RemoteException {
+	public void expelMember(final GuildMember initiator, final int cid) throws RemoteException {
 		registry.expelMember(initiator, cid);
 	}
 
 	@Override
-	public void setGuildNotice(int gid, String notice) throws RemoteException {
+	public void setGuildNotice(final int gid, final String notice) throws RemoteException {
 		registry.setGuildNotice(gid, notice);
 	}
 
 	@Override
-	public void updateGuildMemberJob(int guildId, int characterId, int jobId) throws RemoteException {
+	public void updateGuildMemberJob(final int guildId, final int characterId, final int jobId) throws RemoteException {
 		registry.updateGuildMemberJob(guildId, characterId, jobId);
 	}
 
 	@Override
-	public void updateGuildMemberLevel(int guildId, int characterId, int level) throws RemoteException {
+	public void updateGuildMemberLevel(final int guildId, final int characterId, final int level) throws RemoteException {
 		registry.updateGuildMemberLevel(guildId, characterId, level);
 	}
 
 	@Override
-	public void changeRankTitle(int gid, String[] ranks) throws RemoteException {
+	public void changeRankTitle(final int gid, final String[] ranks) throws RemoteException {
 		registry.changeRankTitle(gid, ranks);
 	}
 
 	@Override
-	public int createGuild(int leaderId, String name) throws RemoteException {
+	public int createGuild(final int leaderId, final String name) throws RemoteException {
 		return registry.createGuild(leaderId, name);
 	}
 
 	@Override
-	public void setGuildEmblem(int gid, short bg, byte bgcolor, short logo, byte logocolor) throws RemoteException {
+	public void setGuildEmblem(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) throws RemoteException {
 		registry.setGuildEmblem(gid, bg, bgcolor, logo, logocolor);
 	}
 
 	@Override
-	public void disbandGuild(int gid) throws RemoteException {
+	public void disbandGuild(final int gid) throws RemoteException {
 		registry.disbandGuild(gid);
 	}
 
 	@Override
-	public boolean increaseGuildCapacity(int gid) throws RemoteException {
+	public boolean increaseGuildCapacity(final int gid) throws RemoteException {
 		return registry.increaseGuildCapacity(gid);
 	}
 
 	@Override
-	public void gainGuildPoints(int gid, int amount) throws RemoteException {
+	public void gainGuildPoints(final int gid, final int amount) throws RemoteException {
 		registry.gainGP(gid, amount);
 	}
 
-	public Messenger createMessenger(MessengerMember chrfor) throws RemoteException {
+	@Override
+	public Messenger createMessenger(final MessengerMember chrfor) throws RemoteException {
 		return registry.createMessenger(chrfor);
 	}
 
-	public Messenger getMessenger(int messengerid) throws RemoteException {
+	@Override
+	public Messenger getMessenger(final int messengerid) throws RemoteException {
 		return registry.getMessenger(messengerid);
 	}
 
-	public void messengerInvite(String sender, int messengerid, String target, int fromchannel) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void messengerInvite(final String sender, final int messengerid, final String target, final int fromchannel) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.messengerInvite(sender, messengerid, target, fromchannel);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void leaveMessenger(int messengerid, MessengerMember target) throws RemoteException {
+	@Override
+	public void leaveMessenger(final int messengerid, final MessengerMember target) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		if (messenger == null) {
 			throw new IllegalArgumentException("No messenger with the specified messengerid exists");
 		}
 		final int position = messenger.getPositionByName(target.getName());
 		messenger.removeMember(target);
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.removeMessengerPlayer(messenger, position);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void joinMessenger(int messengerid, MessengerMember target, String from, int fromchannel) throws RemoteException {
+	@Override
+	public void joinMessenger(final int messengerid, final MessengerMember target, final String from, final int fromchannel) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		if (messenger == null) {
 			throw new IllegalArgumentException("No messenger with the specified messengerid exists");
 		}
 		messenger.addMember(target);
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.addMessengerPlayer(messenger, from, fromchannel, target.getPosition());
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void messengerChat(int messengerid, String namefrom, String chattext) throws RemoteException {
+	@Override
+	public void messengerChat(final int messengerid, final String namefrom, final String chattext) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		if (messenger == null) {
 			throw new IllegalArgumentException("No messenger with the specified messengerid exists");
 		}
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.messengerChat(messenger, chattext, namefrom);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void declineChat(String target, String namefrom) throws RemoteException {
-		for (int i : registry.getActiveChannels()) {
+	@Override
+	public void declineChat(final String target, final String namefrom) throws RemoteException {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.declineChat(target, namefrom);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void updateMessenger(int messengerid, String namefrom, int fromchannel) throws RemoteException {
+	@Override
+	public void updateMessenger(final int messengerid, final String namefrom, final int fromchannel) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		final int position = messenger.getPositionByName(namefrom);
-		for (int i : registry.getActiveChannels()) {
+		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
 				cwi.updateMessenger(messenger, namefrom, position, fromchannel);
-			} catch (RemoteException e) {
+			} catch (final RemoteException e) {
 				registry.deregisterChannelServer(i);
 			}
 		}
 	}
 
-	public void silentLeaveMessenger(int messengerid, MessengerMember target) throws RemoteException {
+	@Override
+	public void silentLeaveMessenger(final int messengerid, final MessengerMember target) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		if (messenger == null) {
 			throw new IllegalArgumentException("No messenger with the specified messengerid exists");
@@ -577,7 +606,8 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 		messenger.silentRemoveMember(target);
 	}
 
-	public void silentJoinMessenger(int messengerid, MessengerMember target, int position) throws RemoteException {
+	@Override
+	public void silentJoinMessenger(final int messengerid, final MessengerMember target, final int position) throws RemoteException {
 		final Messenger messenger = registry.getMessenger(messengerid);
 		if (messenger == null) {
 			throw new IllegalArgumentException("No messenger with the specified messengerid exists");
@@ -585,27 +615,33 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 		messenger.silentAddMember(target, position);
 	}
 
-	public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) throws RemoteException {
+	@Override
+	public void addBuffsToStorage(final int chrid, final List<PlayerBuffValueHolder> toStore) throws RemoteException {
 		registry.getPlayerBuffStorage().addBuffsToStorage(chrid, toStore);
 	}
 
-	public Collection<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) throws RemoteException {
+	@Override
+	public Collection<PlayerBuffValueHolder> getBuffsFromStorage(final int chrid) throws RemoteException {
 		return registry.getPlayerBuffStorage().getBuffsFromStorage(chrid);
 	}
 
-	public void addCooldownsToStorage(int chrid, List<PlayerCooldownValueHolder> toStore) throws RemoteException {
+	@Override
+	public void addCooldownsToStorage(final int chrid, final List<PlayerCooldownValueHolder> toStore) throws RemoteException {
 		registry.getPlayerBuffStorage().addCooldownsToStorage(chrid, toStore);
 	}
 
-	public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(int chrid) throws RemoteException {
+	@Override
+	public Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(final int chrid) throws RemoteException {
 		return registry.getPlayerBuffStorage().getCooldownsFromStorage(chrid);
 	}
 
-	public void addDiseaseToStorage(int chrid, List<PlayerDiseaseValueHolder> toStore) throws RemoteException {
+	@Override
+	public void addDiseaseToStorage(final int chrid, final List<PlayerDiseaseValueHolder> toStore) throws RemoteException {
 		registry.getPlayerBuffStorage().addDiseaseToStorage(chrid, toStore);
 	}
 
-	public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(int chrid) throws RemoteException {
+	@Override
+	public Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(final int chrid) throws RemoteException {
 		return registry.getPlayerBuffStorage().getDiseaseFromStorage(chrid);
 	}
 }

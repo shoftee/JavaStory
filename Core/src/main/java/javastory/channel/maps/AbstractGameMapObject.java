@@ -21,7 +21,7 @@ package javastory.channel.maps;
 import java.awt.Point;
 
 public abstract class AbstractGameMapObject implements GameMapObject {
-	private Point position = new Point();
+	private final Point position = new Point();
 	private int objectId;
 
 	@Override
@@ -29,22 +29,22 @@ public abstract class AbstractGameMapObject implements GameMapObject {
 
 	@Override
 	public Point getPosition() {
-		return new Point(position);
+		return new Point(this.position);
 	}
 
 	@Override
-	public void setPosition(Point position) {
+	public void setPosition(final Point position) {
 		this.position.x = position.x;
 		this.position.y = position.y;
 	}
 
 	@Override
 	public int getObjectId() {
-		return objectId;
+		return this.objectId;
 	}
 
 	@Override
-	public void setObjectId(int id) {
+	public void setObjectId(final int id) {
 		this.objectId = id;
 	}
 }

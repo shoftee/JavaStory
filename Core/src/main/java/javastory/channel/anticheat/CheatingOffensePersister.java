@@ -15,13 +15,13 @@ public class CheatingOffensePersister {
 		return instance;
 	}
 
-	public void persistEntry(CheatingOffenseEntry entry) {
-		mutex.lock();
+	public void persistEntry(final CheatingOffenseEntry entry) {
+		this.mutex.lock();
 		try {
-			persist.remove(entry); // equal/hashCode h4x
-			persist.add(entry);
+			this.persist.remove(entry); // equal/hashCode h4x
+			this.persist.add(entry);
 		} finally {
-			mutex.unlock();
+			this.mutex.unlock();
 		}
 	}
 }

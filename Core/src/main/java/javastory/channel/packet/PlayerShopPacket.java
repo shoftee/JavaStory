@@ -131,7 +131,7 @@ public final class PlayerShopPacket {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.PLAYER_INTERACTION.getValue());
-		PlayerShop ips = chr.getPlayerShop();
+		final PlayerShop ips = chr.getPlayerShop();
 
 		switch (ips.getShopType()) {
 		case 2:

@@ -67,10 +67,10 @@ public class MobHandler {
 					final long now = System.currentTimeMillis();
 					final long ls = monster.getLastSkillUsed(realskill);
 
-					if (ls == 0 || ((now - ls) > mobSkill.getCoolTime())) {
+					if (ls == 0 || now - ls > mobSkill.getCoolTime()) {
 						monster.setLastSkillUsed(realskill, now, mobSkill.getCoolTime());
 
-						final int reqHp = (int) (((float) monster.getHp() / monster.getMobMaxHp()) * 100);
+						final int reqHp = (int) ((float) monster.getHp() / monster.getMobMaxHp() * 100);
 						// In case this monster have 2.1b and above HP
 						if (reqHp <= mobSkill.getHP()) {
 							used = true;
@@ -125,7 +125,7 @@ public class MobHandler {
 		final Monster mobto = map.getMonsterByOid(reader.readInt());
 
 		if (mobfrom != null && mobto != null && mobto.getStats().isFriendly()) {
-			final int damage = (mobto.getStats().getLevel() * Randomizer.nextInt(99)) / 2; // Temp
+			final int damage = mobto.getStats().getLevel() * Randomizer.nextInt(99) / 2; // Temp
 																							// for
 																							// now
 																							// until

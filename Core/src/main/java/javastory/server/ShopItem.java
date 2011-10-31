@@ -2,25 +2,25 @@ package javastory.server;
 
 public class ShopItem {
 
-	private short buyable;
-	private int itemId;
-	private int price;
+	private final short buyable;
+	private final int itemId;
+	private final int price;
 
-	public ShopItem(short buyable, int itemId, int price) {
+	public ShopItem(final short buyable, final int itemId, final int price) {
 		this.buyable = buyable;
 		this.itemId = itemId;
 		this.price = price;
 	}
 
 	public short getBuyable() {
-		return buyable;
+		return this.buyable;
 	}
 
 	public int getItemId() {
-		return itemId;
+		return this.itemId;
 	}
 
 	public int getPrice() {
-		return price;
+		return this.price;
 	}
 }

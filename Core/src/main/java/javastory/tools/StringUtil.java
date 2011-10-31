@@ -41,7 +41,7 @@ public class StringUtil {
 	 * @return The padded string.
 	 */
 	public static final String getLeftPaddedStr(final String in, final char padchar, final int length) {
-		StringBuilder builder = new StringBuilder(length);
+		final StringBuilder builder = new StringBuilder(length);
 		for (int x = in.length(); x < length; x++) {
 			builder.append(padchar);
 		}
@@ -62,7 +62,7 @@ public class StringUtil {
 	 * @return The padded string.
 	 */
 	public static final String getRightPaddedStr(final String in, final char padchar, final int length) {
-		StringBuilder builder = new StringBuilder(in);
+		final StringBuilder builder = new StringBuilder(in);
 		for (int x = in.length(); x < length; x++) {
 			builder.append(padchar);
 		}
@@ -94,7 +94,7 @@ public class StringUtil {
 	 * @return The joined strings.
 	 */
 	public static final String joinStringFrom(final String arr[], final int start, final String sep) {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		for (int i = start; i < arr.length; i++) {
 			builder.append(arr[i]);
 			if (i != arr.length - 1) {
@@ -112,8 +112,8 @@ public class StringUtil {
 	 * @return The human-readable enum name.
 	 */
 	public static final String makeEnumHumanReadable(final String enumName) {
-		StringBuilder builder = new StringBuilder(enumName.length() + 1);
-		for (String word : enumName.split("_")) {
+		final StringBuilder builder = new StringBuilder(enumName.length() + 1);
+		for (final String word : enumName.split("_")) {
 			if (word.length() <= 2) {
 				builder.append(word); // assume that it's an abbrevation
 			} else {

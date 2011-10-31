@@ -35,7 +35,7 @@ public class MonsterCarnivalPacket {
 	 */
 
 	public static GamePacket startMonsterCarnival(final ChannelCharacter chr, final int enemyavailable, final int enemytotal) {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_START.getValue());
 		final CarnivalParty friendly = chr.getCarnivalParty();
@@ -52,8 +52,8 @@ public class MonsterCarnivalPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket playerDiedMessage(String name, int lostCP, int team) { // CPQ
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket playerDiedMessage(final String name, final int lostCP, final int team) { // CPQ
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_DIED.getValue());
 		builder.writeAsByte(team); // team
@@ -63,8 +63,8 @@ public class MonsterCarnivalPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket CPUpdate(boolean party, int curCP, int totalCP, int team) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket CPUpdate(final boolean party, final int curCP, final int totalCP, final int team) {
+		final PacketBuilder builder = new PacketBuilder();
 		if (!party) {
 			builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
 		} else {
@@ -77,8 +77,8 @@ public class MonsterCarnivalPacket {
 		return builder.getPacket();
 	}
 
-	public static GamePacket playerSummoned(String name, int tab, int number) {
-		PacketBuilder builder = new PacketBuilder();
+	public static GamePacket playerSummoned(final String name, final int tab, final int number) {
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MONSTER_CARNIVAL_SUMMON.getValue());
 		builder.writeAsByte(tab);

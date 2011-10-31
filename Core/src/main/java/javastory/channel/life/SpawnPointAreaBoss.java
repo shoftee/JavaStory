@@ -27,14 +27,14 @@ import javastory.tools.packets.ChannelPackets;
 
 public class SpawnPointAreaBoss extends Spawns {
 
-	private Monster monster;
-	private Point pos1;
-	private Point pos2;
-	private Point pos3;
+	private final Monster monster;
+	private final Point pos1;
+	private final Point pos2;
+	private final Point pos3;
 	private long nextPossibleSpawn;
-	private int mobTime;
-	private AtomicBoolean spawned = new AtomicBoolean(false);
-	private String msg;
+	private final int mobTime;
+	private final AtomicBoolean spawned = new AtomicBoolean(false);
+	private final String msg;
 
 	public SpawnPointAreaBoss(final Monster monster, final Point pos1, final Point pos2, final Point pos3, final int mobTime, final String msg) {
 		this.monster = monster;
@@ -48,7 +48,7 @@ public class SpawnPointAreaBoss extends Spawns {
 
 	@Override
 	public final Monster getMonster() {
-		return monster;
+		return this.monster;
 	}
 
 	@Override
@@ -58,37 +58,37 @@ public class SpawnPointAreaBoss extends Spawns {
 
 	@Override
 	public final boolean shouldSpawn() {
-		if (mobTime < 0) {
+		if (this.mobTime < 0) {
 			return false;
 		}
-		if (spawned.get()) {
+		if (this.spawned.get()) {
 			return false;
 		}
-		return nextPossibleSpawn <= System.currentTimeMillis();
+		return this.nextPossibleSpawn <= System.currentTimeMillis();
 	}
 
 	@Override
 	public final Monster spawnMonster(final GameMap map) {
-		final Monster mob = new Monster(monster);
+		final Monster mob = new Monster(this.monster);
 		final int rand = Randomizer.nextInt(3);
-		mob.setPosition(rand == 0 ? pos1 : rand == 1 ? pos2 : pos3);
-		spawned.set(true);
+		mob.setPosition(rand == 0 ? this.pos1 : rand == 1 ? this.pos2 : this.pos3);
+		this.spawned.set(true);
 		mob.addListener(new MonsterListener() {
 
 			@Override
 			public void monsterKilled() {
-				nextPossibleSpawn = System.currentTimeMillis();
+				SpawnPointAreaBoss.this.nextPossibleSpawn = System.currentTimeMillis();
 
-				if (mobTime > 0) {
-					nextPossibleSpawn += mobTime;
+				if (SpawnPointAreaBoss.this.mobTime > 0) {
+					SpawnPointAreaBoss.this.nextPossibleSpawn += SpawnPointAreaBoss.this.mobTime;
 				}
-				spawned.set(false);
+				SpawnPointAreaBoss.this.spawned.set(false);
 			}
 		});
 		map.spawnMonster(mob, -2);
 
-		if (msg != null) {
-			map.broadcastMessage(ChannelPackets.serverNotice(6, msg));
+		if (this.msg != null) {
+			map.broadcastMessage(ChannelPackets.serverNotice(6, this.msg));
 			// map.broadcastMessage(MaplePacketCreator.musicChange("Bgm04/WhiteChristmas_"));
 		}
 		return mob;

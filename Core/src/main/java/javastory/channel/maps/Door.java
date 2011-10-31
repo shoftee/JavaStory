@@ -32,20 +32,20 @@ import javastory.tools.packets.ChannelPackets;
 
 public class Door extends AbstractGameMapObject {
 
-	private ChannelCharacter owner;
-	private GameMap town;
+	private final ChannelCharacter owner;
+	private final GameMap town;
 	private Portal townPortal;
-	private GameMap target;
-	private Point targetPosition;
+	private final GameMap target;
+	private final Point targetPosition;
 
 	public Door(final ChannelCharacter owner, final Point targetPosition) {
 		super();
 		this.owner = owner;
 		this.target = owner.getMap();
 		this.targetPosition = targetPosition;
-		setPosition(this.targetPosition);
+		this.setPosition(this.targetPosition);
 		this.town = this.target.getReturnMap();
-		this.townPortal = getFreePortal();
+		this.townPortal = this.getFreePortal();
 	}
 
 	public Door(final Door origDoor) {
@@ -56,13 +56,13 @@ public class Door extends AbstractGameMapObject {
 		this.target = origDoor.target;
 		this.targetPosition = origDoor.targetPosition;
 		this.townPortal = origDoor.townPortal;
-		setPosition(townPortal.getPosition());
+		this.setPosition(this.townPortal.getPosition());
 	}
 
 	private Portal getFreePortal() {
 		final List<Portal> freePortals = new ArrayList<>();
 
-		for (final Portal port : town.getPortals()) {
+		for (final Portal port : this.town.getPortals()) {
 			if (port.getType() == 6) {
 				freePortals.add(port);
 			}
@@ -80,10 +80,10 @@ public class Door extends AbstractGameMapObject {
 				}
 			}
 		});
-		for (final GameMapObject obj : town.getAllDoor()) {
+		for (final GameMapObject obj : this.town.getAllDoor()) {
 			final Door door = (Door) obj;
 			final ChannelCharacter doorOwner = door.getOwner();
-			PartyMember doorOwnerMember = doorOwner.getPartyMembership();
+			final PartyMember doorOwnerMember = doorOwner.getPartyMembership();
 			if (doorOwnerMember != null) {
 				freePortals.remove(door.getTownPortal());
 			}
@@ -95,19 +95,19 @@ public class Door extends AbstractGameMapObject {
 	public final void sendSpawnData(final ChannelClient client) {
 		final ChannelCharacter clientPlayer = client.getPlayer();
 
-		final boolean isInDoorMap = target.getId() == clientPlayer.getMapId();
-		final boolean isOwner = owner == clientPlayer;
+		final boolean isInDoorMap = this.target.getId() == clientPlayer.getMapId();
+		final boolean isOwner = this.owner == clientPlayer;
 
-		final PartyMember ownerMember = owner.getPartyMembership();
+		final PartyMember ownerMember = this.owner.getPartyMembership();
 		final PartyMember clientMember = clientPlayer.getPartyMembership();
 
-		final Point doorPosition = town.getId() == clientPlayer.getMapId() ? townPortal.getPosition() : targetPosition;
+		final Point doorPosition = this.town.getId() == clientPlayer.getMapId() ? this.townPortal.getPosition() : this.targetPosition;
 		if (isInDoorMap) {
-			client.write(ChannelPackets.spawnDoor(owner.getId(), doorPosition, true));
+			client.write(ChannelPackets.spawnDoor(this.owner.getId(), doorPosition, true));
 			if (isOwner && ownerMember == null) {
-				client.write(ChannelPackets.spawnPortal(town.getId(), target.getId(), targetPosition));
+				client.write(ChannelPackets.spawnPortal(this.town.getId(), this.target.getId(), this.targetPosition));
 			} else if (ownerMember != null && clientMember.getPartyId() == ownerMember.getPartyId()) {
-				client.write(ChannelPackets.partyPortal(town.getId(), target.getId(), targetPosition));
+				client.write(ChannelPackets.partyPortal(this.town.getId(), this.target.getId(), this.targetPosition));
 			}
 		}
 	}
@@ -116,9 +116,9 @@ public class Door extends AbstractGameMapObject {
 	public final void sendDestroyData(final ChannelClient client) {
 		final ChannelCharacter clientPlayer = client.getPlayer();
 
-		final boolean isInDoorMap = target.getId() == clientPlayer.getMapId();
+		final boolean isInDoorMap = this.target.getId() == clientPlayer.getMapId();
 
-		final PartyMember ownerMember = owner.getPartyMembership();
+		final PartyMember ownerMember = this.owner.getPartyMembership();
 		final PartyMember clientMember = clientPlayer.getPartyMembership();
 
 		if (isInDoorMap) {
@@ -126,23 +126,23 @@ public class Door extends AbstractGameMapObject {
 				client.write(ChannelPackets.partyPortal(999999999, 999999999, new Point(-1, -1)));
 
 			}
-			client.write(ChannelPackets.removeDoor(owner.getId(), false));
-			client.write(ChannelPackets.removeDoor(owner.getId(), true));
+			client.write(ChannelPackets.removeDoor(this.owner.getId(), false));
+			client.write(ChannelPackets.removeDoor(this.owner.getId(), true));
 		}
 	}
 
 	public final void warp(final ChannelCharacter chr, final boolean toTown) {
-		PartyMember ownerMember = owner.getPartyMembership();
-		PartyMember clientMember = chr.getPartyMembership();
+		final PartyMember ownerMember = this.owner.getPartyMembership();
+		final PartyMember clientMember = chr.getPartyMembership();
 
-		final boolean isSameParty = (ownerMember != null && clientMember != null && ownerMember.getPartyId() == clientMember.getPartyId());
-		final boolean isOwner = owner == chr;
+		final boolean isSameParty = ownerMember != null && clientMember != null && ownerMember.getPartyId() == clientMember.getPartyId();
+		final boolean isOwner = this.owner == chr;
 
 		if (isOwner || isSameParty) {
 			if (!toTown) {
-				chr.changeMap(target, targetPosition);
+				chr.changeMap(this.target, this.targetPosition);
 			} else {
-				chr.changeMap(town, townPortal);
+				chr.changeMap(this.town, this.townPortal);
 			}
 		} else {
 			chr.getClient().write(ChannelPackets.enableActions());
@@ -150,23 +150,23 @@ public class Door extends AbstractGameMapObject {
 	}
 
 	public final ChannelCharacter getOwner() {
-		return owner;
+		return this.owner;
 	}
 
 	public final GameMap getTown() {
-		return town;
+		return this.town;
 	}
 
 	public final Portal getTownPortal() {
-		return townPortal;
+		return this.townPortal;
 	}
 
 	public final GameMap getTarget() {
-		return target;
+		return this.target;
 	}
 
 	public final Point getTargetPosition() {
-		return targetPosition;
+		return this.targetPosition;
 	}
 
 	@Override

@@ -34,12 +34,12 @@ public final class ItemInfoProvider {
 	private final WzDataProvider itemData = WzDataProviderFactory.getDataProvider("Item.wz");
 	private final WzDataProvider equipData = WzDataProviderFactory.getDataProvider("Character.wz");
 	private final WzDataProvider stringData = WzDataProviderFactory.getDataProvider("String.wz");
-	private final WzData cashStringData = stringData.getData("Cash.img");
-	private final WzData consumeStringData = stringData.getData("Consume.img");
-	private final WzData eqpStringData = stringData.getData("Eqp.img");
-	private final WzData etcStringData = stringData.getData("Etc.img");
-	private final WzData insStringData = stringData.getData("Ins.img");
-	private final WzData petStringData = stringData.getData("Pet.img");
+	private final WzData cashStringData = this.stringData.getData("Cash.img");
+	private final WzData consumeStringData = this.stringData.getData("Consume.img");
+	private final WzData eqpStringData = this.stringData.getData("Eqp.img");
+	private final WzData etcStringData = this.stringData.getData("Etc.img");
+	private final WzData insStringData = this.stringData.getData("Ins.img");
+	private final WzData petStringData = this.stringData.getData("Pet.img");
 	//
 	private final Map<Integer, Short> slotMaxCache = new HashMap<>();
 	private final Map<Integer, StatEffect> itemEffects = new HashMap<>();
@@ -75,27 +75,27 @@ public final class ItemInfoProvider {
 	}
 
 	public final List<IdNameEntry> getAllItems() {
-		if (!itemNameCache.isEmpty()) {
-			return itemNameCache;
+		if (!this.itemNameCache.isEmpty()) {
+			return this.itemNameCache;
 		}
 		final List<IdNameEntry> itemPairs = new ArrayList<>();
 		WzData itemsData;
 
-		itemsData = stringData.getData("Cash.img");
+		itemsData = this.stringData.getData("Cash.img");
 		for (final WzData itemFolder : itemsData.getChildren()) {
 			final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
 
 			itemPairs.add(entry);
 		}
 
-		itemsData = stringData.getData("Consume.img");
+		itemsData = this.stringData.getData("Consume.img");
 		for (final WzData itemFolder : itemsData.getChildren()) {
 			final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
 
 			itemPairs.add(entry);
 		}
 
-		itemsData = stringData.getData("Eqp.img").getChildByPath("Eqp");
+		itemsData = this.stringData.getData("Eqp.img").getChildByPath("Eqp");
 		for (final WzData eqpType : itemsData.getChildren()) {
 			for (final WzData itemFolder : eqpType.getChildren()) {
 				final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
@@ -104,19 +104,19 @@ public final class ItemInfoProvider {
 			}
 		}
 
-		itemsData = stringData.getData("Etc.img").getChildByPath("Etc");
+		itemsData = this.stringData.getData("Etc.img").getChildByPath("Etc");
 		for (final WzData itemFolder : itemsData.getChildren()) {
 			final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
 			itemPairs.add(entry);
 		}
 
-		itemsData = stringData.getData("Ins.img");
+		itemsData = this.stringData.getData("Ins.img");
 		for (final WzData itemFolder : itemsData.getChildren()) {
 			final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
 			itemPairs.add(entry);
 		}
 
-		itemsData = stringData.getData("Pet.img");
+		itemsData = this.stringData.getData("Pet.img");
 		for (final WzData itemFolder : itemsData.getChildren()) {
 			final IdNameEntry entry = new IdNameEntry(Integer.parseInt(itemFolder.getName()), WzDataTool.getString("name", itemFolder, "NO-NAME"));
 			itemPairs.add(entry);
@@ -129,60 +129,60 @@ public final class ItemInfoProvider {
 		WzData data;
 
 		if (itemId >= 5010000) {
-			data = cashStringData;
+			data = this.cashStringData;
 		} else if (itemId >= 2000000 && itemId < 3000000) {
-			data = consumeStringData;
+			data = this.consumeStringData;
 		} else if (itemId >= 1142000 && itemId < 1143000 || itemId >= 1010000 && itemId < 1040000 || itemId >= 1122000 && itemId < 1123000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Accessory";
 		} else if (itemId >= 1000000 && itemId < 1010000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Cap";
 		} else if (itemId >= 1102000 && itemId < 1103000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Cape";
 		} else if (itemId >= 1040000 && itemId < 1050000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Coat";
 		} else if (itemId >= 20000 && itemId < 22000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Face";
 		} else if (itemId >= 1080000 && itemId < 1090000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Glove";
 		} else if (itemId >= 30000 && itemId < 32000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Hair";
 		} else if (itemId >= 1050000 && itemId < 1060000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Longcoat";
 		} else if (itemId >= 1060000 && itemId < 1070000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Pants";
 		} else if (itemId >= 1802000 && itemId < 1810000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "PetEquip";
 		} else if (itemId >= 1112000 && itemId < 1120000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Ring";
 		} else if (itemId >= 1092000 && itemId < 1100000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Shield";
 		} else if (itemId >= 1070000 && itemId < 1080000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Shoes";
 		} else if (itemId >= 1900000 && itemId < 2000000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Taming";
 		} else if (itemId >= 1300000 && itemId < 1800000) {
-			data = eqpStringData;
+			data = this.eqpStringData;
 			cat = "Weapon";
 		} else if (itemId >= 4000000 && itemId < 5000000) {
-			data = etcStringData;
+			data = this.etcStringData;
 		} else if (itemId >= 3000000 && itemId < 4000000) {
-			data = insStringData;
+			data = this.insStringData;
 		} else if (itemId >= 5000000 && itemId < 5010000) {
-			data = petStringData;
+			data = this.petStringData;
 		} else {
 			return null;
 		}
@@ -196,27 +196,27 @@ public final class ItemInfoProvider {
 	private WzData getItemData(final int itemId) {
 		WzData ret = null;
 		final String idStr = "0" + String.valueOf(itemId);
-		WzDataDirectoryEntry root = itemData.getRoot();
+		WzDataDirectoryEntry root = this.itemData.getRoot();
 		for (final WzDataDirectoryEntry topDir : root.getSubdirectories()) {
 			// we should have .img files here beginning with the first 4 IID
 			for (final WzDataFileEntry iFile : topDir.getFiles()) {
 				if (iFile.getName().equals(idStr.substring(0, 4) + ".img")) {
-					ret = itemData.getData(topDir.getName() + "/" + iFile.getName());
+					ret = this.itemData.getData(topDir.getName() + "/" + iFile.getName());
 					if (ret == null) {
 						return null;
 					}
 					ret = ret.getChildByPath(idStr);
 					return ret;
 				} else if (iFile.getName().equals(idStr.substring(1) + ".img")) {
-					return itemData.getData(topDir.getName() + "/" + iFile.getName());
+					return this.itemData.getData(topDir.getName() + "/" + iFile.getName());
 				}
 			}
 		}
-		root = equipData.getRoot();
+		root = this.equipData.getRoot();
 		for (final WzDataDirectoryEntry topDir : root.getSubdirectories()) {
 			for (final WzDataFileEntry iFile : topDir.getFiles()) {
 				if (iFile.getName().equals(idStr + ".img")) {
-					return equipData.getData(topDir.getName() + "/" + iFile.getName());
+					return this.equipData.getData(topDir.getName() + "/" + iFile.getName());
 				}
 			}
 		}
@@ -225,11 +225,11 @@ public final class ItemInfoProvider {
 
 	/** returns the maximum of items in one slot */
 	public final short getSlotMax(final int itemId) {
-		if (slotMaxCache.containsKey(itemId)) {
-			return slotMaxCache.get(itemId);
+		if (this.slotMaxCache.containsKey(itemId)) {
+			return this.slotMaxCache.get(itemId);
 		}
 		short ret = 0;
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item != null) {
 			final WzData smEntry = item.getChildByPath("info/slotMax");
 			if (smEntry == null) {
@@ -242,15 +242,15 @@ public final class ItemInfoProvider {
 				ret = (short) WzDataTool.getInt(smEntry);
 			}
 		}
-		slotMaxCache.put(itemId, ret);
+		this.slotMaxCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final int getWholePrice(final int itemId) {
-		if (wholePriceCache.containsKey(itemId)) {
-			return wholePriceCache.get(itemId);
+		if (this.wholePriceCache.containsKey(itemId)) {
+			return this.wholePriceCache.get(itemId);
 		}
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return -1;
 		}
@@ -261,15 +261,15 @@ public final class ItemInfoProvider {
 		}
 		pEntry = WzDataTool.getInt(pData);
 
-		wholePriceCache.put(itemId, pEntry);
+		this.wholePriceCache.put(itemId, pEntry);
 		return pEntry;
 	}
 
 	public final double getPrice(final int itemId) {
-		if (priceCache.containsKey(itemId)) {
-			return priceCache.get(itemId);
+		if (this.priceCache.containsKey(itemId)) {
+			return this.priceCache.get(itemId);
 		}
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return -1;
 		}
@@ -278,7 +278,7 @@ public final class ItemInfoProvider {
 		if (pData != null) {
 			try {
 				pEntry = WzDataTool.getDouble(pData);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				pEntry = WzDataTool.getInt(pData);
 			}
 		} else {
@@ -291,15 +291,15 @@ public final class ItemInfoProvider {
 		if (itemId == 2070019 || itemId == 2330007) {
 			pEntry = 1.0;
 		}
-		priceCache.put(itemId, pEntry);
+		this.priceCache.put(itemId, pEntry);
 		return pEntry;
 	}
 
 	public final List<EquipLevelInfo> getEquipLevelStat(final int itemid, final byte level) {
-		if (equipLevelCache.containsKey(itemid)) {
-			return equipLevelCache.get(itemid);
+		if (this.equipLevelCache.containsKey(itemid)) {
+			return this.equipLevelCache.get(itemid);
 		}
-		final WzData item = getItemData(itemid);
+		final WzData item = this.getItemData(itemid);
 		if (item == null) {
 			return null;
 		}
@@ -332,19 +332,19 @@ public final class ItemInfoProvider {
 
 			el.add(sel);
 		}
-		equipLevelCache.put(itemid, el);
+		this.equipLevelCache.put(itemid, el);
 		return el;
 	}
 
 	public final Map<String, Byte> getItemMakeStats(final int itemId) {
-		if (itemMakeStatsCache.containsKey(itemId)) {
-			return itemMakeStatsCache.get(itemId);
+		if (this.itemMakeStatsCache.containsKey(itemId)) {
+			return this.itemMakeStatsCache.get(itemId);
 		}
 		if (itemId / 10000 != 425) {
 			return null;
 		}
 		final Map<String, Byte> ret = new LinkedHashMap<>();
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return null;
 		}
@@ -368,16 +368,16 @@ public final class ItemInfoProvider {
 		ret.put("randOption", (byte) WzDataTool.getInt("randOption", info, 0)); // Black Crystal Wa/MA
 		ret.put("randStat", (byte) WzDataTool.getInt("randStat", info, 0)); // Dark Crystal - Str/Dex/int/Luk
 
-		itemMakeStatsCache.put(itemId, ret);
+		this.itemMakeStatsCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final Map<String, Integer> getEquipStats(final int itemId) {
-		if (equipStatsCache.containsKey(itemId)) {
-			return equipStatsCache.get(itemId);
+		if (this.equipStatsCache.containsKey(itemId)) {
+			return this.equipStatsCache.get(itemId);
 		}
 		final Map<String, Integer> ret = new LinkedHashMap<>();
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return null;
 		}
@@ -412,7 +412,7 @@ public final class ItemInfoProvider {
 			ret.put("incRMAI", WzDataTool.getInt("incRMAI", info, 100)); // Ice
 		}
 
-		equipStatsCache.put(itemId, ret);
+		this.equipStatsCache.put(itemId, ret);
 		return ret;
 	}
 
@@ -430,12 +430,12 @@ public final class ItemInfoProvider {
 	}
 
 	public final int getReqLevel(final int itemId) {
-		return getEquipStats(itemId).get("reqLevel");
+		return this.getEquipStats(itemId).get("reqLevel");
 	}
 
 	public final List<Integer> getScrollReqs(final int itemId) {
 		final List<Integer> ret = new ArrayList<>();
-		final WzData data = getItemData(itemId).getChildByPath("req");
+		final WzData data = this.getItemData(itemId).getChildByPath("req");
 
 		if (data == null) {
 			return ret;
@@ -449,8 +449,8 @@ public final class ItemInfoProvider {
 	public final IItem scrollEquipWithId(final IItem equipItem, final int scrollId, final boolean ws) {
 		if (equipItem.getType() == ItemType.EQUIP) {
 			final Equip equip = (Equip) equipItem;
-			final Map<String, Integer> stats = getEquipStats(scrollId);
-			final Map<String, Integer> eqstats = getEquipStats(equip.getItemId());
+			final Map<String, Integer> stats = this.getEquipStats(scrollId);
+			final Map<String, Integer> eqstats = this.getEquipStats(equip.getItemId());
 
 			if (Randomizer.nextInt(100) <= stats.get("success")) {
 				switch (scrollId) {
@@ -482,10 +482,10 @@ public final class ItemInfoProvider {
 				case 2049102: // Maple Syrup
 				case 2049104: // Angent Equipmenet scroll
 				case 2049103:
-					setRandomStats(equip);
+					this.setRandomStats(equip);
 					break;
 				default:
-					setDefaultStats(stats, equip);
+					this.setDefaultStats(stats, equip);
 					break;
 				}
 				if (!GameConstants.isCleanSlate(scrollId) && !GameConstants.isSpecialScroll(scrollId)) {
@@ -505,7 +505,7 @@ public final class ItemInfoProvider {
 	}
 
 	private void setDefaultStats(final Map<String, Integer> stats, final Equip equip) {
-		for (Entry<String, Integer> stat : stats.entrySet()) {
+		for (final Entry<String, Integer> stat : stats.entrySet()) {
 			final String key = stat.getKey();
 			switch (key) {
 			case "STR":
@@ -604,15 +604,15 @@ public final class ItemInfoProvider {
 	}
 
 	public final IItem getEquipById(final int equipId) {
-		return getEquipById(equipId, -1);
+		return this.getEquipById(equipId, -1);
 	}
 
 	public final IItem getEquipById(final int equipId, final int ringId) {
 		final Equip nEquip = new Equip(equipId, (byte) 0, ringId, (byte) 0);
 		nEquip.setQuantity((short) 1);
-		final Map<String, Integer> stats = getEquipStats(equipId);
+		final Map<String, Integer> stats = this.getEquipStats(equipId);
 		if (stats != null) {
-			for (Entry<String, Integer> stat : stats.entrySet()) {
+			for (final Entry<String, Integer> stat : stats.entrySet()) {
 				final String key = stat.getKey();
 				final int statValue = stat.getValue().intValue();
 				switch (key) {
@@ -667,7 +667,7 @@ public final class ItemInfoProvider {
 				}
 			}
 		}
-		equipCache.put(equipId, nEquip);
+		this.equipCache.put(equipId, nEquip);
 		return nEquip.copy();
 	}
 
@@ -678,49 +678,49 @@ public final class ItemInfoProvider {
 		// vary no more than ceil of 10% of stat
 		final int lMaxRange = (int) Math.min(Math.ceil(defaultValue * 0.1), maxRange);
 
-		return (short) ((defaultValue - lMaxRange) + Math.floor(Math.random() * (lMaxRange * 2 + 1)));
+		return (short) (defaultValue - lMaxRange + Math.floor(Math.random() * (lMaxRange * 2 + 1)));
 	}
 
 	public final Equip randomizeStats(final Equip equip) {
-		equip.setStr(getRandStat(equip.getStr(), 5));
-		equip.setDex(getRandStat(equip.getDex(), 5));
-		equip.setInt(getRandStat(equip.getInt(), 5));
-		equip.setLuk(getRandStat(equip.getLuk(), 5));
-		equip.setMatk(getRandStat(equip.getMatk(), 5));
-		equip.setWatk(getRandStat(equip.getWatk(), 5));
-		equip.setAcc(getRandStat(equip.getAcc(), 5));
-		equip.setAvoid(getRandStat(equip.getAvoid(), 5));
-		equip.setJump(getRandStat(equip.getJump(), 5));
-		equip.setHands(getRandStat(equip.getHands(), 5));
-		equip.setSpeed(getRandStat(equip.getSpeed(), 5));
-		equip.setWdef(getRandStat(equip.getWdef(), 10));
-		equip.setMdef(getRandStat(equip.getMdef(), 10));
-		equip.setHp(getRandStat(equip.getHp(), 10));
-		equip.setMp(getRandStat(equip.getMp(), 10));
+		equip.setStr(this.getRandStat(equip.getStr(), 5));
+		equip.setDex(this.getRandStat(equip.getDex(), 5));
+		equip.setInt(this.getRandStat(equip.getInt(), 5));
+		equip.setLuk(this.getRandStat(equip.getLuk(), 5));
+		equip.setMatk(this.getRandStat(equip.getMatk(), 5));
+		equip.setWatk(this.getRandStat(equip.getWatk(), 5));
+		equip.setAcc(this.getRandStat(equip.getAcc(), 5));
+		equip.setAvoid(this.getRandStat(equip.getAvoid(), 5));
+		equip.setJump(this.getRandStat(equip.getJump(), 5));
+		equip.setHands(this.getRandStat(equip.getHands(), 5));
+		equip.setSpeed(this.getRandStat(equip.getSpeed(), 5));
+		equip.setWdef(this.getRandStat(equip.getWdef(), 10));
+		equip.setMdef(this.getRandStat(equip.getMdef(), 10));
+		equip.setHp(this.getRandStat(equip.getHp(), 10));
+		equip.setMp(this.getRandStat(equip.getMp(), 10));
 		return equip;
 	}
 
 	public final StatEffect getItemEffect(final int itemId) {
-		StatEffect ret = itemEffects.get(Integer.valueOf(itemId));
+		StatEffect ret = this.itemEffects.get(Integer.valueOf(itemId));
 		if (ret == null) {
-			final WzData item = getItemData(itemId);
+			final WzData item = this.getItemData(itemId);
 			if (item == null) {
 				return null;
 			}
 			ret = StatEffect.loadItemEffectFromData(item.getChildByPath("spec"), itemId);
-			itemEffects.put(Integer.valueOf(itemId), ret);
+			this.itemEffects.put(Integer.valueOf(itemId), ret);
 		}
 		return ret;
 	}
 
 	public final List<IdProbabilityEntry> getSummonMobs(final int itemId) {
-		if (summonMobCache.containsKey(Integer.valueOf(itemId))) {
-			return summonMobCache.get(itemId);
+		if (this.summonMobCache.containsKey(Integer.valueOf(itemId))) {
+			return this.summonMobCache.get(itemId);
 		}
 		if (!GameConstants.isSummonSack(itemId)) {
 			return null;
 		}
-		final WzData data = getItemData(itemId).getChildByPath("mob");
+		final WzData data = this.getItemData(itemId).getChildByPath("mob");
 		if (data == null) {
 			return null;
 		}
@@ -729,7 +729,7 @@ public final class ItemInfoProvider {
 		for (final WzData child : data.getChildren()) {
 			mobPairs.add(new IdProbabilityEntry(WzDataTool.getIntConvert("id", child), WzDataTool.getIntConvert("prob", child)));
 		}
-		summonMobCache.put(itemId, mobPairs);
+		this.summonMobCache.put(itemId, mobPairs);
 		return mobPairs;
 	}
 
@@ -737,153 +737,153 @@ public final class ItemInfoProvider {
 		if (id == 0) {
 			return 0;
 		}
-		if (monsterBookID.containsKey(id)) {
-			return monsterBookID.get(id);
+		if (this.monsterBookID.containsKey(id)) {
+			return this.monsterBookID.get(id);
 		}
-		final WzData data = getItemData(id);
+		final WzData data = this.getItemData(id);
 		final int monsterid = WzDataTool.getIntConvert("info/mob", data, 0);
 
 		if (monsterid == 0) { // Hack.
 			return 0;
 		}
-		monsterBookID.put(id, monsterid);
-		return monsterBookID.get(id);
+		this.monsterBookID.put(id, monsterid);
+		return this.monsterBookID.get(id);
 	}
 
 	public final int getWatkForProjectile(final int itemId) {
-		Integer atk = projectileWatkCache.get(itemId);
+		Integer atk = this.projectileWatkCache.get(itemId);
 		if (atk != null) {
 			return atk.intValue();
 		}
-		final WzData data = getItemData(itemId);
+		final WzData data = this.getItemData(itemId);
 		atk = Integer.valueOf(WzDataTool.getInt("info/incPAD", data, 0));
-		projectileWatkCache.put(itemId, atk);
+		this.projectileWatkCache.put(itemId, atk);
 		return atk.intValue();
 	}
 
 	public final boolean canScroll(final int scrollId, final int itemId) {
-		return (scrollId / 100) % 100 == (itemId / 10000) % 100;
+		return scrollId / 100 % 100 == itemId / 10000 % 100;
 	}
 
 	public final String getName(final int itemId) {
-		if (nameCache.containsKey(itemId)) {
-			return nameCache.get(itemId);
+		if (this.nameCache.containsKey(itemId)) {
+			return this.nameCache.get(itemId);
 		}
-		final WzData strings = getStringData(itemId);
+		final WzData strings = this.getStringData(itemId);
 		if (strings == null) {
 			return null;
 		}
 		final String ret = WzDataTool.getString("name", strings, null);
-		nameCache.put(itemId, ret);
+		this.nameCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final String getDesc(final int itemId) {
-		if (descCache.containsKey(itemId)) {
-			return descCache.get(itemId);
+		if (this.descCache.containsKey(itemId)) {
+			return this.descCache.get(itemId);
 		}
-		final WzData strings = getStringData(itemId);
+		final WzData strings = this.getStringData(itemId);
 		if (strings == null) {
 			return null;
 		}
 		final String ret = WzDataTool.getString("desc", strings, null);
-		descCache.put(itemId, ret);
+		this.descCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final String getMsg(final int itemId) {
-		if (msgCache.containsKey(itemId)) {
-			return msgCache.get(itemId);
+		if (this.msgCache.containsKey(itemId)) {
+			return this.msgCache.get(itemId);
 		}
-		final WzData strings = getStringData(itemId);
+		final WzData strings = this.getStringData(itemId);
 		if (strings == null) {
 			return null;
 		}
 		final String ret = WzDataTool.getString("msg", strings, null);
-		msgCache.put(itemId, ret);
+		this.msgCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final short getItemMakeLevel(final int itemId) {
-		if (itemMakeLevel.containsKey(itemId)) {
-			return itemMakeLevel.get(itemId);
+		if (this.itemMakeLevel.containsKey(itemId)) {
+			return this.itemMakeLevel.get(itemId);
 		}
 		if (itemId / 10000 != 400) {
 			return 0;
 		}
-		final short lvl = (short) WzDataTool.getIntConvert("info/lv", getItemData(itemId), 0);
-		itemMakeLevel.put(itemId, lvl);
+		final short lvl = (short) WzDataTool.getIntConvert("info/lv", this.getItemData(itemId), 0);
+		this.itemMakeLevel.put(itemId, lvl);
 		return lvl;
 	}
 
 	public final ItemConsumeType isConsumeOnPickup(final int itemId) {
 		// 0 = not, 1 = consume on pickup, 2 = consume + party
-		if (consumeOnPickupCache.containsKey(itemId)) {
-			return consumeOnPickupCache.get(itemId);
+		if (this.consumeOnPickupCache.containsKey(itemId)) {
+			return this.consumeOnPickupCache.get(itemId);
 		}
-		final WzData data = getItemData(itemId);
+		final WzData data = this.getItemData(itemId);
 		byte consume = (byte) WzDataTool.getIntConvert("spec/consumeOnPickup", data, 0);
 		if (consume == 0) {
 			consume = (byte) WzDataTool.getIntConvert("specEx/consumeOnPickup", data, 0);
 		}
 		if (consume == 1) {
-			if (WzDataTool.getIntConvert("spec/party", getItemData(itemId), 0) > 0) {
+			if (WzDataTool.getIntConvert("spec/party", this.getItemData(itemId), 0) > 0) {
 				consume = 2;
 			}
 		}
-		ItemConsumeType type = ItemConsumeType.fromNumber(consume);
-		consumeOnPickupCache.put(itemId, type);
+		final ItemConsumeType type = ItemConsumeType.fromNumber(consume);
+		this.consumeOnPickupCache.put(itemId, type);
 		return type;
 	}
 
 	public final boolean isDropRestricted(final int itemId) {
-		if (dropRestrictionCache.containsKey(itemId)) {
-			return dropRestrictionCache.get(itemId);
+		if (this.dropRestrictionCache.containsKey(itemId)) {
+			return this.dropRestrictionCache.get(itemId);
 		}
-		final WzData data = getItemData(itemId);
+		final WzData data = this.getItemData(itemId);
 
 		boolean trade = false;
 		if (WzDataTool.getIntConvert("info/tradeBlock", data, 0) == 1 || WzDataTool.getIntConvert("info/quest", data, 0) == 1) {
 			trade = true;
 		}
-		dropRestrictionCache.put(itemId, trade);
+		this.dropRestrictionCache.put(itemId, trade);
 		return trade;
 	}
 
 	public final boolean isPickupRestricted(final int itemId) {
-		if (pickupRestrictionCache.containsKey(itemId)) {
-			return pickupRestrictionCache.get(itemId);
+		if (this.pickupRestrictionCache.containsKey(itemId)) {
+			return this.pickupRestrictionCache.get(itemId);
 		}
-		final boolean isRestricted = WzDataTool.getIntConvert("info/only", getItemData(itemId), 0) == 1;
+		final boolean isRestricted = WzDataTool.getIntConvert("info/only", this.getItemData(itemId), 0) == 1;
 
-		pickupRestrictionCache.put(itemId, isRestricted);
+		this.pickupRestrictionCache.put(itemId, isRestricted);
 		return isRestricted;
 	}
 
 	public final int getStateChangeItem(final int itemId) {
-		if (stateChangeCache.containsKey(itemId)) {
-			return stateChangeCache.get(itemId);
+		if (this.stateChangeCache.containsKey(itemId)) {
+			return this.stateChangeCache.get(itemId);
 		}
-		final int triggerItem = WzDataTool.getIntConvert("info/stateChangeItem", getItemData(itemId), 0);
-		stateChangeCache.put(itemId, triggerItem);
+		final int triggerItem = WzDataTool.getIntConvert("info/stateChangeItem", this.getItemData(itemId), 0);
+		this.stateChangeCache.put(itemId, triggerItem);
 		return triggerItem;
 	}
 
 	public final boolean isKarmaEnabled(final int itemId, final int karmaID) {
-		if (karmaEnabledCache.containsKey(itemId)) {
-			return karmaEnabledCache.get(itemId) == (karmaID % 10 + 1);
+		if (this.karmaEnabledCache.containsKey(itemId)) {
+			return this.karmaEnabledCache.get(itemId) == karmaID % 10 + 1;
 		}
-		final int bRestricted = WzDataTool.getIntConvert("info/tradeAvailable", getItemData(itemId), 0);
+		final int bRestricted = WzDataTool.getIntConvert("info/tradeAvailable", this.getItemData(itemId), 0);
 
-		karmaEnabledCache.put(itemId, bRestricted);
-		return bRestricted == (karmaID % 10 + 1);
+		this.karmaEnabledCache.put(itemId, bRestricted);
+		return bRestricted == karmaID % 10 + 1;
 	}
 
 	public final Pair<Integer, List<RewardItemInfo>> getRewardItem(final int itemid) {
-		if (RewardItem.containsKey(itemid)) {
-			return RewardItem.get(itemid);
+		if (this.RewardItem.containsKey(itemid)) {
+			return this.RewardItem.get(itemid);
 		}
-		final WzData data = getItemData(itemid);
+		final WzData data = this.getItemData(itemid);
 		if (data == null) {
 			return null;
 		}
@@ -892,10 +892,10 @@ public final class ItemInfoProvider {
 			return null;
 		}
 		int totalprob = 0; // As there are some rewards with prob above 2000, we can't assume it's always 100
-		List<RewardItemInfo> all = new ArrayList<RewardItemInfo>();
+		final List<RewardItemInfo> all = new ArrayList<RewardItemInfo>();
 
 		for (final WzData reward : rewards) {
-			RewardItemInfo struct = new RewardItemInfo();
+			final RewardItemInfo struct = new RewardItemInfo();
 
 			struct.itemid = WzDataTool.getInt("item", reward, 0);
 			struct.prob = (byte) WzDataTool.getInt("prob", reward, 0);
@@ -908,19 +908,19 @@ public final class ItemInfoProvider {
 
 			all.add(struct);
 		}
-		Pair<Integer, List<RewardItemInfo>> toreturn = new Pair<Integer, List<RewardItemInfo>>(totalprob, all);
-		RewardItem.put(itemid, toreturn);
+		final Pair<Integer, List<RewardItemInfo>> toreturn = new Pair<Integer, List<RewardItemInfo>>(totalprob, all);
+		this.RewardItem.put(itemid, toreturn);
 		return toreturn;
 	}
 
 	public final Map<String, Integer> getSkillStats(final int itemId) {
-		if (SkillStatsCache.containsKey(itemId)) {
-			return SkillStatsCache.get(itemId);
+		if (this.SkillStatsCache.containsKey(itemId)) {
+			return this.SkillStatsCache.get(itemId);
 		}
 		if (!(itemId / 10000 == 228 || itemId / 10000 == 229)) { // Skillbook and mastery book
 			return null;
 		}
-		final WzData item = getItemData(itemId);
+		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return null;
 		}
@@ -943,15 +943,15 @@ public final class ItemInfoProvider {
 		for (int i = 0; i < skill.getChildren().size(); i++) { // List of allowed skillIds
 			ret.put("skillid" + i, WzDataTool.getInt(Integer.toString(i), skill, 0));
 		}
-		SkillStatsCache.put(itemId, ret);
+		this.SkillStatsCache.put(itemId, ret);
 		return ret;
 	}
 
 	public final List<Integer> petsCanConsume(final int itemId) {
 		final List<Integer> ret = new ArrayList<>();
-		final WzData data = getItemData(itemId);
+		final WzData data = this.getItemData(itemId);
 		int curPetId = 0;
-		int size = data.getChildren().size();
+		final int size = data.getChildren().size();
 		for (int i = 0; i < size; i++) {
 			curPetId = WzDataTool.getInt("spec/" + Integer.toString(i), data, 0);
 			if (curPetId == 0) {
@@ -963,22 +963,22 @@ public final class ItemInfoProvider {
 	}
 
 	public final boolean isQuestItem(final int itemId) {
-		if (isQuestItemCache.containsKey(itemId)) {
-			return isQuestItemCache.get(itemId);
+		if (this.isQuestItemCache.containsKey(itemId)) {
+			return this.isQuestItemCache.get(itemId);
 		}
-		final boolean questItem = WzDataTool.getIntConvert("info/quest", getItemData(itemId), 0) == 1;
-		isQuestItemCache.put(itemId, questItem);
+		final boolean questItem = WzDataTool.getIntConvert("info/quest", this.getItemData(itemId), 0) == 1;
+		this.isQuestItemCache.put(itemId, questItem);
 		return questItem;
 	}
 
 	public final boolean isCash(final int itemid) {
-		if (getEquipStats(itemid) == null) {
+		if (this.getEquipStats(itemid) == null) {
 			return GameConstants.getInventoryType(itemid) == InventoryType.CASH;
 		}
-		return GameConstants.getInventoryType(itemid) == InventoryType.CASH || getEquipStats(itemid).get("cash") > 0;
+		return GameConstants.getInventoryType(itemid) == InventoryType.CASH || this.getEquipStats(itemid).get("cash") > 0;
 	}
 
-	public Equip hardcoreItem(Equip equip, short stat) {
+	public Equip hardcoreItem(final Equip equip, final short stat) {
 		equip.setStr(stat);
 		equip.setDex(stat);
 		equip.setInt(stat);

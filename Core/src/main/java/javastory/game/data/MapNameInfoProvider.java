@@ -13,15 +13,15 @@ public final class MapNameInfoProvider {
 
 	private final class MapNameLoader extends CacheLoader<Integer, MapNameInfo> {
 		@Override
-		public MapNameInfo load(Integer mapId) throws Exception {
-			final String path = getMapAreaDataPath(mapId.intValue());
+		public MapNameInfo load(final Integer mapId) throws Exception {
+			final String path = MapNameInfoProvider.this.getMapAreaDataPath(mapId.intValue());
 			final WzData data = nameData.getChildByPath(path);
 
 			if (data == null) {
 				return null;
 			}
 
-			MapNameInfo info = new MapNameInfo(data);
+			final MapNameInfo info = new MapNameInfo(data);
 			return info;
 		}
 	}
@@ -42,8 +42,8 @@ public final class MapNameInfoProvider {
 		return instance;
 	}
 
-	private String getMapAreaDataPath(int mapId) {
-		StringBuilder builder = new StringBuilder();
+	private String getMapAreaDataPath(final int mapId) {
+		final StringBuilder builder = new StringBuilder();
 		if (mapId < 100_000_000) {
 			builder.append("maple");
 		} else if (mapId >= 100_000_000 && mapId < 200_000_000) {

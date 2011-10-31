@@ -29,7 +29,7 @@ public class BuffStatValueHolder {
 	public int value;
 	public ScheduledFuture<?> schedule;
 
-	public BuffStatValueHolder(StatEffect effect, long startTime, ScheduledFuture<?> schedule, int value) {
+	public BuffStatValueHolder(final StatEffect effect, final long startTime, final ScheduledFuture<?> schedule, final int value) {
 		super();
 		this.effect = effect;
 		this.startTime = startTime;

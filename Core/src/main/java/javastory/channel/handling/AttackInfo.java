@@ -35,14 +35,14 @@ public class AttackInfo {
 	public byte hits, targets, tbyte, display, animation, speed, csstar, AOE, slot;
 
 	public final StatEffect getAttackEffect(final ChannelCharacter chr, int skillLevel, final ISkill skill_) {
-		if (Skills.isMulungSkill(skill)) {
+		if (Skills.isMulungSkill(this.skill)) {
 			skillLevel = 1;
 		} else if (skillLevel == 0) {
 			return null;
 		}
-		if (Skills.isLinkedAranSkill(skill)) {
-			final ISkill skillLink = SkillFactory.getSkill(skill);
-			if (display > 80) {
+		if (Skills.isLinkedAranSkill(this.skill)) {
+			final ISkill skillLink = SkillFactory.getSkill(this.skill);
+			if (this.display > 80) {
 				if (!skillLink.getAction()) {
 					// AutobanManager.getInstance().autoban(chr.getClient(),
 					// "No delay hack, SkillID : " + skill);
@@ -51,7 +51,7 @@ public class AttackInfo {
 			}
 			return skillLink.getEffect(chr, skillLevel);
 		}
-		if (display > 80) {
+		if (this.display > 80) {
 			if (!skill_.getAction()) {
 				// AutobanManager.getInstance().autoban(chr.getClient(),
 				// "No delay hack, SkillID : " + skill);

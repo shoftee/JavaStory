@@ -6,7 +6,7 @@ import javastory.server.handling.ServerPacketOpcode;
 
 public class FamilyPacket {
 	public static GamePacket getFamilyData() {
-		PacketBuilder builder = new PacketBuilder();
+		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.FAMILY.getValue());
 		builder.writeInt(11); // Number of events

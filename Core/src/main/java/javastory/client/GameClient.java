@@ -33,11 +33,11 @@ public abstract class GameClient {
 	private final transient IoSession session;
 	private final transient String ip;
 
-	public GameClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
+	public GameClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
 		this.clientCrypto = clientCrypto;
 		this.serverCrypto = serverCrypto;
 		this.session = session;
-		ip = session.getRemoteAddress().toString().split(":")[0];
+		this.ip = session.getRemoteAddress().toString().split(":")[0];
 	}
 
 	public void disconnect() {
@@ -51,22 +51,22 @@ public abstract class GameClient {
 	}
 
 	public final String getAccountName() {
-		return accountName;
+		return this.accountName;
 	}
 
 	public final AesTransform getClientCrypto() {
-		return clientCrypto;
+		return this.clientCrypto;
 	}
 
 	public final AesTransform getServerCrypto() {
-		return serverCrypto;
+		return this.serverCrypto;
 	}
 
 	public final String getSessionIP() {
-		return ip;
+		return this.ip;
 	}
 
-	public void setAccountId(int id) {
+	public void setAccountId(final int id) {
 		this.accountId = id;
 	}
 
@@ -74,33 +74,33 @@ public abstract class GameClient {
 		this.accountName = accountName;
 	}
 
-	public final void write(GamePacket packet) {
+	public final void write(final GamePacket packet) {
 		this.session.write(packet);
 	}
 
 	protected IoSession getSession() {
-		return session;
+		return this.session;
 	}
 
 	public final long getLastPong() {
-		return lastPong;
+		return this.lastPong;
 	}
 
 	public final void pongReceived() {
-		lastPong = System.currentTimeMillis();
+		this.lastPong = System.currentTimeMillis();
 	}
 
 	public final void sendPing() {
 		final long then = System.currentTimeMillis();
-		session.write(getPingPacket());
+		this.session.write(getPingPacket());
 		TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					if (lastPong - then < 0) {
-						if (session.isConnected()) {
-							session.close(false);
+					if (GameClient.this.lastPong - then < 0) {
+						if (GameClient.this.session.isConnected()) {
+							GameClient.this.session.close(false);
 						}
 					}
 				} catch (final NullPointerException e) {
@@ -122,18 +122,18 @@ public abstract class GameClient {
 
 	public void unban() {
 		try {
-			Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
-			ps.setInt(1, getAccountId());
+			final Connection con = Database.getConnection();
+			final PreparedStatement ps = con.prepareStatement("UPDATE accounts SET banned = 0 and banreason = '' WHERE id = ?");
+			ps.setInt(1, this.getAccountId());
 			ps.executeUpdate();
 			ps.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Error while unbanning " + e);
 		}
 	}
 
 	public final ScheduledFuture<?> getIdleTask() {
-		return idleTask;
+		return this.idleTask;
 	}
 
 	public final void setIdleTask(final ScheduledFuture<?> idleTask) {
@@ -141,11 +141,11 @@ public abstract class GameClient {
 	}
 
 	public final int getChannelId() {
-		return channelId;
+		return this.channelId;
 	}
 
 	public int getWorldId() {
-		return worldId;
+		return this.worldId;
 	}
 
 	public final void setChannelId(final int id) {
@@ -157,19 +157,19 @@ public abstract class GameClient {
 	}
 
 	public boolean isLoggedIn() {
-		return loggedIn;
+		return this.loggedIn;
 	}
 
 	protected void logOff() {
-		if (loggedIn) {
+		if (this.loggedIn) {
 			try {
-				Connection con = Database.getConnection();
-				PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `loggedin` = ? WHERE `id` = ?");
+				final Connection con = Database.getConnection();
+				final PreparedStatement ps = con.prepareStatement("UPDATE `accounts` SET `loggedin` = ? WHERE `id` = ?");
 				ps.setBoolean(1, false);
-				ps.setInt(2, getAccountId());
+				ps.setInt(2, this.getAccountId());
 				ps.executeUpdate();
 				ps.close();
-			} catch (SQLException e) {
+			} catch (final SQLException e) {
 				System.err.println("error updating login state" + e);
 			}
 		}

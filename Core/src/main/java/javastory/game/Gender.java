@@ -25,7 +25,7 @@ public enum Gender {
 
 	private byte type;
 
-	private Gender(int type) {
+	private Gender(final int type) {
 		this.type = (byte) type;
 	}
 
@@ -47,7 +47,7 @@ public enum Gender {
 	 * @return the Gender corresponding to the specified value, or
 	 *         <code>null</code> if there is no such Gender.
 	 */
-	public static Gender fromNumber(int type) {
+	public static Gender fromNumber(final int type) {
 		switch (type) {
 		case 0:
 			return MALE;

@@ -23,37 +23,37 @@ import java.io.Serializable;
 public class GuildSummary implements Serializable {
 
 	public static final long serialVersionUID = 3565477792085301248L;
-	private String name;
-	private short logoBG;
-	private byte logoBGColor;
-	private short logo;
-	private byte logoColor;
+	private final String name;
+	private final short logoBG;
+	private final byte logoBGColor;
+	private final short logo;
+	private final byte logoColor;
 
-	public GuildSummary(Guild g) {
-		name = g.getName();
-		logoBG = (short) g.getLogoBG();
-		logoBGColor = (byte) g.getLogoBGColor();
-		logo = (short) g.getLogo();
-		logoColor = (byte) g.getLogoColor();
+	public GuildSummary(final Guild g) {
+		this.name = g.getName();
+		this.logoBG = (short) g.getLogoBG();
+		this.logoBGColor = (byte) g.getLogoBGColor();
+		this.logo = (short) g.getLogo();
+		this.logoColor = (byte) g.getLogoColor();
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public short getLogoBG() {
-		return logoBG;
+		return this.logoBG;
 	}
 
 	public byte getLogoBGColor() {
-		return logoBGColor;
+		return this.logoBGColor;
 	}
 
 	public short getLogo() {
-		return logo;
+		return this.logo;
 	}
 
 	public byte getLogoColor() {
-		return logoColor;
+		return this.logoColor;
 	}
 }

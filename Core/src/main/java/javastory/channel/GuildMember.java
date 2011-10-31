@@ -11,25 +11,27 @@ public class GuildMember implements Serializable {
 	public static final long serialVersionUID = 2058609046116597760L;
 	private byte channelId;
 	private int level;
-	private int characterId, jobId, guildId;
+	private final int characterId;
+	private int jobId;
+	private int guildId;
 	private MemberRank guildRank;
 	private boolean isOnline;
-	private String name;
+	private final String name;
 
 	// either read from active character...
 	// if it's online
 	public GuildMember(final ChannelCharacter character) {
-		name = character.getName();
-		level = character.getLevel();
-		characterId = character.getId();
-		channelId = (byte) character.getClient().getChannelId();
-		jobId = character.getJobId();
-		guildRank = character.getGuildRank();
-		guildId = character.getGuildId();
-		isOnline = true;
+		this.name = character.getName();
+		this.level = character.getLevel();
+		this.characterId = character.getId();
+		this.channelId = (byte) character.getClient().getChannelId();
+		this.jobId = character.getJobId();
+		this.guildRank = character.getGuildRank();
+		this.guildId = character.getGuildId();
+		this.isOnline = true;
 	}
 
-	public GuildMember(ResultSet rs) throws SQLException {
+	public GuildMember(final ResultSet rs) throws SQLException {
 		this.characterId = rs.getInt("id");
 		this.level = rs.getShort("level");
 		this.name = rs.getString("name");
@@ -39,58 +41,58 @@ public class GuildMember implements Serializable {
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(final int level) {
 		this.level = level;
 	}
 
 	public int getCharacterId() {
-		return characterId;
+		return this.characterId;
 	}
 
-	public void setChannel(byte ch) {
-		channelId = ch;
+	public void setChannel(final byte ch) {
+		this.channelId = ch;
 	}
 
 	public int getChannel() {
-		return channelId;
+		return this.channelId;
 	}
 
 	public int getJobId() {
-		return jobId;
+		return this.jobId;
 	}
 
-	public void setJobId(int job) {
-		jobId = job;
+	public void setJobId(final int job) {
+		this.jobId = job;
 	}
 
 	public int getGuildId() {
-		return guildId;
+		return this.guildId;
 	}
 
-	public void setGuildId(int gid) {
-		guildId = gid;
+	public void setGuildId(final int gid) {
+		this.guildId = gid;
 	}
 
-	public void setGuildRank(MemberRank rank) {
-		guildRank = rank;
+	public void setGuildRank(final MemberRank rank) {
+		this.guildRank = rank;
 	}
 
 	public MemberRank getRank() {
-		return guildRank;
+		return this.guildRank;
 	}
 
 	public boolean isOnline() {
-		return isOnline;
+		return this.isOnline;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public void setOnline(boolean f) {
-		isOnline = f;
+	public void setOnline(final boolean f) {
+		this.isOnline = f;
 	}
 }

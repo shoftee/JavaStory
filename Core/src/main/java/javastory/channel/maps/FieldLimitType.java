@@ -42,15 +42,15 @@ public enum FieldLimitType {
 	;
 	private final int i;
 
-	private FieldLimitType(int i) {
+	private FieldLimitType(final int i) {
 		this.i = i;
 	}
 
 	public final int getValue() {
-		return i;
+		return this.i;
 	}
 
-	public final boolean check(int fieldlimit) {
-		return (fieldlimit & i) == i;
+	public final boolean check(final int fieldlimit) {
+		return (fieldlimit & this.i) == this.i;
 	}
 }

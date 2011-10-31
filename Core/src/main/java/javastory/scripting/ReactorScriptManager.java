@@ -46,23 +46,23 @@ public final class ReactorScriptManager extends AbstractScriptManager {
 
 	public final void act(final ChannelClient c, final Reactor reactor) {
 		try {
-			final Invocable iv = getInvocable("reactor/" + reactor.getReactorId() + ".js", c);
+			final Invocable iv = this.getInvocable("reactor/" + reactor.getReactorId() + ".js", c);
 			final ScriptEngine scriptengine = (ScriptEngine) iv;
 			if (iv == null) {
 				return;
 			}
-			ReactorActionManager rm = new ReactorActionManager(c, reactor);
+			final ReactorActionManager rm = new ReactorActionManager(c, reactor);
 
 			scriptengine.put("rm", rm);
-			ReactorScript rs = iv.getInterface(ReactorScript.class);
+			final ReactorScript rs = iv.getInterface(ReactorScript.class);
 			rs.act();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.err.println("Error executing reactor script." + e);
 		}
 	}
 
 	public final List<ReactorDropEntry> getDrops(final int rid) {
-		List<ReactorDropEntry> ret = drops.get(rid);
+		List<ReactorDropEntry> ret = this.drops.get(rid);
 		if (ret != null) {
 			return ret;
 		}
@@ -72,7 +72,7 @@ public final class ReactorScriptManager extends AbstractScriptManager {
 		ResultSet rs = null;
 
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			ps = con.prepareStatement("SELECT * FROM reactordrops WHERE reactorid = ?");
 			ps.setInt(1, rid);
 			rs = ps.executeQuery();
@@ -93,15 +93,15 @@ public final class ReactorScriptManager extends AbstractScriptManager {
 				if (ps != null) {
 					ps.close();
 				}
-			} catch (SQLException ignore) {
+			} catch (final SQLException ignore) {
 				return ret;
 			}
 		}
-		drops.put(rid, ret);
+		this.drops.put(rid, ret);
 		return ret;
 	}
 
 	public final void clearDrops() {
-		drops.clear();
+		this.drops.clear();
 	}
 }

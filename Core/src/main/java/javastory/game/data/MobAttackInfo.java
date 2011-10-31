@@ -27,7 +27,7 @@ public final class MobAttackInfo {
 	public final int MpBurn, MpCon;
 	public final int DiseaseSkill, DiseaseLevel;
 
-	public MobAttackInfo(WzData data) {
+	public MobAttackInfo(final WzData data) {
 		this.IsDeadlyAttack = data.getChildByPath("deadlyAttack") != null;
 		this.MpBurn = WzDataTool.getInt("mpBurn", data, 0);
 		this.DiseaseSkill = WzDataTool.getInt("disease", data, 0);

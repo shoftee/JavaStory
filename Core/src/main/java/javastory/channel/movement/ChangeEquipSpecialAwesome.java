@@ -26,17 +26,17 @@ import javastory.io.PacketBuilder;
 
 public class ChangeEquipSpecialAwesome implements LifeMovementFragment {
 
-    private int type, wui;
+    private final int type, wui;
 
-    public ChangeEquipSpecialAwesome(int type, int wui) {
+    public ChangeEquipSpecialAwesome(final int type, final int wui) {
 	this.type = type;
 	this.wui = wui;
     }
 
     @Override
-    public void serialize(PacketBuilder builder) {
-	builder.writeAsByte(type);
-	builder.writeAsByte(wui);
+    public void serialize(final PacketBuilder builder) {
+	builder.writeAsByte(this.type);
+	builder.writeAsByte(this.wui);
     }
 
     @Override

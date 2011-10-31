@@ -33,7 +33,7 @@ public class InterServerHandler {
 	public static void handleEnterMTS(final ChannelClient c) {
 		final GameMap map = ChannelServer.getMapFactory().getMap(910000000);
 		final ChannelCharacter player = c.getPlayer();
-		if ((player.getMapId() < 910000000) || (player.getMapId() > 910000022)) {
+		if (player.getMapId() < 910000000 || player.getMapId() > 910000022) {
 			if (player.getLevel() >= 10) {
 				player.saveLocation(SavedLocationType.FREE_MARKET);
 				player.changeMap(map, map.getPortal("out00"));
@@ -85,7 +85,7 @@ public class InterServerHandler {
 			final int buddyIds[] = player.getBuddyList().getBuddyIds();
 			world.loggedOn(player.getName(), player.getId(), channelId, buddyIds);
 			final CharacterIdChannelPair[] onlineBuddies = world.multiBuddyFind(player.getId(), buddyIds);
-			for (CharacterIdChannelPair onlineBuddy : onlineBuddies) {
+			for (final CharacterIdChannelPair onlineBuddy : onlineBuddies) {
 				final BuddyListEntry ble = player.getBuddyList().get(onlineBuddy.getCharacterId());
 				ble.setChannel(onlineBuddy.getChannel());
 				player.getBuddyList().put(ble);
@@ -93,7 +93,7 @@ public class InterServerHandler {
 			client.write(ChannelPackets.updateBuddyList(player.getBuddyList().getBuddies()));
 
 			// Party:
-			PartyMember partyMember = player.getPartyMembership();
+			final PartyMember partyMember = player.getPartyMembership();
 			if (partyMember != null) {
 				world.updateParty(partyMember.getPartyId(), PartyOperation.LOG_ONOFF, partyMember);
 			}
@@ -102,7 +102,7 @@ public class InterServerHandler {
 			final Messenger messenger = player.getMessenger();
 			final int messenger_pos = player.getMessengerPosition();
 			if (player.getMessenger() != null && messenger_pos < 4 && messenger_pos > -1) {
-				MessengerMember messengerplayer = new MessengerMember(player, messenger_pos);
+				final MessengerMember messengerplayer = new MessengerMember(player, messenger_pos);
 				world.silentJoinMessenger(messenger.getId(), messengerplayer, messenger_pos);
 				world.updateMessenger(player.getMessenger().getId(), player.getName(), channelId);
 			}
@@ -110,13 +110,13 @@ public class InterServerHandler {
 			// Start of Guild and alliance
 			final GuildMember guildMember = player.getGuildMembership();
 			if (guildMember != null) {
-				int guildId = guildMember.getGuildId();
+				final int guildId = guildMember.getGuildId();
 				world.setGuildMemberOnline(guildMember, true, channelId);
 				client.write(ChannelPackets.showGuildInfo(client, guildId));
 			}
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			ChannelServer.pingWorld();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			LogUtil.outputFileError(LogUtil.Login_Error, e);
 		}
 		client.write(FamilyPacket.getFamilyData());
@@ -124,7 +124,7 @@ public class InterServerHandler {
 		player.showNote();
 		player.updatePartyMemberHP();
 		client.write(ChannelPackets.getKeymap(player.getKeyLayout()));
-		for (QuestStatus status : player.getStartedQuests()) {
+		for (final QuestStatus status : player.getStartedQuests()) {
 			if (status.hasMobKills()) {
 				client.write(ChannelPackets.updateQuestMobKills(status));
 			}

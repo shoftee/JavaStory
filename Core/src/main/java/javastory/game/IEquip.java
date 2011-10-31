@@ -22,13 +22,6 @@ package javastory.game;
 
 public interface IEquip extends IItem {
 
-	public static enum ScrollResult {
-
-		SUCCESS,
-		FAIL,
-		CURSE
-	}
-
 	byte getUpgradeSlots();
 
 	byte getLevel();

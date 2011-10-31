@@ -23,19 +23,19 @@ import java.io.Serializable;
 public class KeyBinding implements Serializable {
 
 	private static final long serialVersionUID = 91795419538569L;
-	private int type, action;
+	private final int type, action;
 
-	public KeyBinding(int type, int action) {
+	public KeyBinding(final int type, final int action) {
 		super();
 		this.type = type;
 		this.action = action;
 	}
 
 	public int getType() {
-		return type;
+		return this.type;
 	}
 
 	public int getAction() {
-		return action;
+		return this.action;
 	}
 }

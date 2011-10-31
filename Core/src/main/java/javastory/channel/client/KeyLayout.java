@@ -38,14 +38,14 @@ public class KeyLayout implements Serializable {
 	private final Map<Integer, KeyBinding> keymap = new HashMap<>();
 
 	public final Map<Integer, KeyBinding> Layout() {
-		changed = true;
-		return keymap;
+		this.changed = true;
+		return this.keymap;
 	}
 
 	public final void writeData(final PacketBuilder builder) {
 		KeyBinding binding;
 		for (int x = 0; x < 90; x++) {
-			binding = keymap.get(Integer.valueOf(x));
+			binding = this.keymap.get(Integer.valueOf(x));
 			if (binding != null) {
 				builder.writeAsByte(binding.getType());
 				builder.writeInt(binding.getAction());
@@ -56,11 +56,11 @@ public class KeyLayout implements Serializable {
 		}
 	}
 
-	public static KeyLayout loadFromDb(int characterId) throws SQLException {
+	public static KeyLayout loadFromDb(final int characterId) throws SQLException {
 
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 
-		KeyLayout instance = new KeyLayout();
+		final KeyLayout instance = new KeyLayout();
 		try (PreparedStatement ps = con.prepareStatement("SELECT `key`,`type`,`action` FROM keymap WHERE characterid = ?")) {
 
 			ps.setInt(1, characterId);
@@ -79,10 +79,10 @@ public class KeyLayout implements Serializable {
 	}
 
 	public final void saveKeys(final int charid) throws SQLException {
-		if (!changed || keymap.isEmpty()) {
+		if (!this.changed || this.keymap.isEmpty()) {
 			return;
 		}
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 
 		PreparedStatement ps = con.prepareStatement("DELETE FROM keymap WHERE characterid = ?");
 		ps.setInt(1, charid);
@@ -90,9 +90,9 @@ public class KeyLayout implements Serializable {
 		ps.close();
 
 		boolean first = true;
-		StringBuilder query = new StringBuilder();
+		final StringBuilder query = new StringBuilder();
 
-		for (Entry<Integer, KeyBinding> keybinding : keymap.entrySet()) {
+		for (final Entry<Integer, KeyBinding> keybinding : this.keymap.entrySet()) {
 			if (first) {
 				first = false;
 				query.append("INSERT INTO keymap VALUES (");

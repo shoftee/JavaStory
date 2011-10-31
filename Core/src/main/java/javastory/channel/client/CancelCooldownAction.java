@@ -25,20 +25,20 @@ import javastory.tools.packets.ChannelPackets;
 
 public class CancelCooldownAction implements Runnable {
 
-	private int skillId;
-	private WeakReference<ChannelCharacter> target;
+	private final int skillId;
+	private final WeakReference<ChannelCharacter> target;
 
-	public CancelCooldownAction(ChannelCharacter target, int skillId) {
+	public CancelCooldownAction(final ChannelCharacter target, final int skillId) {
 		this.target = new WeakReference<>(target);
 		this.skillId = skillId;
 	}
 
 	@Override
 	public void run() {
-		final ChannelCharacter realTarget = target.get();
+		final ChannelCharacter realTarget = this.target.get();
 		if (realTarget != null) {
-			realTarget.removeCooldown(skillId);
-			realTarget.getClient().write(ChannelPackets.skillCooldown(skillId, 0));
+			realTarget.removeCooldown(this.skillId);
+			realTarget.getClient().write(ChannelPackets.skillCooldown(this.skillId, 0));
 		}
 	}
 }

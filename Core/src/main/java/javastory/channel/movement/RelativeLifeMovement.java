@@ -24,16 +24,16 @@ import javastory.io.PacketBuilder;
 
 public class RelativeLifeMovement extends AbstractLifeMovement {
 
-	public RelativeLifeMovement(int type, Point position, int duration, int newstate) {
+	public RelativeLifeMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeAsShort(getPosition().x);
-		builder.writeAsShort(getPosition().y);
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeAsShort(this.getPosition().x);
+		builder.writeAsShort(this.getPosition().y);
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

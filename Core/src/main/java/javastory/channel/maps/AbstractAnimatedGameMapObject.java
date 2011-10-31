@@ -24,20 +24,20 @@ public abstract class AbstractAnimatedGameMapObject extends AbstractGameMapObjec
 
 	@Override
 	public int getStance() {
-		return stance;
+		return this.stance;
 	}
 
 	@Override
-	public void setStance(int stance) {
+	public void setStance(final int stance) {
 		this.stance = stance;
 	}
 
 	@Override
 	public boolean isFacingLeft() {
-		return getFacingDirection() == 1;
+		return this.getFacingDirection() == 1;
 	}
 
 	public int getFacingDirection() {
-		return getStance() & 1;
+		return this.getStance() & 1;
 	}
 }

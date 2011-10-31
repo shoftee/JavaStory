@@ -75,7 +75,7 @@ public final class DamageParse {
 		final GameMap map = player.getMap();
 
 		if (attack.skill == 4211006) { // meso explosion
-			for (AttackPair oned : attack.allDamage) {
+			for (final AttackPair oned : attack.allDamage) {
 				if (oned.attack != null) {
 					continue;
 				}
@@ -176,7 +176,7 @@ public final class DamageParse {
 																	// let's
 																	// divide it
 																	// once
-						maxDamagePerHit = (maxDamagePerHit / 100) * ShdowPartnerAttackPercentage;
+						maxDamagePerHit = maxDamagePerHit / 100 * ShdowPartnerAttackPercentage;
 					}
 					// System.out.println("Client damage : " + eachd +
 					// " Server : " + maxDamagePerHit);
@@ -268,8 +268,8 @@ public final class DamageParse {
 					case 4101005: // drain
 					case 5111004: { // Energy Drain
 						stats.setHp(stats.getHp()
-							+ (Math.min(monster.getMobMaxHp(), Math.min(((int) ((double) totDamage
-								* (double) theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getX() / 100.0)), stats.getMaxHp() / 2))), true);
+							+ Math.min(monster.getMobMaxHp(), Math.min((int) ((double) totDamage
+								* (double) theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getX() / 100.0), stats.getMaxHp() / 2)), true);
 						break;
 					}
 					case 1311005: { // Sacrifice
@@ -378,7 +378,7 @@ public final class DamageParse {
 						if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
 							final ISkill skill = SkillFactory.getSkill(21100005);
 							final ActivePlayerStats stat = player.getStats();
-							stat.setHp(stat.getHp() + ((totDamage * skill.getEffect(player.getCurrentSkillLevel(skill)).getX()) / 100), true);
+							stat.setHp(stat.getHp() + totDamage * skill.getEffect(player.getCurrentSkillLevel(skill)).getX() / 100, true);
 						}
 						break;
 					}
@@ -404,7 +404,7 @@ public final class DamageParse {
 									monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 1000, false);
 								}
 							} else if (player.getJobId() == 121) { // WHITEKNIGHT
-								for (int charge : charges) {
+								for (final int charge : charges) {
 									final ISkill skill = SkillFactory.getSkill(charge);
 									if (player.isBuffFrom(BuffStat.WK_CHARGE, skill)) {
 										final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(Collections.singletonMap(MonsterStatus.FREEZE,
@@ -427,7 +427,7 @@ public final class DamageParse {
 				}
 			}
 		}
-		if (attack.skill != 0 && (attack.targets > 0 || (attack.skill != 4331003 && attack.skill != 4341002))) {
+		if (attack.skill != 0 && (attack.targets > 0 || attack.skill != 4331003 && attack.skill != 4341002)) {
 			effect.applyTo(player, attack.position);
 		}
 		if (totDamage > 1) {
@@ -476,9 +476,9 @@ public final class DamageParse {
 			// /100
 			// Maximum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + (Mastery *
 			// 0.9 * MATK) * 3.3) /100
-			final double v75 = (effect.getMatk() * 0.058);
+			final double v75 = effect.getMatk() * 0.058;
 //	    minDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + effect.getMatk() * 3.3) / 100;
-			maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + (effect.getMastery() * 0.9 * effect.getMatk()) * 3.3) / 100;
+			maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + v75 * v75 + effect.getMastery() * 0.9 * effect.getMatk() * 3.3) / 100;
 		}
 		maxDamagePerHit *= 1.04; // Avoid any errors for now
 
@@ -634,7 +634,7 @@ public final class DamageParse {
 	private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MobInfo mobstats,
 		final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
 		final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
-		final int Accuracy = (int) (Math.floor((stats.getTotalInt() / 10)) + Math.floor((stats.getTotalLuk() / 10)));
+		final int Accuracy = (int) (Math.floor(stats.getTotalInt() / 10) + Math.floor(stats.getTotalLuk() / 10));
 		final int MinAccuracy = mobstats.getEvasion() * (dLevel * 2 + 51) / 120;
 		// FullAccuracy = Avoid * (dLevel * 2 + 51) / 50
 
@@ -652,13 +652,13 @@ public final class DamageParse {
 			elemMaxDamagePerMob = 1;
 			break;
 		case NORMAL:
-			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster / 100) * stats.element_amp_percent), stats);
+			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, maxDamagePerMonster / 100 * stats.element_amp_percent, stats);
 			break;
 		case WEAK:
-			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster * 1.5 / 100) * stats.element_amp_percent), stats);
+			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, maxDamagePerMonster * 1.5 / 100 * stats.element_amp_percent, stats);
 			break;
 		case STRONG:
-			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, ((maxDamagePerMonster * 0.5 / 100) * stats.element_amp_percent), stats);
+			elemMaxDamagePerMob = ElementalStaffAttackBonus(elem, maxDamagePerMonster * 0.5 / 100 * stats.element_amp_percent, stats);
 			break;
 		default:
 			throw new RuntimeException("Unknown enum constant");
@@ -670,7 +670,7 @@ public final class DamageParse {
 
 		// Calculate Sharp eye bonus
 		if (sharpEye != null) {
-			elemMaxDamagePerMob += (elemMaxDamagePerMob / 100) * sharpEye;
+			elemMaxDamagePerMob += elemMaxDamagePerMob / 100 * sharpEye;
 		}
 
 //	if (skill.isChargeSkill()) {
@@ -695,22 +695,22 @@ public final class DamageParse {
 		return elemMaxDamagePerMob;
 	}
 
-	private static double ElementalStaffAttackBonus(final Element elem, double elemMaxDamagePerMob, final ActivePlayerStats stats) {
+	private static double ElementalStaffAttackBonus(final Element elem, final double elemMaxDamagePerMob, final ActivePlayerStats stats) {
 		switch (elem) {
 		case FIRE:
-			return (elemMaxDamagePerMob / 100) * stats.element_fire;
+			return elemMaxDamagePerMob / 100 * stats.element_fire;
 		case ICE:
-			return (elemMaxDamagePerMob / 100) * stats.element_ice;
+			return elemMaxDamagePerMob / 100 * stats.element_ice;
 		case LIGHTING:
-			return (elemMaxDamagePerMob / 100) * stats.element_light;
+			return elemMaxDamagePerMob / 100 * stats.element_light;
 		case POISON:
-			return (elemMaxDamagePerMob / 100) * stats.element_psn;
+			return elemMaxDamagePerMob / 100 * stats.element_psn;
 		default:
-			return (elemMaxDamagePerMob / 100) * stats.def;
+			return elemMaxDamagePerMob / 100 * stats.def;
 		}
 	}
 
-	private static void handlePickPocket(final ChannelCharacter player, final Monster mob, AttackPair oned) {
+	private static void handlePickPocket(final ChannelCharacter player, final Monster mob, final AttackPair oned) {
 		final int maxmeso = player.getBuffedValue(BuffStat.PICKPOCKET).intValue();
 		final ISkill skill = SkillFactory.getSkill(4211003);
 		final StatEffect s = skill.getEffect(player.getCurrentSkillLevel(skill));
@@ -722,8 +722,8 @@ public final class DamageParse {
 
 					@Override
 					public void run() {
-						player.getMap().spawnMesoDrop(Math.min((int) Math.max(((double) eachd / (double) 20000) * maxmeso, 1), maxmeso),
-							new Point((int) (mob.getPosition().getX() + Randomizer.nextInt(100) - 50), (int) (mob.getPosition().getY())), mob, player, true,
+						player.getMap().spawnMesoDrop(Math.min((int) Math.max((double) eachd / (double) 20000 * maxmeso, 1), maxmeso),
+							new Point((int) (mob.getPosition().getX() + Randomizer.nextInt(100) - 50), (int) mob.getPosition().getY()), mob, player, true,
 							(byte) 0);
 					}
 				}, 100);
@@ -761,7 +761,7 @@ public final class DamageParse {
 			case 10001009:
 			case 20001009:
 			case 20011009:
-				maximumDamageToMonster = (monster.getStats().isBoss() ? monster.getMobMaxHp() / 30 * 100 : monster.getMobMaxHp());
+				maximumDamageToMonster = monster.getStats().isBoss() ? monster.getMobMaxHp() / 30 * 100 : monster.getMobMaxHp();
 				break;
 			case 3211006: // Sniper Strafe
 				if (monster.getStatusSourceID(MonsterStatus.FREEZE) == 3211003) { // blizzard
@@ -773,7 +773,7 @@ public final class DamageParse {
 			}
 		}
 		if (player.getBuffedValue(BuffStat.WK_CHARGE) != null) {
-			int chargeSkillId = player.getBuffSource(BuffStat.WK_CHARGE);
+			final int chargeSkillId = player.getBuffSource(BuffStat.WK_CHARGE);
 
 			switch (chargeSkillId) {
 			case 1211003:
@@ -825,10 +825,10 @@ public final class DamageParse {
 				elementalMaxDamagePerMonster = maximumDamageToMonster;
 				break;
 			case WEAK:
-				elementalMaxDamagePerMonster = (maximumDamageToMonster * (1.0 + elementalEffect));
+				elementalMaxDamagePerMonster = maximumDamageToMonster * (1.0 + elementalEffect);
 				break;
 			case STRONG:
-				elementalMaxDamagePerMonster = (maximumDamageToMonster * (1.0 - elementalEffect));
+				elementalMaxDamagePerMonster = maximumDamageToMonster * (1.0 - elementalEffect);
 				break;
 			default:
 				throw new RuntimeException("Unknown enum constant");
@@ -842,7 +842,7 @@ public final class DamageParse {
 		elementalMaxDamagePerMonster = elementalMaxDamagePerMonster * (1 - 0.01 * d) - monster.getStats().getPhysicalDefense() * 0.5;
 
 		// Calculate passive bonuses + Sharp Eye
-		elementalMaxDamagePerMonster += (elementalMaxDamagePerMonster / 100) * CriticalDamagePercent;
+		elementalMaxDamagePerMonster += elementalMaxDamagePerMonster / 100 * CriticalDamagePercent;
 
 //	if (theSkill.isChargeSkill()) {
 //	    elementalMaxDamagePerMonster = (double) (90 * (System.currentTimeMillis() - player.getKeyDownSkill_Time()) / 2000 + 10) * elementalMaxDamagePerMonster * 0.01;
@@ -866,7 +866,7 @@ public final class DamageParse {
 		final boolean unkk = lea.readByte() == -1;
 		lea.skip(unkk ? 7 : 8);
 		ret.tbyte = lea.readByte();
-		ret.targets = (byte) ((ret.tbyte >>> 4) & 0xF);
+		ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
 		ret.hits = (byte) (ret.tbyte & 0xF);
 		lea.skip(8); // ?
 		ret.skill = lea.readInt();
@@ -924,7 +924,7 @@ public final class DamageParse {
 		final boolean unkk = lea.readByte() == -1;
 		lea.skip(unkk ? 7 : 8);
 		ret.tbyte = lea.readByte();
-		ret.targets = (byte) ((ret.tbyte >>> 4) & 0xF);
+		ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
 		ret.hits = (byte) (ret.tbyte & 0xF);
 		lea.skip(8);
 		ret.skill = lea.readInt();
@@ -991,7 +991,7 @@ public final class DamageParse {
 		final boolean unkk = lea.readByte() == -1;
 		lea.skip(unkk ? 7 : 8);
 		ret.tbyte = lea.readByte();
-		ret.targets = (byte) ((ret.tbyte >>> 4) & 0xF);
+		ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
 		ret.hits = (byte) (ret.tbyte & 0xF);
 		lea.skip(8);
 		ret.skill = lea.readInt();

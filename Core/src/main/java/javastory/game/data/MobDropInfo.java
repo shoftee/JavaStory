@@ -5,7 +5,7 @@ public final class MobDropInfo {
 	public final short QuestId;
 	public final int ItemId, Chance, Minimum, Maximum;
 
-	public MobDropInfo(int itemId, int chance, int Minimum, int Maximum, short questid) {
+	public MobDropInfo(final int itemId, final int chance, final int Minimum, final int Maximum, final short questid) {
 		this.ItemId = itemId;
 		this.Chance = chance;
 		this.QuestId = questid;

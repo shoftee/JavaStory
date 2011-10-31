@@ -23,21 +23,21 @@ public final class ChannelPacketHandler extends PacketHandler {
 
 	private int channelId = -1;
 
-	public ChannelPacketHandler(int channelId) {
+	public ChannelPacketHandler(final int channelId) {
 		this.channelId = channelId;
 
 	}
 
 	@Override
-	protected GameClient createClient(AesTransform clientCrypto, AesTransform serverCrypto, IoSession session) {
-		GameClient client = new ChannelClient(clientCrypto, serverCrypto, session);
-		client.setChannelId(channelId);
+	protected GameClient createClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
+		final GameClient client = new ChannelClient(clientCrypto, serverCrypto, session);
+		client.setChannelId(this.channelId);
 		return client;
 	}
 
 	@Override
-	protected void handlePacket(ClientPacketOpcode header, PacketReader reader, GameClient client) throws PacketFormatException {
-		ChannelClient channelClient = (ChannelClient) client;
+	protected void handlePacket(final ClientPacketOpcode header, final PacketReader reader, final GameClient client) throws PacketFormatException {
+		final ChannelClient channelClient = (ChannelClient) client;
 		final ChannelCharacter player = channelClient.getPlayer();
 		switch (header) {
 		case PONG:

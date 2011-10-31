@@ -43,37 +43,37 @@ import javax.script.ScriptException;
 
 public class EventManager {
 
-	private Invocable invocable;
-	private WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<>();
-	private Properties props = new Properties();
-	private String name;
+	private final Invocable invocable;
+	private final WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<>();
+	private final Properties props = new Properties();
+	private final String name;
 
-	public EventManager(Invocable invocable, String name) {
+	public EventManager(final Invocable invocable, final String name) {
 		this.invocable = invocable;
 		this.name = name;
 	}
 
 	public void cancel() {
 		try {
-			invocable.invokeFunction("cancelSchedule", (Object) null);
-		} catch (ScriptException ex) {
+			this.invocable.invokeFunction("cancelSchedule", (Object) null);
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void schedule(final String methodName, long delay) {
+	public void schedule(final String methodName, final long delay) {
 		TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					invocable.invokeFunction(methodName, (Object) null);
-				} catch (ScriptException ex) {
+					EventManager.this.invocable.invokeFunction(methodName, (Object) null);
+				} catch (final ScriptException ex) {
 					ex.printStackTrace();
 					System.out.println("method Name : " + methodName + "");
-				} catch (NoSuchMethodException ex) {
+				} catch (final NoSuchMethodException ex) {
 					ex.printStackTrace();
 					System.out.println("method Name : " + methodName + "");
 				}
@@ -81,17 +81,17 @@ public class EventManager {
 		}, delay);
 	}
 
-	public void schedule(final String methodName, long delay, final EventInstanceManager eim) {
+	public void schedule(final String methodName, final long delay, final EventInstanceManager eim) {
 		TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					invocable.invokeFunction(methodName, eim);
-				} catch (ScriptException ex) {
+					EventManager.this.invocable.invokeFunction(methodName, eim);
+				} catch (final ScriptException ex) {
 					ex.printStackTrace();
 					System.out.println("method Name : " + methodName + "");
-				} catch (NoSuchMethodException ex) {
+				} catch (final NoSuchMethodException ex) {
 					ex.printStackTrace();
 					System.out.println("method Name : " + methodName + "");
 				}
@@ -99,115 +99,115 @@ public class EventManager {
 		}, delay);
 	}
 
-	public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, long timestamp) {
+	public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, final long timestamp) {
 		return TimerManager.getInstance().scheduleAtTimestamp(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					invocable.invokeFunction(methodName, (Object) null);
-				} catch (ScriptException ex) {
+					EventManager.this.invocable.invokeFunction(methodName, (Object) null);
+				} catch (final ScriptException ex) {
 					ex.printStackTrace();
-				} catch (NoSuchMethodException ex) {
+				} catch (final NoSuchMethodException ex) {
 					ex.printStackTrace();
 				}
 			}
 		}, timestamp);
 	}
 
-	public EventInstanceManager getInstance(String name) {
-		return instances.get(name);
+	public EventInstanceManager getInstance(final String name) {
+		return this.instances.get(name);
 	}
 
 	public Collection<EventInstanceManager> getInstances() {
-		return Collections.unmodifiableCollection(instances.values());
+		return Collections.unmodifiableCollection(this.instances.values());
 	}
 
-	public EventInstanceManager newInstance(String name) {
-		EventInstanceManager ret = new EventInstanceManager(this, name, ChannelServer.getMapFactory());
-		instances.put(name, ret);
+	public EventInstanceManager newInstance(final String name) {
+		final EventInstanceManager ret = new EventInstanceManager(this, name, ChannelServer.getMapFactory());
+		this.instances.put(name, ret);
 		return ret;
 	}
 
-	public void disposeInstance(String name) {
-		instances.remove(name);
+	public void disposeInstance(final String name) {
+		this.instances.remove(name);
 	}
 
 	public Invocable getInvocable() {
-		return invocable;
+		return this.invocable;
 	}
 
-	public void setProperty(String key, String value) {
-		props.setProperty(key, value);
+	public void setProperty(final String key, final String value) {
+		this.props.setProperty(key, value);
 	}
 
-	public String getProperty(String key) {
-		return props.getProperty(key);
+	public String getProperty(final String key) {
+		return this.props.getProperty(key);
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public void startInstance() {
 		try {
-			invocable.invokeFunction("setup", (Object) null);
-		} catch (ScriptException ex) {
+			this.invocable.invokeFunction("setup", (Object) null);
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void startInstance(ChannelCharacter character) {
+	public void startInstance(final ChannelCharacter character) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
+			final EventInstanceManager eim = (EventInstanceManager) this.invocable.invokeFunction("setup", (Object) null);
 			eim.registerPlayer(character);
-		} catch (ScriptException ex) {
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
 	// PQ method: starts a PQ
-	public void startInstance(Party party, GameMap map) {
+	public void startInstance(final Party party, final GameMap map) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", (Object) null));
+			final EventInstanceManager eim = (EventInstanceManager) this.invocable.invokeFunction("setup", (Object) null);
 			eim.registerParty(party, map);
-		} catch (ScriptException ex) {
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
 	// non-PQ method for starting instance
-	public void startInstance(EventInstanceManager eim, String leader) {
+	public void startInstance(final EventInstanceManager eim, final String leader) {
 		try {
-			invocable.invokeFunction("setup", eim);
+			this.invocable.invokeFunction("setup", eim);
 			eim.setProperty("leader", leader);
-		} catch (ScriptException ex) {
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void startInstance(Squad squad, GameMap map) {
+	public void startInstance(final Squad squad, final GameMap map) {
 		try {
-			EventInstanceManager eim = (EventInstanceManager) (invocable.invokeFunction("setup", squad.getLeader().getId()));
+			final EventInstanceManager eim = (EventInstanceManager) this.invocable.invokeFunction("setup", squad.getLeader().getId());
 			eim.registerSquad(squad, map);
-		} catch (ScriptException ex) {
+		} catch (final ScriptException ex) {
 			ex.printStackTrace();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void warpAllPlayer(int from, int to) {
+	public void warpAllPlayer(final int from, final int to) {
 		final GameMap tomap = ChannelServer.getMapFactory().getMap(to);
-		for (GameMapObject mmo : ChannelServer.getMapFactory().getMap(from).getAllPlayer()) {
+		for (final GameMapObject mmo : ChannelServer.getMapFactory().getMap(from).getAllPlayer()) {
 			((ChannelCharacter) mmo).changeMap(tomap, tomap.getPortal(0));
 		}
 	}
@@ -232,7 +232,7 @@ public class EventManager {
 		if (!weather) {
 			ChannelServer.getInstance().broadcastPacket(ChannelPackets.serverNotice(type, msg));
 		} else {
-			for (Entry<Integer, GameMap> map : ChannelServer.getMapFactory().getMaps().entrySet()) {
+			for (final Entry<Integer, GameMap> map : ChannelServer.getMapFactory().getMaps().entrySet()) {
 				final GameMap load = map.getValue();
 				if (load.getCharactersSize() > 0) {
 					load.startMapEffect(msg, type);

@@ -23,11 +23,11 @@ public enum SummonMovementType {
 
 	private final int val;
 
-	private SummonMovementType(int val) {
+	private SummonMovementType(final int val) {
 		this.val = val;
 	}
 
 	public int getValue() {
-		return val;
+		return this.val;
 	}
 }

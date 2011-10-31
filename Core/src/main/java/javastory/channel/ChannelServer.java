@@ -58,12 +58,12 @@ public final class ChannelServer extends GameService {
 	private final Lock merchantMutex = new ReentrantLock();
 	private EventScriptManager eventManager;
 
-	private ChannelServer(ChannelInfo info) {
+	private ChannelServer(final ChannelInfo info) {
 		super(info);
 		this.channelInfo = info;
 	}
 
-	public static synchronized boolean initialize(ChannelInfo info) {
+	public static synchronized boolean initialize(final ChannelInfo info) {
 		if (instance == null) {
 			instance = new ChannelServer(info);
 			return true;
@@ -73,17 +73,17 @@ public final class ChannelServer extends GameService {
 	}
 
 	public int getChannelId() {
-		return channelInfo.getId();
+		return this.channelInfo.getId();
 	}
 
 	public ChannelInfo getChannelInfo() {
-		return channelInfo;
+		return this.channelInfo;
 	}
 
 	public static void pingWorld() {
 		try {
 			instance.wci.ping();
-		} catch (RemoteException ex) {
+		} catch (final RemoteException ex) {
 			if (instance.isWorldReady.compareAndSet(true, false)) {
 				instance.connectToWorld();
 			}
@@ -96,32 +96,32 @@ public final class ChannelServer extends GameService {
 			worldRegistry = super.getRegistry();
 
 			// TODO: implement the interface in this class.
-			cwi = new ChannelWorldInterfaceImpl(this);
-			wci = worldRegistry.registerChannelServer(this.channelInfo, cwi);
-			wci.serverReady();
+			this.cwi = new ChannelWorldInterfaceImpl(this);
+			this.wci = worldRegistry.registerChannelServer(this.channelInfo, this.cwi);
+			this.wci.serverReady();
 		} catch (NotBoundException | RemoteException ex) {
 			Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		isWorldReady.compareAndSet(false, true);
+		this.isWorldReady.compareAndSet(false, true);
 	}
 
 	@Override
 	protected final void loadSettings() {
-		WorldInfo info = WorldConfig.load(this.channelInfo.getWorldId());
-		expRate = (float) info.getExpRate() / 100;
-		mesoRate = (float) info.getMesoRate() / 100;
-		itemRate = (float) info.getItemRate() / 100;
+		final WorldInfo info = WorldConfig.load(this.channelInfo.getWorldId());
+		this.expRate = (float) info.getExpRate() / 100;
+		this.mesoRate = (float) info.getMesoRate() / 100;
+		this.itemRate = (float) info.getItemRate() / 100;
 
 		// TODO: do this one in the DB too.
-		serverMessage = "";
+		this.serverMessage = "";
 	}
 
 	public void initialize() {
-		connectToWorld();
-		loadSettings();
+		this.connectToWorld();
+		this.loadSettings();
 
-		List<String> events = loadEventsFromDb();
-		eventManager = new EventScriptManager(events);
+		final List<String> events = this.loadEventsFromDb();
+		this.eventManager = new EventScriptManager(events);
 
 		TimerManager.getInstance().start();
 		TimerManager.getInstance().register(AutobanManager.getInstance(), 60000);
@@ -131,18 +131,18 @@ public final class ChannelServer extends GameService {
 		ItemInfoProvider.getInstance();
 		RandomRewards.getInstance();
 		SkillFactory.getSkill(99999999);
-		players = new PlayerStorage();
+		this.players = new PlayerStorage();
 
 		final PacketHandler serverHandler = new ChannelPacketHandler(this.channelId);
 		super.bind(serverHandler);
 		try {
-			wci.serverReady();
-		} catch (RemoteException ex) {
+			this.wci.serverReady();
+		} catch (final RemoteException ex) {
 			Logger.getLogger(ChannelServer.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		System.out.printf(":: Channel %d : Listening on port %d ::", this.getChannelId(), super.endpointInfo.getPort());
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownListener()));
-		eventManager.init();
+		this.eventManager.init();
 	}
 
 	public static GameMapFactory getMapFactory() {
@@ -163,30 +163,30 @@ public final class ChannelServer extends GameService {
 	}
 
 	public String getServerMessage() {
-		return serverMessage;
+		return this.serverMessage;
 	}
 
 	public void setServerMessage(final String newMessage) {
-		serverMessage = newMessage;
-		broadcastPacket(ChannelPackets.headerMessage(serverMessage));
+		this.serverMessage = newMessage;
+		this.broadcastPacket(ChannelPackets.headerMessage(this.serverMessage));
 	}
 
 	public void broadcastPacket(final GamePacket data) {
-		players.broadcastPacket(data);
+		this.players.broadcastPacket(data);
 	}
 
 	public void broadcastSmegaPacket(final GamePacket data) {
-		players.broadcastSmegaPacket(data);
+		this.players.broadcastSmegaPacket(data);
 	}
 
 	public void broadcastGMPacket(final GamePacket data) {
-		players.broadcastGMPacket(data);
+		this.players.broadcastGMPacket(data);
 	}
 
 	public String getIP(final int channel) {
 		try {
 			return getWorldInterface().getIP(channel);
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			System.err.println("Lost connection to world server" + e);
 			throw new RuntimeException("Lost connection to world server");
 		}
@@ -202,7 +202,7 @@ public final class ChannelServer extends GameService {
 	public final void shutdownWorld(final int time) {
 		try {
 			getWorldInterface().shutdown(time);
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			pingWorld();
 		}
 	}
@@ -210,7 +210,7 @@ public final class ChannelServer extends GameService {
 	public final void shutdownLogin() {
 		try {
 			getWorldInterface().shutdownLogin();
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			pingWorld();
 		}
 	}
@@ -220,24 +220,24 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final EventScriptManager getEventSM() {
-		return eventManager;
+		return this.eventManager;
 	}
 
 	public final void reloadEvents() {
-		List<String> events = loadEventsFromDb();
-		eventManager.cancel();
-		eventManager = new EventScriptManager(events);
-		eventManager.init();
+		final List<String> events = this.loadEventsFromDb();
+		this.eventManager.cancel();
+		this.eventManager = new EventScriptManager(events);
+		this.eventManager.init();
 	}
 
 	private List<String> loadEventsFromDb() {
 		// TODO: load events from DB.
-		List<String> events = Lists.newArrayList();
+		final List<String> events = Lists.newArrayList();
 		return events;
 	}
 
 	public final float getExpRate() {
-		return expRate;
+		return this.expRate;
 	}
 
 	public final void setExpRate(final float expRate) {
@@ -245,7 +245,7 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final float getMesoRate() {
-		return mesoRate;
+		return this.mesoRate;
 	}
 
 	public final void setMesoRate(final float mesoRate) {
@@ -253,7 +253,7 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final float getItemRate() {
-		return itemRate;
+		return this.itemRate;
 	}
 
 	public final void setItemRate(final float dropRate) {
@@ -264,107 +264,107 @@ public final class ChannelServer extends GameService {
 		Guild guild = null;
 		try {
 			guild = getWorldInterface().getGuild(guildId);
-		} catch (RemoteException re) {
+		} catch (final RemoteException re) {
 			System.err.println("RemoteException while fetching MapleGuild." + re);
 			return null;
 		}
-		if (gsStore.get(guildId) == null) {
-			gsStore.put(guildId, new GuildSummary(guild));
+		if (this.gsStore.get(guildId) == null) {
+			this.gsStore.put(guildId, new GuildSummary(guild));
 		}
 		return guild;
 	}
 
 	public final GuildSummary getGuildSummary(final int guildId) {
-		if (gsStore.containsKey(guildId)) {
-			return gsStore.get(guildId);
+		if (this.gsStore.containsKey(guildId)) {
+			return this.gsStore.get(guildId);
 		}
 		try {
 			final Guild guild = ChannelServer.getWorldInterface().getGuild(guildId);
 			if (guild != null) {
-				gsStore.put(guildId, new GuildSummary(guild));
+				this.gsStore.put(guildId, new GuildSummary(guild));
 			}
-			return gsStore.get(guildId);
-		} catch (RemoteException re) {
+			return this.gsStore.get(guildId);
+		} catch (final RemoteException re) {
 			System.err.println("RemoteException while fetching GuildSummary." + re);
 			return null;
 		}
 	}
 
 	public final void updateGuildSummary(final int guildId, final GuildSummary summary) {
-		gsStore.put(guildId, summary);
+		this.gsStore.put(guildId, summary);
 	}
 
 	public final Squad getMapleSquad(final String type) {
-		return mapleSquads.get(type);
+		return this.mapleSquads.get(type);
 	}
 
 	public final boolean addMapleSquad(final Squad squad, final String type) {
-		if (mapleSquads.get(type) == null) {
-			mapleSquads.remove(type);
-			mapleSquads.put(type, squad);
+		if (this.mapleSquads.get(type) == null) {
+			this.mapleSquads.remove(type);
+			this.mapleSquads.put(type, squad);
 			return true;
 		}
 		return false;
 	}
 
 	public final boolean removeMapleSquad(final String type) {
-		if (mapleSquads.containsKey(type)) {
-			mapleSquads.remove(type);
+		if (this.mapleSquads.containsKey(type)) {
+			this.mapleSquads.remove(type);
 			return true;
 		}
 		return false;
 	}
 
 	public final void closeAllMerchant() {
-		merchantMutex.lock();
+		this.merchantMutex.lock();
 		try {
-			final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
+			final Iterator<HiredMerchantStore> iterator = this.merchants.values().iterator();
 			while (iterator.hasNext()) {
-				HiredMerchantStore merchant = iterator.next();
+				final HiredMerchantStore merchant = iterator.next();
 				merchant.closeShop(true, false);
 				iterator.remove();
 			}
 		} finally {
-			merchantMutex.unlock();
+			this.merchantMutex.unlock();
 		}
 	}
 
 	public final int addMerchant(final HiredMerchantStore merchant) {
-		merchantMutex.lock();
+		this.merchantMutex.lock();
 		int id = 0;
 		try {
-			id = currentMerchantId;
-			merchants.put(id, merchant);
-			currentMerchantId++;
+			id = this.currentMerchantId;
+			this.merchants.put(id, merchant);
+			this.currentMerchantId++;
 		} finally {
-			merchantMutex.unlock();
+			this.merchantMutex.unlock();
 		}
 		return id;
 	}
 
 	public final void removeMerchant(final HiredMerchantStore merchant) {
-		merchantMutex.lock();
+		this.merchantMutex.lock();
 		try {
-			merchants.remove(merchant.getStoreId());
+			this.merchants.remove(merchant.getStoreId());
 		} finally {
-			merchantMutex.unlock();
+			this.merchantMutex.unlock();
 		}
 	}
 
 	public final boolean hasMerchant(final int accountId) {
 		boolean contains = false;
-		merchantMutex.lock();
+		this.merchantMutex.lock();
 		try {
-			final Iterator<HiredMerchantStore> iterator = merchants.values().iterator();
+			final Iterator<HiredMerchantStore> iterator = this.merchants.values().iterator();
 			while (iterator.hasNext()) {
-				HiredMerchantStore merchant = iterator.next();
+				final HiredMerchantStore merchant = iterator.next();
 				if (merchant.getOwnerAccountId() == accountId) {
 					contains = true;
 					break;
 				}
 			}
 		} finally {
-			merchantMutex.unlock();
+			this.merchantMutex.unlock();
 		}
 		return contains;
 	}
@@ -374,24 +374,24 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final boolean getMegaphoneMuteState() {
-		return MegaphoneMuteState;
+		return this.MegaphoneMuteState;
 	}
 
 	public final List<ChannelCharacter> getPartyMembers(final int partyId) {
-		List<ChannelCharacter> partym = new LinkedList<>();
+		final List<ChannelCharacter> partym = new LinkedList<>();
 		try {
-			Party party = ChannelServer.getWorldInterface().getParty(partyId);
+			final Party party = ChannelServer.getWorldInterface().getParty(partyId);
 			for (final PartyMember partychar : party.getMembers()) {
-				if (partychar.getChannel() == getChannelId()) {
+				if (partychar.getChannel() == this.getChannelId()) {
 					// Make sure the thing doesn't get duplicate plays due to
 					// ccing bug.
-					ChannelCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
+					final ChannelCharacter chr = getPlayerStorage().getCharacterByName(partychar.getName());
 					if (chr != null) {
 						partym.add(chr);
 					}
 				}
 			}
-		} catch (RemoteException ex) {
+		} catch (final RemoteException ex) {
 			ex.printStackTrace();
 		}
 		return partym;
@@ -401,7 +401,7 @@ public final class ChannelServer extends GameService {
 
 		@Override
 		public void run() {
-			shutdown();
+			ChannelServer.this.shutdown();
 		}
 	}
 

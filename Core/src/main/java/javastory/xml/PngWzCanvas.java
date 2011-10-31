@@ -34,13 +34,13 @@ import javastory.wz.WzCanvas;
 public class PngWzCanvas implements WzCanvas {
 
 	private static final int[] ZAHLEN = new int[] { 2, 1, 0, 3 };
-	private int height;
-	private int width;
-	private int dataLength;
-	private int format;
-	private byte[] data;
+	private final int height;
+	private final int width;
+	private final int dataLength;
+	private final int format;
+	private final byte[] data;
 
-	public PngWzCanvas(int width, int height, int dataLength, int format, byte[] data) {
+	public PngWzCanvas(final int width, final int height, final int dataLength, final int format, final byte[] data) {
 		super();
 		this.height = height;
 		this.width = width;
@@ -51,20 +51,20 @@ public class PngWzCanvas implements WzCanvas {
 
 	@Override
 	public int getHeight() {
-		return height;
+		return this.height;
 	}
 
 	@Override
 	public int getWidth() {
-		return width;
+		return this.width;
 	}
 
 	public int getFormat() {
-		return format;
+		return this.format;
 	}
 
 	public byte[] getData() {
-		return data;
+		return this.data;
 	}
 
 	@Override
@@ -76,72 +76,72 @@ public class PngWzCanvas implements WzCanvas {
 
 		byte[] writeBuf = new byte[maxWriteBuf];
 
-		switch (getFormat()) {
+		switch (this.getFormat()) {
 		case 1:
 		case 513:
-			sizeUncompressed = getHeight() * getWidth() * 4;
+			sizeUncompressed = this.getHeight() * this.getWidth() * 4;
 			break;
 		case 2:
-			sizeUncompressed = getHeight() * getWidth() * 8;
+			sizeUncompressed = this.getHeight() * this.getWidth() * 8;
 			break;
 		case 517:
-			sizeUncompressed = getHeight() * getWidth() / 128;
+			sizeUncompressed = this.getHeight() * this.getWidth() / 128;
 			break;
 		}
 
-		size8888 = getHeight() * getWidth() * 8;
+		size8888 = this.getHeight() * this.getWidth() * 8;
 
 		if (size8888 > maxWriteBuf) {
 			maxWriteBuf = size8888;
 			writeBuf = new byte[maxWriteBuf];
 		}
 
-		if (getHeight() > maxHeight) {
-			maxHeight = getHeight();
+		if (this.getHeight() > maxHeight) {
+			maxHeight = this.getHeight();
 		}
 
-		Inflater dec = new Inflater();
-		dec.setInput(getData(), 0, dataLength);
+		final Inflater dec = new Inflater();
+		dec.setInput(this.getData(), 0, this.dataLength);
 
 		int declen = 0;
-		byte[] uc = new byte[sizeUncompressed];
+		final byte[] uc = new byte[sizeUncompressed];
 
 		try {
 			declen = dec.inflate(uc);
-		} catch (DataFormatException ex) {
+		} catch (final DataFormatException ex) {
 			throw new RuntimeException("zlib fucks", ex);
 		}
 
 		dec.end();
 		// fuck the format
-		if (getFormat() == 1) {
+		if (this.getFormat() == 1) {
 			for (int i = 0; i < sizeUncompressed; i++) {
-				byte low = (byte) (uc[i] & 0x0F);
-				byte high = (byte) (uc[i] & 0xF0);
+				final byte low = (byte) (uc[i] & 0x0F);
+				final byte high = (byte) (uc[i] & 0xF0);
 
-				writeBuf[(i << 1)] = (byte) (((low << 4) | low) & 0xFF);
-				writeBuf[(i << 1) + 1] = (byte) (high | ((high >>> 4) & 0xF));
+				writeBuf[i << 1] = (byte) ((low << 4 | low) & 0xFF);
+				writeBuf[(i << 1) + 1] = (byte) (high | high >>> 4 & 0xF);
 			}
-		} else if (getFormat() == 2) {
+		} else if (this.getFormat() == 2) {
 			writeBuf = uc;
-		} else if (getFormat() == 513) {
+		} else if (this.getFormat() == 513) {
 			for (int i = 0; i < declen; i += 2) {
-				byte bBits = (byte) ((uc[i] & 0x1F) << 3);
-				byte gBits = (byte) (((uc[i + 1] & 0x07) << 5) | ((uc[i] & 0xE0) >> 3));
-				byte rBits = (byte) (uc[i + 1] & 0xF8);
+				final byte bBits = (byte) ((uc[i] & 0x1F) << 3);
+				final byte gBits = (byte) ((uc[i + 1] & 0x07) << 5 | (uc[i] & 0xE0) >> 3);
+				final byte rBits = (byte) (uc[i + 1] & 0xF8);
 
-				writeBuf[(i << 1)] = (byte) (bBits | (bBits >> 5));
-				writeBuf[(i << 1) + 1] = (byte) (gBits | (gBits >> 6));
-				writeBuf[(i << 1) + 2] = (byte) (rBits | (rBits >> 5));
+				writeBuf[i << 1] = (byte) (bBits | bBits >> 5);
+				writeBuf[(i << 1) + 1] = (byte) (gBits | gBits >> 6);
+				writeBuf[(i << 1) + 2] = (byte) (rBits | rBits >> 5);
 				writeBuf[(i << 1) + 3] = (byte) 0xFF;
 			}
-		} else if (getFormat() == 517) {
+		} else if (this.getFormat() == 517) {
 			byte b = 0x00;
 			int pixelIndex = 0;
 
 			for (int i = 0; i < declen; i++) {
 				for (int j = 0; j < 8; j++) {
-					b = (byte) (((uc[i] & (0x01 << (7 - j))) >> (7 - j)) * 255);
+					b = (byte) (((uc[i] & 0x01 << 7 - j) >> 7 - j) * 255);
 					for (int k = 0; k < 16; k++) {
 						pixelIndex = (i << 9) + (j << 6) + k * 2;
 						writeBuf[pixelIndex] = b;
@@ -153,15 +153,15 @@ public class PngWzCanvas implements WzCanvas {
 			}
 		}
 
-		DataBufferByte imgData = new DataBufferByte(writeBuf, sizeUncompressed);
+		final DataBufferByte imgData = new DataBufferByte(writeBuf, sizeUncompressed);
 
 		// SampleModel sm = new
 		// PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE, c.getWidth(),
 		// c.getHeight(), 4, c.getWidth() * 4, new int[] {2, 1, 0, 3});
-		SampleModel sm = new PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE, getWidth(), getHeight(), 4, getWidth() * 4, ZAHLEN);
-		WritableRaster imgRaster = Raster.createWritableRaster(sm, imgData, new Point(0, 0));
+		final SampleModel sm = new PixelInterleavedSampleModel(DataBuffer.TYPE_BYTE, this.getWidth(), this.getHeight(), 4, this.getWidth() * 4, ZAHLEN);
+		final WritableRaster imgRaster = Raster.createWritableRaster(sm, imgData, new Point(0, 0));
 
-		BufferedImage aa = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage aa = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		aa.setData(imgRaster);
 
 		return aa;

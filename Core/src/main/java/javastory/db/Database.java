@@ -19,21 +19,21 @@ public final class Database implements ConnectionPool {
 
 	private static final Database instance = new Database();
 	private final ConcurrentLinkedQueue<Connection> connections;
-	private String url;
-	private String username;
-	private String password;
+	private final String url;
+	private final String username;
+	private final String password;
 	private static final int POOLING_CAPACITY = 20;
 
 	private Database() {
 		try {
 			DriverManager.registerDriver(new Driver());
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
 		this.connections = new ConcurrentLinkedQueue<>();
 
-		Map<String, String> properties = this.loadDbProperties();
+		final Map<String, String> properties = this.loadDbProperties();
 
 		this.url = properties.get("url");
 		this.username = properties.get("username");
@@ -41,19 +41,19 @@ public final class Database implements ConnectionPool {
 	}
 
 	private Map<String, String> loadDbProperties() {
-		String dbConfigFilename = System.getProperty("dbConfigFilename", "database.properties");
-		Properties properties = new Properties();
+		final String dbConfigFilename = System.getProperty("dbConfigFilename", "database.properties");
+		final Properties properties = new Properties();
 
 		InputStreamReader reader = null;
 		try {
 			reader = new FileReader(dbConfigFilename);
 			properties.load(reader);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
 		} finally {
 			try {
 				reader.close();
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
@@ -66,12 +66,12 @@ public final class Database implements ConnectionPool {
 	}
 
 	private synchronized Connection getConnectionInternal() {
-		Connection fromQueue = connections.poll();
+		final Connection fromQueue = this.connections.poll();
 		if (fromQueue == null) {
 			try {
-				final Connection newConnection = DriverManager.getConnection(url, username, password);
+				final Connection newConnection = DriverManager.getConnection(this.url, this.username, this.password);
 				return new PooledConnection(newConnection, this);
-			} catch (SQLException exception) {
+			} catch (final SQLException exception) {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exception);
 			}
 		}
@@ -79,7 +79,7 @@ public final class Database implements ConnectionPool {
 	}
 
 	@Override
-	public synchronized void reclaim(PooledConnection connection) throws SQLException {
+	public synchronized void reclaim(final PooledConnection connection) throws SQLException {
 		if (this.connections.size() >= POOLING_CAPACITY) {
 			connection.getInnerConnection().close();
 			return;

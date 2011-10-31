@@ -28,7 +28,7 @@ import javastory.game.quest.QuestInfoProvider.QuestInfo;
 
 public final class QuestStatus implements Serializable {
 
-	private int questId;
+	private final int questId;
 	private static final long serialVersionUID = 91795419934134L;
 	private byte state;
 	private Map<Integer, Integer> killedMobs = null;
@@ -42,9 +42,9 @@ public final class QuestStatus implements Serializable {
 		this.state = status;
 		this.completionTime = System.currentTimeMillis();
 		if (status == 1) {
-			if (getQuestInfo().getRelevantMobs().size() > 0) {
-				killedMobs = new LinkedHashMap<>();
-				registerMobs();
+			if (this.getQuestInfo().getRelevantMobs().size() > 0) {
+				this.killedMobs = new LinkedHashMap<>();
+				this.registerMobs();
 			}
 		}
 	}
@@ -54,28 +54,28 @@ public final class QuestStatus implements Serializable {
 		this.setNpc(npc);
 	}
 
-	public QuestStatus(ResultSet rs) throws SQLException {
+	public QuestStatus(final ResultSet rs) throws SQLException {
 		this.state = rs.getByte("status");
 		this.questId = rs.getInt("quest");
 		final long timestamp = rs.getLong("time");
 		this.completionTime = timestamp;
 		if (timestamp > -1) {
-			completionTime *= 1000;
+			this.completionTime *= 1000;
 		}
 		this.forfeited = rs.getInt("forfeited");
 		this.customData = rs.getString("customData");
 	}
 
 	private QuestInfo getQuestInfo() {
-		return QuestInfoProvider.getInfo(questId);
+		return QuestInfoProvider.getInfo(this.questId);
 	}
 
 	public int getQuestId() {
-		return questId;
+		return this.questId;
 	}
 
 	public byte getState() {
-		return state;
+		return this.state;
 	}
 
 	public void setState(final byte status) {
@@ -83,7 +83,7 @@ public final class QuestStatus implements Serializable {
 	}
 
 	public int getNpc() {
-		return npcId;
+		return this.npcId;
 	}
 
 	public void setNpc(final int npc) {
@@ -91,13 +91,13 @@ public final class QuestStatus implements Serializable {
 	}
 
 	private void registerMobs() {
-		for (final int i : getQuestInfo().getRelevantMobs().keySet()) {
-			killedMobs.put(i, 0);
+		for (final int i : this.getQuestInfo().getRelevantMobs().keySet()) {
+			this.killedMobs.put(i, 0);
 		}
 	}
 
 	private int maxMob(final int monsterId) {
-		for (final Map.Entry<Integer, Integer> qs : getQuestInfo().getRelevantMobs().entrySet()) {
+		for (final Map.Entry<Integer, Integer> qs : this.getQuestInfo().getRelevantMobs().entrySet()) {
 			if (qs.getKey() == monsterId) {
 				return qs.getValue();
 			}
@@ -106,27 +106,27 @@ public final class QuestStatus implements Serializable {
 	}
 
 	public boolean mobKilled(final int monsterId) {
-		final Integer mob = killedMobs.get(monsterId);
+		final Integer mob = this.killedMobs.get(monsterId);
 		if (mob != null) {
-			killedMobs.put(monsterId, Math.min(mob + 1, maxMob(monsterId)));
+			this.killedMobs.put(monsterId, Math.min(mob + 1, this.maxMob(monsterId)));
 			return true;
 		}
 		return false;
 	}
 
 	public void setMobKills(final int monsterId, final int count) {
-		killedMobs.put(monsterId, count);
+		this.killedMobs.put(monsterId, count);
 	}
 
 	public boolean hasMobKills() {
-		if (killedMobs == null) {
+		if (this.killedMobs == null) {
 			return false;
 		}
-		return killedMobs.size() > 0;
+		return this.killedMobs.size() > 0;
 	}
 
 	public int getMobKills(final int monsterId) {
-		final Integer mob = killedMobs.get(monsterId);
+		final Integer mob = this.killedMobs.get(monsterId);
 		if (mob == null) {
 			return 0;
 		}
@@ -134,40 +134,40 @@ public final class QuestStatus implements Serializable {
 	}
 
 	public Map<Integer, Integer> getMobKills() {
-		return killedMobs;
+		return this.killedMobs;
 	}
 
 	public long getCompletionTime() {
-		return completionTime;
+		return this.completionTime;
 	}
 
 	public int getForfeited() {
-		return forfeited;
+		return this.forfeited;
 	}
 
 	public String getCustomData() {
-		return customData;
+		return this.customData;
 	}
 
-	public void setCustomData(String data) {
+	public void setCustomData(final String data) {
 		this.customData = data;
 	}
 
 	public void forfeit() {
-		if (state != (byte) 1) {
+		if (this.state != (byte) 1) {
 			return;
 		}
-		forfeited++;
-		state = 0;
+		this.forfeited++;
+		this.state = 0;
 	}
 
-	public void start(int npcId, String customData) {
+	public void start(final int npcId, final String customData) {
 		this.state = 1;
 		this.customData = customData;
 		this.npcId = npcId;
 	}
 
-	public void complete(int npcId) {
+	public void complete(final int npcId) {
 		this.state = 2;
 		this.completionTime = System.currentTimeMillis();
 		this.npcId = npcId;

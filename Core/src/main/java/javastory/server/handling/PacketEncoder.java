@@ -57,7 +57,7 @@ public class PacketEncoder implements ProtocolEncoder {
 	}
 
 	@Override
-	public void dispose(IoSession session) throws Exception {
+	public void dispose(final IoSession session) throws Exception {
 		// nothing to do
 	}
 }

@@ -26,9 +26,9 @@ import javastory.tools.packets.ChannelPackets;
 
 public class Shop {
 	private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
-	private int id;
-	private int npcId;
-	private List<ShopItem> items;
+	private final int id;
+	private final int npcId;
+	private final List<ShopItem> items;
 
 	static {
 		rechargeableItems.add(2070000);
@@ -66,27 +66,27 @@ public class Shop {
 	}
 
 	/** Creates a new instance of MapleShop */
-	private Shop(int id, int npcId) {
+	private Shop(final int id, final int npcId) {
 		this.id = id;
 		this.npcId = npcId;
-		items = new LinkedList<>();
+		this.items = new LinkedList<>();
 	}
 
-	public void addItem(ShopItem item) {
-		items.add(item);
+	public void addItem(final ShopItem item) {
+		this.items.add(item);
 	}
 
-	public void sendShop(ChannelClient c) {
+	public void sendShop(final ChannelClient c) {
 		c.getPlayer().setShop(this);
-		c.write(ChannelPackets.getNPCShop(c, getNpcId(), items));
+		c.write(ChannelPackets.getNPCShop(c, this.getNpcId(), this.items));
 	}
 
-	public void buy(ChannelClient c, int itemId, short quantity) {
+	public void buy(final ChannelClient c, final int itemId, short quantity) {
 		if (quantity <= 0) {
 			AutobanManager.getInstance().addPoints(c, 1000, 0, "Buying " + quantity + " " + itemId);
 			return;
 		}
-		ShopItem item = findById(itemId);
+		final ShopItem item = this.findById(itemId);
 		if (item != null && item.getPrice() > 0) {
 			final ChannelCharacter player = c.getPlayer();
 			if (player.getMeso() >= item.getPrice() * quantity) {
@@ -94,11 +94,11 @@ public class Shop {
 					if (GameConstants.isPet(itemId)) {
 						InventoryManipulator.addById(c, itemId, quantity, null, Pet.createPet(itemId));
 					} else {
-						ItemInfoProvider ii = ItemInfoProvider.getInstance();
+						final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 
 						if (GameConstants.isRechargable(itemId)) {
 							quantity = ii.getSlotMax(item.getItemId());
-							player.gainMeso(-(item.getPrice()), false);
+							player.gainMeso(-item.getPrice(), false);
 							InventoryManipulator.addById(c, itemId, quantity);
 						} else {
 							player.gainMeso(-(item.getPrice() * quantity), false);
@@ -113,11 +113,11 @@ public class Shop {
 		}
 	}
 
-	public void sell(ChannelClient c, Inventory inventory, byte slot, short quantity) {
+	public void sell(final ChannelClient c, final Inventory inventory, final byte slot, short quantity) {
 		if (quantity == 0xFFFF || quantity == 0) {
 			quantity = 1;
 		}
-		IItem item = inventory.getItem(slot);
+		final IItem item = inventory.getItem(slot);
 
 		if (GameConstants.isThrowingStar(item.getItemId()) || GameConstants.isBullet(item.getItemId())) {
 			quantity = item.getQuantity();
@@ -152,7 +152,7 @@ public class Shop {
 		final ChannelCharacter player = c.getPlayer();
 		final IItem item = player.getUseInventory().getItem(slot);
 
-		if (item == null || (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId()))) {
+		if (item == null || !GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId())) {
 			return;
 		}
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
@@ -173,20 +173,21 @@ public class Shop {
 		}
 	}
 
-	protected ShopItem findById(int itemId) {
-		for (ShopItem item : items) {
-			if (item.getItemId() == itemId)
+	protected ShopItem findById(final int itemId) {
+		for (final ShopItem item : this.items) {
+			if (item.getItemId() == itemId) {
 				return item;
+			}
 		}
 		return null;
 	}
 
-	public static Shop createFromDB(int id, boolean isShopId) {
+	public static Shop createFromDB(final int id, final boolean isShopId) {
 		Shop ret = null;
 		int shopId;
 
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement(isShopId ? "SELECT * FROM shops WHERE shopid = ?" : "SELECT * FROM shops WHERE npcid = ?");
 
 			ps.setInt(1, id);
@@ -204,10 +205,10 @@ public class Shop {
 			ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
 			ps.setInt(1, shopId);
 			rs = ps.executeQuery();
-			List<Integer> recharges = new ArrayList<>(rechargeableItems);
+			final List<Integer> recharges = new ArrayList<>(rechargeableItems);
 			while (rs.next()) {
 				if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
-					ShopItem starItem = new ShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"));
+					final ShopItem starItem = new ShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"));
 					ret.addItem(starItem);
 					if (rechargeableItems.contains(starItem.getItemId())) {
 						recharges.remove(Integer.valueOf(starItem.getItemId()));
@@ -216,22 +217,22 @@ public class Shop {
 					ret.addItem(new ShopItem((short) 1000, rs.getInt("itemid"), rs.getInt("price")));
 				}
 			}
-			for (Integer recharge : recharges) {
+			for (final Integer recharge : recharges) {
 				ret.addItem(new ShopItem((short) 1000, recharge.intValue(), 0));
 			}
 			rs.close();
 			ps.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Could not load shop" + e);
 		}
 		return ret;
 	}
 
 	public int getNpcId() {
-		return npcId;
+		return this.npcId;
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 }

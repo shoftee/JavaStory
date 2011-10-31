@@ -26,24 +26,24 @@ public class FlashMovement extends AbstractLifeMovement {
 
 	private Point pixelsPerSecond;
 
-	public FlashMovement(int type, Point position, int duration, int newstate) {
+	public FlashMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	public Point getPixelsPerSecond() {
-		return pixelsPerSecond;
+		return this.pixelsPerSecond;
 	}
 
-	public void setPixelsPerSecond(Point ye) {
+	public void setPixelsPerSecond(final Point ye) {
 		this.pixelsPerSecond = ye;
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeVector(getPosition());
-		builder.writeVector(pixelsPerSecond);
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeVector(this.getPosition());
+		builder.writeVector(this.pixelsPerSecond);
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

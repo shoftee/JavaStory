@@ -34,20 +34,20 @@ public class FiletimeUtil {
 	 * @return A 64-bit the file time timestamp
 	 */
 	public static long getFiletime(final long unixtime) {
-		return ((unixtime * 10000) + FILETIME_UNIXTIME_OFFSET);
+		return unixtime * 10000 + FILETIME_UNIXTIME_OFFSET;
 	}
 
 	public static boolean isDST() {
 		return TimeZone.getDefault().inDaylightTime(new Date());
 	}
 
-	public static long getFileTimestamp(long unixtime, boolean roundToMinutes) {
+	public static long getFileTimestamp(long unixtime, final boolean roundToMinutes) {
 		if (isDST()) {
 			unixtime -= 3600000L;
 		}
 		long time;
 		if (roundToMinutes) {
-			time = (unixtime / 1000 / 60) * 600000000;
+			time = unixtime / 1000 / 60 * 600000000;
 		} else {
 			time = unixtime * 10000;
 		}

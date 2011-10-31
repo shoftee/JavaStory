@@ -28,12 +28,12 @@ import javax.imageio.ImageIO;
 
 public class FileStoredPngWzCanvas implements WzCanvas {
 
-	private File file;
+	private final File file;
 	private int width;
 	private int height;
 	private BufferedImage image;
 
-	public FileStoredPngWzCanvas(int width, int height, File fileIn) {
+	public FileStoredPngWzCanvas(final int width, final int height, final File fileIn) {
 		this.width = width;
 		this.height = height;
 		this.file = fileIn;
@@ -41,29 +41,29 @@ public class FileStoredPngWzCanvas implements WzCanvas {
 
 	@Override
 	public int getHeight() {
-		return height;
+		return this.height;
 	}
 
 	@Override
 	public int getWidth() {
-		return width;
+		return this.width;
 	}
 
 	@Override
 	public BufferedImage getImage() {
-		loadImageIfNecessary();
-		return image;
+		this.loadImageIfNecessary();
+		return this.image;
 	}
 
 	private void loadImageIfNecessary() {
-		if (image == null) {
+		if (this.image == null) {
 			try {
-				image = ImageIO.read(file);
+				this.image = ImageIO.read(this.file);
 				// replace the dimensions loaded from the wz by the REAL
 				// dimensions from the image - should be equal tho
-				width = image.getWidth();
-				height = image.getHeight();
-			} catch (IOException e) {
+				this.width = this.image.getWidth();
+				this.height = this.image.getHeight();
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}

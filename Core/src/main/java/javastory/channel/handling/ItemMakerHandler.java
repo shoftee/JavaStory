@@ -178,7 +178,7 @@ public class ItemMakerHandler {
 	}
 
 	private static int[] getCrystal(final int itemid, final int level) {
-		int[] all = new int[2];
+		final int[] all = new int[2];
 		all[0] = -1;
 		if (level >= 31 && level <= 50) {
 			all[0] = 4260000;
@@ -263,10 +263,10 @@ public class ItemMakerHandler {
 			final boolean success = Randomizer.nextBoolean();
 			final int ma = item.getMatk(), wa = item.getWatk();
 			if (wa > 0) {
-				item.setWatk((short) (success ? (wa + s) : (wa - s)));
+				item.setWatk((short) (success ? wa + s : wa - s));
 			}
 			if (ma > 0) {
-				item.setMatk((short) (success ? (ma + s) : (ma - s)));
+				item.setMatk((short) (success ? ma + s : ma - s));
 			}
 		}
 		s = stats.get("randStat");
@@ -274,16 +274,16 @@ public class ItemMakerHandler {
 			final boolean success = Randomizer.nextBoolean();
 			final int str = item.getStr(), dex = item.getDex(), luk = item.getLuk(), int_ = item.getInt();
 			if (str > 0) {
-				item.setStr((short) (success ? (str + s) : (str - s)));
+				item.setStr((short) (success ? str + s : str - s));
 			}
 			if (dex > 0) {
-				item.setDex((short) (success ? (dex + s) : (dex - s)));
+				item.setDex((short) (success ? dex + s : dex - s));
 			}
 			if (int_ > 0) {
-				item.setInt((short) (success ? (int_ + s) : (int_ - s)));
+				item.setInt((short) (success ? int_ + s : int_ - s));
 			}
 			if (luk > 0) {
-				item.setLuk((short) (success ? (luk + s) : (luk - s)));
+				item.setLuk((short) (success ? luk + s : luk - s));
 			}
 		}
 	}
@@ -298,7 +298,7 @@ public class ItemMakerHandler {
 			removed++;
 		}
 		for (final ItemRecipeEntry p : recipe) {
-			int itemId = p.ItemId;
+			final int itemId = p.ItemId;
 			final Inventory inventory = player.getInventoryForItem(itemId);
 			InventoryManipulator.removeById(c, inventory, itemId, p.Quantity, false, false);
 		}

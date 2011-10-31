@@ -26,27 +26,27 @@ import javastory.tools.packets.ChannelPackets;
 
 public class Dragon extends AbstractAnimatedGameMapObject {
 
-	private int owner;
-	private int jobid;
+	private final int owner;
+	private final int jobid;
 
-	public Dragon(ChannelCharacter owner) {
+	public Dragon(final ChannelCharacter owner) {
 		super();
 		this.owner = owner.getId();
 		this.jobid = owner.getJobId();
-		if (jobid < 2200 || jobid > 2218) {
+		if (this.jobid < 2200 || this.jobid > 2218) {
 			throw new RuntimeException("Trying to create a dragon for a non-Evan");
 		}
-		setPosition(owner.getPosition());
-		setStance(4);
+		this.setPosition(owner.getPosition());
+		this.setStance(4);
 	}
 
 	@Override
-	public void sendSpawnData(ChannelClient client) {
+	public void sendSpawnData(final ChannelClient client) {
 		client.write(ChannelPackets.spawnDragon(this));
 	}
 
 	@Override
-	public void sendDestroyData(ChannelClient client) {
+	public void sendDestroyData(final ChannelClient client) {
 		client.write(ChannelPackets.removeDragon(this.owner));
 	}
 

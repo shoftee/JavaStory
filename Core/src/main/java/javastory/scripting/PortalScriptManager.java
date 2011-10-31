@@ -28,19 +28,19 @@ public class PortalScriptManager {
 	}
 
 	private PortalScript getPortalScript(final String scriptName) {
-		if (scripts.containsKey(scriptName)) {
-			return scripts.get(scriptName);
+		if (this.scripts.containsKey(scriptName)) {
+			return this.scripts.get(scriptName);
 		}
 		final File scriptFile = new File("scripts/portal/" + scriptName + ".js");
 		if (!scriptFile.exists()) {
-			scripts.put(scriptName, null);
+			this.scripts.put(scriptName, null);
 			return null;
 		}
 		FileReader fr = null;
 		final ScriptEngine portal = sef.getScriptEngine();
 		try {
 			fr = new FileReader(scriptFile);
-			CompiledScript compiled = ((Compilable) portal).compile(fr);
+			final CompiledScript compiled = ((Compilable) portal).compile(fr);
 			compiled.eval();
 		} catch (final ScriptException | IOException e) {
 			System.err.println("THROW" + e);
@@ -54,12 +54,12 @@ public class PortalScriptManager {
 			}
 		}
 		final PortalScript script = ((Invocable) portal).getInterface(PortalScript.class);
-		scripts.put(scriptName, script);
+		this.scripts.put(scriptName, script);
 		return script;
 	}
 
 	public final void executePortalScript(final Portal portal, final ChannelClient c) {
-		final PortalScript script = getPortalScript(portal.getScriptName());
+		final PortalScript script = this.getPortalScript(portal.getScriptName());
 		if (script != null) {
 			script.enter(new PortalPlayerInteraction(c, portal));
 		} else {
@@ -68,6 +68,6 @@ public class PortalScriptManager {
 	}
 
 	public final void clearScripts() {
-		scripts.clear();
+		this.scripts.clear();
 	}
 }

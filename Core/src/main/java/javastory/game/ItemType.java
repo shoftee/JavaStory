@@ -15,7 +15,7 @@ public enum ItemType {
 	PET(3);
 	private byte type;
 
-	private ItemType(int typeByte) {
+	private ItemType(final int typeByte) {
 		this.type = (byte) typeByte;
 	}
 
@@ -23,7 +23,7 @@ public enum ItemType {
 		return this.type;
 	}
 
-	public static ItemType fromByte(int type) {
+	public static ItemType fromByte(final int type) {
 		switch (type) {
 		case 1:
 			return EQUIP;

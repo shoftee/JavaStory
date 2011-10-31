@@ -91,7 +91,7 @@ public final class PlayersHandler {
 			receiver.addFame(change);
 			receiver.updateSingleStat(Stat.FAME, receiver.getFame());
 
-			long timestamp = FameLog.addEntry(famer.getId(), receiverId);
+			final long timestamp = FameLog.addEntry(famer.getId(), receiverId);
 			famer.setLastFameTime(timestamp);
 
 			c.write(ChannelPackets.giveFameResponse(isIncrease, receiver.getName(), receiver.getFame()));
@@ -103,7 +103,7 @@ public final class PlayersHandler {
 		final int oid = reader.readInt();
 		final boolean mode = reader.readByte() == 0; // specifies if backwarp or not, 1 town to target, 0 target to town
 
-		for (GameMapObject obj : chr.getMap().getAllDoor()) {
+		for (final GameMapObject obj : chr.getMap().getAllDoor()) {
 			final Door door = (Door) obj;
 			if (door.getOwner().getId() == oid) {
 				door.warp(chr, mode);

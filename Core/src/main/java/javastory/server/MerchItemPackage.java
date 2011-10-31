@@ -11,35 +11,35 @@ public class MerchItemPackage {
 	private int mesos = 0, packageid;
 	private List<IItem> items = new ArrayList<IItem>();
 
-	public void setItems(List<IItem> items) {
+	public void setItems(final List<IItem> items) {
 		this.items = items;
 	}
 
 	public List<IItem> getItems() {
-		return items;
+		return this.items;
 	}
 
-	public void setSentTime(long sentTime) {
+	public void setSentTime(final long sentTime) {
 		this.sentTime = sentTime;
 	}
 
 	public long getSentTime() {
-		return sentTime;
+		return this.sentTime;
 	}
 
 	public int getMesos() {
-		return mesos;
+		return this.mesos;
 	}
 
-	public void setMesos(int set) {
-		mesos = set;
+	public void setMesos(final int set) {
+		this.mesos = set;
 	}
 
 	public int getPackageid() {
-		return packageid;
+		return this.packageid;
 	}
 
-	public void setPackageid(int packageid) {
+	public void setPackageid(final int packageid) {
 		this.packageid = packageid;
 	}
 }

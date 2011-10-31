@@ -15,8 +15,8 @@ public class GameMapItem extends AbstractGameMapObject {
 	protected byte type;
 	protected boolean pickedUp = false, playerDrop;
 
-	public GameMapItem(IItem item, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop) {
-		setPosition(position);
+	public GameMapItem(final IItem item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
+		this.setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
 		this.character_ownerid = owner.getId();
@@ -25,8 +25,8 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.playerDrop = playerDrop;
 	}
 
-	public GameMapItem(IItem item, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop, int questid) {
-		setPosition(position);
+	public GameMapItem(final IItem item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop, final int questid) {
+		this.setPosition(position);
 		this.item = item;
 		this.dropper = dropper;
 		this.character_ownerid = owner.getId();
@@ -36,8 +36,8 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.questid = questid;
 	}
 
-	public GameMapItem(int meso, Point position, GameMapObject dropper, ChannelCharacter owner, byte type, boolean playerDrop) {
-		setPosition(position);
+	public GameMapItem(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
+		this.setPosition(position);
 		this.item = null;
 		this.dropper = dropper;
 		this.character_ownerid = owner.getId();
@@ -47,38 +47,38 @@ public class GameMapItem extends AbstractGameMapObject {
 	}
 
 	public final IItem getItem() {
-		return item;
+		return this.item;
 	}
 
 	public final int getQuest() {
-		return questid;
+		return this.questid;
 	}
 
 	public final int getItemId() {
-		if (getMeso() > 0) {
-			return meso;
+		if (this.getMeso() > 0) {
+			return this.meso;
 		}
-		return item.getItemId();
+		return this.item.getItemId();
 	}
 
 	public final GameMapObject getDropper() {
-		return dropper;
+		return this.dropper;
 	}
 
 	public final int getOwner() {
-		return character_ownerid;
+		return this.character_ownerid;
 	}
 
 	public final int getMeso() {
-		return meso;
+		return this.meso;
 	}
 
 	public final boolean isPlayerDrop() {
-		return playerDrop;
+		return this.playerDrop;
 	}
 
 	public final boolean isPickedUp() {
-		return pickedUp;
+		return this.pickedUp;
 	}
 
 	public void setPickedUp(final boolean pickedUp) {
@@ -86,7 +86,7 @@ public class GameMapItem extends AbstractGameMapObject {
 	}
 
 	public byte getDropType() {
-		return type;
+		return this.type;
 	}
 
 	@Override
@@ -96,13 +96,13 @@ public class GameMapItem extends AbstractGameMapObject {
 
 	@Override
 	public void sendSpawnData(final ChannelClient client) {
-		if (questid <= 0 || client.getPlayer().getQuestCompletionStatus(questid) == 1) {
-			client.write(ChannelPackets.dropItemFromMapObject(this, null, getPosition(), (byte) 2));
+		if (this.questid <= 0 || client.getPlayer().getQuestCompletionStatus(this.questid) == 1) {
+			client.write(ChannelPackets.dropItemFromMapObject(this, null, this.getPosition(), (byte) 2));
 		}
 	}
 
 	@Override
 	public void sendDestroyData(final ChannelClient client) {
-		client.write(ChannelPackets.removeItemFromMap(getObjectId(), 1, 0));
+		client.write(ChannelPackets.removeItemFromMap(this.getObjectId(), 1, 0));
 	}
 }

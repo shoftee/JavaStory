@@ -2,12 +2,12 @@ package javastory.game.data;
 
 public class GemInfo {
 
-	private int reqLevel, reqMakerLevel;
-	private int cost, quantity;
-	private RandomRewardFactory rewards;
-	private ItemRecipe recipe;
+	private final int reqLevel, reqMakerLevel;
+	private final int cost, quantity;
+	private final RandomRewardFactory rewards;
+	private final ItemRecipe recipe;
 
-	public GemInfo(RandomRewardFactory rewards, ItemRecipe recipe, int cost, int reqLevel, int reqMakerLevel, int quantity) {
+	public GemInfo(final RandomRewardFactory rewards, final ItemRecipe recipe, final int cost, final int reqLevel, final int reqMakerLevel, final int quantity) {
 		this.rewards = rewards;
 		this.recipe = recipe;
 
@@ -18,26 +18,26 @@ public class GemInfo {
 	}
 
 	public int getManufacturedQuantity() {
-		return quantity;
+		return this.quantity;
 	}
 
 	public ItemRecipe getRecipe() {
-		return recipe;
+		return this.recipe;
 	}
 
 	public int getRequiredLevel() {
-		return reqLevel;
+		return this.reqLevel;
 	}
 
 	public int getRequiredSkillLevel() {
-		return reqMakerLevel;
+		return this.reqMakerLevel;
 	}
 
 	public int getCost() {
-		return cost;
+		return this.cost;
 	}
 
 	public int chooseRandomReward() {
-		return rewards.getRandomItem();
+		return this.rewards.getRandomItem();
 	}
 }

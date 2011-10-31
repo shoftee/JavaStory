@@ -39,29 +39,29 @@ public class PlayerBuffStorage implements Serializable {
 	private final Multimap<Integer, PlayerDiseaseValueHolder> diseases = HashMultimap.create();
 
 	public final void addBuffsToStorage(final int characterId, final Collection<PlayerBuffValueHolder> buffValues) {
-		buffs.removeAll(characterId);
-		buffs.putAll(characterId, buffValues);
+		this.buffs.removeAll(characterId);
+		this.buffs.putAll(characterId, buffValues);
 	}
 
 	public final void addCooldownsToStorage(final int characterId, final Collection<PlayerCooldownValueHolder> cooldownValues) {
-		cooldowns.removeAll(characterId);
-		cooldowns.putAll(characterId, cooldownValues);
+		this.cooldowns.removeAll(characterId);
+		this.cooldowns.putAll(characterId, cooldownValues);
 	}
 
 	public final void addDiseaseToStorage(final int characterId, final Collection<PlayerDiseaseValueHolder> diseaseValues) {
-		diseases.removeAll(characterId);
-		diseases.putAll(characterId, diseaseValues);
+		this.diseases.removeAll(characterId);
+		this.diseases.putAll(characterId, diseaseValues);
 	}
 
 	public final Collection<PlayerBuffValueHolder> getBuffsFromStorage(final int characterId) {
-		return buffs.removeAll(characterId);
+		return this.buffs.removeAll(characterId);
 	}
 
 	public final Collection<PlayerCooldownValueHolder> getCooldownsFromStorage(final int characterId) {
-		return cooldowns.removeAll(characterId);
+		return this.cooldowns.removeAll(characterId);
 	}
 
 	public final Collection<PlayerDiseaseValueHolder> getDiseaseFromStorage(final int characterId) {
-		return diseases.removeAll(characterId);
+		return this.diseases.removeAll(characterId);
 	}
 }

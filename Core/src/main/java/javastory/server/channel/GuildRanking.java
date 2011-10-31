@@ -30,7 +30,7 @@ import javastory.db.Database;
 public class GuildRanking {
 
 	private static GuildRanking instance = new GuildRanking();
-	private List<GuildRankingInfo> ranks = new LinkedList<GuildRankingInfo>();
+	private final List<GuildRankingInfo> ranks = new LinkedList<GuildRankingInfo>();
 	private long lastUpdate = System.currentTimeMillis();
 	private boolean hasLoaded = false;
 
@@ -39,31 +39,31 @@ public class GuildRanking {
 	}
 
 	public List<GuildRankingInfo> getRank() {
-		if ((ranks.isEmpty() && !hasLoaded) || (System.currentTimeMillis() - lastUpdate) > 3600000) {
-			hasLoaded = true; // TO prevent loading when there's no guild for the server
-			reload();
+		if (this.ranks.isEmpty() && !this.hasLoaded || System.currentTimeMillis() - this.lastUpdate > 3600000) {
+			this.hasLoaded = true; // TO prevent loading when there's no guild for the server
+			this.reload();
 		}
-		return ranks;
+		return this.ranks;
 	}
 
 	private void reload() {
-		ranks.clear();
+		this.ranks.clear();
 		try {
-			Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds ORDER BY `GP` DESC LIMIT 50");
-			ResultSet rs = ps.executeQuery();
+			final Connection con = Database.getConnection();
+			final PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds ORDER BY `GP` DESC LIMIT 50");
+			final ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
 				final GuildRankingInfo rank = new GuildRankingInfo(rs.getString("name"), rs.getInt("GP"), rs.getInt("logo"), rs.getInt("logoColor"), rs
 					.getInt("logoBG"), rs.getInt("logoBGColor"));
 
-				ranks.add(rank);
+				this.ranks.add(rank);
 			}
 			ps.close();
 			rs.close();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("Error handling guildRanking" + e);
 		}
-		lastUpdate = System.currentTimeMillis();
+		this.lastUpdate = System.currentTimeMillis();
 	}
 }

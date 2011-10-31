@@ -42,18 +42,30 @@ public final class MobInfo {
 	private static final WzDataProvider stringRoot = WzDataProviderFactory.getDataProvider("String.wz");
 	private static final WzData mobStrings = stringRoot.getData("Mob.img");
 
-	private int mobId;
-	private byte cp, selfDestruction_action, tagColor, tagBgColor, rareItemDropLevel, hpDisplayType;
-	private short level, physicalDefense, magicDefense, evasion;
-	private int exp, hp, mp, removeAfter, buffToGive, fixedDamage, selfDestruction_hp;
-	private boolean boss, undead, isFreeForAllLoot, firstAttack, isExplosiveReward, mobile, fly, onlyNormalAttack, friendly;
-	private String name;
-	private Map<Element, ElementalEffectiveness> effectiveness;
+	private final int mobId;
+	private final byte cp;
+	private byte selfDestruction_action;
+	private byte tagColor;
+	private byte tagBgColor;
+	private final byte rareItemDropLevel;
+	private final byte hpDisplayType;
+	private final short level, physicalDefense, magicDefense, evasion;
+	private final int exp, hp, mp, removeAfter, buffToGive, fixedDamage;
+	private int selfDestruction_hp;
+	private final boolean boss, undead, isFreeForAllLoot;
+	private boolean firstAttack;
+	private final boolean isExplosiveReward;
+	private final boolean mobile;
+	private final boolean fly;
+	private final boolean onlyNormalAttack;
+	private final boolean friendly;
+	private final String name;
+	private final Map<Element, ElementalEffectiveness> effectiveness;
 	private List<Integer> revives = Lists.newArrayList();
-	private List<SkillLevelEntry> skills = Lists.newArrayList();
+	private final List<SkillLevelEntry> skills = Lists.newArrayList();
 	private BanishInfo banish;
 
-	public MobInfo(int mobId, WzData data, WzData linkedData) {
+	public MobInfo(final int mobId, final WzData data, final WzData linkedData) {
 		WzData info = data.getChildByPath("info");
 		this.mobId = mobId;
 		this.hp = WzDataTool.getIntConvert("maxHP", info);
@@ -110,8 +122,8 @@ public final class MobInfo {
 
 		final WzData reviveInfo = info.getChildByPath("revive");
 		if (reviveInfo != null) {
-			List<Integer> revives = new LinkedList<>();
-			for (WzData bdata : reviveInfo) {
+			final List<Integer> revives = new LinkedList<>();
+			for (final WzData bdata : reviveInfo) {
 				revives.add(WzDataTool.getInt(bdata));
 			}
 			this.revives = revives;
@@ -120,14 +132,14 @@ public final class MobInfo {
 		final WzData monsterSkillData = info.getChildByPath("skill");
 		if (monsterSkillData != null) {
 			int i = 0;
-			List<SkillLevelEntry> skills = new ArrayList<>();
+			final List<SkillLevelEntry> skills = new ArrayList<>();
 			while (monsterSkillData.getChildByPath(Integer.toString(i)) != null) {
 				final int skill = WzDataTool.getInt(i + "/skill", monsterSkillData, 0);
 				final int level = WzDataTool.getInt(i + "/level", monsterSkillData, 0);
 				skills.add(new SkillLevelEntry(skill, level));
 				i++;
 			}
-			for (SkillLevelEntry skill : skills) {
+			for (final SkillLevelEntry skill : skills) {
 				this.skills.add(skill);
 			}
 		}
@@ -187,87 +199,87 @@ public final class MobInfo {
 	}
 
 	public int getExp() {
-		return exp;
+		return this.exp;
 	}
 
 	public int getHp() {
-		return hp;
+		return this.hp;
 	}
 
 	public int getMp() {
-		return mp;
+		return this.mp;
 	}
 
 	public short getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public byte getSelfD() {
-		return selfDestruction_action;
+		return this.selfDestruction_action;
 	}
 
 	public int getSelfDHp() {
-		return selfDestruction_hp;
+		return this.selfDestruction_hp;
 	}
 
 	public int getFixedDamage() {
-		return fixedDamage;
+		return this.fixedDamage;
 	}
 
 	public short getPhysicalDefense() {
-		return physicalDefense;
+		return this.physicalDefense;
 	}
 
 	public final short getMagicDefense() {
-		return magicDefense;
+		return this.magicDefense;
 	}
 
 	public final short getEvasion() {
-		return evasion;
+		return this.evasion;
 	}
 
 	public boolean getOnlyNoramlAttack() {
-		return onlyNormalAttack;
+		return this.onlyNormalAttack;
 	}
 
 	public BanishInfo getBanishInfo() {
-		return banish;
+		return this.banish;
 	}
 
 	public int getRemoveAfter() {
-		return removeAfter;
+		return this.removeAfter;
 	}
 
 	public byte getRareItemDropLevel() {
-		return rareItemDropLevel;
+		return this.rareItemDropLevel;
 	}
 
 	public boolean isBoss() {
-		return boss;
+		return this.boss;
 	}
 
 	public boolean isFreeForAllLoot() {
-		return isFreeForAllLoot;
+		return this.isFreeForAllLoot;
 	}
 
 	public boolean isExplosiveReward() {
-		return isExplosiveReward;
+		return this.isExplosiveReward;
 	}
 
 	public boolean getMobile() {
-		return mobile;
+		return this.mobile;
 	}
 
 	public boolean getFly() {
-		return fly;
+		return this.fly;
 	}
 
 	public List<Integer> getRevives() {
-		return revives;
+		return this.revives;
 	}
 
 	public boolean getUndead() {
-		return undead;
+		return this.undead;
 	}
 
 	public ImmutableMap<Element, ElementalEffectiveness> getEffectivenessMap() {
@@ -275,15 +287,15 @@ public final class MobInfo {
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public byte getTagColor() {
-		return tagColor;
+		return this.tagColor;
 	}
 
 	public byte getTagBgColor() {
-		return tagBgColor;
+		return this.tagBgColor;
 	}
 
 	public List<SkillLevelEntry> getSkills() {
@@ -291,11 +303,11 @@ public final class MobInfo {
 	}
 
 	public byte getNoSkills() {
-		return (byte) skills.size();
+		return (byte) this.skills.size();
 	}
 
-	public boolean hasSkill(int skillId, int level) {
-		for (SkillLevelEntry skill : skills) {
+	public boolean hasSkill(final int skillId, final int level) {
+		for (final SkillLevelEntry skill : this.skills) {
 			if (skill.skill == skillId && skill.level == level) {
 				return true;
 			}
@@ -304,26 +316,26 @@ public final class MobInfo {
 	}
 
 	public boolean isFirstAttack() {
-		return firstAttack;
+		return this.firstAttack;
 	}
 
 	public byte getCP() {
-		return cp;
+		return this.cp;
 	}
 
 	public boolean isFriendly() {
-		return friendly;
+		return this.friendly;
 	}
 
 	public int getBuffToGive() {
-		return buffToGive;
+		return this.buffToGive;
 	}
 
 	public byte getHpDisplayType() {
-		return hpDisplayType;
+		return this.hpDisplayType;
 	}
 
 	public int getMobId() {
-		return mobId;
+		return this.mobId;
 	}
 }

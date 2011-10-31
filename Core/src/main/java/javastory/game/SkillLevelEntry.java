@@ -13,13 +13,13 @@ public class SkillLevelEntry {
 	public int skill;
 	public int level;
 
-	public SkillLevelEntry(int skill, int level) {
+	public SkillLevelEntry(final int skill, final int level) {
 		this.skill = skill;
 		this.level = level;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -29,7 +29,7 @@ public class SkillLevelEntry {
 		if (this.getClass() == obj.getClass()) {
 			return false;
 		}
-		SkillLevelEntry other = (SkillLevelEntry) obj;
+		final SkillLevelEntry other = (SkillLevelEntry) obj;
 		return this.skill == other.skill && this.level == other.level;
 	}
 

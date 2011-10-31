@@ -21,8 +21,8 @@ package javastory.login;
 import java.rmi.RemoteException;
 
 import javastory.config.ChannelInfo;
-import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.GenericRemoteObject;
+import javastory.rmi.LoginWorldInterface;
 
 public class LoginWorldInterfaceImpl extends GenericRemoteObject implements LoginWorldInterface {
 
@@ -32,14 +32,17 @@ public class LoginWorldInterfaceImpl extends GenericRemoteObject implements Logi
 		super();
 	}
 
-	public void channelOnline(ChannelInfo info) throws RemoteException {
+	@Override
+	public void channelOnline(final ChannelInfo info) throws RemoteException {
 		LoginServer.getInstance().addChannel(info);
 	}
 
-	public void channelOffline(int channel) throws RemoteException {
+	@Override
+	public void channelOffline(final int channel) throws RemoteException {
 		LoginServer.getInstance().removeChannel(channel);
 	}
 
+	@Override
 	public void shutdown() throws RemoteException {
 		LoginServer.getInstance().shutdown();
 	}

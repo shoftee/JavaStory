@@ -27,42 +27,42 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
 	private Point pixelsPerSecond, offset;
 	private int unk;
 
-	public AbsoluteLifeMovement(int type, Point position, int duration, int newstate) {
+	public AbsoluteLifeMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	public Point getPixelsPerSecond() {
-		return pixelsPerSecond;
+		return this.pixelsPerSecond;
 	}
 
-	public void setPixelsPerSecond(Point wobble) {
+	public void setPixelsPerSecond(final Point wobble) {
 		this.pixelsPerSecond = wobble;
 	}
 
 	public Point getOffset() {
-		return offset;
+		return this.offset;
 	}
 
-	public void setOffset(Point wobble) {
+	public void setOffset(final Point wobble) {
 		this.offset = wobble;
 	}
 
 	public int getUnk() {
-		return unk;
+		return this.unk;
 	}
 
-	public void setUnk(int unk) {
+	public void setUnk(final int unk) {
 		this.unk = unk;
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeVector(getPosition());
-		builder.writeVector(pixelsPerSecond);
-		builder.writeAsShort(unk);
-		builder.writeVector(offset);
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeVector(this.getPosition());
+		builder.writeVector(this.pixelsPerSecond);
+		builder.writeAsShort(this.unk);
+		builder.writeVector(this.offset);
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

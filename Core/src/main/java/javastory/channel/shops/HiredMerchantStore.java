@@ -37,17 +37,17 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	public ScheduledFuture<?> schedule;
 	private GameMap map;
 	private int storeid;
-	private long start;
+	private final long start;
 
-	public HiredMerchantStore(ChannelCharacter owner, int itemId, String desc) {
+	public HiredMerchantStore(final ChannelCharacter owner, final int itemId, final String desc) {
 		super(owner, itemId, desc);
-		start = System.currentTimeMillis();
+		this.start = System.currentTimeMillis();
 		this.map = owner.getMap();
 		this.schedule = TimerManager.getInstance().schedule(new Runnable() {
 
 			@Override
 			public void run() {
-				closeShop(true, true);
+				HiredMerchantStore.this.closeShop(true, true);
 			}
 		}, 1000 * 60 * 60 * 24);
 	}
@@ -62,15 +62,15 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	}
 
 	@Override
-	public void buy(ChannelClient c, int item, short quantity) {
-		final PlayerShopItem pItem = items.get(item);
+	public void buy(final ChannelClient c, final int item, final short quantity) {
+		final PlayerShopItem pItem = this.items.get(item);
 		final IItem shopItem = pItem.item;
 		final IItem newItem = shopItem.copy();
 		final short perbundle = newItem.getQuantity();
 
 		newItem.setQuantity((short) (quantity * perbundle));
 
-		byte flag = newItem.getFlag();
+		final byte flag = newItem.getFlag();
 
 		if (ItemFlag.KARMA_EQ.check(flag)) {
 			newItem.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
@@ -82,8 +82,8 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 		if (InventoryManipulator.addFromDrop(c, newItem, false)) {
 			pItem.bundles -= quantity; // Number remaining in the store
 
-			final int gainmeso = getMeso() + (pItem.price * quantity);
-			setMeso(gainmeso - GameConstants.EntrustedStoreTax(gainmeso));
+			final int gainmeso = this.getMeso() + pItem.price * quantity;
+			this.setMeso(gainmeso - GameConstants.EntrustedStoreTax(gainmeso));
 			player.gainMeso(-pItem.price * quantity, false);
 		} else {
 			player.sendNotice(1, "Your inventory is full.");
@@ -91,33 +91,33 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	}
 
 	@Override
-	public void closeShop(boolean saveItems, boolean remove) {
-		if (schedule != null) {
-			schedule.cancel(false);
+	public void closeShop(final boolean saveItems, final boolean remove) {
+		if (this.schedule != null) {
+			this.schedule.cancel(false);
 		}
 		if (saveItems) {
-			saveItems();
+			this.saveItems();
 		}
 		if (remove) {
 			ChannelServer.getInstance().removeMerchant(this);
-			map.broadcastMessage(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
+			this.map.broadcastMessage(PlayerShopPacket.destroyHiredMerchant(this.getOwnerId()));
 		}
-		map.removeMapObject(this);
+		this.map.removeMapObject(this);
 
-		map = null;
-		schedule = null;
+		this.map = null;
+		this.schedule = null;
 	}
 
 	public int getTimeLeft() {
-		return (int) ((System.currentTimeMillis() - start) / 1000);
+		return (int) ((System.currentTimeMillis() - this.start) / 1000);
 	}
 
 	public GameMap getMap() {
-		return map;
+		return this.map;
 	}
 
 	public final int getStoreId() {
-		return storeid;
+		return this.storeid;
 	}
 
 	@Override
@@ -126,12 +126,12 @@ public class HiredMerchantStore extends AbstractPlayerShop {
 	}
 
 	@Override
-	public void sendDestroyData(ChannelClient client) {
-		client.write(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
+	public void sendDestroyData(final ChannelClient client) {
+		client.write(PlayerShopPacket.destroyHiredMerchant(this.getOwnerId()));
 	}
 
 	@Override
-	public void sendSpawnData(ChannelClient client) {
+	public void sendSpawnData(final ChannelClient client) {
 		client.write(PlayerShopPacket.spawnHiredMerchant(this));
 	}
 }

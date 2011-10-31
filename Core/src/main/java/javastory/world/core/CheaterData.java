@@ -23,31 +23,32 @@ import java.io.Serializable;
 public class CheaterData implements Serializable, Comparable<CheaterData> {
 
 	private static final long serialVersionUID = -8733673311051249885L;
-	private int points;
-	private String info;
+	private final int points;
+	private final String info;
 
-	public CheaterData(int points, String info) {
+	public CheaterData(final int points, final String info) {
 		this.points = points;
 		this.info = info;
 	}
 
 	public String getInfo() {
-		return info;
+		return this.info;
 	}
 
 	public int getPoints() {
-		return points;
+		return this.points;
 	}
 
 	@Override
-	public int compareTo(CheaterData o) {
-		int thisValue = getPoints();
-		int otherValue = o.getPoints();
-		if (thisValue < otherValue)
+	public int compareTo(final CheaterData o) {
+		final int thisValue = this.getPoints();
+		final int otherValue = o.getPoints();
+		if (thisValue < otherValue) {
 			return 1;
-		else if (thisValue == otherValue)
+		} else if (thisValue == otherValue) {
 			return 0;
-		else
+		} else {
 			return -1;
+		}
 	}
 }

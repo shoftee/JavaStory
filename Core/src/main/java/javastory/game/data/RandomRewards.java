@@ -23,23 +23,23 @@ public class RandomRewards {
 		// Gold Box
 		List<Integer> returnArray = new ArrayList<>();
 
-		processRewards(returnArray, GameConstants.goldrewards);
+		this.processRewards(returnArray, GameConstants.goldrewards);
 
-		compiledGold = returnArray;
+		this.compiledGold = returnArray;
 
 		// Silver Box
 		returnArray = new ArrayList<>();
 
-		processRewards(returnArray, GameConstants.silverrewards);
+		this.processRewards(returnArray, GameConstants.silverrewards);
 
-		compiledSilver = returnArray;
+		this.compiledSilver = returnArray;
 
 		// Fishing Rewards
 		returnArray = new ArrayList<>();
 
-		processRewards(returnArray, GameConstants.fishingReward);
+		this.processRewards(returnArray, GameConstants.fishingReward);
 
-		compiledFishing = returnArray;
+		this.compiledFishing = returnArray;
 	}
 
 	private void processRewards(final List<Integer> returnArray, final int[] list) {
@@ -57,14 +57,14 @@ public class RandomRewards {
 	}
 
 	public final int getGoldBoxReward() {
-		return compiledGold.get(Randomizer.nextInt(compiledGold.size()));
+		return this.compiledGold.get(Randomizer.nextInt(this.compiledGold.size()));
 	}
 
 	public final int getSilverBoxReward() {
-		return compiledSilver.get(Randomizer.nextInt(compiledSilver.size()));
+		return this.compiledSilver.get(Randomizer.nextInt(this.compiledSilver.size()));
 	}
 
 	public final int getFishingReward() {
-		return compiledFishing.get(Randomizer.nextInt(compiledFishing.size()));
+		return this.compiledFishing.get(Randomizer.nextInt(this.compiledFishing.size()));
 	}
 }

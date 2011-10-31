@@ -30,14 +30,14 @@ import com.google.common.collect.Maps;
 public class Storage implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	private int id;
-	private List<IItem> items;
+	private final int id;
+	private final List<IItem> items;
 	private int meso;
 	private byte slots;
 	private boolean hasChanged = false;
-	private Map<InventoryType, List<IItem>> typeItems = Maps.newEnumMap(InventoryType.class);
+	private final Map<InventoryType, List<IItem>> typeItems = Maps.newEnumMap(InventoryType.class);
 
-	private Storage(int id, byte slots, int meso) {
+	private Storage(final int id, final byte slots, final int meso) {
 		this.id = id;
 		this.slots = slots;
 		this.items = new LinkedList<>();
@@ -45,16 +45,16 @@ public class Storage implements Serializable {
 	}
 	
 	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
-	public static int create(int id) throws SQLException {
-		Connection connection = Database.getConnection();
-		PreparedStatement ps = connection.prepareStatement("INSERT INTO storages (accountid, slots, meso) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+	public static int create(final int id) throws SQLException {
+		final Connection connection = Database.getConnection();
+		final PreparedStatement ps = connection.prepareStatement("INSERT INTO storages (accountid, slots, meso) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 		ps.setInt(1, id);
 		ps.setInt(2, 4);
 		ps.setInt(3, 0);
 		ps.executeUpdate();
 
 		int storageid;
-		ResultSet rs = ps.getGeneratedKeys();
+		final ResultSet rs = ps.getGeneratedKeys();
 		if (rs.next()) {
 			storageid = rs.getInt(1);
 			ps.close();
@@ -68,11 +68,11 @@ public class Storage implements Serializable {
 
 	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
 
-	public static Storage loadStorage(int id) {
+	public static Storage loadStorage(final int id) {
 		Storage ret = null;
 		int storeId;
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM storages WHERE accountid = ?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -87,10 +87,10 @@ public class Storage implements Serializable {
 				ps.setInt(1, storeId);
 				rs = ps.executeQuery();
 				while (rs.next()) {
-					InventoryType type = InventoryType.fromNumber((byte) rs.getInt("inventorytype"));
+					final InventoryType type = InventoryType.fromNumber((byte) rs.getInt("inventorytype"));
 					if (type.equals(InventoryType.EQUIP) || type.equals(InventoryType.EQUIPPED)) {
-						int itemid = rs.getInt("itemid");
-						Equip equip = new Equip(itemid, rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
+						final int itemid = rs.getInt("itemid");
+						final Equip equip = new Equip(itemid, rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
 						equip.setOwner(rs.getString("owner"));
 						equip.setQuantity(rs.getShort("quantity"));
 						equip.setAcc(rs.getShort("acc"));
@@ -117,7 +117,7 @@ public class Storage implements Serializable {
 						equip.setFlag(rs.getByte("flag"));
 						ret.items.add(equip);
 					} else {
-						Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getByte("flag"));
+						final Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getByte("flag"));
 						item.setOwner(rs.getString("owner"));
 						item.setExpiration(rs.getLong("expiredate"));
 						item.setFlag(rs.getByte("flag"));
@@ -130,7 +130,7 @@ public class Storage implements Serializable {
 				storeId = create(id);
 				ret = new Storage(storeId, (byte) 4, 0);
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error loading storage" + ex);
 		}
 		return ret;
@@ -138,21 +138,21 @@ public class Storage implements Serializable {
 
 	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
 	public void saveToDB() {
-		if (!hasChanged) {
+		if (!this.hasChanged) {
 			return;
 		}
 		try {
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 
 			PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?");
-			ps.setInt(1, slots);
-			ps.setInt(2, meso);
-			ps.setInt(3, id);
+			ps.setInt(1, this.slots);
+			ps.setInt(2, this.meso);
+			ps.setInt(3, this.id);
 			ps.executeUpdate();
 			ps.close();
 
 			ps = con.prepareStatement("DELETE FROM inventoryitems WHERE storageid = ?");
-			ps.setInt(1, id);
+			ps.setInt(1, this.id);
 			ps.executeUpdate();
 			ps.close();
 
@@ -160,11 +160,11 @@ public class Storage implements Serializable {
 				.prepareStatement(
 					"INSERT INTO inventoryitems (storageid, itemid, inventorytype, position, quantity, owner, GM_Log, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
-			PreparedStatement pse = con
+			final PreparedStatement pse = con
 				.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-			for (IItem item : items) {
-				ps.setInt(1, id);
+			for (final IItem item : this.items) {
+				ps.setInt(1, this.id);
 				ps.setInt(2, item.getItemId());
 				ps.setInt(3, item.getType().asByte()); // type.getType()
 				ps.setInt(4, item.getPosition());
@@ -175,7 +175,7 @@ public class Storage implements Serializable {
 				ps.setByte(9, item.getFlag());
 				ps.executeUpdate();
 
-				ResultSet rs = ps.getGeneratedKeys();
+				final ResultSet rs = ps.getGeneratedKeys();
 				int itemid;
 				if (rs.next()) {
 					itemid = rs.getInt(1);
@@ -184,7 +184,7 @@ public class Storage implements Serializable {
 				}
 				if (item.getType() == ItemType.EQUIP) {
 					pse.setInt(1, itemid);
-					IEquip equip = (IEquip) item;
+					final IEquip equip = (IEquip) item;
 					pse.setInt(2, equip.getUpgradeSlots());
 					pse.setInt(3, equip.getLevel());
 					pse.setInt(4, equip.getStr());
@@ -211,34 +211,34 @@ public class Storage implements Serializable {
 			}
 			ps.close();
 			pse.close();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Error saving storage" + ex);
 		}
 	}
 
-	public IItem takeOut(byte slot) {
-		hasChanged = true;
-		IItem ret = items.remove(slot);
-		InventoryType type = GameConstants.getInventoryType(ret.getItemId());
-		typeItems.put(type, new ArrayList<>(filterItems(type)));
+	public IItem takeOut(final byte slot) {
+		this.hasChanged = true;
+		final IItem ret = this.items.remove(slot);
+		final InventoryType type = GameConstants.getInventoryType(ret.getItemId());
+		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
 		return ret;
 	}
 
-	public void store(IItem item) {
-		hasChanged = true;
-		items.add(item);
-		InventoryType type = GameConstants.getInventoryType(item.getItemId());
-		typeItems.put(type, new ArrayList<>(filterItems(type)));
+	public void store(final IItem item) {
+		this.hasChanged = true;
+		this.items.add(item);
+		final InventoryType type = GameConstants.getInventoryType(item.getItemId());
+		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
 	}
 
 	public List<IItem> getItems() {
-		return Collections.unmodifiableList(items);
+		return Collections.unmodifiableList(this.items);
 	}
 
-	private List<IItem> filterItems(InventoryType type) {
-		List<IItem> ret = new LinkedList<>();
+	private List<IItem> filterItems(final InventoryType type) {
+		final List<IItem> ret = new LinkedList<>();
 
-		for (IItem item : items) {
+		for (final IItem item : this.items) {
 			if (GameConstants.getInventoryType(item.getItemId()) == type) {
 				ret.add(item);
 			}
@@ -246,11 +246,11 @@ public class Storage implements Serializable {
 		return ret;
 	}
 
-	public byte getSlot(InventoryType type, byte slot) {
+	public byte getSlot(final InventoryType type, final byte slot) {
 		// MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
 		byte ret = 0;
-		for (IItem item : items) {
-			if (item == typeItems.get(type).get(slot)) {
+		for (final IItem item : this.items) {
+			if (item == this.typeItems.get(type).get(slot)) {
 				return ret;
 			}
 			ret++;
@@ -258,12 +258,12 @@ public class Storage implements Serializable {
 		return -1;
 	}
 
-	public void sendStorage(ChannelClient c, int npcId) {
+	public void sendStorage(final ChannelClient c, final int npcId) {
 		// sort by inventorytype to avoid confusion
-		Collections.sort(items, new Comparator<IItem>() {
+		Collections.sort(this.items, new Comparator<IItem>() {
 
 			@Override
-			public int compare(IItem item1, IItem item2) {
+			public int compare(final IItem item1, final IItem item2) {
 				final InventoryType item1Type = GameConstants.getInventoryType(item1.getItemId());
 				final InventoryType item2Type = GameConstants.getInventoryType(item2.getItemId());
 				if (item1Type.asNumber() < item2Type.asNumber()) {
@@ -275,55 +275,55 @@ public class Storage implements Serializable {
 				}
 			}
 		});
-		for (InventoryType type : InventoryType.values()) {
-			typeItems.put(type, new ArrayList<>(items));
+		for (final InventoryType type : InventoryType.values()) {
+			this.typeItems.put(type, new ArrayList<>(this.items));
 		}
-		c.write(ChannelPackets.getStorage(npcId, slots, items, meso));
+		c.write(ChannelPackets.getStorage(npcId, this.slots, this.items, this.meso));
 	}
 
-	public void sendStored(ChannelClient c, InventoryType type) {
-		c.write(ChannelPackets.storeStorage(slots, type, typeItems.get(type)));
+	public void sendStored(final ChannelClient c, final InventoryType type) {
+		c.write(ChannelPackets.storeStorage(this.slots, type, this.typeItems.get(type)));
 	}
 
-	public void sendTakenOut(ChannelClient c, InventoryType type) {
-		c.write(ChannelPackets.takeOutStorage(slots, type, typeItems.get(type)));
+	public void sendTakenOut(final ChannelClient c, final InventoryType type) {
+		c.write(ChannelPackets.takeOutStorage(this.slots, type, this.typeItems.get(type)));
 	}
 
 	public int getMeso() {
-		return meso;
+		return this.meso;
 	}
 
-	public void setMeso(int meso) {
+	public void setMeso(final int meso) {
 		if (meso < 0) {
 			return;
 		}
-		hasChanged = true;
+		this.hasChanged = true;
 		this.meso = meso;
 	}
 
-	public void sendMeso(ChannelClient c) {
-		c.write(ChannelPackets.mesoStorage(slots, meso));
+	public void sendMeso(final ChannelClient c) {
+		c.write(ChannelPackets.mesoStorage(this.slots, this.meso));
 	}
 
 	public boolean isFull() {
-		return items.size() >= slots;
+		return this.items.size() >= this.slots;
 	}
 
 	public int getSlots() {
-		return slots;
+		return this.slots;
 	}
 
-	public void increaseSlots(byte gain) {
-		hasChanged = true;
+	public void increaseSlots(final byte gain) {
+		this.hasChanged = true;
 		this.slots += gain;
 	}
 
-	public void setSlots(byte set) {
-		hasChanged = true;
+	public void setSlots(final byte set) {
+		this.hasChanged = true;
 		this.slots = set;
 	}
 
 	public void close() {
-		typeItems.clear();
+		this.typeItems.clear();
 	}
 }

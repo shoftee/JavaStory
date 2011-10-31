@@ -10,9 +10,9 @@ import javastory.server.TimerManager;
 public class Squad {
 
 	private ChannelCharacter leader;
-	private List<ChannelCharacter> members = new LinkedList<>();
-	private List<ChannelCharacter> bannedMembers = new LinkedList<>();
-	private String type;
+	private final List<ChannelCharacter> members = new LinkedList<>();
+	private final List<ChannelCharacter> bannedMembers = new LinkedList<>();
+	private final String type;
 	private byte status = 0;
 
 	public Squad(final String type, final ChannelCharacter leader, final int expiration) {
@@ -21,7 +21,7 @@ public class Squad {
 		this.type = type;
 		this.status = 1;
 
-		scheduleRemoval(expiration);
+		this.scheduleRemoval(expiration);
 	}
 
 	private void scheduleRemoval(final int time) {
@@ -29,21 +29,21 @@ public class Squad {
 
 			@Override
 			public void run() {
-				members.clear();
-				bannedMembers.clear();
-				leader = null;
-				ChannelServer.getInstance().removeMapleSquad(type);
+				Squad.this.members.clear();
+				Squad.this.bannedMembers.clear();
+				Squad.this.leader = null;
+				ChannelServer.getInstance().removeMapleSquad(Squad.this.type);
 			}
 		}, time);
 	}
 
 	public ChannelCharacter getLeader() {
-		return leader;
+		return this.leader;
 	}
 
-	public boolean containsMember(ChannelCharacter member) {
+	public boolean containsMember(final ChannelCharacter member) {
 		final int id = member.getId();
-		for (ChannelCharacter mmbr : members) {
+		for (final ChannelCharacter mmbr : this.members) {
 			if (id == mmbr.getId()) {
 				return true;
 			}
@@ -52,83 +52,83 @@ public class Squad {
 	}
 
 	public List<ChannelCharacter> getMembers() {
-		return members;
+		return this.members;
 	}
 
 	public int getSquadSize() {
-		return members.size();
+		return this.members.size();
 	}
 
-	public boolean isBanned(ChannelCharacter member) {
-		return bannedMembers.contains(member);
+	public boolean isBanned(final ChannelCharacter member) {
+		return this.bannedMembers.contains(member);
 	}
 
-	public int addMember(ChannelCharacter member, boolean join) {
+	public int addMember(final ChannelCharacter member, final boolean join) {
 		if (join) {
-			if (!members.contains(member)) {
-				if (members.size() <= 30) {
-					members.add(member);
-					getLeader().sendNotice(5, member.getName() + " has joined the fight!");
+			if (!this.members.contains(member)) {
+				if (this.members.size() <= 30) {
+					this.members.add(member);
+					this.getLeader().sendNotice(5, member.getName() + " has joined the fight!");
 					return 1;
 				}
 				return 2;
 			}
 			return -1;
 		} else {
-			if (members.contains(member)) {
-				members.remove(member);
-				getLeader().sendNotice(5, member.getName() + " have withdrawed from the fight.");
+			if (this.members.contains(member)) {
+				this.members.remove(member);
+				this.getLeader().sendNotice(5, member.getName() + " have withdrawed from the fight.");
 				return 1;
 			}
 			return -1;
 		}
 	}
 
-	public void acceptMember(int pos) {
-		final ChannelCharacter toadd = bannedMembers.get(pos);
+	public void acceptMember(final int pos) {
+		final ChannelCharacter toadd = this.bannedMembers.get(pos);
 		if (toadd != null) {
-			members.add(toadd);
-			bannedMembers.remove(toadd);
+			this.members.add(toadd);
+			this.bannedMembers.remove(toadd);
 
-			toadd.sendNotice(5, leader.getName() + " has decided to add you back to the squad.");
+			toadd.sendNotice(5, this.leader.getName() + " has decided to add you back to the squad.");
 		}
 	}
 
-	public void banMember(int pos) {
-		final ChannelCharacter toban = members.get(pos);
-		if (toban == leader) {
+	public void banMember(final int pos) {
+		final ChannelCharacter toban = this.members.get(pos);
+		if (toban == this.leader) {
 			return;
 		}
 		if (toban != null) {
-			members.remove(toban);
-			bannedMembers.add(toban);
+			this.members.remove(toban);
+			this.bannedMembers.add(toban);
 
-			toban.sendNotice(5, leader.getName() + " has removed you from the squad.");
+			toban.sendNotice(5, this.leader.getName() + " has removed you from the squad.");
 		}
 	}
 
-	public void setStatus(byte status) {
+	public void setStatus(final byte status) {
 		this.status = status;
 	}
 
 	public int getStatus() {
-		return status;
+		return this.status;
 	}
 
 	public int getBannedMemberSize() {
-		return bannedMembers.size();
+		return this.bannedMembers.size();
 	}
 
-	public String getSquadMemberString(byte type) {
+	public String getSquadMemberString(final byte type) {
 		switch (type) {
 		case 0: {
-			StringBuilder sb = new StringBuilder("Squad members : ");
-			sb.append("#b").append(members.size()).append(" #k ").append("List of participants : \n\r ");
+			final StringBuilder sb = new StringBuilder("Squad members : ");
+			sb.append("#b").append(this.members.size()).append(" #k ").append("List of participants : \n\r ");
 			int i = 0;
-			for (ChannelCharacter chr : members) {
+			for (final ChannelCharacter chr : this.members) {
 				i++;
 				sb.append(i).append(" : ").append(chr.getName()).append(" ");
-				if (chr == leader) {
+				if (chr == this.leader) {
 					sb.append("(Leader of the squad)");
 				}
 				sb.append(" \n\r ");
@@ -140,15 +140,15 @@ public class Squad {
 			return sb.toString();
 		}
 		case 1: {
-			StringBuilder sb = new StringBuilder("Squad members : ");
-			sb.append("#b").append(members.size()).append(" #n ").append("List of participants : \n\r ");
+			final StringBuilder sb = new StringBuilder("Squad members : ");
+			sb.append("#b").append(this.members.size()).append(" #n ").append("List of participants : \n\r ");
 			int i = 0, selection = 0;
-			for (ChannelCharacter chr : members) {
+			for (final ChannelCharacter chr : this.members) {
 				i++;
 				sb.append("#b#L").append(selection).append("#");
 				selection++;
 				sb.append(i).append(" : ").append(chr.getName()).append(" ");
-				if (chr == leader) {
+				if (chr == this.leader) {
 					sb.append("(Leader of the squad)");
 				}
 				sb.append("#l").append(" \n\r ");
@@ -160,15 +160,15 @@ public class Squad {
 			return sb.toString();
 		}
 		case 2: {
-			StringBuilder sb = new StringBuilder("Squad members : ");
-			sb.append("#b").append(members.size()).append(" #n ").append("List of participants : \n\r ");
+			final StringBuilder sb = new StringBuilder("Squad members : ");
+			sb.append("#b").append(this.members.size()).append(" #n ").append("List of participants : \n\r ");
 			int i = 0, selection = 0;
-			for (ChannelCharacter chr : bannedMembers) {
+			for (final ChannelCharacter chr : this.bannedMembers) {
 				i++;
 				sb.append("#b#L").append(selection).append("#");
 				selection++;
 				sb.append(i).append(" : ").append(chr.getName()).append(" ");
-				if (chr == leader) {
+				if (chr == this.leader) {
 					sb.append("(Leader of the squad)");
 				}
 				sb.append("#l").append(" \n\r ");

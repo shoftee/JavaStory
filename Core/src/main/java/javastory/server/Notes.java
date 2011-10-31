@@ -19,13 +19,13 @@ public final class Notes {
 
 	public static class Note {
 
-		private int id;
-		private String sender;
-		private String recepient;
-		private String message;
-		private long timestamp;
+		private final int id;
+		private final String sender;
+		private final String recepient;
+		private final String message;
+		private final long timestamp;
 
-		private Note(int id, String sender, String recepient, String message, long timestamp) {
+		private Note(final int id, final String sender, final String recepient, final String message, final long timestamp) {
 			this.id = id;
 			this.sender = sender;
 			this.recepient = recepient;
@@ -33,7 +33,7 @@ public final class Notes {
 			this.timestamp = timestamp;
 		}
 
-		private Note(ResultSet rs) throws SQLException {
+		private Note(final ResultSet rs) throws SQLException {
 			this.id = rs.getInt("id");
 			this.sender = rs.getString("sender");
 			this.recepient = rs.getString("recepient");
@@ -42,23 +42,23 @@ public final class Notes {
 		}
 
 		public int getId() {
-			return id;
+			return this.id;
 		}
 
 		public String getSender() {
-			return sender;
+			return this.sender;
 		}
 
 		public String getRecepient() {
-			return recepient;
+			return this.recepient;
 		}
 
 		public String getMessage() {
-			return message;
+			return this.message;
 		}
 
 		public long getTimestamp() {
-			return timestamp;
+			return this.timestamp;
 		}
 	}
 
@@ -66,46 +66,46 @@ public final class Notes {
 	}
 
 	// TODO: Extract prepare statement call into method.
-	public static ImmutableList<Note> loadReceived(String recepient) {
-		List<Note> list = Lists.newArrayList();
+	public static ImmutableList<Note> loadReceived(final String recepient) {
+		final List<Note> list = Lists.newArrayList();
 		try {
-			Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM notes WHERE `recepient` = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
+			final Connection con = Database.getConnection();
+			final PreparedStatement ps = con.prepareStatement("SELECT * FROM notes WHERE `recepient` = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
 				ResultSet.CONCUR_UPDATABLE);
 
 			ps.setString(1, recepient);
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				list.add(new Note(rs));
 			}
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Unable to load notes: " + ex);
 		}
 		return ImmutableList.copyOf(list);
 	}
 
-	public static void send(String from, String to, String message) {
+	public static void send(final String from, final String to, final String message) {
 		try {
-			Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO notes (`sender`, `recepient`, `message`) VALUES (?, ?, ?)");
+			final Connection con = Database.getConnection();
+			final PreparedStatement ps = con.prepareStatement("INSERT INTO notes (`sender`, `recepient`, `message`) VALUES (?, ?, ?)");
 			ps.setString(1, from);
 			ps.setString(2, to);
 			ps.setString(3, message);
 			ps.executeUpdate();
 			ps.close();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Unable to send note: " + ex);
 		}
 	}
 
-	public static void delete(int noteId) {
+	public static void delete(final int noteId) {
 		try {
-			Connection connection = Database.getConnection();
-			PreparedStatement ps = connection.prepareStatement("DELETE FROM `notes` WHERE `id` = ?");
+			final Connection connection = Database.getConnection();
+			final PreparedStatement ps = connection.prepareStatement("DELETE FROM `notes` WHERE `id` = ?");
 			ps.setInt(1, noteId);
 			ps.execute();
 			ps.close();
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			System.err.println("Unable to delete note: " + ex);
 		}
 	}

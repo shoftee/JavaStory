@@ -13,13 +13,13 @@ public class StatValue {
 	public Stat stat;
 	public int value;
 
-	public StatValue(Stat stat, int value) {
+	public StatValue(final Stat stat, final int value) {
 		this.stat = stat;
 		this.value = value;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -29,7 +29,7 @@ public class StatValue {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		StatValue other = (StatValue) obj;
+		final StatValue other = (StatValue) obj;
 		return this.stat == other.stat && this.value == other.value;
 	}
 

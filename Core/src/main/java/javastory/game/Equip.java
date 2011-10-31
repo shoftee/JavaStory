@@ -36,42 +36,42 @@ public class Equip extends Item implements IEquip, Serializable {
 			itemEXP;
 	private int ringid, job;
 
-	public Equip(int id, short position, byte flag) {
+	public Equip(final int id, final short position, final byte flag) {
 		super(id, position, (short) 1, flag);
 		this.ringid = -1;
 	}
 
-	public Equip(int id, short position, int ringid, byte flag) {
+	public Equip(final int id, final short position, final int ringid, final byte flag) {
 		super(id, position, (short) 1, flag);
 		this.ringid = ringid;
 	}
 
 	@Override
 	public IItem copy() {
-		Equip ret = new Equip(getItemId(), getPosition(), ringid, getFlag());
-		ret.STR = STR;
-		ret.DEX = DEX;
-		ret.INT = INT;
-		ret.LUK = LUK;
-		ret.hp = hp;
-		ret.mp = mp;
-		ret.magicAttack = magicAttack;
-		ret.magicDefense = magicDefense;
-		ret.physicalAttack = physicalAttack;
-		ret.physicalDefense = physicalDefense;
-		ret.acc = acc;
-		ret.avoid = avoid;
-		ret.hands = hands;
-		ret.speed = speed;
-		ret.jump = jump;
-		ret.upgradeSlots = upgradeSlots;
-		ret.level = level;
-		ret.itemEXP = itemEXP;
-		ret.itemLevel = itemLevel;
-		ret.vicioushammer = vicioushammer;
-		ret.setOwner(getOwner());
-		ret.setQuantity(getQuantity());
-		ret.setExpiration(getExpiration());
+		final Equip ret = new Equip(this.getItemId(), this.getPosition(), this.ringid, this.getFlag());
+		ret.STR = this.STR;
+		ret.DEX = this.DEX;
+		ret.INT = this.INT;
+		ret.LUK = this.LUK;
+		ret.hp = this.hp;
+		ret.mp = this.mp;
+		ret.magicAttack = this.magicAttack;
+		ret.magicDefense = this.magicDefense;
+		ret.physicalAttack = this.physicalAttack;
+		ret.physicalDefense = this.physicalDefense;
+		ret.acc = this.acc;
+		ret.avoid = this.avoid;
+		ret.hands = this.hands;
+		ret.speed = this.speed;
+		ret.jump = this.jump;
+		ret.upgradeSlots = this.upgradeSlots;
+		ret.level = this.level;
+		ret.itemEXP = this.itemEXP;
+		ret.itemLevel = this.itemLevel;
+		ret.vicioushammer = this.vicioushammer;
+		ret.setOwner(this.getOwner());
+		ret.setQuantity(this.getQuantity());
+		ret.setExpiration(this.getExpiration());
 		return ret;
 	}
 
@@ -82,91 +82,91 @@ public class Equip extends Item implements IEquip, Serializable {
 
 	@Override
 	public byte getUpgradeSlots() {
-		return upgradeSlots;
+		return this.upgradeSlots;
 	}
 
 	@Override
 	public int getRingId() {
-		return ringid;
+		return this.ringid;
 	}
 
 	@Override
 	public short getStr() {
-		return STR;
+		return this.STR;
 	}
 
 	@Override
 	public short getDex() {
-		return DEX;
+		return this.DEX;
 	}
 
 	@Override
 	public short getInt() {
-		return INT;
+		return this.INT;
 	}
 
 	@Override
 	public short getLuk() {
-		return LUK;
+		return this.LUK;
 	}
 
 	@Override
 	public short getHp() {
-		return hp;
+		return this.hp;
 	}
 
 	@Override
 	public short getMp() {
-		return mp;
+		return this.mp;
 	}
 
 	@Override
 	public short getWatk() {
-		return physicalAttack;
+		return this.physicalAttack;
 	}
 
 	@Override
 	public short getMatk() {
-		return magicAttack;
+		return this.magicAttack;
 	}
 
 	@Override
 	public short getWdef() {
-		return physicalDefense;
+		return this.physicalDefense;
 	}
 
 	@Override
 	public short getMdef() {
-		return magicDefense;
+		return this.magicDefense;
 	}
 
 	@Override
 	public short getAcc() {
-		return acc;
+		return this.acc;
 	}
 
 	@Override
 	public short getAvoid() {
-		return avoid;
+		return this.avoid;
 	}
 
 	@Override
 	public short getHands() {
-		return hands;
+		return this.hands;
 	}
 
 	@Override
 	public short getSpeed() {
-		return speed;
+		return this.speed;
 	}
 
 	@Override
 	public short getJump() {
-		return jump;
+		return this.jump;
 	}
 
 	public int getJob() {
-		return job;
+		return this.job;
 	}
 
 	public void setStr(short str) {
@@ -278,31 +278,31 @@ public class Equip extends Item implements IEquip, Serializable {
 		this.jump = jump;
 	}
 
-	public void setUpgradeSlots(byte upgradeSlots) {
+	public void setUpgradeSlots(final byte upgradeSlots) {
 		this.upgradeSlots = upgradeSlots;
 	}
 
 	@Override
 	public byte getLevel() {
-		return level;
+		return this.level;
 	}
 
-	public void setLevel(byte level) {
+	public void setLevel(final byte level) {
 		this.level = level;
 	}
 
 	@Override
 	public byte getViciousHammer() {
-		return vicioushammer;
+		return this.vicioushammer;
 	}
 
-	public void setViciousHammer(byte ham) {
-		vicioushammer = ham;
+	public void setViciousHammer(final byte ham) {
+		this.vicioushammer = ham;
 	}
 
 	@Override
 	public byte getItemLevel() {
-		return itemLevel;
+		return this.itemLevel;
 	}
 
 	public void setItemLevel(byte itemLevel) {
@@ -314,7 +314,7 @@ public class Equip extends Item implements IEquip, Serializable {
 
 	@Override
 	public short getItemEXP() {
-		return itemEXP;
+		return this.itemEXP;
 	}
 
 	public void setItemEXP(short itemEXP) {
@@ -325,19 +325,19 @@ public class Equip extends Item implements IEquip, Serializable {
 	}
 
 	@Override
-	public void setQuantity(short quantity) {
+	public void setQuantity(final short quantity) {
 		if (quantity < 0 || quantity > 1) {
 			throw new RuntimeException("Setting the quantity to " + quantity
-					+ " on an equip (itemid: " + getItemId() + ")");
+					+ " on an equip (itemid: " + this.getItemId() + ")");
 		}
 		super.setQuantity(quantity);
 	}
 
-	public void setJob(int job) {
+	public void setJob(final int job) {
 		this.job = job;
 	}
 
-	public void setRingId(int ringId) {
+	public void setRingId(final int ringId) {
 		this.ringid = ringId;
 	}
 }

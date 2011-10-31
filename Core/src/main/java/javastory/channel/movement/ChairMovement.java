@@ -26,25 +26,25 @@ public class ChairMovement extends AbstractLifeMovement {
 
 	private int unk;
 
-	public ChairMovement(int type, Point position, int duration, int newstate) {
+	public ChairMovement(final int type, final Point position, final int duration, final int newstate) {
 		super(type, position, duration, newstate);
 	}
 
 	public int getUnk() {
-		return unk;
+		return this.unk;
 	}
 
-	public void setUnk(int unk) {
+	public void setUnk(final int unk) {
 		this.unk = unk;
 	}
 
 	@Override
-	public void serialize(PacketBuilder builder) {
-		builder.writeAsByte(getType());
-		builder.writeAsShort(getPosition().x);
-		builder.writeAsShort(getPosition().y);
-		builder.writeAsShort(unk);
-		builder.writeAsByte(getNewstate());
-		builder.writeAsShort(getDuration());
+	public void serialize(final PacketBuilder builder) {
+		builder.writeAsByte(this.getType());
+		builder.writeAsShort(this.getPosition().x);
+		builder.writeAsShort(this.getPosition().y);
+		builder.writeAsShort(this.unk);
+		builder.writeAsByte(this.getNewstate());
+		builder.writeAsShort(this.getDuration());
 	}
 }

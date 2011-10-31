@@ -48,24 +48,24 @@ public class Summon extends AbstractAnimatedGameMapObject {
 		this.ownerid = owner.getId();
 		this.skill = skill;
 		this.skillLevel = owner.getCurrentSkillLevel(SkillFactory.getSkill(skill));
-		if (skillLevel == 0) {
+		if (this.skillLevel == 0) {
 			return;
 		}
 		this.movementType = movementType;
-		setPosition(pos);
+		this.setPosition(pos);
 
 		// Safe up 12 bytes of data, since puppet doesn't attack.
-		if (!isPuppet()) {
+		if (!this.isPuppet()) {
 			// TS NOTE: These are 13 bytes. And they're automatically initialized to 0 anyways. Moron.
-			lastSummonTickCount = 0;
-			Summon_tickResetCount = 0;
-			Server_ClientSummonTickDiff = 0;
+			this.lastSummonTickCount = 0;
+			this.Summon_tickResetCount = 0;
+			this.Server_ClientSummonTickDiff = 0;
 		}
 	}
 
 	@Override
 	public final void sendSpawnData(final ChannelClient client) {
-		client.write(ChannelPackets.spawnSummon(this, skillLevel, false));
+		client.write(ChannelPackets.spawnSummon(this, this.skillLevel, false));
 	}
 
 	@Override
@@ -74,15 +74,15 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	}
 
 	public final int getOwnerId() {
-		return ownerid;
+		return this.ownerid;
 	}
 
 	public final int getSkill() {
-		return skill;
+		return this.skill;
 	}
 
 	public final short getHP() {
-		return hp;
+		return this.hp;
 	}
 
 	public final void addHP(final short delta) {
@@ -90,11 +90,11 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	}
 
 	public final SummonMovementType getMovementType() {
-		return movementType;
+		return this.movementType;
 	}
 
 	public final boolean isPuppet() {
-		switch (skill) {
+		switch (this.skill) {
 		case 3111002:
 		case 3211002:
 		case 13111004:
@@ -105,7 +105,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	}
 
 	public final boolean isSummon() {
-		switch (skill) {
+		switch (this.skill) {
 		case 12111004:
 		case 2311006:
 		case 2321003:
@@ -126,7 +126,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	}
 
 	public final int getSkillLevel() {
-		return skillLevel;
+		return this.skillLevel;
 	}
 
 	@Override
@@ -135,20 +135,20 @@ public class Summon extends AbstractAnimatedGameMapObject {
 	}
 
 	public final void CheckSummonAttackFrequency(final ChannelCharacter chr, final int tickcount) {
-		final int tickdifference = (tickcount - lastSummonTickCount);
-		if (tickdifference < GameConstants.getSummonAttackDelay(skill)) {
+		final int tickdifference = tickcount - this.lastSummonTickCount;
+		if (tickdifference < GameConstants.getSummonAttackDelay(this.skill)) {
 			chr.getCheatTracker().registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);
 		}
 		final long STime_TC = System.currentTimeMillis() - tickcount;
-		final long S_C_Difference = Server_ClientSummonTickDiff - STime_TC;
+		final long S_C_Difference = this.Server_ClientSummonTickDiff - STime_TC;
 		if (S_C_Difference > 200) {
 			chr.getCheatTracker().registerOffense(CheatingOffense.FAST_SUMMON_ATTACK);
 		}
-		Summon_tickResetCount++;
-		if (Summon_tickResetCount > 4) {
-			Summon_tickResetCount = 0;
-			Server_ClientSummonTickDiff = STime_TC;
+		this.Summon_tickResetCount++;
+		if (this.Summon_tickResetCount > 4) {
+			this.Summon_tickResetCount = 0;
+			this.Server_ClientSummonTickDiff = STime_TC;
 		}
-		lastSummonTickCount = tickcount;
+		this.lastSummonTickCount = tickcount;
 	}
 }

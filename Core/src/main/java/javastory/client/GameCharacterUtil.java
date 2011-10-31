@@ -32,7 +32,7 @@ public final class GameCharacterUtil {
 	}
 
 	public static int getIdByName(final String name) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("SELECT `id` FROM `characters` WHERE `name` = ?")) {
 			ps.setString(1, name);
 			final int id;
@@ -43,7 +43,7 @@ public final class GameCharacterUtil {
 				id = rs.getInt("id");
 			}
 			return id;
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			System.err.println("error 'getIdByName' " + e);
 		}
 		return -1;

@@ -30,20 +30,20 @@ public class PlayerRandomStream {
 		public long seed3;
 		public SeedPack next;
 
-		public SeedPack(long s1, long s2, long s3) {
-			seed1 = s1 | 0x100000;
-			seed2 = s2 | 0x1000;
-			seed3 = s3 | 0x10;
+		public SeedPack(final long s1, final long s2, final long s3) {
+			this.seed1 = s1 | 0x100000;
+			this.seed2 = s2 | 0x1000;
+			this.seed3 = s3 | 0x10;
 		}
 
 		public int roll() {
-			next.seed1 = ((seed1 & 0xFFFFFFFE) << 12) ^ (((seed1 & 0x7FFC0) ^ (seed1 >> 13)) >> 6);
+			this.next.seed1 = (this.seed1 & 0xFFFFFFFE) << 12 ^ (this.seed1 & 0x7FFC0 ^ this.seed1 >> 13) >> 6;
 
-			next.seed2 = 16 * (seed2 & 0xFFFFFFF8) ^ (((seed2 >> 2) ^ seed2 & 0x3F800000) >> 23);
+			this.next.seed2 = 16 * (this.seed2 & 0xFFFFFFF8) ^ (this.seed2 >> 2 ^ this.seed2 & 0x3F800000) >> 23;
 
-			next.seed3 = ((seed3 & 0xFFFFFFF0) << 17) ^ (((seed3 >> 3) ^ seed3 & 0x1FFFFF00) >> 8);
+			this.next.seed3 = (this.seed3 & 0xFFFFFFF0) << 17 ^ (this.seed3 >> 3 ^ this.seed3 & 0x1FFFFF00) >> 8;
 
-			return next.xor();
+			return this.next.xor();
 		}
 
 		public int xor() {
@@ -67,18 +67,18 @@ public class PlayerRandomStream {
 		this.damage = new SeedPack(s1, s2, s3);
 		this.monster = new SeedPack(s1, s2, s3);
 
-		this.general.next = character;
-		this.character.next = damage;
-		this.damage.next = monster;
-		this.monster.next = character;
+		this.general.next = this.character;
+		this.character.next = this.damage;
+		this.damage.next = this.monster;
+		this.monster.next = this.character;
 	}
 
 	public final void connectData(final PacketBuilder builder) {
-		int int1 = general.roll();
-		int int2 = general.roll();
-		int int3 = general.roll();
+		final int int1 = this.general.roll();
+		final int int2 = this.general.roll();
+		final int int3 = this.general.roll();
 
-		initializeSeeds(int1, int2, int3);
+		this.initializeSeeds(int1, int2, int3);
 
 		builder.writeInt(int1);
 		builder.writeInt(int2);

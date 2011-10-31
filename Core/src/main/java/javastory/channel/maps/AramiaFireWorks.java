@@ -26,19 +26,19 @@ public class AramiaFireWorks {
 		this.kegs += kegs;
 		if (this.kegs >= 2000) {
 			this.kegs = 0;
-			broadcastEvent(c);
+			this.broadcastEvent(c);
 		}
 	}
 
 	public final short getKegsPercentage() {
-		return (short) ((kegs / 2000) * 10000);
+		return (short) (this.kegs / 2000 * 10000);
 	}
 
 	private void broadcastEvent(final ChannelCharacter c) {
 		try {
 			ChannelServer.getWorldInterface().broadcastMessage(
 				ChannelPackets.serverNotice(5, "<Channel " + c.getClient().getChannelId() + "> Aramia from Henesys park will shoot up the firecrackers soon!"));
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 			ChannelServer.pingWorld();
 		}
 		// Henesys Park
@@ -46,7 +46,7 @@ public class AramiaFireWorks {
 
 			@Override
 			public final void run() {
-				startEvent(ChannelServer.getMapFactory().getMap(100000200));
+				AramiaFireWorks.this.startEvent(ChannelServer.getMapFactory().getMap(100000200));
 			}
 		}, 10000);
 	}
@@ -57,7 +57,7 @@ public class AramiaFireWorks {
 
 			@Override
 			public final void run() {
-				spawnMonster(map);
+				AramiaFireWorks.this.spawnMonster(map);
 			}
 		}, 5000);
 	}

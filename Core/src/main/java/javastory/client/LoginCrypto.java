@@ -53,13 +53,13 @@ public final class LoginCrypto {
 
 		try {
 			RSAKeyFactory = KeyFactory.getInstance("RSA");
-		} catch (NoSuchAlgorithmException nsa) {
+		} catch (final NoSuchAlgorithmException nsa) {
 			System.err.println("[LoginCrypto] Error occured with RSA KeyFactory");
 		}
 	}
 
 	public static String Generate_13DigitAsiasoftPassport() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(ALPHABET[RNG.nextInt(ALPHABET.length)]); // First Letter
 
 		for (int i = 0; i < 11; i++) {
@@ -76,13 +76,13 @@ public final class LoginCrypto {
 
 	private static String hashWithDigest(final String in, final String digest) {
 		try {
-			MessageDigest Digester = MessageDigest.getInstance(digest);
+			final MessageDigest Digester = MessageDigest.getInstance(digest);
 			Digester.update(in.getBytes("US-ASCII"), 0, in.length());
-			byte[] sha1Hash = Digester.digest();
+			final byte[] sha1Hash = Digester.digest();
 			return toSimpleHexString(sha1Hash);
-		} catch (NoSuchAlgorithmException ex) {
+		} catch (final NoSuchAlgorithmException ex) {
 			throw new RuntimeException("Hashing the password failed", ex);
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new RuntimeException("Encoding the string failed", e);
 		}
 
@@ -109,13 +109,13 @@ public final class LoginCrypto {
 	}
 
 	public static String makeSalt() {
-		byte[] salt = new byte[16];
+		final byte[] salt = new byte[16];
 		RNG.nextBytes(salt);
 		return toSimpleHexString(salt);
 	}
 
 	public static String padWithRandom(final String in) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < extralength; i++) {
 			sb.append(RNG.nextBoolean() ? ALPHABET[RNG.nextInt(ALPHABET.length)] : DIGIT[RNG.nextInt(DIGIT.length)]);
 		}
@@ -128,23 +128,23 @@ public final class LoginCrypto {
 
 	public static String decryptRSA(final String EncryptedPassword) {
 		try {
-			Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPPadding", "BC");
-			BigInteger modulus = new BigInteger(
+			final Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPPadding", "BC");
+			final BigInteger modulus = new BigInteger(
 				"107657795738756861764863218740655861479186575385923787150128619142132921674398952720882614694082036467689482295621654506166910217557126105160228025353603544726428541751588805629215516978192030682053419499436785335057001573080195806844351954026120773768050428451512387703488216884037312069441551935633523181351");
-			BigInteger privateExponent = new BigInteger(
+			final BigInteger privateExponent = new BigInteger(
 				"5550691850424331841608142211646492148529402295329912519344562675759756203942720314385192411176941288498447604817211202470939921344057999440566557786743767752684118754789131428284047255370747277972770485804010629706937510833543525825792410474569027516467052693380162536113699974433283374142492196735301185337");
-			RSAPrivateKeySpec privKey1 = new RSAPrivateKeySpec(modulus, privateExponent);
-			PrivateKey privKey = RSAKeyFactory.generatePrivate(privKey1);
+			final RSAPrivateKeySpec privKey1 = new RSAPrivateKeySpec(modulus, privateExponent);
+			final PrivateKey privKey = RSAKeyFactory.generatePrivate(privKey1);
 
-			byte[] bytes = Hex.decode(EncryptedPassword);
+			final byte[] bytes = Hex.decode(EncryptedPassword);
 			cipher.init(Cipher.DECRYPT_MODE, privKey);
 			return new String(cipher.doFinal(bytes));
 
-		} catch (InvalidKeyException ike) {
+		} catch (final InvalidKeyException ike) {
 			System.err.println("[LoginCrypto] Error initalizing the encryption cipher.  Make sure you're using the Unlimited Strength cryptography jar files.");
-		} catch (NoSuchProviderException nspe) {
+		} catch (final NoSuchProviderException nspe) {
 			System.err.println("[LoginCrypto] Security provider not found");
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.err.println("[LoginCrypto] Error occured with RSA password decryption.");
 		}
 		return "";

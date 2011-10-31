@@ -11,13 +11,13 @@ public class BuffStatValue {
 	public BuffStat stat;
 	public int value;
 
-	public BuffStatValue(BuffStat stat, int value) {
+	public BuffStatValue(final BuffStat stat, final int value) {
 		this.stat = stat;
 		this.value = value;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -27,7 +27,7 @@ public class BuffStatValue {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		BuffStatValue other = (BuffStatValue) obj;
+		final BuffStatValue other = (BuffStatValue) obj;
 		return this.stat == other.stat && this.value == other.value;
 	}
 

@@ -9,7 +9,7 @@ import javastory.config.ChannelInfo;
  */
 public class StartChannel {
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		System.setProperty("org.javastory.world.ip", "127.0.0.1");
 		System.setProperty("org.javastory.wzpath", "xml");
 
@@ -19,11 +19,11 @@ public class StartChannel {
 		}
 
 		try {
-			int worldId = Integer.parseInt(args[0]);
-			int channelId = Integer.parseInt(args[1]);
+			final int worldId = Integer.parseInt(args[0]);
+			final int channelId = Integer.parseInt(args[1]);
 			final ChannelInfo info = ChannelConfig.load(worldId, channelId);
 			ChannelServer.initialize(info);
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			showUsageInfo();
 		}
 	}

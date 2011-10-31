@@ -22,7 +22,9 @@ public class Pet implements Serializable {
 	private static final long serialVersionUID = 9179541993413738569L;
 
 	private String name;
-	private int foothold = 0, stance = 0, fullness = 100, level = 1, closeness = 0, uniqueId, petItemId;
+	private int foothold = 0, stance = 0, fullness = 100, level = 1, closeness = 0, uniqueId;
+
+	private final int petItemId;
 	private Point pos;
 	private short inventoryPosition = 0;
 	private boolean summoned;
@@ -42,10 +44,10 @@ public class Pet implements Serializable {
 		try {
 			final Pet ret = new Pet(itemId, petid, inventorypos);
 
-			Connection con = Database.getConnection();
+			final Connection con = Database.getConnection();
 
 			// Get pet details..
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM pets WHERE petid = ?");
+			final PreparedStatement ps = con.prepareStatement("SELECT * FROM pets WHERE petid = ?");
 			ps.setInt(1, petid);
 
 			final ResultSet rs = ps.executeQuery();
@@ -60,7 +62,7 @@ public class Pet implements Serializable {
 			ps.close();
 
 			return ret;
-		} catch (SQLException ex) {
+		} catch (final SQLException ex) {
 			Logger.getLogger(Pet.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}
@@ -70,11 +72,11 @@ public class Pet implements Serializable {
 		try {
 			final PreparedStatement ps = Database.getConnection().prepareStatement(
 				"UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ? WHERE petid = ?");
-			ps.setString(1, name); // Set name
-			ps.setInt(2, level); // Set Level
-			ps.setInt(3, closeness); // Set Closeness
-			ps.setInt(4, fullness); // Set Fullness
-			ps.setInt(5, uniqueId); // Set ID
+			ps.setString(1, this.name); // Set name
+			ps.setInt(2, this.level); // Set Level
+			ps.setInt(3, this.closeness); // Set Closeness
+			ps.setInt(4, this.fullness); // Set Fullness
+			ps.setInt(5, this.uniqueId); // Set ID
 			ps.executeUpdate(); // Execute statement
 			ps.close();
 		} catch (final SQLException ex) {
@@ -113,7 +115,7 @@ public class Pet implements Serializable {
 	}
 
 	public final String getName() {
-		return name;
+		return this.name;
 	}
 
 	public final void setName(final String name) {
@@ -121,7 +123,7 @@ public class Pet implements Serializable {
 	}
 
 	public final boolean isSummoned() {
-		return summoned;
+		return this.summoned;
 	}
 
 	public final void setSummoned(final boolean summoned) {
@@ -129,7 +131,7 @@ public class Pet implements Serializable {
 	}
 
 	public final short getInventoryPosition() {
-		return inventoryPosition;
+		return this.inventoryPosition;
 	}
 
 	public final void setInventoryPosition(final short inventorypos) {
@@ -137,15 +139,15 @@ public class Pet implements Serializable {
 	}
 
 	public int getUniqueId() {
-		return uniqueId;
+		return this.uniqueId;
 	}
 
-	public void setUniqueId(int id) {
+	public void setUniqueId(final int id) {
 		this.uniqueId = id;
 	}
 
 	public final int getCloseness() {
-		return closeness;
+		return this.closeness;
 	}
 
 	public final void setCloseness(final int closeness) {
@@ -153,7 +155,7 @@ public class Pet implements Serializable {
 	}
 
 	public final int getLevel() {
-		return level;
+		return this.level;
 	}
 
 	public final void setLevel(final int level) {
@@ -161,7 +163,7 @@ public class Pet implements Serializable {
 	}
 
 	public final int getFullness() {
-		return fullness;
+		return this.fullness;
 	}
 
 	public final void setFullness(final int fullness) {
@@ -169,7 +171,7 @@ public class Pet implements Serializable {
 	}
 
 	public final int getFoothold() {
-		return foothold;
+		return this.foothold;
 	}
 
 	public final void setFoothold(final int Fh) {
@@ -177,7 +179,7 @@ public class Pet implements Serializable {
 	}
 
 	public final Point getPosition() {
-		return pos;
+		return this.pos;
 	}
 
 	public final void setPosition(final Point pos) {
@@ -185,7 +187,7 @@ public class Pet implements Serializable {
 	}
 
 	public final int getStance() {
-		return stance;
+		return this.stance;
 	}
 
 	public final void setStance(final int stance) {
@@ -193,7 +195,7 @@ public class Pet implements Serializable {
 	}
 
 	public final int getPetItemId() {
-		return petItemId;
+		return this.petItemId;
 	}
 
 	public final boolean canConsume(final int itemId) {
@@ -210,9 +212,9 @@ public class Pet implements Serializable {
 		for (final LifeMovementFragment move : movement) {
 			if (move instanceof LifeMovement) {
 				if (move instanceof AbsoluteLifeMovement) {
-					setPosition(((LifeMovement) move).getPosition());
+					this.setPosition(((LifeMovement) move).getPosition());
 				}
-				setStance(((LifeMovement) move).getNewstate());
+				this.setStance(((LifeMovement) move).getNewstate());
 			}
 		}
 	}

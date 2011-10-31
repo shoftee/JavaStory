@@ -21,64 +21,64 @@ package javastory.channel.anticheat;
 
 public class CheatingOffenseEntry {
 
-	private CheatingOffense offense;
+	private final CheatingOffense offense;
 	private int count = 0;
-	private int characterId;
+	private final int characterId;
 	private long lastOffense;
 	private String param;
 	private int recordId = -1;
 
-	public CheatingOffenseEntry(CheatingOffense offense, int characterId) {
+	public CheatingOffenseEntry(final CheatingOffense offense, final int characterId) {
 		super();
 		this.offense = offense;
 		this.characterId = characterId;
 	}
 
 	public CheatingOffense getOffense() {
-		return offense;
+		return this.offense;
 	}
 
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public int getChrfor() {
-		return characterId;
+		return this.characterId;
 	}
 
 	public void incrementCount() {
 		this.count++;
-		lastOffense = System.currentTimeMillis();
+		this.lastOffense = System.currentTimeMillis();
 	}
 
 	public boolean isExpired() {
-		if (lastOffense < (System.currentTimeMillis() - offense.getValidityDuration())) {
+		if (this.lastOffense < System.currentTimeMillis() - this.offense.getValidityDuration()) {
 			return true;
 		}
 		return false;
 	}
 
 	public int getPoints() {
-		return count * offense.getPoints();
+		return this.count * this.offense.getPoints();
 	}
 
 	public String getParam() {
-		return param;
+		return this.param;
 	}
 
-	public void setParam(String param) {
+	public void setParam(final String param) {
 		this.param = param;
 	}
 
 	public long getLastOffenseTime() {
-		return lastOffense;
+		return this.lastOffense;
 	}
 
 	public int getRecordId() {
-		return recordId;
+		return this.recordId;
 	}
 
-	public void setRecordId(int id) {
+	public void setRecordId(final int id) {
 		this.recordId = id;
 	}
 

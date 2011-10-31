@@ -11,18 +11,18 @@ public class PortalFactory {
 
 	private int nextDoorPortal = 0x80;
 
-	public Portal makePortal(int type, WzData portal) {
+	public Portal makePortal(final int type, final WzData portal) {
 		GenericPortal ret = null;
 		if (type == Portal.MAP_PORTAL) {
 			ret = new GameMapPortal();
 		} else {
 			ret = new GenericPortal(type);
 		}
-		loadPortal(ret, portal);
+		this.loadPortal(ret, portal);
 		return ret;
 	}
 
-	private void loadPortal(GenericPortal myPortal, WzData portal) {
+	private void loadPortal(final GenericPortal myPortal, final WzData portal) {
 		myPortal.setName(WzDataTool.getString(portal.getChildByPath("pn")));
 		myPortal.setTarget(WzDataTool.getString(portal.getChildByPath("tn")));
 		myPortal.setTargetMapId(WzDataTool.getInt(portal.getChildByPath("tm")));
@@ -34,8 +34,8 @@ public class PortalFactory {
 		myPortal.setScriptName(script);
 
 		if (myPortal.getType() == Portal.DOOR_PORTAL) {
-			myPortal.setId(nextDoorPortal);
-			nextDoorPortal++;
+			myPortal.setId(this.nextDoorPortal);
+			this.nextDoorPortal++;
 		} else {
 			myPortal.setId(Integer.parseInt(portal.getName()));
 		}

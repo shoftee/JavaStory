@@ -26,7 +26,7 @@ public enum ElementalEffectiveness {
 
 	NORMAL, IMMUNE, STRONG, WEAK;
 
-	public static ElementalEffectiveness fromNumber(int value) {
+	public static ElementalEffectiveness fromNumber(final int value) {
 		switch (value) {
 		case 1:
 			return IMMUNE;
@@ -39,8 +39,8 @@ public enum ElementalEffectiveness {
 		}
 	}
 
-	public static EnumMap<Element, ElementalEffectiveness> fromString(String elementalAttributes) {
-		EnumMap<Element, ElementalEffectiveness> map = Maps.newEnumMap(Element.class);
+	public static EnumMap<Element, ElementalEffectiveness> fromString(final String elementalAttributes) {
+		final EnumMap<Element, ElementalEffectiveness> map = Maps.newEnumMap(Element.class);
 		for (int i = 0; i < elementalAttributes.length(); i += 2) {
 			final char elementChar = elementalAttributes.charAt(i);
 			final Element element = Element.fromCharacter(elementChar);

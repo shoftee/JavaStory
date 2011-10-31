@@ -37,7 +37,7 @@ public class TVEffect {
 	private static int type;
 	private static ChannelCharacter partner = null;
 
-	public TVEffect(ChannelCharacter User, ChannelCharacter Partner, List<String> Msg, int Type) {
+	public TVEffect(final ChannelCharacter User, final ChannelCharacter Partner, final List<String> Msg, final int Type) {
 		message = Msg;
 		user = User;
 		type = Type;
@@ -49,7 +49,7 @@ public class TVEffect {
 		return active;
 	}
 
-	private static void setActive(boolean set) {
+	private static void setActive(final boolean set) {
 		active = set;
 	}
 
@@ -61,9 +61,9 @@ public class TVEffect {
 		return ChannelPackets.sendTV(user, message, type <= 2 ? type : type - 3, partner);
 	}
 
-	public static void broadCastTV(boolean isActive) {
+	public static void broadCastTV(final boolean isActive) {
 		setActive(isActive);
-		WorldChannelInterface wci = ChannelServer.getWorldInterface();
+		final WorldChannelInterface wci = ChannelServer.getWorldInterface();
 		try {
 			if (isActive) {
 				wci.broadcastMessage(ChannelPackets.enableTV());
@@ -80,11 +80,11 @@ public class TVEffect {
 			} else {
 				wci.broadcastMessage(removeTV());
 			}
-		} catch (RemoteException e) {
+		} catch (final RemoteException e) {
 		}
 	}
 
-	public static int getDelayTime(int type) {
+	public static int getDelayTime(final int type) {
 		switch (type) {
 		case 0:
 		case 3:

@@ -61,7 +61,7 @@ public class DueyHandler {
 			final short amount = reader.readShort();
 			final int mesos = reader.readInt();
 			final String recipient = reader.readLengthPrefixedString();
-			boolean quickdelivery = reader.readByte() > 0;
+			final boolean quickdelivery = reader.readByte() > 0;
 
 			final int finalcost = mesos + GameConstants.getTaxAmount(mesos) + (quickdelivery ? 0 : 5000);
 
@@ -69,7 +69,7 @@ public class DueyHandler {
 				final int accid = GameCharacterUtil.getIdByName(recipient);
 				if (accid != -1) {
 					if (accid != c.getAccountId()) {
-						boolean recipientOn = false;
+						final boolean recipientOn = false;
 						/*
 						 * GameClient rClient = null; try { int channel =
 						 * ChannelServer
@@ -157,7 +157,7 @@ public class DueyHandler {
 				c.write(ChannelPackets.sendDuey((byte) 16, null)); // Not enough
 																	// Space
 				return;
-			} else if (dp.getMesos() < 0 || (dp.getMesos() + player.getMeso()) < 0) {
+			} else if (dp.getMesos() < 0 || dp.getMesos() + player.getMeso() < 0) {
 				c.write(ChannelPackets.sendDuey((byte) 17, null)); // Unsuccessfull
 				return;
 			}
@@ -192,10 +192,10 @@ public class DueyHandler {
 	}
 
 	private static boolean addMesoToDB(final int mesos, final String sName, final int recipientID, final boolean isOn) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
 			final String insertPackage = "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
-			PreparedStatement ps = con.prepareStatement(insertPackage);
+			final PreparedStatement ps = con.prepareStatement(insertPackage);
 			ps.setInt(1, recipientID);
 			ps.setString(2, sName);
 			ps.setInt(3, mesos);
@@ -207,16 +207,16 @@ public class DueyHandler {
 			ps.close();
 
 			return true;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			return false;
 		}
 	}
 
 	private static boolean addItemToDB(final IItem item, final int quantity, final int mesos, final String sName, final int recipientID, final boolean isOn) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try {
 			final String insertPackage = "INSERT INTO dueypackages (RecieverId, SenderName, Mesos, TimeStamp, Checked, Type) VALUES (?, ?, ?, ?, ?, ?)";
-			PreparedStatement ps = con.prepareStatement(insertPackage, Statement.RETURN_GENERATED_KEYS);
+			final PreparedStatement ps = con.prepareStatement(insertPackage, Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, recipientID);
 			ps.setString(2, sName);
 			ps.setInt(3, mesos);
@@ -226,7 +226,7 @@ public class DueyHandler {
 			ps.setInt(6, item.getType().asByte());
 			ps.executeUpdate();
 
-			ResultSet rs = ps.getGeneratedKeys();
+			final ResultSet rs = ps.getGeneratedKeys();
 			rs.next();
 			PreparedStatement ps2;
 
@@ -234,7 +234,7 @@ public class DueyHandler {
 				// equips
 				final String insertEquip = "INSERT INTO dueyitems (PackageId, itemid, quantity, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, owner, GM_Log, flag, expiredate, ViciousHammer, itemLevel, itemEXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				ps2 = con.prepareStatement(insertEquip);
-				Equip eq = (Equip) item;
+				final Equip eq = (Equip) item;
 				ps2.setInt(1, rs.getInt(1));
 				ps2.setInt(2, eq.getItemId());
 				ps2.setInt(3, 1); // Quantity
@@ -279,21 +279,21 @@ public class DueyHandler {
 			ps.close();
 
 			return true;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 			return false;
 		}
 	}
 
 	public static List<DueyActions> loadItems(final ChannelCharacter chr) {
-		List<DueyActions> packages = new LinkedList<>();
-		Connection con = Database.getConnection();
+		final List<DueyActions> packages = new LinkedList<>();
+		final Connection con = Database.getConnection();
 		final String selectPackageByReceiver = "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE RecieverId = ?";
 		try (PreparedStatement ps = con.prepareStatement(selectPackageByReceiver)) {
 			ps.setInt(1, chr.getId());
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				DueyActions dueypack = getItemByPID(rs);
+				final DueyActions dueypack = getItemByPID(rs);
 				dueypack.setSender(rs.getString("SenderName"));
 				dueypack.setMesos(rs.getInt("Mesos"));
 				dueypack.setSentTime(rs.getLong("TimeStamp"));
@@ -302,24 +302,24 @@ public class DueyHandler {
 			rs.close();
 			ps.close();
 			return packages;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 			return null;
 		}
 	}
 
 	public static DueyActions loadSingleItem(final int packageid, final int charid) {
-		List<DueyActions> packages = new LinkedList<>();
-		Connection con = Database.getConnection();
+		final List<DueyActions> packages = new LinkedList<>();
+		final Connection con = Database.getConnection();
 		try {
 			final String selectPackageByIdAndReceiver = "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE PackageId = ? and RecieverId = ?";
-			PreparedStatement ps = con.prepareStatement(selectPackageByIdAndReceiver);
+			final PreparedStatement ps = con.prepareStatement(selectPackageByIdAndReceiver);
 			ps.setInt(1, packageid);
 			ps.setInt(2, charid);
-			ResultSet rs = ps.executeQuery();
+			final ResultSet rs = ps.executeQuery();
 
 			if (rs.next()) {
-				DueyActions dueypack = getItemByPID(rs);
+				final DueyActions dueypack = getItemByPID(rs);
 				dueypack.setSender(rs.getString("SenderName"));
 				dueypack.setMesos(rs.getInt("Mesos"));
 				dueypack.setSentTime(rs.getLong("TimeStamp"));
@@ -332,29 +332,29 @@ public class DueyHandler {
 				ps.close();
 				return null;
 			}
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 //	    se.printStackTrace();
 			return null;
 		}
 	}
 
 	public static void reciveMsg(final ChannelClient c, final int recipientId) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("UPDATE dueypackages SET Checked = 0 where RecieverId = ?")) {
 			ps.setInt(1, recipientId);
 			ps.executeUpdate();
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 		}
 	}
 
 	private static void removeItemFromDB(final int packageid, final int charid) {
-		Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 		try (PreparedStatement ps = con.prepareStatement("DELETE FROM dueypackages WHERE PackageId = ? and RecieverId = ?")) {
 			ps.setInt(1, packageid);
 			ps.setInt(2, charid);
 			ps.executeUpdate();
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 		}
 	}
@@ -363,7 +363,7 @@ public class DueyHandler {
 		try {
 			DueyActions dueypack;
 			if (rs.getInt("type") == 1) {
-				Equip eq = new Equip(rs.getInt("itemid"), (byte) 0, -1, (byte) 0);
+				final Equip eq = new Equip(rs.getInt("itemid"), (byte) 0, -1, (byte) 0);
 				eq.setUpgradeSlots(rs.getByte("upgradeslots"));
 				eq.setLevel(rs.getByte("level"));
 				eq.setStr(rs.getShort("str"));
@@ -391,7 +391,7 @@ public class DueyHandler {
 				dueypack = new DueyActions(rs.getInt("PackageId"), eq);
 
 			} else if (rs.getInt("type") == 2) {
-				Item newItem = new Item(rs.getInt("itemid"), (byte) 0, (short) rs.getInt("quantity"), (byte) 0);
+				final Item newItem = new Item(rs.getInt("itemid"), (byte) 0, (short) rs.getInt("quantity"), (byte) 0);
 				newItem.setOwner(rs.getString("owner"));
 				newItem.setFlag(rs.getByte("flag"));
 				newItem.setExpiration(rs.getLong("expiredate"));
@@ -401,7 +401,7 @@ public class DueyHandler {
 				dueypack = new DueyActions(rs.getInt("PackageId"));
 			}
 			return dueypack;
-		} catch (SQLException se) {
+		} catch (final SQLException se) {
 			se.printStackTrace();
 			return null;
 		}

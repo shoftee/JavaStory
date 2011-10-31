@@ -7,7 +7,7 @@ public enum ItemConsumeType {
 
 	private int value;
 
-	private ItemConsumeType(int value) {
+	private ItemConsumeType(final int value) {
 		this.value = value;
 	}
 
@@ -15,7 +15,7 @@ public enum ItemConsumeType {
 		return (byte) this.value;
 	}
 
-	public static ItemConsumeType fromNumber(int value) {
+	public static ItemConsumeType fromNumber(final int value) {
 		switch (value) {
 		case 0:
 			return DEFAULT;

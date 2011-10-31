@@ -42,7 +42,7 @@ public final class MobSkillFactory {
 	private MobSkillFactory() {
 	}
 
-	public static MobSkill getMobSkill(int skillId, int level) {
+	public static MobSkill getMobSkill(final int skillId, final int level) {
 		final SkillLevelEntry entry = new SkillLevelEntry(skillId, level);
 		MobSkill ret = mobSkills.get(entry);
 		if (ret != null) {
@@ -53,7 +53,7 @@ public final class MobSkillFactory {
 		if (data != null) {
 			ret = new MobSkill(skillId, level);
 
-			List<Integer> summons = Lists.newArrayList();
+			final List<Integer> summons = Lists.newArrayList();
 			int i = 0;
 			WzData summonData = data.getChildByPath(String.valueOf(i));
 			while (summonData != null) {

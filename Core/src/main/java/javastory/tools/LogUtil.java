@@ -40,13 +40,13 @@ public class LogUtil {
 			out = new FileOutputStream(file, true);
 			out.write(msg.getBytes());
 			out.write("\n------------------------\n".getBytes());
-		} catch (IOException ess) {
+		} catch (final IOException ess) {
 		} finally {
 			try {
 				if (out != null) {
 					out.close();
 				}
-			} catch (IOException ignore) {
+			} catch (final IOException ignore) {
 			}
 		}
 	}
@@ -57,13 +57,13 @@ public class LogUtil {
 			out = new FileOutputStream(file, true);
 			out.write(getString(t).getBytes());
 			out.write("\n------------------------\n".getBytes());
-		} catch (IOException ess) {
+		} catch (final IOException ess) {
 		} finally {
 			try {
 				if (out != null) {
 					out.close();
 				}
-			} catch (IOException ignore) {
+			} catch (final IOException ignore) {
 			}
 		}
 	}
@@ -89,7 +89,7 @@ public class LogUtil {
 				if (sw != null) {
 					sw.close();
 				}
-			} catch (IOException ignore) {
+			} catch (final IOException ignore) {
 			}
 		}
 		return retValue;

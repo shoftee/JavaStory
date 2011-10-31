@@ -95,7 +95,7 @@ public class StatsHandling {
 					}
 				} else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
 					MaxHP += Randomizer.rand(15, 21);
-				} else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
+				} else if (chr.getJobId() >= 1300 && chr.getJobId() <= 1311 || chr.getJobId() >= 1400 && chr.getJobId() <= 1411) { // Wind Breaker and Night Walker
 					MaxHP += Randomizer.rand(30, 36);
 				} else { // GameMaster
 					MaxHP += Randomizer.rand(50, 100);
@@ -115,8 +115,8 @@ public class StatsHandling {
 				} else if (chr.getJobId() >= 100 && chr.getJobId() <= 132) { // Warrior
 					MaxMP += Randomizer.rand(2, 4);
 				} else if (chr.getJobId() >= 200 && chr.getJobId() <= 232) { // Magician
-					ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
-					int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
+					final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+					final int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
 					if (improvingMaxMPLevel >= 1) {
 						MaxMP += Randomizer.rand(18, 20) + improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 					} else {
@@ -131,13 +131,13 @@ public class StatsHandling {
 				} else if (chr.getJobId() >= 1100 && chr.getJobId() <= 1111) { // Soul Master
 					MaxMP += Randomizer.rand(6, 9);
 				} else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
-					ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
-					int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
+					final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+					final int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
 					MaxMP += Randomizer.rand(33, 36);
 					if (improvingMaxMPLevel >= 1) {
 						MaxMP += improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
 					}
-				} else if ((chr.getJobId() >= 1300 && chr.getJobId() <= 1311) || (chr.getJobId() >= 1400 && chr.getJobId() <= 1411)) { // Wind Breaker and Night Walker
+				} else if (chr.getJobId() >= 1300 && chr.getJobId() <= 1311 || chr.getJobId() >= 1400 && chr.getJobId() <= 1411) { // Wind Breaker and Night Walker
 					MaxMP += Randomizer.rand(21, 24);
 				} else { // GameMaster
 					MaxMP += Randomizer.rand(50, 100);
@@ -168,7 +168,7 @@ public class StatsHandling {
 			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1000));
 			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1001));
 			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1002));
-			remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
 		}
@@ -178,7 +178,7 @@ public class StatsHandling {
 			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001000));
 			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001001));
 			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001002));
-			remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
 		}
@@ -188,7 +188,7 @@ public class StatsHandling {
 			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001000));
 			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001001));
 			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001002));
-			remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
 		}
@@ -198,7 +198,7 @@ public class StatsHandling {
 			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011000));
 			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011001));
 			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011002));
-			remainingSp = Math.min((chr.getLevel() - 1), 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
+			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
 		}
@@ -219,13 +219,13 @@ public class StatsHandling {
 		final int curLevel = chr.getCurrentSkillLevel(skill);
 
 		if (skill.isInvisible() && chr.getCurrentSkillLevel(skill) == 0) {
-			if ((skill.isFourthJob() && chr.getMasterSkillLevel(skill) == 0) || !skill.isFourthJob() && maxlevel < 10) {
+			if (skill.isFourthJob() && chr.getMasterSkillLevel(skill) == 0 || !skill.isFourthJob() && maxlevel < 10) {
 				AutobanManager.getInstance().addPoints(c, 1000, 0, "Illegal distribution of SP to invisible skills (" + skillid + ")");
 				return;
 			}
 		}
 
-		if ((remainingSp > 0 && curLevel + 1 <= maxlevel) && skill.canBeLearnedBy(chr.getJobId())) {
+		if (remainingSp > 0 && curLevel + 1 <= maxlevel && skill.canBeLearnedBy(chr.getJobId())) {
 			if (!isBeginnerSkill) {
 				final int skillbook = Skills.getSkillbookForSkill(skillid);
 				chr.setRemainingSp(chr.getRemainingSp(skillbook) - 1, skillbook);
@@ -244,7 +244,7 @@ public class StatsHandling {
 		final int SecondaryStat = reader.readInt();
 		final int amount2 = reader.readInt();
 		final ActivePlayerStats playerst = chr.getStats();
-		List<StatValue> statupdate = new ArrayList<>(2);
+		final List<StatValue> statupdate = new ArrayList<>(2);
 		c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
 		if (chr.getRemainingAp() == amount + amount2) {
 			switch (PrimaryStat) {

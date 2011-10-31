@@ -22,27 +22,27 @@ public final class CarnivalChallenge {
 	ChannelCharacter challenger;
 	String challengeinfo = "";
 
-	public CarnivalChallenge(ChannelCharacter challenger) {
+	public CarnivalChallenge(final ChannelCharacter challenger) {
 		this.challenger = challenger;
 		try {
 			final int partyId = challenger.getPartyMembership().getPartyId();
-			Party party = ChannelServer.getWorldInterface().getParty(partyId);
-			challengeinfo += "#b";
-			for (PartyMember pc : party.getMembers()) {
-				ChannelCharacter c = challenger.getMap().getCharacterById_InMap(pc.getCharacterId());
-				challengeinfo += (c.getName() + " / Level" + c.getLevel() + " / " + Jobs.getJobNameById(c.getJobId()));
+			final Party party = ChannelServer.getWorldInterface().getParty(partyId);
+			this.challengeinfo += "#b";
+			for (final PartyMember pc : party.getMembers()) {
+				final ChannelCharacter c = challenger.getMap().getCharacterById_InMap(pc.getCharacterId());
+				this.challengeinfo += c.getName() + " / Level" + c.getLevel() + " / " + Jobs.getJobNameById(c.getJobId());
 			}
-			challengeinfo += "#k";
-		} catch (RemoteException ex) {
+			this.challengeinfo += "#k";
+		} catch (final RemoteException ex) {
 		}
 	}
 
 	public ChannelCharacter getChallenger() {
-		return challenger;
+		return this.challenger;
 	}
 
 	public String getChallengeInfo() {
-		return challengeinfo;
+		return this.challengeinfo;
 	}
 
 }

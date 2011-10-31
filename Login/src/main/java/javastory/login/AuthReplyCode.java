@@ -16,7 +16,7 @@ public enum AuthReplyCode {
     
     private int value;
     
-    private AuthReplyCode(int value) {
+    private AuthReplyCode(final int value) {
         this.value = value;
     }
     

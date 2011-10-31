@@ -20,20 +20,20 @@ package javastory.channel.life;
 
 public class SummonAttackEntry {
 
-	private Monster mob;
-	private int damage;
+	private final Monster mob;
+	private final int damage;
 
-	public SummonAttackEntry(Monster mob, int damage) {
+	public SummonAttackEntry(final Monster mob, final int damage) {
 		super();
 		this.mob = mob;
 		this.damage = damage;
 	}
 
 	public Monster getMonster() {
-		return mob;
+		return this.mob;
 	}
 
 	public int getDamage() {
-		return damage;
+		return this.damage;
 	}
 }
