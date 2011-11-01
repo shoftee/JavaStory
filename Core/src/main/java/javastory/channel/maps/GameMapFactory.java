@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javastory.channel.life.AbstractLoadedLife;
@@ -21,6 +21,7 @@ import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 
 public final class GameMapFactory {
@@ -28,13 +29,15 @@ public final class GameMapFactory {
 	private static final WzDataProvider source = WzDataProviderFactory.getDataProvider("Map.wz");
 
 	private final Map<Integer, GameMap> maps;
-	private final WeakHashMap<Integer, GameMap> instanceMap;
+	private final ConcurrentMap<Integer, GameMap> instanceMap;
 
 	private final ReentrantLock lock;
 
 	public GameMapFactory() {
 		this.maps = Maps.newHashMap();
-		this.instanceMap = new WeakHashMap<>();
+		
+		// TODO: WeakReference is bad news in general. Do not use. Never use. The GC has its hands full with this thing anyways.
+		this.instanceMap = new MapMaker().weakValues().makeMap();
 
 		this.lock = new ReentrantLock();
 	}
@@ -71,6 +74,7 @@ public final class GameMapFactory {
 		return map;
 	}
 
+	// TODO: Reuse this in createInstance, or vice-versa, or a common portion of both.
 	private GameMap loadMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors) {
 
 		WzData mapData = source.getData(this.getMapName(mapId));

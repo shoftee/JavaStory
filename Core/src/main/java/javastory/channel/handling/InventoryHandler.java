@@ -344,7 +344,7 @@ public class InventoryHandler {
 			if (CurrentLoopedSkillId == null) {
 				break; // End of data
 			}
-			if (Math.floor(CurrentLoopedSkillId / 100000) == chr.getJobId() / 10) {
+			if (CurrentLoopedSkillId / 100000 == chr.getJobId() / 10) {
 				final ISkill CurrSkillData = SkillFactory.getSkill(CurrentLoopedSkillId);
 				if (chr.getCurrentSkillLevel(CurrSkillData) >= ReqSkillLevel && chr.getMasterSkillLevel(CurrSkillData) < MasterLevel) {
 					canuse = true;

@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
 
 import javastory.channel.ChannelCharacter;
@@ -41,10 +41,12 @@ import javastory.tools.packets.ChannelPackets;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
+import com.google.common.collect.MapMaker;
+
 public class EventManager {
 
 	private final Invocable invocable;
-	private final WeakHashMap<String, EventInstanceManager> instances = new WeakHashMap<>();
+	private final ConcurrentMap<String, EventInstanceManager> instances = new MapMaker().weakValues().makeMap();
 	private final Properties props = new Properties();
 	private final String name;
 

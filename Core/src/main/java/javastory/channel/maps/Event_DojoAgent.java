@@ -112,7 +112,7 @@ public class Event_DojoAgent {
 			return true;
 		}
 		final int temp = (currentmap - 925000000) / 100;
-		final int thisStage = (int) (temp - Math.floor(temp / 100) * 100);
+		final int thisStage = (int) (temp - Math.floor(temp / 100.0f) * 100);
 		final int nextmapid = 925020000 + (thisStage + 1) * 100;
 
 		for (int i = nextmapid; i < nextmapid + 15; i++) {

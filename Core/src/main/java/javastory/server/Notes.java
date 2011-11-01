@@ -65,16 +65,12 @@ public final class Notes {
 	private Notes() {
 	}
 
-	// TODO: Extract prepare statement call into method.
 	public static ImmutableList<Note> loadReceived(final String recepient) {
 		final List<Note> list = Lists.newArrayList();
-		try {
-			final Connection con = Database.getConnection();
-			final PreparedStatement ps = con.prepareStatement("SELECT * FROM notes WHERE `recepient` = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
-				ResultSet.CONCUR_UPDATABLE);
 
-			ps.setString(1, recepient);
-			final ResultSet rs = ps.executeQuery();
+		final Connection con = Database.getConnection();
+		try (	final PreparedStatement ps = getSelectNotes(recepient, con);
+				final ResultSet rs = ps.executeQuery()) {
 			while (rs.next()) {
 				list.add(new Note(rs));
 			}
@@ -82,6 +78,13 @@ public final class Notes {
 			System.err.println("Unable to load notes: " + ex);
 		}
 		return ImmutableList.copyOf(list);
+	}
+
+	private static PreparedStatement getSelectNotes(final String recepient, final Connection con) throws SQLException {
+		final PreparedStatement ps = con.prepareStatement("SELECT * FROM notes WHERE `recepient` = ?", ResultSet.TYPE_SCROLL_SENSITIVE,
+			ResultSet.CONCUR_UPDATABLE);
+		ps.setString(1, recepient);
+		return ps;
 	}
 
 	public static void send(final String from, final String to, final String message) {

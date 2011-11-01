@@ -81,7 +81,6 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 			try {
 				instance = new WorldRegistryImpl();
 			} catch (final RemoteException e) {
-				// can't do much anyway we are fucked ^^
 				throw new RuntimeException(e);
 			}
 		}

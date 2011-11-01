@@ -310,7 +310,7 @@ public class Monster extends AbstractLoadedLife {
 			}
 			int CLASS_EXP = 0;
 			if (CLASS_EXP_PERCENT > 0) {
-				CLASS_EXP = (int) ((float) (exp / 100) * CLASS_EXP_PERCENT);
+				CLASS_EXP = (int) ((exp / 100.0f) * CLASS_EXP_PERCENT);
 			}
 			if (attacker.hasDisease(Disease.CURSE)) {
 				exp /= 2;

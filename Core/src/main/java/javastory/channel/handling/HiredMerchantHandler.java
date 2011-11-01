@@ -204,6 +204,7 @@ public final class HiredMerchantHandler {
 
 			final List<Item> items = Lists.newArrayList();
 
+			// TODO: Load these properly when I generalize item loading.
 			final PreparedStatement ps2 = con.prepareStatement("SELECT * from hiredmerchitems where PackageId = ?");
 			ps2.setInt(1, packageid);
 			final ResultSet rs2 = ps2.executeQuery();

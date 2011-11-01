@@ -57,17 +57,19 @@ public final class LoginInfoProvider {
         if (item == null) {
             return;
         }
+        
         final WzData info = item.getChildByPath("info");
         if (info == null) {
             return;
         }
+        
         final Map<String, Integer> ret = Maps.newLinkedHashMap();
-
         for (final WzData data : info.getChildren()) {
             if (data.getName().startsWith("inc")) {
                 ret.put(data.getName().substring(3), WzDataTool.getIntConvert(data));
             }
         }
+        
         ret.put("tuc", WzDataTool.getInt("tuc", info, 0));
         ret.put("reqLevel", WzDataTool.getInt("reqLevel", info, 0));
         ret.put("reqJob", WzDataTool.getInt("reqJob", info, 0));

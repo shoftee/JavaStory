@@ -89,7 +89,7 @@ public final class MobSkillFactory {
 			ret.setSpawnEffect(WzDataTool.getInt("summonEffect", data, 0));
 			ret.setX(WzDataTool.getInt("x", data, 1));
 			ret.setY(WzDataTool.getInt("y", data, 1));
-			ret.setProp(WzDataTool.getInt("prop", data, 100) / 100);
+			ret.setProp(WzDataTool.getInt("prop", data, 100) / 100.0f);
 			ret.setLimit((short) WzDataTool.getInt("limit", data, 0));
 			ret.setLtRb(lt, rb);
 

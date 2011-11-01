@@ -126,18 +126,18 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	// TODO: Global Damage caps should not be here.
 	public static int damageCap = 100000000;
 	public static int magicCap = 999999999;
-	
+
 	private transient int linkedMonsterId = 0;
 
 	private transient Dragon dragon;
-	
+
 	private transient List<LifeMovementFragment> lastMovement;
 
 	private transient Set<Monster> controlledMonsters;
 	private transient Set<GameMapObject> visibleMapObjects;
 
 	private transient Map<Integer, Summon> summons;
-	
+
 	// TODO: Create a class for these triplet.
 	private transient Map<Integer, CooldownValueHolder> cooldowns;
 	private transient Map<Disease, DiseaseValueHolder> diseases;
@@ -151,13 +151,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	private transient AtomicInteger conversationState;
 	private transient EventInstanceManager eventInstance;
-	
+
 	// TODO: Either add an interface for the map or for the character, circular dependency bad!
 	private transient GameMap map;
-	
+
 	// TODO: This can likely be generalized into a playerInteraction thingie?
 	private transient Shop shop;
-	
+
 	// TODO: This can likely be generalized into a PlayerIntraction thingie?
 	private transient Trade trade;
 
@@ -199,9 +199,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	// TODO: Create classes for these arrays.
 	private int[] wishlist, teleportRocks;
-	
+
 	private EnumMap<SavedLocationType, Integer> savedLocations;
-	
+
 	public int reborns;
 
 	// TODO: Subcategory should be in the Job class.
@@ -209,9 +209,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	// TODO: Extract HP AP Used, MP AP Used, remaining AP into another class.
 	private int mpApUsed, hpApUsed, remainingAp;
-	
+
 	private int meso, exp, mapId, initialSpawnPoint, bookCover, dojo, fallcounter, chair, itemEffect;
-	
+
 	// TODO: Extract SP logic into class.
 	private int[] remainingSp = new int[10];
 
@@ -261,7 +261,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private Party party;
 
 	private KeyLayout keylayout;
-	
+
 	private MultiInventory inventory;
 
 	private ChannelClient client;
@@ -302,21 +302,21 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		this.diseases = Maps.newEnumMap(Disease.class);
 
 		this.doors = Lists.newArrayList();
-		
+
 		this.pets = Lists.newArrayList();
-		
+
 		this.pendingCarnivalRequests = Lists.newLinkedList();
-		
+
 		this.controlledMonsters = Sets.newLinkedHashSet();
 		this.visibleMapObjects = Sets.newLinkedHashSet();
-		
+
 		this.quests = Maps.newLinkedHashMap();
 		this.questInfo = Maps.newLinkedHashMap();
-		
+
 		this.summons = Maps.newLinkedHashMap();
-		
+
 		this.skills = Maps.newLinkedHashMap();
-		
+
 		// TODO: Get rid of arrays.
 		this.savedLocations = Maps.newEnumMap(SavedLocationType.class);
 	}
@@ -2821,7 +2821,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 
 		if (partyMembers > 1) {
-			partyExp = (int) ((float) (baseExp / 10) * (partyMembers + 1)); // 10%
+			partyExp = (int) ((baseExp / 10.0f) * (partyMembers + 1)); // 10%
 		}
 		if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
 			// Saturday and Sunday
@@ -2934,7 +2934,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		long expiration;
 		final long currenttime = System.currentTimeMillis();
 		// This is here to prevent deadlock.
-		final List<Item> toberemove = Lists.newArrayList(); 
+		final List<Item> toberemove = Lists.newArrayList();
 
 		for (final Inventory inv : this.inventory) {
 			for (final Item item : inv) {
@@ -3127,7 +3127,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			}
 			maxhp += Randomizer.rand(10, 14);
 			maxmp += Randomizer.rand(22, 24);
-		} else if (this.jobId >= 300 && this.jobId <= 322 || this.jobId >= 400 && this.jobId <= 434 || this.jobId >= 1300 && this.jobId <= 1311 || this.jobId >= 1400 && this.jobId <= 1411) {
+		} else if (this.jobId >= 300 && this.jobId <= 322 || this.jobId >= 400 && this.jobId <= 434 || this.jobId >= 1300 && this.jobId <= 1311
+			|| this.jobId >= 1400 && this.jobId <= 1411) {
 			// Bowman, Thief, Wind Breaker and Night Walker
 			maxhp += Randomizer.rand(20, 24);
 			maxmp += Randomizer.rand(14, 16);
@@ -3209,10 +3210,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		statup.add(new StatValue(Stat.EXP, this.exp));
 		statup.add(new StatValue(Stat.LEVEL, this.level));
 		if (this.jobId != 0 && this.jobId != 1000 && this.jobId != 2000 && this.jobId != 2001) { // Not
-																				// Beginner,
-																				// Nobless
-																				// and
-																				// Legend
+			// Beginner,
+			// Nobless
+			// and
+			// Legend
 			this.remainingSp[Skills.getSkillbook(this.jobId)] += 3;
 			this.client.write(ChannelPackets.updateSp(this, false));
 		} else {
@@ -4032,8 +4033,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 				public void run() {
 					ChannelCharacter.this.addHP(healEffect.getHp());
 					ChannelCharacter.this.client.write(ChannelPackets.showOwnBuffEffect(1321007, 2));
-					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(ChannelCharacter.this.getId(), 1321007, 5), true);
-					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(ChannelCharacter.this.getId(), 1321007, 2), false);
+					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(ChannelCharacter.this.getId(), 1321007, 5),
+						true);
+					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(ChannelCharacter.this.getId(), 1321007, 2),
+						false);
 				}
 			}, healInterval, healInterval);
 		}
@@ -4048,8 +4051,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 				public void run() {
 					buffEffect.applyTo(ChannelCharacter.this);
 					ChannelCharacter.this.client.write(ChannelPackets.showOwnBuffEffect(1321007, 2));
-					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(ChannelCharacter.this.getId(), 1321007, (int) (Math.random() * 3) + 6), true);
-					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(ChannelCharacter.this.getId(), 1321007, 2), false);
+					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.summonSkill(ChannelCharacter.this.getId(), 1321007,
+						(int) (Math.random() * 3) + 6), true);
+					ChannelCharacter.this.map.broadcastMessage(ChannelCharacter.this, ChannelPackets.showBuffeffect(ChannelCharacter.this.getId(), 1321007, 2),
+						false);
 				}
 			}, buffInterval, buffInterval);
 		}

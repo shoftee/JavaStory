@@ -636,15 +636,12 @@ public final class DamageParse {
 	private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MobInfo mobstats,
 		final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
 		final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
-		final int Accuracy = (int) (Math.floor(stats.getTotalInt() / 10) + Math.floor(stats.getTotalLuk() / 10));
+		final int Accuracy = stats.getTotalInt() / 10 + stats.getTotalLuk() / 10;
 		final int MinAccuracy = mobstats.getEvasion() * (dLevel * 2 + 51) / 120;
 		// FullAccuracy = Avoid * (dLevel * 2 + 51) / 50
 
-		if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() != 10001000 && skill.getId() != 20001000 && skill.getId() != 20011000) { // miss
-																																						// :P
-																																						// or
-																																						// HACK
-																																						// :O
+		// miss :P or HACK :O
+		if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() != 10001000 && skill.getId() != 20001000 && skill.getId() != 20011000) { 
 			return 0;
 		}
 		double elemMaxDamagePerMob;
