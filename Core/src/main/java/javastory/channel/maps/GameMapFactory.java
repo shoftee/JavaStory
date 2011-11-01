@@ -12,6 +12,7 @@ import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.server.Portal;
 import javastory.channel.server.PortalFactory;
+import javastory.game.GameConstants;
 import javastory.game.data.ReactorFactory;
 import javastory.game.data.ReactorInfo;
 import javastory.tools.StringUtil;
@@ -26,7 +27,7 @@ import com.google.common.collect.Maps;
 
 public final class GameMapFactory {
 
-	private static final WzDataProvider source = WzDataProviderFactory.getDataProvider("Map.wz");
+	private static final WzDataProvider mapDataProvider = WzDataProviderFactory.getDataProvider("Map.wz");
 
 	private final Map<Integer, GameMap> maps;
 	private final ConcurrentMap<Integer, GameMap> instanceMap;
@@ -35,7 +36,7 @@ public final class GameMapFactory {
 
 	public GameMapFactory() {
 		this.maps = Maps.newHashMap();
-		
+
 		// TODO: WeakReference is bad news in general. Do not use. Never use. The GC has its hands full with this thing anyways.
 		this.instanceMap = new MapMaker().weakValues().makeMap();
 
@@ -76,26 +77,25 @@ public final class GameMapFactory {
 
 	// TODO: Reuse this in createInstance, or vice-versa, or a common portion of both.
 	private GameMap loadMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors) {
-
-		WzData mapData = source.getData(this.getMapName(mapId));
-		final WzData link = mapData.getChildByPath("info/link");
+		WzData data = mapDataProvider.getData(this.getPaddedMapName(mapId));
+		final WzData link = data.getChildByPath("info/link");
 		if (link != null) {
-			mapData = source.getData(this.getMapName(WzDataTool.getIntConvert("info/link", mapData)));
+			data = mapDataProvider.getData(this.getPaddedMapName(WzDataTool.getIntConvert("info/link", data)));
 		}
 
 		float monsterRate = 0;
 		if (mobsRespawn) {
-			final WzData mobRate = mapData.getChildByPath("info/mobRate");
+			final WzData mobRate = data.getChildByPath("info/mobRate");
 			if (mobRate != null) {
 				monsterRate = ((Float) mobRate.getData()).floatValue();
 			}
 		}
 
-		final int returnMapId = WzDataTool.getInt("info/returnMap", mapData);
+		final int returnMapId = WzDataTool.getInt("info/returnMap", data);
 		final GameMap map = new GameMap(mapId, returnMapId, monsterRate);
 
 		final PortalFactory portalFactory = new PortalFactory();
-		for (final WzData portalData : mapData.getChildByPath("portal")) {
+		for (final WzData portalData : data.getChildByPath("portal")) {
 			final int portalType = WzDataTool.getInt("pt", portalData);
 			final Portal portal = portalFactory.makePortal(portalType, portalData);
 
@@ -105,7 +105,7 @@ public final class GameMapFactory {
 		final List<Foothold> footholds = Lists.newLinkedList();
 		final Point lBound = new Point();
 		final Point uBound = new Point();
-		for (final WzData fhRoot : mapData.getChildByPath("foothold")) {
+		for (final WzData fhRoot : data.getChildByPath("foothold")) {
 			for (final WzData fhCategory : fhRoot) {
 				for (final WzData fhData : fhCategory) {
 					final Foothold fh = new Foothold(fhData);
@@ -135,8 +135,8 @@ public final class GameMapFactory {
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
-		if (mapData.getChildByPath("area") != null) {
-			for (final WzData area : mapData.getChildByPath("area")) {
+		if (data.getChildByPath("area") != null) {
+			for (final WzData area : data.getChildByPath("area")) {
 				final int x1 = WzDataTool.getInt(area.getChildByPath("x1"));
 				final int y1 = WzDataTool.getInt(area.getChildByPath("y1"));
 				final int x2 = WzDataTool.getInt(area.getChildByPath("x2"));
@@ -147,13 +147,13 @@ public final class GameMapFactory {
 		}
 
 		String message = null;
-		final WzData timeMob = mapData.getChildByPath("info/timeMob");
+		final WzData timeMob = data.getChildByPath("info/timeMob");
 		if (timeMob != null) {
 			message = WzDataTool.getString("message", timeMob, null);
 		}
 
 		// load life data (npc, monsters)
-		for (final WzData life : mapData.getChildByPath("life")) {
+		for (final WzData life : data.getChildByPath("life")) {
 			final String type = WzDataTool.getString("type", life);
 			if (loadNpcs || !type.equals("n")) {
 				final String id = WzDataTool.getString("id", life);
@@ -175,8 +175,8 @@ public final class GameMapFactory {
 		map.loadMonsterRate(true);
 
 		// load reactor data
-		if (loadReactors && mapData.getChildByPath("reactor") != null) {
-			for (final WzData reactor : mapData.getChildByPath("reactor")) {
+		if (loadReactors && data.getChildByPath("reactor") != null) {
+			for (final WzData reactor : data.getChildByPath("reactor")) {
 				final String id = WzDataTool.getString("id", reactor);
 				if (id == null) {
 					continue;
@@ -187,23 +187,23 @@ public final class GameMapFactory {
 			}
 		}
 
-		map.setClock(mapData.getChildByPath("clock") != null);
-		map.setEverlast(mapData.getChildByPath("info/everlast") != null);
-		map.setTown(mapData.getChildByPath("info/town") != null);
+		map.setClock(data.getChildByPath("clock") != null);
+		map.setEverlast(data.getChildByPath("info/everlast") != null);
+		map.setTown(data.getChildByPath("info/town") != null);
 
-		map.setForcedReturnMap(WzDataTool.getInt(mapData.getChildByPath("info/forcedReturn"), 999999999));
+		map.setForcedReturnMap(WzDataTool.getInt("info/forcedReturn", data, 999999999));
 
-		map.setHPDec(WzDataTool.getInt(mapData.getChildByPath("info/decHP"), 0));
-		map.setHPDecProtect(WzDataTool.getInt(mapData.getChildByPath("info/protectItem"), 0));
-		map.setTimeLimit(WzDataTool.getInt(mapData.getChildByPath("info/timeLimit"), -1));
-		map.setFieldLimit(WzDataTool.getInt(mapData.getChildByPath("info/fieldLimit"), 0));
-		map.setRecoveryRate(WzDataTool.getFloat(mapData.getChildByPath("info/recovery"), 1));
+		map.setRecoveryRate(WzDataTool.getFloat("info/recovery", data, 1.0f));
+		map.setHPDec(WzDataTool.getInt("info/decHP", data, 0));
+		map.setHPDecProtect(WzDataTool.getInt("info/protectItem", data, 0));
+		map.setFieldLimit(WzDataTool.getInt("info/fieldLimit", data, 0));
+		map.setTimeLimit(WzDataTool.getInt("info/timeLimit", data, -1));
 
-		map.setPersonalShop(mapData.getChildByPath("info/personalShop") != null);
-		map.setCreateMobInterval((short) WzDataTool.getInt(mapData.getChildByPath("info/createMobInterval"), 9000));
+		map.setPersonalShop(data.getChildByPath("info/personalShop") != null);
+		map.setCreateMobInterval((short) WzDataTool.getInt("info/createMobInterval", data, 9000));
 
-		map.setFirstUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onFirstUserEnter"), ""));
-		map.setUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onUserEnter"), ""));
+		map.setFirstUserEnter(WzDataTool.getString("info/onFirstUserEnter", data, ""));
+		map.setUserEnter(WzDataTool.getString("info/onUserEnter", data, ""));
 		return map;
 	}
 
@@ -216,24 +216,24 @@ public final class GameMapFactory {
 	}
 
 	public GameMap createInstanceMap(final int mapId, final boolean mobsRespawn, final boolean loadNpcs, final boolean loadReactors, final int instanceId) {
-		WzData mapData = source.getData(this.getMapName(mapId));
-		final WzData link = mapData.getChildByPath("info/link");
+		WzData data = mapDataProvider.getData(this.getPaddedMapName(mapId));
+		final WzData link = data.getChildByPath("info/link");
 		if (link != null) {
-			mapData = source.getData(this.getMapName(WzDataTool.getIntConvert("info/link", mapData)));
+			data = mapDataProvider.getData(this.getPaddedMapName(WzDataTool.getIntConvert("info/link", data)));
 		}
 
 		float monsterRate = 0;
 		if (mobsRespawn) {
-			final WzData mobRate = mapData.getChildByPath("info/mobRate");
+			final WzData mobRate = data.getChildByPath("info/mobRate");
 			if (mobRate != null) {
 				monsterRate = ((Float) mobRate.getData()).floatValue();
 			}
 		}
 
-		final GameMap map = new GameMap(mapId, WzDataTool.getInt("info/returnMap", mapData), monsterRate);
+		final GameMap map = new GameMap(mapId, WzDataTool.getInt("info/returnMap", data), monsterRate);
 
 		final PortalFactory portalFactory = new PortalFactory();
-		for (final WzData portalData : mapData.getChildByPath("portal")) {
+		for (final WzData portalData : data.getChildByPath("portal")) {
 			final int portalType = WzDataTool.getInt("pt", portalData);
 			final Portal portal = portalFactory.makePortal(portalType, portalData);
 
@@ -243,7 +243,7 @@ public final class GameMapFactory {
 		final List<Foothold> footholds = Lists.newLinkedList();
 		final Point lBound = new Point();
 		final Point uBound = new Point();
-		for (final WzData fhRoot : mapData.getChildByPath("foothold")) {
+		for (final WzData fhRoot : data.getChildByPath("foothold")) {
 			for (final WzData fhCategory : fhRoot) {
 				for (final WzData fhData : fhCategory) {
 					final Foothold fh = new Foothold(fhData);
@@ -272,25 +272,25 @@ public final class GameMapFactory {
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
-		if (mapData.getChildByPath("area") != null) {
-			for (final WzData area : mapData.getChildByPath("area")) {
-				final int x1 = WzDataTool.getInt(area.getChildByPath("x1"));
-				final int y1 = WzDataTool.getInt(area.getChildByPath("y1"));
-				final int x2 = WzDataTool.getInt(area.getChildByPath("x2"));
-				final int y2 = WzDataTool.getInt(area.getChildByPath("y2"));
+		if (data.getChildByPath("area") != null) {
+			for (final WzData area : data.getChildByPath("area")) {
+				final int x1 = WzDataTool.getInt("x1", area);
+				final int y1 = WzDataTool.getInt("y1", area);
+				final int x2 = WzDataTool.getInt("x2", area);
+				final int y2 = WzDataTool.getInt("y2", area);
 				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 				map.addMapleArea(mapArea);
 			}
 		}
 
 		String message = null;
-		final WzData timeMob = mapData.getChildByPath("info/timeMob");
+		final WzData timeMob = data.getChildByPath("info/timeMob");
 		if (timeMob != null) {
 			message = WzDataTool.getString("message", timeMob, null);
 		}
 
 		// load life data (npc, monsters)
-		for (final WzData life : mapData.getChildByPath("life")) {
+		for (final WzData life : data.getChildByPath("life")) {
 			final String type = WzDataTool.getString("type", life);
 			if (loadNpcs || !type.equals("n")) {
 				final String id = WzDataTool.getString("id", life);
@@ -312,8 +312,8 @@ public final class GameMapFactory {
 		map.loadMonsterRate(true);
 
 		// load reactor data
-		if (loadReactors && mapData.getChildByPath("reactor") != null) {
-			for (final WzData reactor : mapData.getChildByPath("reactor")) {
+		if (loadReactors && data.getChildByPath("reactor") != null) {
+			for (final WzData reactor : data.getChildByPath("reactor")) {
 				final String id = WzDataTool.getString("id", reactor);
 				if (id == null) {
 					continue;
@@ -324,23 +324,22 @@ public final class GameMapFactory {
 			}
 		}
 
-		map.setClock(mapData.getChildByPath("clock") != null);
-		map.setEverlast(mapData.getChildByPath("info/everlast") != null);
-		map.setTown(mapData.getChildByPath("info/town") != null);
+		map.setClock(data.getChildByPath("clock") != null);
+		map.setEverlast(data.getChildByPath("info/everlast") != null);
+		map.setTown(data.getChildByPath("info/town") != null);
 
-		map.setForcedReturnMap(WzDataTool.getInt(mapData.getChildByPath("info/forcedReturn"), 999999999));
+		map.setForcedReturnMap(WzDataTool.getInt("info/forcedReturn", data, 999999999));
 
-		map.setRecoveryRate(WzDataTool.getFloat(mapData.getChildByPath("info/recovery"), 1));
-		map.setHPDec(WzDataTool.getInt(mapData.getChildByPath("info/decHP"), 0));
-		map.setHPDecProtect(WzDataTool.getInt(mapData.getChildByPath("info/protectItem"), 0));
-		map.setFieldLimit(WzDataTool.getInt(mapData.getChildByPath("info/fieldLimit"), 0));
-		map.setTimeLimit(WzDataTool.getInt(mapData.getChildByPath("info/timeLimit"), -1));
+		map.setRecoveryRate(WzDataTool.getFloat("info/recovery", data, 1.0f));
+		map.setHPDec(WzDataTool.getInt("info/decHP", data, 0));
+		map.setHPDecProtect(WzDataTool.getInt("info/protectItem", data, 0));
+		map.setFieldLimit(WzDataTool.getInt("info/fieldLimit", data, 0));
+		map.setTimeLimit(WzDataTool.getInt("info/timeLimit", data, -1));
 
-		map.setCreateMobInterval((short) WzDataTool.getInt(mapData.getChildByPath("info/createMobInterval"), 9000));
+		map.setCreateMobInterval((short) WzDataTool.getInt("info/createMobInterval", data, 9000));
 
-		map.setFirstUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onFirstUserEnter"), ""));
-		map.setUserEnter(WzDataTool.getString(mapData.getChildByPath("info/onUserEnter"), ""));
-
+		map.setFirstUserEnter(WzDataTool.getString("info/onFirstUserEnter", data, ""));
+		map.setUserEnter(WzDataTool.getString("info/onUserEnter", data, ""));
 		this.instanceMap.put(instanceId, map);
 		return map;
 	}
@@ -405,7 +404,7 @@ public final class GameMapFactory {
 		return myReactor;
 	}
 
-	private String getMapName(final int mapId) {
+	private String getPaddedMapName(final int mapId) {
 		String paddedId = StringUtil.getLeftPaddedStr(Integer.toString(mapId), '0', 9);
 		final StringBuilder builder = new StringBuilder("Map/Map");
 		builder.append(mapId / 100_000_000);

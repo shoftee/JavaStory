@@ -73,19 +73,21 @@ public class XmlDomWzData implements WzData, Serializable {
 
 	@Override
 	public WzData getChildByPath(final String path) {
-		final String segments[] = path.split("/");
-		if (segments[0].equals("..")) {
+		final String pathSegments[] = path.split("/");
+		if (pathSegments[0].equals("..")) {
 			return ((WzData) this.getParent()).getChildByPath(path.substring(path.indexOf("/") + 1));
 		}
 
-		Node myNode = this.node;
-		for (final String segment : segments) {
-			final NodeList childNodes = myNode.getChildNodes();
+		Node current = this.node;
+		for (final String pathSegment : pathSegments) {
+			final NodeList children = current.getChildNodes();
 			boolean foundChild = false;
-			for (int i = 0; i < childNodes.getLength(); i++) {
-				final Node childNode = childNodes.item(i);
-				if (childNode.getNodeType() == Node.ELEMENT_NODE && childNode.getAttributes().getNamedItem("name").getNodeValue().equals(segment)) {
-					myNode = childNode;
+			for (int i = 0; i < children.getLength(); i++) {
+				final Node child = children.item(i);
+				if (child.getNodeType() == Node.ELEMENT_NODE 
+					&& child.getAttributes().getNamedItem("name").getNodeValue().equals(pathSegment)) {
+					
+					current = child;
 					foundChild = true;
 					break;
 				}
@@ -94,9 +96,36 @@ public class XmlDomWzData implements WzData, Serializable {
 				return null;
 			}
 		}
-		final XmlDomWzData ret = new XmlDomWzData(myNode);
+		final XmlDomWzData ret = new XmlDomWzData(current);
 		ret.imageDataDir = new File(this.imageDataDir, this.getName() + "/" + path).getParentFile();
 		return ret;
+	}
+	
+	public boolean hasChildAtPath(final String path) {
+		final String pathSegments[] = path.split("/");
+		if (pathSegments[0].equals("..")) {
+			return ((WzData) this.getParent()).hasChildAtPath(path.substring(path.indexOf("/") + 1));
+		}
+		
+		Node current = this.node;
+		for (final String pathSegment : pathSegments) {
+			final NodeList children = current.getChildNodes();
+			boolean foundChild = false;
+			for (int i = 0; i < children.getLength(); i ++) {
+				final Node child = children.item(i);
+				if (child.getNodeType() == Node.ELEMENT_NODE 
+					&& child.getAttributes().getNamedItem("name").getNodeValue().equals(pathSegment)) {
+					
+					current = child;
+					foundChild = true;
+					break;
+				}
+			}
+			if (!foundChild) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

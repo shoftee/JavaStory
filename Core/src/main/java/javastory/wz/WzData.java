@@ -30,5 +30,7 @@ public interface WzData extends WzDataEntity, Iterable<WzData> {
 
 	public WzData getChildByPath(String path);
 
+	public boolean hasChildAtPath(String path);
+	
 	public Object getData();
 }

@@ -58,6 +58,14 @@ public class WzDataTool {
 			return ((Float) data.getData()).floatValue();
 		}
 	}
+	
+	public static float getFloat(final String path, final WzData data) {
+		return getFloat(data.getChildByPath(path));
+	}
+	
+	public static float getFloat(final String path, final WzData data, final float def) {
+		return getFloat(data.getChildByPath(path), def);
+	}
 
 	public static int getInt(final WzData data) {
 		return ((Integer) data.getData()).intValue();
