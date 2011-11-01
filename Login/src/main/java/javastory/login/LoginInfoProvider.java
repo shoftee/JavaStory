@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import javastory.game.Equip;
 import javastory.game.Item;
 import javastory.wz.WzData;
@@ -19,9 +22,9 @@ import javastory.wz.WzDataTool;
 public final class LoginInfoProvider {
 
     private final static LoginInfoProvider instance = new LoginInfoProvider();
-    private final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<>();
-    private final Map<Integer, Equip> equipCache = new HashMap<>();
-    private final List<String> nameFilter = new ArrayList<>();
+    private final Map<Integer, Map<String, Integer>> equipStatsCache = Maps.newHashMap();
+    private final Map<Integer, Equip> equipCache = Maps.newHashMap();
+    private final List<String> nameFilter = Lists.newArrayList();
 
     public static LoginInfoProvider getInstance() {
         return instance;
@@ -58,7 +61,7 @@ public final class LoginInfoProvider {
         if (info == null) {
             return;
         }
-        final Map<String, Integer> ret = new LinkedHashMap<>();
+        final Map<String, Integer> ret = Maps.newLinkedHashMap();
 
         for (final WzData data : info.getChildren()) {
             if (data.getName().startsWith("inc")) {

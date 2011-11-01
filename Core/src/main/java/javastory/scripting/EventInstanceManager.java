@@ -19,8 +19,6 @@
 package javastory.scripting;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -43,18 +41,21 @@ import javastory.tools.packets.ChannelPackets;
 
 import javax.script.ScriptException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class EventInstanceManager {
 
-	private List<ChannelCharacter> chars = new LinkedList<>();
-	private List<Monster> mobs = new LinkedList<>();
-	private Map<ChannelCharacter, Integer> killCount = new HashMap<>();
+	private List<ChannelCharacter> chars = Lists.newLinkedList();
+	private List<Monster> mobs = Lists.newLinkedList();
+	private Map<ChannelCharacter, Integer> killCount = Maps.newHashMap();
 	private EventManager eventManager;
 	private GameMapFactory mapFactory;
 	private final String name;
 	private Properties props = new Properties();
 	private long timeStarted = 0;
 	private long eventTime = 0;
-	private List<Integer> mapIds = new LinkedList<>();
+	private List<Integer> mapIds = Lists.newLinkedList();
 	private ScheduledFuture<?> eventTimer;
 	private final Lock mutex = new ReentrantLock();
 
@@ -477,7 +478,7 @@ public class EventInstanceManager {
 
 	public final void registerCarnivalParty(final ChannelCharacter leader, final GameMap map, final byte team) {
 		leader.clearCarnivalRequests();
-		final List<ChannelCharacter> characters = new LinkedList<>();
+		final List<ChannelCharacter> characters = Lists.newLinkedList();
 		final Party party = leader.getParty();
 
 		if (party == null) {

@@ -25,8 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
@@ -34,11 +32,14 @@ import javastory.client.SimpleCharacterInfo;
 import javastory.db.Database;
 import javastory.tools.packets.ChannelPackets;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class BuddyList implements Serializable {
 	private static final long serialVersionUID = 1413738569L;
-	private final Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<>();
+	private final Map<Integer, BuddyListEntry> buddies = Maps.newLinkedHashMap();
 	private int capacity;
-	private final Deque<SimpleCharacterInfo> pendingRequests = new LinkedList<>();
+	private final Deque<SimpleCharacterInfo> pendingRequests = Lists.newLinkedList();
 
 	public BuddyList(final int capacity) {
 		super();

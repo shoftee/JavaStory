@@ -19,7 +19,6 @@
 package javastory.channel.handling;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 
 import javastory.channel.maps.AnimatedGameMapObject;
@@ -38,10 +37,12 @@ import javastory.channel.movement.UnknownMovement;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 
+import com.google.common.collect.Lists;
+
 public class MovementParse {
 
 	public static List<LifeMovementFragment> parseMovement(final PacketReader lea) throws PacketFormatException {
-		final List<LifeMovementFragment> res = new ArrayList<>();
+		final List<LifeMovementFragment> res = Lists.newArrayList();
 		final byte numCommands = lea.readByte();
 
 		// TODO: Extract these into methods.

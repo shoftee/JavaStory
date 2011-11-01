@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
 import javastory.channel.life.LifeFactory;
@@ -55,7 +57,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 
 	public void dropItems(final boolean meso, final int mesoChance, final int minMeso, final int maxMeso, final int minItems) {
 		final List<ReactorDropEntry> chances = ReactorScriptManager.getInstance().getDrops(this.reactor.getReactorId());
-		final List<ReactorDropEntry> items = new LinkedList<>();
+		final List<ReactorDropEntry> items = Lists.newLinkedList();
 
 		if (meso) {
 			if (Math.random() < 1 / (double) mesoChance) {

@@ -3,6 +3,8 @@ package javastory.channel.server;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.game.GameConstants;
 import javastory.game.Item;
@@ -12,7 +14,7 @@ import javastory.tools.packets.ChannelPackets;
 public final class Trade {
 
 	private Trade partner = null;
-	private final List<Item> items = new LinkedList<>();
+	private final List<Item> items = Lists.newLinkedList();
 	private List<Item> exchangeItems;
 	private int meso = 0, exchangeMeso = 0;
 	private boolean locked = false;

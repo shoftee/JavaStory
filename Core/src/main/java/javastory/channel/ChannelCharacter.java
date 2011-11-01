@@ -1758,7 +1758,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public List<BuffStat> getBuffStats(final StatEffect effect, final long startTime) {
-		final List<BuffStat> bstats = new ArrayList<>();
+		final List<BuffStat> bstats = Lists.newArrayList();
 
 		for (final Entry<BuffStat, BuffStatValueHolder> stateffect : this.effects.entrySet()) {
 			final BuffStatValueHolder value = stateffect.getValue();
@@ -1770,7 +1770,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	private void deregisterBuffStats(final List<BuffStat> stats) {
-		final List<BuffStatValueHolder> effectsToCancel = new ArrayList<>(stats.size());
+		final List<BuffStatValueHolder> effectsToCancel = Lists.newArrayListWithCapacity(stats.size());
 		for (final BuffStat stat : stats) {
 			final BuffStatValueHolder value = this.effects.get(stat);
 			if (value != null) {
@@ -1833,7 +1833,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			buffstats = this.getBuffStats(effect, startTime);
 		} else {
 			final List<BuffStatValue> statups = effect.getStatups();
-			buffstats = new ArrayList<>(statups.size());
+			buffstats = Lists.newArrayListWithCapacity(statups.size());
 			for (final BuffStatValue statup : statups) {
 				buffstats.add(statup.stat);
 			}
@@ -2109,7 +2109,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	private void enforceMaxHpMp() {
-		final List<StatValue> statups = new ArrayList<>(2);
+		final List<StatValue> statups = Lists.newArrayListWithCapacity(2);
 		if (this.stats.getMp() > this.stats.getCurrentMaxMp()) {
 			this.stats.setMp(this.stats.getMp());
 			statups.add(new StatValue(Stat.MP, Integer.valueOf(this.stats.getMp())));
@@ -2718,7 +2718,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public void addMPHP(final int hpDiff, final int mpDiff) {
-		final List<StatValue> statups = new ArrayList<>();
+		final List<StatValue> statups = Lists.newArrayList();
 
 		if (this.stats.setHp(this.stats.getHp() + hpDiff)) {
 			statups.add(new StatValue(Stat.HP, Integer.valueOf(this.stats.getHp())));
@@ -2933,8 +2933,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	public final void expirationTask() {
 		long expiration;
 		final long currenttime = System.currentTimeMillis();
-		final List<Item> toberemove = new ArrayList<>(); // This is here to
-															// prevent deadlock.
+		// This is here to prevent deadlock.
+		final List<Item> toberemove = Lists.newArrayList(); 
 
 		for (final Inventory inv : this.inventory) {
 			for (final Item item : inv) {
@@ -2947,7 +2947,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 						if (currenttime > expiration) {
 							item.setExpiration(-1);
 							item.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
-							this.client.write(ChannelPackets.updateSpecialItemUse(item, item.getType().asByte()));
+							this.client.write(ChannelPackets.updateSpecialItemUse(item, item.getType().asNumber()));
 						}
 					} else if (currenttime > expiration) {
 						this.client.write(MTSCSPacket.itemExpired(item.getItemId()));
@@ -3054,7 +3054,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public final List<QuestStatus> getStartedQuests() {
-		final List<QuestStatus> ret = new LinkedList<>();
+		final List<QuestStatus> ret = Lists.newLinkedList();
 		for (final QuestStatus q : this.quests.values()) {
 			if (q.getState() == 1) {
 				ret.add(q);
@@ -3064,7 +3064,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public final List<QuestStatus> getCompletedQuests() {
-		final List<QuestStatus> ret = new LinkedList<>();
+		final List<QuestStatus> ret = Lists.newLinkedList();
 		for (final QuestStatus q : this.quests.values()) {
 			if (q.getState() == 2) {
 				ret.add(q);
@@ -3201,7 +3201,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 		maxhp = Math.min(30000, maxhp);
 		maxmp = Math.min(30000, maxmp);
-		final List<StatValue> statup = new ArrayList<>(8);
+		final List<StatValue> statup = Lists.newArrayListWithCapacity(8);
 		statup.add(new StatValue(Stat.MAX_HP, maxhp));
 		statup.add(new StatValue(Stat.MAX_MP, maxmp));
 		statup.add(new StatValue(Stat.HP, maxhp));
@@ -3833,7 +3833,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public List<PlayerCooldownValueHolder> getAllCooldowns() {
-		final List<PlayerCooldownValueHolder> ret = new ArrayList<>();
+		final List<PlayerCooldownValueHolder> ret = Lists.newArrayList();
 		for (final CooldownValueHolder mcdvh : this.cooldowns.values()) {
 			ret.add(new PlayerCooldownValueHolder(mcdvh.skillId, mcdvh.startTime, mcdvh.length));
 		}
@@ -3841,7 +3841,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public final List<PlayerDiseaseValueHolder> getAllDiseases() {
-		final List<PlayerDiseaseValueHolder> ret = new ArrayList<>(5);
+		final List<PlayerDiseaseValueHolder> ret = Lists.newArrayListWithCapacity(5);
 
 		DiseaseValueHolder vh;
 		for (final Entry<Disease, DiseaseValueHolder> disease : this.diseases.entrySet()) {
@@ -4202,7 +4202,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public void clearCarnivalRequests() {
-		this.pendingCarnivalRequests = new LinkedList<>();
+		this.pendingCarnivalRequests = Lists.newLinkedList();
 	}
 
 	public void startMonsterCarnival(final int enemyavailable, final int enemytotal) {

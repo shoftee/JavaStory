@@ -97,7 +97,7 @@ public class PacketHelper {
 	}
 
 	public static void addRingInfo(final PacketBuilder builder, final ChannelCharacter chr) {
-		final List<Ring> rings = new ArrayList<>();
+		final List<Ring> rings = Lists.newArrayList();
 		final Inventory equipped = chr.getEquippedItemsInventory();
 		for (final Item item : equipped) {
 			final Equip equip = (Equip) item;
@@ -230,7 +230,7 @@ public class PacketHelper {
 				builder.writeAsByte(pos);
 			}
 		}
-		builder.writeByte(item.getType().asByte());
+		builder.writeByte(item.getType().asNumber());
 		builder.writeInt(item.getItemId());
 
 		if (item.getPet() != null) { // Pet

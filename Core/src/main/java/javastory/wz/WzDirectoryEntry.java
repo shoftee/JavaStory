@@ -18,17 +18,18 @@
  */
 package javastory.wz;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class WzDirectoryEntry extends WzEntry implements WzDataDirectoryEntry {
 
-	private final List<WzDataDirectoryEntry> subdirs = new ArrayList<>();
-	private final List<WzDataFileEntry> files = new ArrayList<>();
-	private final Map<String, WzDataEntry> entries = new HashMap<>();
+	private final List<WzDataDirectoryEntry> subdirs = Lists.newArrayList();
+	private final List<WzDataFileEntry> files = Lists.newArrayList();
+	private final Map<String, WzDataEntry> entries = Maps.newHashMap();
 
 	public WzDirectoryEntry(final String name, final int size, final int checksum, final WzDataEntity parent) {
 		super(name, size, checksum, parent);

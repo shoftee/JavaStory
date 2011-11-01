@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.db.Database;
@@ -17,6 +16,8 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Maps;
+
 public final class LifeFactory {
 
 	private static final WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider("Mob.wz");
@@ -25,8 +26,8 @@ public final class LifeFactory {
 	private static final WzData npcStrings = stringRoot.getData("Npc.img");
 	private static final WzData npcLocationData = etcRoot.getData("NpcLocation.img");
 
-	private static final Map<Integer, MobInfo> monsterInfo = new HashMap<>();
-	private static final Map<Integer, Integer> npcLocations = new HashMap<>();
+	private static final Map<Integer, MobInfo> monsterInfo = Maps.newHashMap();
+	private static final Map<Integer, Integer> npcLocations = Maps.newHashMap();
 
 	public static AbstractLoadedLife getLife(final int id, final String type) {
 		final String typeUpper = type.toUpperCase();
@@ -114,7 +115,7 @@ public final class LifeFactory {
 					ps.setInt(1, rs.getInt("id"));
 					rs = ps.executeQuery();
 
-					final Map<Byte, Integer> equips = new HashMap<>();
+					final Map<Byte, Integer> equips = Maps.newHashMap();
 
 					while (rs.next()) {
 						equips.put(rs.getByte("equippos"), rs.getInt("equipid"));

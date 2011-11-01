@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 
 public final class QuestStatus implements Serializable {
@@ -43,7 +45,7 @@ public final class QuestStatus implements Serializable {
 		this.completionTime = System.currentTimeMillis();
 		if (status == 1) {
 			if (this.getQuestInfo().getRelevantMobs().size() > 0) {
-				this.killedMobs = new LinkedHashMap<>();
+				this.killedMobs = Maps.newLinkedHashMap();
 				this.registerMobs();
 			}
 		}

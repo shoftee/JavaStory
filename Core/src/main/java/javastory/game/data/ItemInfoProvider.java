@@ -1,8 +1,6 @@
 package javastory.game.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +25,9 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public final class ItemInfoProvider {
 
 	//
@@ -41,30 +42,30 @@ public final class ItemInfoProvider {
 	private final WzData insStringData = this.stringData.getData("Ins.img");
 	private final WzData petStringData = this.stringData.getData("Pet.img");
 	//
-	private final Map<Integer, Short> slotMaxCache = new HashMap<>();
-	private final Map<Integer, StatEffect> itemEffects = new HashMap<>();
-	private final Map<Integer, Map<String, Integer>> equipStatsCache = new HashMap<>();
-	private final Map<Integer, Map<String, Byte>> itemMakeStatsCache = new HashMap<>();
-	private final Map<Integer, List<EquipLevelInfo>> equipLevelCache = new HashMap<>();
-	private final Map<Integer, Short> itemMakeLevel = new HashMap<>();
-	private final Map<Integer, Equip> equipCache = new HashMap<>();
-	private final Map<Integer, Double> priceCache = new HashMap<>();
-	private final Map<Integer, Integer> wholePriceCache = new HashMap<>();
-	private final Map<Integer, Integer> projectileWatkCache = new HashMap<>();
-	private final Map<Integer, Integer> monsterBookID = new HashMap<>();
-	private final Map<Integer, String> nameCache = new HashMap<>();
-	private final Map<Integer, String> descCache = new HashMap<>();
-	private final Map<Integer, String> msgCache = new HashMap<>();
-	private final Map<Integer, Map<String, Integer>> SkillStatsCache = new HashMap<>();
-	private final Map<Integer, ItemConsumeType> consumeOnPickupCache = new HashMap<>();
-	private final Map<Integer, Boolean> dropRestrictionCache = new HashMap<>();
-	private final Map<Integer, Boolean> pickupRestrictionCache = new HashMap<>();
-	private final Map<Integer, Integer> stateChangeCache = new HashMap<>(40);
-	private final Map<Integer, Integer> karmaEnabledCache = new HashMap<>();
-	private final Map<Integer, Boolean> isQuestItemCache = new HashMap<>();
-	private final Map<Integer, List<IdProbabilityEntry>> summonMobCache = new HashMap<>();
-	private final List<IdNameEntry> itemNameCache = new ArrayList<>();
-	private final Map<Integer, Pair<Integer, List<RewardItemInfo>>> RewardItem = new HashMap<>();
+	private final Map<Integer, Short> slotMaxCache = Maps.newHashMap();
+	private final Map<Integer, StatEffect> itemEffects = Maps.newHashMap();
+	private final Map<Integer, Map<String, Integer>> equipStatsCache = Maps.newHashMap();
+	private final Map<Integer, Map<String, Byte>> itemMakeStatsCache = Maps.newHashMap();
+	private final Map<Integer, List<EquipLevelInfo>> equipLevelCache = Maps.newHashMap();
+	private final Map<Integer, Short> itemMakeLevel = Maps.newHashMap();
+	private final Map<Integer, Equip> equipCache = Maps.newHashMap();
+	private final Map<Integer, Double> priceCache = Maps.newHashMap();
+	private final Map<Integer, Integer> wholePriceCache = Maps.newHashMap();
+	private final Map<Integer, Integer> projectileWatkCache = Maps.newHashMap();
+	private final Map<Integer, Integer> monsterBookID = Maps.newHashMap();
+	private final Map<Integer, String> nameCache = Maps.newHashMap();
+	private final Map<Integer, String> descCache = Maps.newHashMap();
+	private final Map<Integer, String> msgCache = Maps.newHashMap();
+	private final Map<Integer, Map<String, Integer>> SkillStatsCache = Maps.newHashMap();
+	private final Map<Integer, ItemConsumeType> consumeOnPickupCache = Maps.newHashMap();
+	private final Map<Integer, Boolean> dropRestrictionCache = Maps.newHashMap();
+	private final Map<Integer, Boolean> pickupRestrictionCache = Maps.newHashMap();
+	private final Map<Integer, Integer> stateChangeCache = Maps.newHashMapWithExpectedSize(40);
+	private final Map<Integer, Integer> karmaEnabledCache = Maps.newHashMap();
+	private final Map<Integer, Boolean> isQuestItemCache = Maps.newHashMap();
+	private final Map<Integer, List<IdProbabilityEntry>> summonMobCache = Maps.newHashMap();
+	private final List<IdNameEntry> itemNameCache = Lists.newArrayList();
+	private final Map<Integer, Pair<Integer, List<RewardItemInfo>>> RewardItem = Maps.newHashMap();
 
 	private ItemInfoProvider() {
 		System.out.println(":: Loading MapleItemInformationProvider ::");
@@ -78,7 +79,7 @@ public final class ItemInfoProvider {
 		if (!this.itemNameCache.isEmpty()) {
 			return this.itemNameCache;
 		}
-		final List<IdNameEntry> itemPairs = new ArrayList<>();
+		final List<IdNameEntry> itemPairs = Lists.newArrayList();
 		WzData itemsData;
 
 		itemsData = this.stringData.getData("Cash.img");
@@ -307,7 +308,7 @@ public final class ItemInfoProvider {
 		if (info == null) {
 			return null;
 		}
-		final List<EquipLevelInfo> el = new ArrayList<>();
+		final List<EquipLevelInfo> el = Lists.newArrayList();
 		EquipLevelInfo sel;
 
 		for (final WzData data : info.getChildByPath("info")) {
@@ -343,7 +344,7 @@ public final class ItemInfoProvider {
 		if (itemId / 10000 != 425) {
 			return null;
 		}
-		final Map<String, Byte> ret = new LinkedHashMap<>();
+		final Map<String, Byte> ret = Maps.newLinkedHashMap();
 		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return null;
@@ -376,7 +377,7 @@ public final class ItemInfoProvider {
 		if (this.equipStatsCache.containsKey(itemId)) {
 			return this.equipStatsCache.get(itemId);
 		}
-		final Map<String, Integer> ret = new LinkedHashMap<>();
+		final Map<String, Integer> ret = Maps.newLinkedHashMap();
 		final WzData item = this.getItemData(itemId);
 		if (item == null) {
 			return null;
@@ -434,7 +435,7 @@ public final class ItemInfoProvider {
 	}
 
 	public final List<Integer> getScrollReqs(final int itemId) {
-		final List<Integer> ret = new ArrayList<>();
+		final List<Integer> ret = Lists.newArrayList();
 		final WzData data = this.getItemData(itemId).getChildByPath("req");
 
 		if (data == null) {
@@ -724,7 +725,7 @@ public final class ItemInfoProvider {
 		if (data == null) {
 			return null;
 		}
-		final List<IdProbabilityEntry> mobPairs = new ArrayList<>();
+		final List<IdProbabilityEntry> mobPairs = Lists.newArrayList();
 
 		for (final WzData child : data.getChildren()) {
 			mobPairs.add(new IdProbabilityEntry(WzDataTool.getIntConvert("id", child), WzDataTool.getIntConvert("prob", child)));
@@ -928,7 +929,7 @@ public final class ItemInfoProvider {
 		if (info == null) {
 			return null;
 		}
-		final Map<String, Integer> ret = new LinkedHashMap<>();
+		final Map<String, Integer> ret = Maps.newLinkedHashMap();
 		for (final WzData data : info.getChildren()) {
 			if (data.getName().startsWith("inc")) {
 				ret.put(data.getName().substring(3), WzDataTool.getIntConvert(data));
@@ -948,7 +949,7 @@ public final class ItemInfoProvider {
 	}
 
 	public final List<Integer> petsCanConsume(final int itemId) {
-		final List<Integer> ret = new ArrayList<>();
+		final List<Integer> ret = Lists.newArrayList();
 		final WzData data = this.getItemData(itemId);
 		int curPetId = 0;
 		final int size = data.getChildren().size();

@@ -41,6 +41,7 @@ import javastory.world.core.PlayerCooldownValueHolder;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class StatEffect implements Serializable {
@@ -122,7 +123,7 @@ public class StatEffect implements Serializable {
 			ret.duration *= 1000; // items have their times stored in ms, of course
 			ret.overTime = overTime;
 		}
-		final ArrayList<BuffStatValue> statups = new ArrayList<>();
+		final ArrayList<BuffStatValue> statups = Lists.newArrayList();
 
 		ret.mastery = (byte) WzDataTool.getInt("mastery", source, 0);
 		ret.watk = (short) WzDataTool.getInt("pad", source, 0);
@@ -134,7 +135,7 @@ public class StatEffect implements Serializable {
 		ret.speed = (short) WzDataTool.getInt("speed", source, 0);
 		ret.jump = (short) WzDataTool.getInt("jump", source, 0);
 
-		final List<Disease> cure = new ArrayList<>(5);
+		final List<Disease> cure = Lists.newArrayListWithCapacity(5);
 		if (WzDataTool.getInt("poison", source, 0) > 0) {
 			cure.add(Disease.POISON);
 		}
@@ -633,7 +634,7 @@ public class StatEffect implements Serializable {
 			}
 			mpchange += toDecreaseHP / 100 * this.getY();
 		}
-		final List<StatValue> hpmpupdate = new ArrayList<>(2);
+		final List<StatValue> hpmpupdate = Lists.newArrayListWithCapacity(2);
 		if (hpchange != 0) {
 			if (hpchange < 0 && -hpchange > stat.getHp() && !applyto.hasDisease(Disease.ZOMBIFY)) {
 				return false;

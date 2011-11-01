@@ -18,8 +18,9 @@
  */
 package javastory.game.data;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 public class NpcInfo {
 
@@ -33,7 +34,7 @@ public class NpcInfo {
 		this.name = name;
 
 		if (playerNpc) {
-			this.equips = new HashMap<>();
+			this.equips = Maps.newHashMap();
 		}
 	}
 

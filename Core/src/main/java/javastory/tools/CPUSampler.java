@@ -30,13 +30,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class CPUSampler {
 
-	private final List<String> included = new LinkedList<>();
+	private final List<String> included = Lists.newLinkedList();
 	private static CPUSampler instance = new CPUSampler();
 	private long interval = 5;
 	private SamplerThread sampler = null;
-	private final Map<StackTrace, Integer> recorded = new HashMap<>();
+	private final Map<StackTrace, Integer> recorded = Maps.newHashMap();
 	private int totalSamples = 0;
 
 	public static CPUSampler getInstance() {
@@ -76,7 +79,7 @@ public class CPUSampler {
 	}
 
 	public SampledStacktraces getTopConsumers() {
-		final List<StacktraceWithCount> ret = new ArrayList<>();
+		final List<StacktraceWithCount> ret = Lists.newArrayList();
 		final Set<Entry<StackTrace, Integer>> entrySet = this.recorded.entrySet();
 		for (final Entry<StackTrace, Integer> entry : entrySet) {
 			ret.add(new StacktraceWithCount(entry.getValue(), entry.getKey()));

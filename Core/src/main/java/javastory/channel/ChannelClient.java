@@ -17,11 +17,13 @@ import javax.script.ScriptEngine;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.google.common.collect.Maps;
+
 public final class ChannelClient extends GameClient {
 
 	private ChannelCharacter player;
 	private final boolean transition = false;
-	private final Map<String, ScriptEngine> engines = new HashMap<>();
+	private final Map<String, ScriptEngine> engines = Maps.newHashMap();
 
 	public ChannelClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session) {
 		super(clientCrypto, serverCrypto, session);

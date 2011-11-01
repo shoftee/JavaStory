@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.game.GameConstants;
 import javastory.tools.Randomizer;
 
@@ -21,21 +23,21 @@ public class RandomRewards {
 	protected RandomRewards() {
 		System.out.println(":: Loading RandomRewards ::");
 		// Gold Box
-		List<Integer> returnArray = new ArrayList<>();
+		List<Integer> returnArray = Lists.newArrayList();
 
 		this.processRewards(returnArray, GameConstants.goldrewards);
 
 		this.compiledGold = returnArray;
 
 		// Silver Box
-		returnArray = new ArrayList<>();
+		returnArray = Lists.newArrayList();
 
 		this.processRewards(returnArray, GameConstants.silverrewards);
 
 		this.compiledSilver = returnArray;
 
 		// Fishing Rewards
-		returnArray = new ArrayList<>();
+		returnArray = Lists.newArrayList();
 
 		this.processRewards(returnArray, GameConstants.fishingReward);
 

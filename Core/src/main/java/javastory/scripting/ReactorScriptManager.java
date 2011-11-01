@@ -22,8 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +33,13 @@ import javastory.game.data.ReactorDropEntry;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public final class ReactorScriptManager extends AbstractScriptManager {
 
 	private static final ReactorScriptManager instance = new ReactorScriptManager();
-	private final Map<Integer, List<ReactorDropEntry>> drops = new HashMap<>();
+	private final Map<Integer, List<ReactorDropEntry>> drops = Maps.newHashMap();
 
 	public static ReactorScriptManager getInstance() {
 		return instance;
@@ -66,7 +67,7 @@ public final class ReactorScriptManager extends AbstractScriptManager {
 		if (ret != null) {
 			return ret;
 		}
-		ret = new LinkedList<>();
+		ret = Lists.newLinkedList();
 
 		PreparedStatement ps = null;
 		ResultSet rs = null;

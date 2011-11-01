@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.anticheat.CheatTracker;
 import javastory.channel.anticheat.CheatingOffense;
@@ -897,14 +899,14 @@ public final class DamageParse {
 
 		int oid, damage;
 		List<Integer> allDamageNumbers;
-		ret.allDamage = new ArrayList<>();
+		ret.allDamage = Lists.newArrayList();
 
 		for (int i = 0; i < ret.targets; i++) {
 			oid = lea.readInt();
 			lea.skip(14); // [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2]
 							// seems to change randomly for some attack
 
-			allDamageNumbers = new ArrayList<>();
+			allDamageNumbers = Lists.newArrayList();
 
 			for (int j = 0; j < ret.hits; j++) {
 				damage = lea.readInt();
@@ -953,7 +955,7 @@ public final class DamageParse {
 		ret.lastAttackTickCount = lea.readInt(); // Ticks
 		lea.skip(4);
 
-		ret.allDamage = new ArrayList<>();
+		ret.allDamage = Lists.newArrayList();
 
 		if (ret.skill == 4211006) {
 			// Meso Explosion
@@ -969,7 +971,7 @@ public final class DamageParse {
 			// randomly for some attack
 			lea.skip(14);
 
-			allDamageNumbers = new ArrayList<>();
+			allDamageNumbers = Lists.newArrayList();
 
 			for (int j = 0; j < ret.hits; j++) {
 				damage = lea.readInt();
@@ -1022,7 +1024,7 @@ public final class DamageParse {
 
 		int damage, oid;
 		List<Integer> allDamageNumbers;
-		ret.allDamage = new ArrayList<>();
+		ret.allDamage = Lists.newArrayList();
 
 		for (int i = 0; i < ret.targets; i++) {
 			oid = lea.readInt();
@@ -1030,7 +1032,7 @@ public final class DamageParse {
 			// [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change
 			// randomly for some attack
 			lea.skip(14);
-			allDamageNumbers = new ArrayList<>();
+			allDamageNumbers = Lists.newArrayList();
 			for (int j = 0; j < ret.hits; j++) {
 				damage = lea.readInt();
 				allDamageNumbers.add(Integer.valueOf(damage));
@@ -1067,7 +1069,7 @@ public final class DamageParse {
 			oid = lea.readInt();
 			lea.skip(12);
 			bullets = lea.readByte();
-			allDamageNumbers = new ArrayList<>();
+			allDamageNumbers = Lists.newArrayList();
 			for (int j = 0; j < bullets; j++) {
 				allDamageNumbers.add(Integer.valueOf(lea.readInt()));
 			}

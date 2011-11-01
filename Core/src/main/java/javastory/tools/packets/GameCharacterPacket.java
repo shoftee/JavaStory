@@ -4,7 +4,6 @@
  */
 package javastory.tools.packets;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,6 +12,8 @@ import javastory.game.Inventory;
 import javastory.game.Item;
 import javastory.game.Jobs;
 import javastory.io.PacketBuilder;
+
+import com.google.common.collect.Maps;
 
 /**
  * 
@@ -63,8 +64,8 @@ public final class GameCharacterPacket {
 		builder.writeAsByte(mega ? 0 : 1);
 		builder.writeInt(chr.getHairId());
 
-		final Map<Byte, Integer> myEquip = new LinkedHashMap<>();
-		final Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
+		final Map<Byte, Integer> myEquip = Maps.newLinkedHashMap();
+		final Map<Byte, Integer> maskedEquip = Maps.newLinkedHashMap();
 		final Inventory equip = chr.getEquippedItemsInventory();
 
 		// masking items

@@ -22,6 +22,8 @@ import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelServer;
 import javastory.io.GamePacket;
@@ -31,7 +33,7 @@ import javastory.tools.packets.ChannelPackets;
 
 public class TVEffect {
 
-	private static List<String> message = new LinkedList<>();
+	private static List<String> message = Lists.newLinkedList();
 	private static ChannelCharacter user;
 	private static boolean active;
 	private static int type;

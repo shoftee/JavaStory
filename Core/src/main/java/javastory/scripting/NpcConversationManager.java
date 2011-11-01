@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +39,8 @@ import javastory.game.quest.QuestInfoProvider;
 import javastory.server.channel.GuildRanking;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
+
+import com.google.common.collect.Lists;
 
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
@@ -296,7 +297,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	public void unequipEverything() {
 		final Inventory equipped = this.getPlayer().getEquippedItemsInventory();
 		final Inventory equip = this.getPlayer().getEquipInventory();
-		final List<Short> ids = new LinkedList<>();
+		final List<Short> ids = Lists.newLinkedList();
 		for (final Item item : equipped) {
 			ids.add(item.getPosition());
 		}
@@ -372,7 +373,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (!this.getPlayer().hasParty()) {
 			return null;
 		}
-		final List<ChannelCharacter> chars = new LinkedList<>();
+		final List<ChannelCharacter> chars = Lists.newLinkedList();
 		// TODO: Not done. Finish when ChannelServer remoting is done.
 		return chars;
 	}
@@ -531,7 +532,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 		if (this.getPlayer().getReborns() < MAX_REBORNS) {
 			this.getPlayer().setReborns(this.getPlayer().getReborns() + 1);
 			// unequipEverything();
-			final List<StatValue> reborns = new ArrayList<>(4);
+			final List<StatValue> reborns = Lists.newArrayListWithCapacity(4);
 			this.getPlayer().setLevel(1);
 			this.getPlayer().setExp(0);
 			reborns.add(new StatValue(Stat.LEVEL, Integer.valueOf(1)));
@@ -741,7 +742,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void resetStats(final int str, final int dex, final int int_, final int luk) {
-		final List<StatValue> stats = new ArrayList<>(2);
+		final List<StatValue> stats = Lists.newArrayListWithCapacity(2);
 		final ChannelCharacter chr = super.client.getPlayer();
 		int total = chr.getStats().getStr() + chr.getStats().getDex() + chr.getStats().getLuk() + chr.getStats().getInt() + chr.getRemainingAp();
 		total -= str;
@@ -771,7 +772,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void maxStats() {
-		final List<StatValue> statup = new ArrayList<>(2);
+		final List<StatValue> statup = Lists.newArrayListWithCapacity(2);
 		final ChannelCharacter player = super.client.getPlayer();
 
 		player.setRemainingAp(0);

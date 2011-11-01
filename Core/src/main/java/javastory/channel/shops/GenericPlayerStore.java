@@ -21,6 +21,8 @@ package javastory.channel.shops;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.maps.GameMapObjectType;
@@ -30,7 +32,7 @@ public class GenericPlayerStore extends AbstractPlayerShop {
 
 	private boolean open;
 	private final ChannelCharacter owner;
-	private final List<String> bannedList = new ArrayList<>();
+	private final List<String> bannedList = Lists.newArrayList();
 
 	public GenericPlayerStore(final ChannelCharacter owner, final int itemId, final String desc) {
 		super(owner, itemId, desc);

@@ -23,13 +23,15 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 public class FootholdTree {
 
 	private FootholdTree nw = null;
 	private FootholdTree ne = null;
 	private FootholdTree sw = null;
 	private FootholdTree se = null;
-	private final List<Foothold> footholds = new LinkedList<>();
+	private final List<Foothold> footholds = Lists.newLinkedList();
 	private final Point p1;
 	private final Point p2;
 	private final Point center;
@@ -175,7 +177,7 @@ public class FootholdTree {
 	public final Foothold findBelow(final Point p) {
 		final List<Foothold> relevants = this.getRelevants(p);
 		// find fhs with matching x coordinates
-		final List<Foothold> xMatches = new LinkedList<>();
+		final List<Foothold> xMatches = Lists.newLinkedList();
 		for (final Foothold fh : relevants) {
 			if (fh.getX1() <= p.x && fh.getX2() >= p.x) {
 				xMatches.add(fh);

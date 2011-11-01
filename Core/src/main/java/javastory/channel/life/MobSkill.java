@@ -22,7 +22,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +33,7 @@ import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.maps.Mist;
 import javastory.game.BanishInfo;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class MobSkill {
@@ -48,7 +48,7 @@ public class MobSkill {
 	private float prop;
 	// private short effect_delay;
 	private short limit;
-	private List<Integer> toSummon = new ArrayList<>();
+	private List<Integer> toSummon = Lists.newArrayList();
 	private Point lt, rb;
 
 	public MobSkill(final int skillId, final int level) {
@@ -147,7 +147,7 @@ public class MobSkill {
 	public void applyEffect(final ChannelCharacter player, final Monster monster, final boolean skill) {
 		Disease disease = null;
 		final Map<MonsterStatus, Integer> stats = Maps.newEnumMap(MonsterStatus.class);
-		final List<Integer> reflection = new LinkedList<>();
+		final List<Integer> reflection = Lists.newLinkedList();
 
 		switch (this.skillId) {
 		case 100:
@@ -400,14 +400,14 @@ public class MobSkill {
 
 	private List<ChannelCharacter> getPlayersInRange(final Monster monster, final ChannelCharacter player) {
 		final Rectangle bounds = this.calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-		final List<ChannelCharacter> players = new ArrayList<>();
+		final List<ChannelCharacter> players = Lists.newArrayList();
 		players.add(player);
 		return monster.getMap().getPlayersInRect(bounds, players);
 	}
 
 	private List<GameMapObject> getObjectsInRange(final Monster monster, final GameMapObjectType objectType) {
 		final Rectangle bounds = this.calculateBoundingBox(monster.getPosition(), monster.isFacingLeft());
-		final List<GameMapObjectType> objectTypes = new ArrayList<>();
+		final List<GameMapObjectType> objectTypes = Lists.newArrayList();
 		objectTypes.add(objectType);
 		return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
 	}

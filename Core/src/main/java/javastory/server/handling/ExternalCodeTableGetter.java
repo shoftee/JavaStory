@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.common.collect.Lists;
+
 import javastory.tools.HexTool;
 
 public class ExternalCodeTableGetter {
@@ -71,7 +73,7 @@ public class ExternalCodeTableGetter {
 
 	public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(final T[] enumeration) {
 		final StringBuilder enumVals = new StringBuilder();
-		final List<T> all = new ArrayList<>(); // need a mutable list plawks
+		final List<T> all = Lists.newArrayList(); // need a mutable list plawks
 		all.addAll(Arrays.asList(enumeration));
 		Collections.sort(all, new Comparator<IntValueHolder>() {
 

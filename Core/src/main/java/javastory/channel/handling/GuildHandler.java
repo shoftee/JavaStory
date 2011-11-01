@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
@@ -150,7 +152,7 @@ public class GuildHandler {
 		}
 	}
 
-	private static final List<Invited> invited = new LinkedList<>();
+	private static final List<Invited> invited = Lists.newLinkedList();
 	private static long nextPruneTime = System.currentTimeMillis() + 20 * 60 * 1000;
 
 	private static void handleAcceptGuildInvite(final ChannelCharacter player, final PacketReader reader, final ChannelClient c) throws PacketFormatException {

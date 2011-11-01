@@ -2,8 +2,6 @@ package javastory.channel.handling;
 
 import java.awt.Point;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +51,8 @@ import javastory.scripting.NpcScriptManager;
 import javastory.tools.Pair;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
+
+import com.google.common.collect.Lists;
 
 public class InventoryHandler {
 
@@ -666,7 +666,7 @@ public class InventoryHandler {
 			break;
 		}
 		case 5050000: { // AP Reset
-			final List<StatValue> statupdate = new ArrayList<>(2);
+			final List<StatValue> statupdate = Lists.newArrayListWithCapacity(2);
 			final int apto = reader.readInt();
 			final int apfrom = reader.readInt();
 
@@ -1166,7 +1166,7 @@ public class InventoryHandler {
 				if (numLines > 3) {
 					return;
 				}
-				final List<String> messages = new LinkedList<>();
+				final List<String> messages = Lists.newLinkedList();
 				String message;
 				for (int i = 0; i < numLines; i++) {
 					message = reader.readLengthPrefixedString();
@@ -1524,7 +1524,7 @@ public class InventoryHandler {
 		if (mapItem.getMeso() > 0) {
 			final PartyMember member = chr.getPartyMembership();
 			if (member != null && mapItem.getOwner() == chr.getId()) {
-				final List<ChannelCharacter> toGive = new LinkedList<>();
+				final List<ChannelCharacter> toGive = Lists.newLinkedList();
 				final ChannelServer channelServer = ChannelServer.getInstance();
 
 				final Party party = chr.getParty();
@@ -1584,7 +1584,7 @@ public class InventoryHandler {
 				return;
 			}
 			if (chr.getParty() != null && mapitem.getOwner() == chr.getId()) {
-				final List<ChannelCharacter> toGive = new LinkedList<>();
+				final List<ChannelCharacter> toGive = Lists.newLinkedList();
 
 				for (final ChannelCharacter m : ChannelServer.getInstance().getPartyMembers(chr.getParty().getId())) {
 					// TODO, store info in MaplePartyCharacter instead

@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.Pet;
@@ -63,7 +65,7 @@ public class PetHandler {
 					chr.addPet(pet);
 					chr.getMap().broadcastMessage(chr, PetPacket.showPet(chr, pet), true);
 
-					final List<StatValue> stats = new ArrayList<>(1);
+					final List<StatValue> stats = Lists.newArrayListWithCapacity(1);
 					stats.add(new StatValue(Stat.PET, Integer.valueOf(pet.getUniqueId())));
 
 					c.write(PetPacket.petStatUpdate(chr));

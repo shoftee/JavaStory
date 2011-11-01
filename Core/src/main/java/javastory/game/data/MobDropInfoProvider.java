@@ -4,19 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javastory.db.Database;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public final class MobDropInfoProvider {
 
 	private static final MobDropInfoProvider instance = new MobDropInfoProvider();
-	private final Map<Integer, List<MobDropInfo>> drops = new HashMap<>();
-	private final List<MobGlobalDropInfo> globaldrops = new ArrayList<>();
+	private final Map<Integer, List<MobDropInfo>> drops = Maps.newHashMap();
+	private final List<MobGlobalDropInfo> globaldrops = Lists.newArrayList();
 
 	private MobDropInfoProvider() {
 		this.retrieveGlobal();
@@ -58,7 +58,7 @@ public final class MobDropInfoProvider {
 
 		final Connection con = Database.getConnection();
 
-		final List<MobDropInfo> ret = new LinkedList<>();
+		final List<MobDropInfo> ret = Lists.newLinkedList();
 		try (PreparedStatement ps = con.prepareStatement("SELECT * FROM drop_data WHERE dropperid = ?")) {
 			ps.setInt(1, monsterId);
 			try (ResultSet rs = ps.executeQuery()) {

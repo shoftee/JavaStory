@@ -1,7 +1,5 @@
 package javastory.server;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,10 +9,13 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class CashItemFactory {
 
 	private static CashItemFactory instance = new CashItemFactory();
-	private final Map<Integer, CashItemInfo> itemStats = new HashMap<>();
+	private final Map<Integer, CashItemInfo> itemStats = Maps.newHashMap();
 	private final WzDataProvider data = WzDataProviderFactory.getDataProvider("Etc.wz");
 
 	public static CashItemFactory getInstance() {
@@ -42,7 +43,7 @@ public class CashItemFactory {
 	}
 
 	public List<Integer> getPackageItems(final int itemId) {
-		final List<Integer> packageItems = new ArrayList<>();
+		final List<Integer> packageItems = Lists.newArrayList();
 		for (final WzData b : this.data.getData("CashPackage.img").getChildren()) {
 			if (itemId == Integer.parseInt(b.getName())) {
 				for (final WzData c : b.getChildren()) {

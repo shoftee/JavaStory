@@ -122,7 +122,7 @@ public final class MobInfo {
 
 		final WzData reviveInfo = info.getChildByPath("revive");
 		if (reviveInfo != null) {
-			final List<Integer> revives = new LinkedList<>();
+			final List<Integer> revives = Lists.newLinkedList();
 			for (final WzData bdata : reviveInfo) {
 				revives.add(WzDataTool.getInt(bdata));
 			}
@@ -132,7 +132,7 @@ public final class MobInfo {
 		final WzData monsterSkillData = info.getChildByPath("skill");
 		if (monsterSkillData != null) {
 			int i = 0;
-			final List<SkillLevelEntry> skills = new ArrayList<>();
+			final List<SkillLevelEntry> skills = Lists.newArrayList();
 			while (monsterSkillData.getChildByPath(Integer.toString(i)) != null) {
 				final int skill = WzDataTool.getInt(i + "/skill", monsterSkillData, 0);
 				final int level = WzDataTool.getInt(i + "/level", monsterSkillData, 0);

@@ -18,7 +18,6 @@
  */
 package javastory.game.data;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.tools.Pair;
@@ -28,10 +27,12 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Maps;
+
 public class ReactorFactory {
 
 	private static final WzDataProvider data = WzDataProviderFactory.getDataProvider("Reactor.wz");
-	private static Map<Integer, ReactorInfo> reactorStats = new HashMap<>();
+	private static Map<Integer, ReactorInfo> reactorStats = Maps.newHashMap();
 
 	public static ReactorInfo getReactor(final int rid) {
 		ReactorInfo stats = reactorStats.get(Integer.valueOf(rid));

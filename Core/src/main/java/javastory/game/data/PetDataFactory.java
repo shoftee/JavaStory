@@ -18,7 +18,6 @@
  */
 package javastory.game.data;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.channel.client.PetCommand;
@@ -26,6 +25,8 @@ import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
+
+import com.google.common.collect.Maps;
 
 public final class PetDataFactory {
 
@@ -42,8 +43,8 @@ public final class PetDataFactory {
 
 	private static WzDataProvider dataRoot = WzDataProviderFactory.getDataProvider("Item.wz");
 
-	private static Map<PetCommandEntry, PetCommand> petCommands = new HashMap<>();
-	private static Map<Integer, Integer> petHunger = new HashMap<>();
+	private static Map<PetCommandEntry, PetCommand> petCommands = Maps.newHashMap();
+	private static Map<Integer, Integer> petHunger = Maps.newHashMap();
 
 	private PetDataFactory() {
 	}

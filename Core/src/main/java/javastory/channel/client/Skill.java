@@ -18,7 +18,6 @@
  */
 package javastory.channel.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
@@ -27,6 +26,8 @@ import javastory.game.Element;
 import javastory.game.Jobs;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
+
+import com.google.common.collect.Lists;
 
 public class Skill implements ISkill {
 
@@ -37,7 +38,7 @@ public class Skill implements ISkill {
 	public static final int[] EVAN_SKILLS_2 = new int[] { 22181000, 22181001, 22181002, 22181003 };
 	//
 	private final int id;
-	private final List<StatEffect> effects = new ArrayList<>();
+	private final List<StatEffect> effects = Lists.newArrayList();
 	private Element element;
 	private byte level;
 	private int animationTime, requiredSkill, masterLevel;

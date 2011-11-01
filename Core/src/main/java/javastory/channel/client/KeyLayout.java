@@ -24,18 +24,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javastory.db.Database;
 import javastory.io.PacketBuilder;
 
+import com.google.common.collect.Maps;
+
 public class KeyLayout implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
 	private boolean changed = false;
-	private final Map<Integer, KeyBinding> keymap = new HashMap<>();
+	private final Map<Integer, KeyBinding> keymap = Maps.newHashMap();
 
 	public final Map<Integer, KeyBinding> Layout() {
 		this.changed = true;

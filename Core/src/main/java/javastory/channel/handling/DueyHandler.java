@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
 import java.util.List;
 
 import javastory.channel.ChannelCharacter;
@@ -24,6 +23,8 @@ import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.DueyActions;
 import javastory.tools.packets.ChannelPackets;
+
+import com.google.common.collect.Lists;
 
 public class DueyHandler {
 
@@ -222,7 +223,7 @@ public class DueyHandler {
 			ps.setLong(4, System.currentTimeMillis());
 			ps.setInt(5, isOn ? 0 : 1);
 
-			ps.setInt(6, item.getType().asByte());
+			ps.setInt(6, item.getType().asNumber());
 			ps.executeUpdate();
 
 			final ResultSet rs = ps.getGeneratedKeys();
@@ -285,7 +286,7 @@ public class DueyHandler {
 	}
 
 	public static List<DueyActions> loadItems(final ChannelCharacter chr) {
-		final List<DueyActions> packages = new LinkedList<>();
+		final List<DueyActions> packages = Lists.newLinkedList();
 		final Connection con = Database.getConnection();
 		final String selectPackageByReceiver = "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE RecieverId = ?";
 		try (PreparedStatement ps = con.prepareStatement(selectPackageByReceiver)) {
@@ -308,7 +309,7 @@ public class DueyHandler {
 	}
 
 	public static DueyActions loadSingleItem(final int packageid, final int charid) {
-		final List<DueyActions> packages = new LinkedList<>();
+		final List<DueyActions> packages = Lists.newLinkedList();
 		final Connection con = Database.getConnection();
 		try {
 			final String selectPackageByIdAndReceiver = "SELECT * FROM dueypackages LEFT JOIN dueyitems USING (PackageId) WHERE PackageId = ? and RecieverId = ?";

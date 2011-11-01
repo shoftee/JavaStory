@@ -5,10 +5,12 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.google.common.collect.Sets;
+
 public class CheatingOffensePersister {
 
 	private final static CheatingOffensePersister instance = new CheatingOffensePersister();
-	private final Set<CheatingOffenseEntry> persist = new LinkedHashSet<>();
+	private final Set<CheatingOffenseEntry> persist = Sets.newLinkedHashSet();
 	private final Lock mutex = new ReentrantLock();
 
 	public static CheatingOffensePersister getInstance() {

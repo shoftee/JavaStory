@@ -23,9 +23,12 @@ import javastory.game.Item;
 import javastory.game.ItemType;
 import javastory.tools.packets.ChannelPackets;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class Storage implements Serializable {
+
+	public static int DEFAULT_STORAGE_CAPACITY = 4;
 
 	private static final long serialVersionUID = 9179541993413738569L;
 	private final int id;
@@ -38,95 +41,45 @@ public class Storage implements Serializable {
 	private Storage(final int id, final byte slots, final int meso) {
 		this.id = id;
 		this.slots = slots;
-		this.items = new LinkedList<>();
+		this.items = Lists.newLinkedList();
 		this.meso = meso;
 	}
-	
-	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
-	public static int create(final int id) throws SQLException {
-		final Connection connection = Database.getConnection();
-		final PreparedStatement ps = connection.prepareStatement("INSERT INTO storages (accountid, slots, meso) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		ps.setInt(1, id);
-		ps.setInt(2, 4);
-		ps.setInt(3, 0);
-		ps.executeUpdate();
 
-		int storageid;
-		final ResultSet rs = ps.getGeneratedKeys();
-		if (rs.next()) {
-			storageid = rs.getInt(1);
-			ps.close();
-			rs.close();
+	public static int create(final int accountId) throws SQLException {
+		final Connection connection = Database.getConnection();
+		try (	final PreparedStatement ps = getInsertDefaultStorage(accountId, connection);
+				final ResultSet rs = ps.getGeneratedKeys()) {
+			if (!rs.next()) {
+				return -1;
+			}
+			int storageid = rs.getInt(1);
 			return storageid;
 		}
-		ps.close();
-		rs.close();
-		throw new DatabaseException("Inserting char failed.");
 	}
 
-	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
+	private static PreparedStatement getInsertDefaultStorage(final int accountId, final Connection connection) throws SQLException {
+		final PreparedStatement ps = connection.prepareStatement("INSERT INTO storages (accountid, slots, meso) VALUES (?, ?, ?)",
+			Statement.RETURN_GENERATED_KEYS);
+		ps.setInt(1, accountId);
+		ps.setInt(2, DEFAULT_STORAGE_CAPACITY);
+		ps.setInt(3, 0);
+		ps.executeUpdate();
+		return ps;
+	}
 
-	public static Storage loadStorage(final int id) {
+	public static Storage loadStorage(final int accountId) {
+		final Connection con = Database.getConnection();
 		Storage ret = null;
-		int storeId;
-		try {
-			final Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM storages WHERE accountid = ?");
-			ps.setInt(1, id);
-			ResultSet rs = ps.executeQuery();
-
+		int storageId;
+		try (	PreparedStatement ps = getSelectStorage(accountId, con);
+				ResultSet rs = ps.executeQuery()) {
 			if (rs.next()) {
-				storeId = rs.getInt("storageid");
-				ret = new Storage(storeId, rs.getByte("slots"), rs.getInt("meso"));
-				rs.close();
-				ps.close();
-
-				ps = con.prepareStatement("SELECT * FROM inventoryitems LEFT JOIN inventoryequipment USING (inventoryitemid) WHERE storageid = ?");
-				ps.setInt(1, storeId);
-				rs = ps.executeQuery();
-				while (rs.next()) {
-					final InventoryType type = InventoryType.fromNumber((byte) rs.getInt("inventorytype"));
-					if (type.equals(InventoryType.EQUIP) || type.equals(InventoryType.EQUIPPED)) {
-						final int itemid = rs.getInt("itemid");
-						final Equip equip = new Equip(itemid, rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
-						equip.setOwner(rs.getString("owner"));
-						equip.setQuantity(rs.getShort("quantity"));
-						equip.setAcc(rs.getShort("acc"));
-						equip.setAvoid(rs.getShort("avoid"));
-						equip.setDex(rs.getShort("dex"));
-						equip.setHands(rs.getShort("hands"));
-						equip.setHp(rs.getShort("hp"));
-						equip.setInt(rs.getShort("int"));
-						equip.setJump(rs.getShort("jump"));
-						equip.setLuk(rs.getShort("luk"));
-						equip.setMatk(rs.getShort("matk"));
-						equip.setMdef(rs.getShort("mdef"));
-						equip.setMp(rs.getShort("mp"));
-						equip.setSpeed(rs.getShort("speed"));
-						equip.setStr(rs.getShort("str"));
-						equip.setWatk(rs.getShort("watk"));
-						equip.setWdef(rs.getShort("wdef"));
-						equip.setItemLevel(rs.getByte("itemLevel"));
-						equip.setItemEXP(rs.getShort("itemEXP"));
-						equip.setUpgradeSlots(rs.getByte("upgradeslots"));
-						equip.setLevel(rs.getByte("level"));
-						equip.setViciousHammer(rs.getByte("ViciousHammer"));
-						equip.setExpiration(rs.getLong("expiredate"));
-						equip.setFlag(rs.getByte("flag"));
-						ret.items.add(equip);
-					} else {
-						final Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getByte("flag"));
-						item.setOwner(rs.getString("owner"));
-						item.setExpiration(rs.getLong("expiredate"));
-						item.setFlag(rs.getByte("flag"));
-						ret.items.add(item);
-					}
-				}
-				rs.close();
-				ps.close();
+				storageId = rs.getInt("storageid");
+				ret = new Storage(storageId, rs.getByte("slots"), rs.getInt("meso"));
+				ret.loadStoredItems(con);
 			} else {
-				storeId = create(id);
-				ret = new Storage(storeId, (byte) 4, 0);
+				storageId = create(accountId);
+				ret = new Storage(storageId, (byte) DEFAULT_STORAGE_CAPACITY, 0);
 			}
 		} catch (final SQLException ex) {
 			System.err.println("Error loading storage" + ex);
@@ -134,83 +87,158 @@ public class Storage implements Serializable {
 		return ret;
 	}
 
-	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
+	private void loadStoredItems(final Connection con) throws SQLException {
+		try (	PreparedStatement ps = getSelectStorageItems(con, this.id);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				final InventoryType type = InventoryType.fromNumber((byte) rs.getInt("inventorytype"));
+				final Item loadedItem;
+				if (type.equals(InventoryType.EQUIP) || type.equals(InventoryType.EQUIPPED)) {
+					loadedItem = loadEquip(rs);
+				} else {
+					loadedItem = loadGenericItem(rs);
+				}
+				this.items.add(loadedItem);
+			}
+		}
+	}
+
+	private Item loadGenericItem(ResultSet rs) throws SQLException {
+		final Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getByte("flag"));
+		item.setOwner(rs.getString("owner"));
+		item.setExpiration(rs.getLong("expiredate"));
+		item.setFlag(rs.getByte("flag"));
+		return item;
+	}
+
+	private Equip loadEquip(ResultSet rs) throws SQLException {
+		final Equip equip = new Equip(rs.getInt("itemid"), rs.getByte("position"), rs.getInt("ringid"), rs.getByte("flag"));
+		equip.setOwner(rs.getString("owner"));
+		equip.setQuantity(rs.getShort("quantity"));
+		equip.setAcc(rs.getShort("acc"));
+		equip.setAvoid(rs.getShort("avoid"));
+		equip.setDex(rs.getShort("dex"));
+		equip.setHands(rs.getShort("hands"));
+		equip.setHp(rs.getShort("hp"));
+		equip.setInt(rs.getShort("int"));
+		equip.setJump(rs.getShort("jump"));
+		equip.setLuk(rs.getShort("luk"));
+		equip.setMatk(rs.getShort("matk"));
+		equip.setMdef(rs.getShort("mdef"));
+		equip.setMp(rs.getShort("mp"));
+		equip.setSpeed(rs.getShort("speed"));
+		equip.setStr(rs.getShort("str"));
+		equip.setWatk(rs.getShort("watk"));
+		equip.setWdef(rs.getShort("wdef"));
+		equip.setItemLevel(rs.getByte("itemLevel"));
+		equip.setItemEXP(rs.getShort("itemEXP"));
+		equip.setUpgradeSlots(rs.getByte("upgradeslots"));
+		equip.setLevel(rs.getByte("level"));
+		equip.setViciousHammer(rs.getByte("ViciousHammer"));
+		equip.setExpiration(rs.getLong("expiredate"));
+		equip.setFlag(rs.getByte("flag"));
+		return equip;
+	}
+
+	private static PreparedStatement getSelectStorageItems(final Connection con, int storageId) throws SQLException {
+		PreparedStatement pse = con.prepareStatement("SELECT * FROM inventoryitems LEFT JOIN inventoryequipment USING (inventoryitemid) WHERE storageid = ?");
+		pse.setInt(1, storageId);
+		return pse;
+	}
+
+	private static PreparedStatement getSelectStorage(final int accountId, final Connection con) throws SQLException {
+		PreparedStatement ps = con.prepareStatement("SELECT * FROM storages WHERE accountid = ?");
+		ps.setInt(1, accountId);
+		return ps;
+	}
+
 	public void saveToDB() {
 		if (!this.hasChanged) {
 			return;
 		}
-		try {
-			final Connection con = Database.getConnection();
+		final Connection con = Database.getConnection();
 
-			PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?");
+		try {
+			updateStorage(con);
+			deleteStoredItems(con);
+			storeItems(con);
+		} catch (final SQLException ex) {
+			System.err.println("Error saving storage" + ex);
+		}
+	}
+
+	// TODO: Create prepared statement in a method. Saves me nested try-with-resources blocks.
+	private void storeItems(final Connection con) throws SQLException {
+		PreparedStatement ps = con
+			.prepareStatement(
+				"INSERT INTO inventoryitems (storageid, itemid, inventorytype, position, quantity, owner, GM_Log, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS);
+		final PreparedStatement pse = con
+			.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+		for (final Item item : this.items) {
+			ps.setInt(1, this.id);
+			ps.setInt(2, item.getItemId());
+			ps.setInt(3, item.getType().asNumber());
+			ps.setInt(4, item.getPosition());
+			ps.setInt(5, item.getQuantity());
+			ps.setString(6, item.getOwner());
+			ps.setString(7, item.getGMLog());
+			ps.setLong(8, item.getExpiration());
+			ps.setByte(9, item.getFlag());
+			ps.executeUpdate();
+
+			final ResultSet rs = ps.getGeneratedKeys();
+			int itemid;
+			if (rs.next()) {
+				itemid = rs.getInt(1);
+			} else {
+				throw new DatabaseException("Inserting char failed.");
+			}
+			if (item.getType() == ItemType.EQUIP) {
+				pse.setInt(1, itemid);
+				final Equip equip = (Equip) item;
+				pse.setInt(2, equip.getUpgradeSlots());
+				pse.setInt(3, equip.getLevel());
+				pse.setInt(4, equip.getStr());
+				pse.setInt(5, equip.getDex());
+				pse.setInt(6, equip.getInt());
+				pse.setInt(7, equip.getLuk());
+				pse.setInt(8, equip.getHp());
+				pse.setInt(9, equip.getMp());
+				pse.setInt(10, equip.getWatk());
+				pse.setInt(11, equip.getMatk());
+				pse.setInt(12, equip.getWdef());
+				pse.setInt(13, equip.getMdef());
+				pse.setInt(14, equip.getAcc());
+				pse.setInt(15, equip.getAvoid());
+				pse.setInt(16, equip.getHands());
+				pse.setInt(17, equip.getSpeed());
+				pse.setInt(18, equip.getJump());
+				pse.setInt(19, equip.getRingId());
+				pse.setInt(20, equip.getViciousHammer());
+				pse.setInt(21, equip.getItemLevel());
+				pse.setInt(22, equip.getItemEXP());
+				pse.executeUpdate();
+			}
+		}
+		ps.close();
+		pse.close();
+	}
+
+	private void deleteStoredItems(final Connection con) throws SQLException {
+		try (PreparedStatement ps = con.prepareStatement("DELETE FROM inventoryitems WHERE storageid = ?")) {
+			ps.setInt(1, this.id);
+			ps.executeUpdate();
+		}
+	}
+
+	private void updateStorage(final Connection con) throws SQLException {
+		try (PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?")) {
 			ps.setInt(1, this.slots);
 			ps.setInt(2, this.meso);
 			ps.setInt(3, this.id);
 			ps.executeUpdate();
-			ps.close();
-
-			ps = con.prepareStatement("DELETE FROM inventoryitems WHERE storageid = ?");
-			ps.setInt(1, this.id);
-			ps.executeUpdate();
-			ps.close();
-
-			ps = con
-				.prepareStatement(
-					"INSERT INTO inventoryitems (storageid, itemid, inventorytype, position, quantity, owner, GM_Log, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-					Statement.RETURN_GENERATED_KEYS);
-			final PreparedStatement pse = con
-				.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-			for (final Item item : this.items) {
-				ps.setInt(1, this.id);
-				ps.setInt(2, item.getItemId());
-				ps.setInt(3, item.getType().asByte()); // type.getType()
-				ps.setInt(4, item.getPosition());
-				ps.setInt(5, item.getQuantity());
-				ps.setString(6, item.getOwner());
-				ps.setString(7, item.getGMLog());
-				ps.setLong(8, item.getExpiration());
-				ps.setByte(9, item.getFlag());
-				ps.executeUpdate();
-
-				final ResultSet rs = ps.getGeneratedKeys();
-				int itemid;
-				if (rs.next()) {
-					itemid = rs.getInt(1);
-				} else {
-					throw new DatabaseException("Inserting char failed.");
-				}
-				if (item.getType() == ItemType.EQUIP) {
-					pse.setInt(1, itemid);
-					final Equip equip = (Equip) item;
-					pse.setInt(2, equip.getUpgradeSlots());
-					pse.setInt(3, equip.getLevel());
-					pse.setInt(4, equip.getStr());
-					pse.setInt(5, equip.getDex());
-					pse.setInt(6, equip.getInt());
-					pse.setInt(7, equip.getLuk());
-					pse.setInt(8, equip.getHp());
-					pse.setInt(9, equip.getMp());
-					pse.setInt(10, equip.getWatk());
-					pse.setInt(11, equip.getMatk());
-					pse.setInt(12, equip.getWdef());
-					pse.setInt(13, equip.getMdef());
-					pse.setInt(14, equip.getAcc());
-					pse.setInt(15, equip.getAvoid());
-					pse.setInt(16, equip.getHands());
-					pse.setInt(17, equip.getSpeed());
-					pse.setInt(18, equip.getJump());
-					pse.setInt(19, equip.getRingId());
-					pse.setInt(20, equip.getViciousHammer());
-					pse.setInt(21, equip.getItemLevel());
-					pse.setInt(22, equip.getItemEXP());
-					pse.executeUpdate();
-				}
-			}
-			ps.close();
-			pse.close();
-		} catch (final SQLException ex) {
-			System.err.println("Error saving storage" + ex);
 		}
 	}
 
@@ -218,7 +246,7 @@ public class Storage implements Serializable {
 		this.hasChanged = true;
 		final Item ret = this.items.remove(slot);
 		final InventoryType type = GameConstants.getInventoryType(ret.getItemId());
-		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
+		this.typeItems.put(type, Lists.newArrayList(this.filterItems(type)));
 		return ret;
 	}
 
@@ -226,7 +254,7 @@ public class Storage implements Serializable {
 		this.hasChanged = true;
 		this.items.add(item);
 		final InventoryType type = GameConstants.getInventoryType(item.getItemId());
-		this.typeItems.put(type, new ArrayList<>(this.filterItems(type)));
+		this.typeItems.put(type, Lists.newArrayList(this.filterItems(type)));
 	}
 
 	public List<Item> getItems() {
@@ -234,7 +262,7 @@ public class Storage implements Serializable {
 	}
 
 	private List<Item> filterItems(final InventoryType type) {
-		final List<Item> ret = new LinkedList<>();
+		final List<Item> ret = Lists.newLinkedList();
 
 		for (final Item item : this.items) {
 			if (GameConstants.getInventoryType(item.getItemId()) == type) {
@@ -274,7 +302,7 @@ public class Storage implements Serializable {
 			}
 		});
 		for (final InventoryType type : InventoryType.values()) {
-			this.typeItems.put(type, new ArrayList<>(this.items));
+			this.typeItems.put(type, Lists.newArrayList(this.items));
 		}
 		c.write(ChannelPackets.getStorage(npcId, this.slots, this.items, this.meso));
 	}

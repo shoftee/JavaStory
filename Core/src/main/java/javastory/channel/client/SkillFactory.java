@@ -1,6 +1,5 @@
 package javastory.channel.client;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.tools.StringUtil;
@@ -11,10 +10,12 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Maps;
+
 public final class SkillFactory {
 
-	private static final Map<Integer, ISkill> skills = new HashMap<>();
-	private static final Map<Integer, SummonSkillEntry> summonSkills = new HashMap<>();
+	private static final Map<Integer, ISkill> skills = Maps.newHashMap();
+	private static final Map<Integer, SummonSkillEntry> summonSkills = Maps.newHashMap();
 	private final static WzData stringData = WzDataProviderFactory.getDataProvider("String.wz").getData("Skill.img");
 
 	private SkillFactory() {

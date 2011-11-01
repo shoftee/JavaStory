@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import javastory.channel.CharacterTransfer;
 import javastory.channel.Guild;
 import javastory.channel.GuildMember;
@@ -241,7 +244,7 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 
 	@Override
 	public Map<Integer, Integer> getConnected() throws RemoteException {
-		final Map<Integer, Integer> ret = new HashMap<>();
+		final Map<Integer, Integer> ret = Maps.newHashMap();
 		int total = 0;
 		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
@@ -366,7 +369,7 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 
 	@Override
 	public List<CheaterData> getCheaters() throws RemoteException {
-		final List<CheaterData> allCheaters = new ArrayList<>();
+		final List<CheaterData> allCheaters = Lists.newArrayList();
 		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			try {
@@ -393,7 +396,7 @@ public class WorldChannelInterfaceImpl extends GenericRemoteObject implements Wo
 
 	@Override
 	public CharacterIdChannelPair[] multiBuddyFind(final int charIdFrom, final int[] characterIds) throws RemoteException {
-		final List<CharacterIdChannelPair> foundsChars = new ArrayList<>(characterIds.length);
+		final List<CharacterIdChannelPair> foundsChars = Lists.newArrayListWithCapacity(characterIds.length);
 		for (final int i : registry.getActiveChannels()) {
 			final ChannelWorldInterface cwi = registry.getChannel(i);
 			for (final int charid : cwi.multiBuddyFind(charIdFrom, characterIds)) {

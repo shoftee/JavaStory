@@ -3,13 +3,11 @@ package javastory.channel.maps;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -323,7 +321,7 @@ public class GameMap {
 		byte d = 1;
 		final Point pos = new Point(0, mob.getPosition().y);
 		final MobDropInfoProvider mi = MobDropInfoProvider.getInstance();
-		final List<MobDropInfo> dropEntry = new ArrayList<>(mi.retrieveDrop(mob.getId()));
+		final List<MobDropInfo> dropEntry = Lists.newArrayList(mi.retrieveDrop(mob.getId()));
 		Collections.shuffle(dropEntry);
 		for (final MobDropInfo de : dropEntry) {
 			if (Randomizer.nextInt(999999) < de.Chance * globalItemRate) {
@@ -558,7 +556,7 @@ public class GameMap {
 	 * (such as ZPQ/LMPQ)
 	 */
 	public final void shuffleReactors() {
-		final List<Point> points = new ArrayList<>();
+		final List<Point> points = Lists.newArrayList();
 
 		for (final GameMapObject o : this.getAllReactor()) {
 			points.add(((Reactor) o).getPosition());
@@ -1271,7 +1269,7 @@ public class GameMap {
 	}
 
 	public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq) {
-		final List<GameMapObject> ret = new LinkedList<>();
+		final List<GameMapObject> ret = Lists.newLinkedList();
 
 		this.mutex.lock();
 		try {
@@ -1290,7 +1288,7 @@ public class GameMap {
 	}
 
 	public final List<GameMapObject> getMapObjectsInRange(final Point from, final double rangeSq, final List<GameMapObjectType> MapObject_types) {
-		final List<GameMapObject> ret = new LinkedList<>();
+		final List<GameMapObject> ret = Lists.newLinkedList();
 
 		this.mutex.lock();
 		try {
@@ -1311,7 +1309,7 @@ public class GameMap {
 	}
 
 	public final List<GameMapObject> getMapObjectsInRect(final Rectangle box, final List<GameMapObjectType> MapObject_types) {
-		final List<GameMapObject> ret = new LinkedList<>();
+		final List<GameMapObject> ret = Lists.newLinkedList();
 
 		this.mutex.lock();
 		try {
@@ -1332,7 +1330,7 @@ public class GameMap {
 	}
 
 	public final List<ChannelCharacter> getPlayersInRect(final Rectangle box, final List<ChannelCharacter> CharacterList) {
-		final List<ChannelCharacter> character = new LinkedList<>();
+		final List<ChannelCharacter> character = Lists.newLinkedList();
 
 		this.mutex.lock();
 		try {
@@ -1398,7 +1396,7 @@ public class GameMap {
 	}
 
 	public final List<Rectangle> getAreas() {
-		return new ArrayList<>(this.areas);
+		return Lists.newArrayList(this.areas);
 	}
 
 	public final Rectangle getArea(final int index) {
@@ -1426,8 +1424,8 @@ public class GameMap {
 		} else if (this.maxRegularSpawn > spawnSize) {
 			this.maxRegularSpawn = spawnSize - spawnSize / 15;
 		}
-		final Collection<Spawns> newSpawn = new LinkedList<>();
-		final Collection<Spawns> newBossSpawn = new LinkedList<>();
+		final Collection<Spawns> newSpawn = Lists.newLinkedList();
+		final Collection<Spawns> newBossSpawn = Lists.newLinkedList();
 		for (final Spawns s : this.monsterSpawn) {
 			if (s.getCarnivalTeam() >= 2) {
 				continue; // Remove carnival spawned mobs
@@ -1471,7 +1469,7 @@ public class GameMap {
 	}
 
 	public final Collection<ChannelCharacter> getCharacters() {
-		final List<ChannelCharacter> chars = new ArrayList<>();
+		final List<ChannelCharacter> chars = Lists.newArrayList();
 
 		this.mutex.lock();
 		try {
@@ -1690,7 +1688,7 @@ public class GameMap {
 			final int numShouldSpawn = this.maxRegularSpawn - this.spawnedMonstersOnMap.get();
 			if (numShouldSpawn > 0) {
 				int spawned = 0;
-				final List<Spawns> randomSpawn = new ArrayList<>(this.monsterSpawn);
+				final List<Spawns> randomSpawn = Lists.newArrayList(this.monsterSpawn);
 				Collections.shuffle(randomSpawn);
 				for (final Spawns spawnPoint : randomSpawn) {
 					if (spawnPoint.shouldSpawn()) {

@@ -3,13 +3,11 @@ package javastory.tools.packets;
 import java.awt.Point;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -76,6 +74,7 @@ import javastory.tools.StringUtil;
 import javastory.world.core.PartyOperation;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public final class ChannelPackets {
 
@@ -512,8 +511,8 @@ public final class ChannelPackets {
 		builder.writeAsByte(0);
 		builder.writeInt(npc.getHair());
 		final Map<Byte, Integer> equip = npc.getEquips();
-		final Map<Byte, Integer> myEquip = new LinkedHashMap<>();
-		final Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
+		final Map<Byte, Integer> myEquip = Maps.newLinkedHashMap();
+		final Map<Byte, Integer> maskedEquip = Maps.newLinkedHashMap();
 		for (final byte position : equip.keySet()) {
 			byte pos = (byte) (position * -1);
 			if (pos < 100 && myEquip.get(pos) == null) {
@@ -1339,7 +1338,7 @@ public final class ChannelPackets {
 		final List<Item> equipped = Lists.newLinkedList(iv);
 		Collections.sort(equipped);
 
-		final List<Ring> rings = new ArrayList<>();
+		final List<Ring> rings = Lists.newArrayList();
 		for (final Item item : equipped) {
 			final Equip equip = (Equip) item;
 			if (equip.getRingId() > -1) {
@@ -2493,7 +2492,7 @@ public final class ChannelPackets {
 	}
 
 	private static void addPartyStatus(final int channelId, final Party party, final PacketBuilder builder, final boolean leaving) {
-		final List<PartyMember> partymembers = new ArrayList<>(party.getMembers());
+		final List<PartyMember> partymembers = Lists.newArrayList(party.getMembers());
 		while (partymembers.size() < 6) {
 			partymembers.add(new PartyMember());
 		}

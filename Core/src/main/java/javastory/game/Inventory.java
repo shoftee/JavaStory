@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class Inventory implements Iterable<Item>, Serializable {
@@ -67,7 +68,7 @@ public class Inventory implements Iterable<Item>, Serializable {
 	}
 
 	public List<Item> listById(final int itemId) {
-		final List<Item> ret = new ArrayList<>();
+		final List<Item> ret = Lists.newArrayList();
 		for (final Item item : this.inventory.values()) {
 			if (item.getItemId() == itemId) {
 				ret.add(item);

@@ -1,7 +1,6 @@
 package javastory.channel.life;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -80,7 +79,7 @@ public class Monster extends AbstractLoadedLife {
 		this.dropsDisabled = false;
 
 		if (stats.getNoSkills() > 0) {
-			this.usedSkills = new HashMap<>();
+			this.usedSkills = Maps.newHashMap();
 		}
 
 		this.effectiveness = Maps.newEnumMap(stats.getEffectivenessMap());
@@ -371,7 +370,7 @@ public class Monster extends AbstractLoadedLife {
 		case 8820011:
 		case 8820012:
 		case 8820013: {
-			final List<Monster> mobs = new ArrayList<>();
+			final List<Monster> mobs = Lists.newArrayList();
 			Monster spongy = null;
 
 			for (final int i : toSpawn) {
@@ -989,7 +988,7 @@ public class Monster extends AbstractLoadedLife {
 	private class PartyAttackerEntry implements AttackerEntry {
 
 		private int totDamage;
-		private final Map<Integer, OnePartyAttacker> attackers = new HashMap<>(6);
+		private final Map<Integer, OnePartyAttacker> attackers = Maps.newHashMapWithExpectedSize(6);
 		private final int partyid;
 
 		public PartyAttackerEntry(final int partyid) {
@@ -998,7 +997,7 @@ public class Monster extends AbstractLoadedLife {
 
 		@Override
 		public List<AttackingMapleCharacter> getAttackers() {
-			final List<AttackingMapleCharacter> ret = new ArrayList<>(this.attackers.size());
+			final List<AttackingMapleCharacter> ret = Lists.newArrayListWithCapacity(this.attackers.size());
 			for (final Entry<Integer, OnePartyAttacker> entry : this.attackers.entrySet()) {
 				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(entry.getKey());
 				if (chr != null) {
@@ -1009,7 +1008,7 @@ public class Monster extends AbstractLoadedLife {
 		}
 
 		private Map<ChannelCharacter, OnePartyAttacker> resolveAttackers() {
-			final Map<ChannelCharacter, OnePartyAttacker> ret = new HashMap<>(this.attackers.size());
+			final Map<ChannelCharacter, OnePartyAttacker> ret = Maps.newHashMapWithExpectedSize(this.attackers.size());
 			for (final Entry<Integer, OnePartyAttacker> aentry : this.attackers.entrySet()) {
 				final ChannelCharacter chr = ChannelServer.getPlayerStorage().getCharacterById(aentry.getKey());
 				if (chr != null) {
@@ -1060,7 +1059,7 @@ public class Monster extends AbstractLoadedLife {
 			Party party;
 			double averagePartyLevel, expWeight, levelMod, innerBaseExp, expFraction;
 			List<ChannelCharacter> expApplicable;
-			final Map<ChannelCharacter, ExpMap> expMap = new HashMap<>(6);
+			final Map<ChannelCharacter, ExpMap> expMap = Maps.newHashMapWithExpectedSize(6);
 			byte CLASS_EXP;
 
 			for (final Entry<ChannelCharacter, OnePartyAttacker> attacker : this.resolveAttackers().entrySet()) {
@@ -1068,7 +1067,7 @@ public class Monster extends AbstractLoadedLife {
 				averagePartyLevel = 0;
 
 				CLASS_EXP = 0;
-				expApplicable = new ArrayList<>();
+				expApplicable = Lists.newArrayList();
 				for (final PartyMember partychar : party.getMembers()) {
 					if (attacker.getKey().getLevel() - partychar.getLevel() <= 5 || Monster.this.stats.getLevel() - partychar.getLevel() <= 5) {
 						pchr = ChannelServer.getPlayerStorage().getCharacterByName(partychar.getName());

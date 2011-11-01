@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.PartyMember;
@@ -60,7 +62,7 @@ public class Door extends AbstractGameMapObject {
 	}
 
 	private Portal getFreePortal() {
-		final List<Portal> freePortals = new ArrayList<>();
+		final List<Portal> freePortals = Lists.newArrayList();
 
 		for (final Portal port : this.town.getPortals()) {
 			if (port.getType() == 6) {

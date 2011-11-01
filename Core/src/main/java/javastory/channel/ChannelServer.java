@@ -2,9 +2,7 @@ package javastory.channel;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -38,6 +36,7 @@ import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.ServerStatus;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public final class ChannelServer extends GameService {
 
@@ -48,9 +47,9 @@ public final class ChannelServer extends GameService {
 	private boolean MegaphoneMuteState = false;
 	private PlayerStorage players;
 	private final GameMapFactory mapFactory = new GameMapFactory();
-	private final Map<Integer, GuildSummary> gsStore = new HashMap<>();
-	private final Map<String, Squad> mapleSquads = new HashMap<>();
-	private final Map<Integer, HiredMerchantStore> merchants = new HashMap<>();
+	private final Map<Integer, GuildSummary> gsStore = Maps.newHashMap();
+	private final Map<String, Squad> mapleSquads = Maps.newHashMap();
+	private final Map<Integer, HiredMerchantStore> merchants = Maps.newHashMap();
 	private String serverMessage;
 	private float expRate, mesoRate, itemRate;
 	private int channelId, currentMerchantId = 0;
@@ -378,7 +377,7 @@ public final class ChannelServer extends GameService {
 	}
 
 	public final List<ChannelCharacter> getPartyMembers(final int partyId) {
-		final List<ChannelCharacter> partym = new LinkedList<>();
+		final List<ChannelCharacter> partym = Lists.newLinkedList();
 		try {
 			final Party party = ChannelServer.getWorldInterface().getParty(partyId);
 			for (final PartyMember partychar : party.getMembers()) {

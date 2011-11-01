@@ -3,6 +3,8 @@ package javastory.channel.server;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelServer;
 import javastory.server.TimerManager;
@@ -10,8 +12,8 @@ import javastory.server.TimerManager;
 public class Squad {
 
 	private ChannelCharacter leader;
-	private final List<ChannelCharacter> members = new LinkedList<>();
-	private final List<ChannelCharacter> bannedMembers = new LinkedList<>();
+	private final List<ChannelCharacter> members = Lists.newLinkedList();
+	private final List<ChannelCharacter> bannedMembers = Lists.newLinkedList();
 	private final String type;
 	private byte status = 0;
 

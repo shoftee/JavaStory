@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.maps.AbstractGameMapObject;
 import javastory.channel.packet.PlayerShopPacket;
@@ -26,7 +28,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 	private final int ownerId, owneraccount, itemId;
 	private final AtomicInteger meso = new AtomicInteger(0);
 	protected WeakReference[] visitors = new WeakReference[3];
-	protected List<PlayerShopItem> items = new LinkedList<>();
+	protected List<PlayerShopItem> items = Lists.newLinkedList();
 
 	public AbstractPlayerShop(final ChannelCharacter owner, final int itemId, final String desc) {
 		this.setPosition(owner.getPosition());
@@ -266,7 +268,7 @@ public abstract class AbstractPlayerShop extends AbstractGameMapObject implement
 
 	@Override
 	public List<ChannelCharacter> getVisitors() {
-		final List<ChannelCharacter> chars = new LinkedList<>();
+		final List<ChannelCharacter> chars = Lists.newLinkedList();
 		ChannelCharacter visitor;
 		for (int i = 1; i <= 3; i++) {
 			visitor = (ChannelCharacter) this.visitors[i - 1].get();

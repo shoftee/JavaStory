@@ -14,6 +14,7 @@ import javastory.game.GameConstants;
 import javastory.server.TimerManager;
 import javastory.tools.StringUtil;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class CheatTracker {
@@ -225,7 +226,7 @@ public class CheatTracker {
 
 	public final String getSummary() {
 		final StringBuilder ret = new StringBuilder();
-		final List<CheatingOffenseEntry> offenseList = new ArrayList<>();
+		final List<CheatingOffenseEntry> offenseList = Lists.newArrayList();
 
 		for (final CheatingOffenseEntry entry : this.offenses.values()) {
 			if (!entry.isExpired()) {

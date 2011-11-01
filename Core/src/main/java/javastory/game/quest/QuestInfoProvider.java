@@ -17,6 +17,7 @@ import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -38,7 +39,7 @@ public final class QuestInfoProvider {
 	private static QuestInfo loadQuest(final int questId) {
 		final QuestInfo quest = new QuestInfo();
 		quest.questId = questId;
-		quest.relevantMobs = new LinkedHashMap<>();
+		quest.relevantMobs = Maps.newLinkedHashMap();
 		// read reqs
 		final WzData questRequirements = requirements.getChildByPath(String.valueOf(questId));
 		final WzData questActions = actions.getChildByPath(String.valueOf(questId));
@@ -48,7 +49,7 @@ public final class QuestInfoProvider {
 		}
 		//-------------------------------------------------
 		final WzData startReqData = questRequirements.getChildByPath("0");
-		quest.startRequirements = new LinkedList<>();
+		quest.startRequirements = Lists.newLinkedList();
 		if (startReqData != null) {
 			for (final WzData startReq : startReqData.getChildren()) {
 				final QuestRequirementType type = QuestRequirementType.getByWZName(startReq.getName());
@@ -71,7 +72,7 @@ public final class QuestInfoProvider {
 			if (completeReqData.getChildByPath("endscript") != null) {
 				quest.customend = true;
 			}
-			quest.completionRequirements = new LinkedList<>();
+			quest.completionRequirements = Lists.newLinkedList();
 			for (final WzData completeReq : completeReqData.getChildren()) {
 				final QuestRequirement req = new QuestRequirement(quest.questId, QuestRequirementType.getByWZName(completeReq.getName()), completeReq);
 				if (req.getType().equals(QuestRequirementType.MONSTER)) {
@@ -84,7 +85,7 @@ public final class QuestInfoProvider {
 		}
 		// read acts
 		final WzData startActionData = questActions.getChildByPath("0");
-		quest.startActions = new LinkedList<>();
+		quest.startActions = Lists.newLinkedList();
 		if (startActionData != null) {
 			for (final WzData startAct : startActionData.getChildren()) {
 				final QuestAction action = new QuestAction(quest.questId, QuestActionType.getByWZName(startAct.getName()), startAct);
@@ -93,7 +94,7 @@ public final class QuestInfoProvider {
 		}
 
 		final WzData completeActionData = questActions.getChildByPath("1");
-		quest.completionActions = new LinkedList<>();
+		quest.completionActions = Lists.newLinkedList();
 		if (completeActionData != null) {
 			for (final WzData completeAct : completeActionData.getChildren()) {
 				final QuestAction action = new QuestAction(quest.questId, QuestActionType.getByWZName(completeAct.getName()), completeAct);

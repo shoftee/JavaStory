@@ -15,6 +15,7 @@ import javastory.io.GamePacket;
 import javastory.world.core.CheaterData;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.MapEvictionListener;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
@@ -128,7 +129,7 @@ public class PlayerStorage {
 	}
 
 	public final List<CheaterData> getCheaters() {
-		final List<CheaterData> cheaters = new ArrayList<>();
+		final List<CheaterData> cheaters = Lists.newArrayList();
 
 		this.activePlayerLock.lock();
 		try {

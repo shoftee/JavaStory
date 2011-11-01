@@ -1,17 +1,18 @@
 package javastory.channel.server;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
 import javastory.tools.packets.ChannelPackets;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public final class AutobanManager implements Runnable {
 
@@ -33,9 +34,9 @@ public final class AutobanManager implements Runnable {
 		}
 	}
 
-	private final Map<Integer, Integer> points = new HashMap<>();
-	private final Map<Integer, List<String>> reasons = new HashMap<>();
-	private final Set<ExpirationEntry> expirations = new TreeSet<>();
+	private final Map<Integer, Integer> points = Maps.newHashMap();
+	private final Map<Integer, List<String>> reasons = Maps.newHashMap();
+	private final Set<ExpirationEntry> expirations = Sets.newTreeSet();
 	private static final int AUTOBAN_POINTS = 1000;
 	private static AutobanManager instance = new AutobanManager();
 
@@ -66,7 +67,7 @@ public final class AutobanManager implements Runnable {
 			reasonList.add(reason);
 		} else {
 			this.points.put(acc, points);
-			reasonList = new LinkedList<>();
+			reasonList = Lists.newLinkedList();
 			reasonList.add(reason);
 			this.reasons.put(acc, reasonList);
 		}

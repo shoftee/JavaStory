@@ -3,7 +3,6 @@ package javastory.scripting;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.channel.ChannelClient;
@@ -17,10 +16,12 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.google.common.collect.Maps;
+
 public class PortalScriptManager {
 
 	private static final PortalScriptManager instance = new PortalScriptManager();
-	private final Map<String, PortalScript> scripts = new HashMap<>();
+	private final Map<String, PortalScript> scripts = Maps.newHashMap();
 	private final static ScriptEngineFactory sef = new ScriptEngineManager().getEngineByName("javascript").getFactory();
 
 	public static PortalScriptManager getInstance() {

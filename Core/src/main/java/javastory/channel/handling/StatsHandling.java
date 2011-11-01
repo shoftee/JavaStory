@@ -3,6 +3,8 @@ package javastory.channel.handling;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.ActivePlayerStats;
@@ -20,7 +22,7 @@ import javastory.tools.packets.ChannelPackets;
 public class StatsHandling {
 
 	public static void handleDistributeAbilityPoints(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
-		final List<StatValue> statupdate = new ArrayList<>(2);
+		final List<StatValue> statupdate = Lists.newArrayListWithCapacity(2);
 		c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
 		reader.skip(4);
 
@@ -244,7 +246,7 @@ public class StatsHandling {
 		final int SecondaryStat = reader.readInt();
 		final int amount2 = reader.readInt();
 		final ActivePlayerStats playerst = chr.getStats();
-		final List<StatValue> statupdate = new ArrayList<>(2);
+		final List<StatValue> statupdate = Lists.newArrayListWithCapacity(2);
 		c.write(ChannelPackets.updatePlayerStats(statupdate, true, chr.getJobId()));
 		if (chr.getRemainingAp() == amount + amount2) {
 			switch (PrimaryStat) {

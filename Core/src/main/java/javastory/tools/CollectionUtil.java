@@ -21,6 +21,8 @@ package javastory.tools;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 /**
  * Provides utilities for manipulating collections of objects.
  * 
@@ -50,7 +52,8 @@ public final class CollectionUtil {
 	 * @return The copied list.
 	 */
 	public static <T> List<T> copyFirst(final List<T> list, final int count) {
-		final List<T> ret = new ArrayList<>(list.size() < count ? list.size() : count);
+		final int size = list.size() < count ? list.size() : count;
+		final List<T> ret = Lists.newArrayListWithExpectedSize(size);
 		int i = 0;
 		for (final T elem : list) {
 			ret.add(elem);

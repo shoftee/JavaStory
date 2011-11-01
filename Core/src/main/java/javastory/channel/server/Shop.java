@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,8 +21,11 @@ import javastory.game.data.ItemInfoProvider;
 import javastory.server.ShopItem;
 import javastory.tools.packets.ChannelPackets;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 public class Shop {
-	private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
+	private static final Set<Integer> rechargeableItems = Sets.newLinkedHashSet();
 	private final int id;
 	private final int npcId;
 	private final List<ShopItem> items;
@@ -69,7 +69,7 @@ public class Shop {
 	private Shop(final int id, final int npcId) {
 		this.id = id;
 		this.npcId = npcId;
-		this.items = new LinkedList<>();
+		this.items = Lists.newLinkedList();
 	}
 
 	public void addItem(final ShopItem item) {
@@ -205,7 +205,7 @@ public class Shop {
 			ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
 			ps.setInt(1, shopId);
 			rs = ps.executeQuery();
-			final List<Integer> recharges = new ArrayList<>(rechargeableItems);
+			final List<Integer> recharges = Lists.newArrayList(rechargeableItems);
 			while (rs.next()) {
 				if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
 					final ShopItem starItem = new ShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"));

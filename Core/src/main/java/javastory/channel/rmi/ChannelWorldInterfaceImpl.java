@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelServer;
 import javastory.channel.CharacterTransfer;
@@ -265,7 +267,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 
 	@Override
 	public int[] multiBuddyFind(final int charIdFrom, final int[] characterIds) throws RemoteException {
-		final List<Integer> ret = new ArrayList<>(characterIds.length);
+		final List<Integer> ret = Lists.newArrayListWithCapacity(characterIds.length);
 		final PlayerStorage playerStorage = ChannelServer.getPlayerStorage();
 		for (final int characterId : characterIds) {
 			final ChannelCharacter chr = playerStorage.getCharacterById(characterId);

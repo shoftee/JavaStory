@@ -19,7 +19,6 @@
 package javastory.game.quest;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
@@ -37,6 +36,8 @@ import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
+
+import com.google.common.collect.Maps;
 
 public class QuestAction implements Serializable {
 
@@ -119,7 +120,7 @@ public class QuestAction implements Serializable {
 			break;
 		case ITEM:
 			// first check for randomness in item selection
-			final Map<Integer, Integer> props = new HashMap<>();
+			final Map<Integer, Integer> props = Maps.newHashMap();
 			WzData prop;
 			for (final WzData iEntry : this.data.getChildren()) {
 				prop = iEntry.getChildByPath("prop");
@@ -248,7 +249,7 @@ public class QuestAction implements Serializable {
 		switch (this.actionType) {
 		case ITEM: {
 			// first check for randomness in item selection
-			final Map<Integer, Integer> props = new HashMap<>();
+			final Map<Integer, Integer> props = Maps.newHashMap();
 
 			for (final WzData iEntry : this.data.getChildren()) {
 				final WzData prop = iEntry.getChildByPath("prop");
@@ -348,7 +349,7 @@ public class QuestAction implements Serializable {
 		}
 		case ITEM: {
 			// first check for randomness in item selection
-			final Map<Integer, Integer> props = new HashMap<>();
+			final Map<Integer, Integer> props = Maps.newHashMap();
 
 			for (final WzData iEntry : this.data.getChildren()) {
 				final WzData prop = iEntry.getChildByPath("prop");

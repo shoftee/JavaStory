@@ -7,9 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +32,7 @@ import javastory.world.core.ServerStatus;
 import javastory.world.core.WorldRegistry;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegistry {
@@ -43,18 +41,18 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 	private static WorldRegistryImpl instance = null;
 	//
 	private final ServerStatus loginStatus;
-	private final List<LoginWorldInterface> logins = new LinkedList<>();
+	private final List<LoginWorldInterface> logins = Lists.newLinkedList();
 	//
 	private final Map<Integer, ServerStatus> channelStatus;
 	private final Map<Integer, ChannelWorldInterface> channels;
 	//
 	private final AtomicInteger runningMessengerId = new AtomicInteger();
-	private final Map<Integer, Messenger> messengers = new HashMap<>();
+	private final Map<Integer, Messenger> messengers = Maps.newHashMap();
 	//
 	private final AtomicInteger runningPartyId = new AtomicInteger();
-	private final Map<Integer, Party> parties = new HashMap<>();
+	private final Map<Integer, Party> parties = Maps.newHashMap();
 	//
-	private final Map<Integer, Guild> guilds = new LinkedHashMap<>();
+	private final Map<Integer, Guild> guilds = Maps.newLinkedHashMap();
 	private final PlayerBuffStorage buffStorage = new PlayerBuffStorage();
 	private final Lock guildMutex = new ReentrantLock();
 
@@ -159,7 +157,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 
 	@Override
 	public List<LoginWorldInterface> getLoginServer() {
-		return new LinkedList<>(this.logins);
+		return Lists.newLinkedList(this.logins);
 	}
 
 	@Override
@@ -198,7 +196,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 	@Override
 	public final String getStatus() throws RemoteException {
 		final StringBuilder ret = new StringBuilder();
-		final List<Entry<Integer, ChannelWorldInterface>> channelServers = new ArrayList<>(this.channels.entrySet());
+		final List<Entry<Integer, ChannelWorldInterface>> channelServers = Lists.newArrayList(this.channels.entrySet());
 		int totalUsers = 0;
 		for (final Entry<Integer, ChannelWorldInterface> cs : channelServers) {
 			ret.append("Channel ");

@@ -13,18 +13,18 @@ public enum ItemType {
 	EQUIP(1),
 	NORMAL_ITEM(2),
 	PET(3);
-	private byte type;
+	private byte value;
 
-	private ItemType(final int typeByte) {
-		this.type = (byte) typeByte;
+	private ItemType(final int value) {
+		this.value = (byte) value;
 	}
 
-	public byte asByte() {
-		return this.type;
+	public byte asNumber() {
+		return this.value;
 	}
 
-	public static ItemType fromByte(final int type) {
-		switch (type) {
+	public static ItemType fromNumber(final int value) {
+		switch (value) {
 		case 1:
 			return EQUIP;
 		case 2:

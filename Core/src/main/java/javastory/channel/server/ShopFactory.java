@@ -1,12 +1,13 @@
 package javastory.channel.server;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 public class ShopFactory {
 
-	private final Map<Integer, Shop> shops = new HashMap<>();
-	private final Map<Integer, Shop> npcShops = new HashMap<>();
+	private final Map<Integer, Shop> shops = Maps.newHashMap();
+	private final Map<Integer, Shop> npcShops = Maps.newHashMap();
 	private static ShopFactory instance = new ShopFactory();
 
 	public static ShopFactory getInstance() {

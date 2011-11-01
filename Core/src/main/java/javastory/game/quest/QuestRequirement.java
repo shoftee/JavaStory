@@ -23,6 +23,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.SkillFactory;
 import javastory.game.Item;
@@ -57,7 +59,7 @@ public class QuestRequirement implements Serializable {
 		switch (type) {
 		case JOB: {
 			final List<WzData> child = data.getChildren();
-			this.dataStore = new LinkedList<>();
+			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
 				this.dataStore.add(new Entry(i, WzDataTool.getInt(child.get(i), -1)));
@@ -66,7 +68,7 @@ public class QuestRequirement implements Serializable {
 		}
 		case SKILL: {
 			final List<WzData> child = data.getChildren();
-			this.dataStore = new LinkedList<>();
+			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
@@ -76,7 +78,7 @@ public class QuestRequirement implements Serializable {
 		}
 		case QUEST: {
 			final List<WzData> child = data.getChildren();
-			this.dataStore = new LinkedList<>();
+			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
@@ -86,7 +88,7 @@ public class QuestRequirement implements Serializable {
 		}
 		case ITEM: {
 			final List<WzData> child = data.getChildren();
-			this.dataStore = new LinkedList<>();
+			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
@@ -110,7 +112,7 @@ public class QuestRequirement implements Serializable {
 		}
 		case MONSTER: {
 			final List<WzData> child = data.getChildren();
-			this.dataStore = new LinkedList<>();
+			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
 				final WzData childdata = child.get(i);
