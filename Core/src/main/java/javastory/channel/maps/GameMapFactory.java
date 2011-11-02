@@ -102,45 +102,17 @@ public final class GameMapFactory {
 			map.addPortal(portal);
 		}
 
-		final List<Foothold> footholds = Lists.newLinkedList();
-		final Point lBound = new Point();
-		final Point uBound = new Point();
-		for (final WzData fhRoot : data.getChildByPath("foothold")) {
-			for (final WzData fhCategory : fhRoot) {
-				for (final WzData fhData : fhCategory) {
-					final Foothold fh = new Foothold(fhData);
-
-					if (fh.getX1() < lBound.x) {
-						lBound.x = fh.getX1();
-					}
-					if (fh.getX2() > uBound.x) {
-						uBound.x = fh.getX2();
-					}
-					if (fh.getY1() < lBound.y) {
-						lBound.y = fh.getY1();
-					}
-					if (fh.getY2() > uBound.y) {
-						uBound.y = fh.getY2();
-					}
-
-					footholds.add(fh);
-				}
-			}
-		}
-
-		final FootholdTree fTree = new FootholdTree(lBound, uBound);
-		for (final Foothold item : footholds) {
-			fTree.insert(item);
-		}
+		final FootholdTree fTree = loadFootholds(data);
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
-		if (data.getChildByPath("area") != null) {
-			for (final WzData area : data.getChildByPath("area")) {
-				final int x1 = WzDataTool.getInt(area.getChildByPath("x1"));
-				final int y1 = WzDataTool.getInt(area.getChildByPath("y1"));
-				final int x2 = WzDataTool.getInt(area.getChildByPath("x2"));
-				final int y2 = WzDataTool.getInt(area.getChildByPath("y2"));
+		final WzData areaData = data.getChildByPath("area");
+		if (areaData != null) {
+			for (final WzData area : areaData) {
+				final int x1 = WzDataTool.getInt("x1", area);
+				final int y1 = WzDataTool.getInt("y1", area);
+				final int x2 = WzDataTool.getInt("x2", area);
+				final int y2 = WzDataTool.getInt("y2", area);
 				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 				map.addMapleArea(mapArea);
 			}
@@ -175,15 +147,16 @@ public final class GameMapFactory {
 		map.loadMonsterRate(true);
 
 		// load reactor data
-		if (loadReactors && data.getChildByPath("reactor") != null) {
-			for (final WzData reactor : data.getChildByPath("reactor")) {
+		final WzData reactorEntry = data.getChildByPath("reactor");
+		if (loadReactors && reactorEntry != null) {
+			for (final WzData reactor : reactorEntry) {
 				final String id = WzDataTool.getString("id", reactor);
 				if (id == null) {
 					continue;
 				}
 
-				final byte facingDirection = (byte) WzDataTool.getInt("f", reactor, 0);
-				map.spawnReactor(this.loadReactor(reactor, id, facingDirection));
+				final Reactor loadedReactor = this.loadReactor(reactor, id);
+				map.spawnReactor(loadedReactor);
 			}
 		}
 
@@ -205,6 +178,40 @@ public final class GameMapFactory {
 		map.setFirstUserEnter(WzDataTool.getString("info/onFirstUserEnter", data, ""));
 		map.setUserEnter(WzDataTool.getString("info/onUserEnter", data, ""));
 		return map;
+	}
+
+	private FootholdTree loadFootholds(WzData data) {
+		final List<Foothold> footholds = Lists.newLinkedList();
+		final Point lBound = new Point();
+		final Point uBound = new Point();
+		for (final WzData footholdData : data.getChildByPath("foothold")) {
+			for (final WzData category : footholdData) {
+				for (final WzData entry : category) {
+					final Foothold fh = new Foothold(entry);
+
+					if (fh.getX1() < lBound.x) {
+						lBound.x = fh.getX1();
+					}
+					if (fh.getX2() > uBound.x) {
+						uBound.x = fh.getX2();
+					}
+					if (fh.getY1() < lBound.y) {
+						lBound.y = fh.getY1();
+					}
+					if (fh.getY2() > uBound.y) {
+						uBound.y = fh.getY2();
+					}
+
+					footholds.add(fh);
+				}
+			}
+		}
+
+		final FootholdTree footholdTree = new FootholdTree(lBound, uBound);
+		for (final Foothold item : footholds) {
+			footholdTree.insert(item);
+		}
+		return footholdTree;
 	}
 
 	public GameMap getInstanceMap(final int instanceid) {
@@ -240,35 +247,7 @@ public final class GameMapFactory {
 			map.addPortal(portal);
 		}
 
-		final List<Foothold> footholds = Lists.newLinkedList();
-		final Point lBound = new Point();
-		final Point uBound = new Point();
-		for (final WzData fhRoot : data.getChildByPath("foothold")) {
-			for (final WzData fhCategory : fhRoot) {
-				for (final WzData fhData : fhCategory) {
-					final Foothold fh = new Foothold(fhData);
-
-					if (fh.getX1() < lBound.x) {
-						lBound.x = fh.getX1();
-					}
-					if (fh.getX2() > uBound.x) {
-						uBound.x = fh.getX2();
-					}
-					if (fh.getY1() < lBound.y) {
-						lBound.y = fh.getY1();
-					}
-					if (fh.getY2() > uBound.y) {
-						uBound.y = fh.getY2();
-					}
-					footholds.add(fh);
-				}
-			}
-		}
-
-		final FootholdTree fTree = new FootholdTree(lBound, uBound);
-		for (final Foothold fh : footholds) {
-			fTree.insert(fh);
-		}
+		final FootholdTree fTree = loadFootholds(data);
 		map.setFootholds(fTree);
 
 		// load areas (EG PQ platforms)
@@ -318,9 +297,7 @@ public final class GameMapFactory {
 				if (id == null) {
 					continue;
 				}
-
-				final byte facingDirection = (byte) WzDataTool.getInt("f", reactor, 0);
-				map.spawnReactor(this.loadReactor(reactor, id, facingDirection));
+				map.spawnReactor(this.loadReactor(reactor, id));
 			}
 		}
 
@@ -384,24 +361,25 @@ public final class GameMapFactory {
 		return myLife;
 	}
 
-	private Reactor loadReactor(final WzData reactor, final String id, final byte facingDirection) {
-		final ReactorInfo stats = ReactorFactory.getReactor(Integer.parseInt(id));
-		final Reactor myReactor = new Reactor(stats, Integer.parseInt(id));
+	private Reactor loadReactor(final WzData data, final String reactorId) {
+		final ReactorInfo info = ReactorFactory.getReactor(Integer.parseInt(reactorId));
+		final Reactor reactor = new Reactor(info, Integer.parseInt(reactorId));
 
-		stats.setFacingDirection(facingDirection);
+		final byte facingDirection = (byte) WzDataTool.getInt("f", data, 0);
+		info.setFacingDirection(facingDirection);
 
-		final int x = WzDataTool.getInt("x", reactor);
-		final int y = WzDataTool.getInt("y", reactor);
+		final int x = WzDataTool.getInt("x", data);
+		final int y = WzDataTool.getInt("y", data);
 		final Point position = new Point(x, y);
-		myReactor.setPosition(position);
+		reactor.setPosition(position);
 
-		final int delay = WzDataTool.getInt("reactorTime", reactor);
-		myReactor.setDelay(delay * 1000);
-		myReactor.setState((byte) 0);
-		final String name = WzDataTool.getString("name", reactor, "");
-		myReactor.setName(name);
+		final int delay = WzDataTool.getInt("reactorTime", data);
+		reactor.setDelay(delay * 1000);
+		reactor.setState((byte) 0);
+		final String name = WzDataTool.getString("name", data, "");
+		reactor.setName(name);
 
-		return myReactor;
+		return reactor;
 	}
 
 	private String getPaddedMapName(final int mapId) {

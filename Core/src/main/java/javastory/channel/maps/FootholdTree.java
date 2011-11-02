@@ -27,16 +27,21 @@ import com.google.common.collect.Lists;
 
 public class FootholdTree {
 
+	private static final byte MAX_DEPTH = 8;
+
 	private FootholdTree nw = null;
 	private FootholdTree ne = null;
 	private FootholdTree sw = null;
 	private FootholdTree se = null;
+	
 	private final List<Foothold> footholds = Lists.newLinkedList();
+	
 	private final Point p1;
 	private final Point p2;
 	private final Point center;
+	
 	private int depth = 0;
-	private static final byte maxDepth = 8;
+	
 	private int maxDropX;
 	private int minDropX;
 
@@ -68,7 +73,7 @@ public class FootholdTree {
 				this.minDropX = f.getX2();
 			}
 		}
-		if (this.depth == maxDepth || f.getX1() >= this.p1.x && f.getX2() <= this.p2.x && f.getY1() >= this.p1.y && f.getY2() <= this.p2.y) {
+		if (this.depth == MAX_DEPTH || f.getX1() >= this.p1.x && f.getX2() <= this.p2.x && f.getY1() >= this.p1.y && f.getY2() <= this.p2.y) {
 			this.footholds.add(f);
 		} else {
 			if (this.nw == null) {
