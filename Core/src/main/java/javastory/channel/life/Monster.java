@@ -24,7 +24,7 @@ import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.MobPacket;
 import javastory.game.Element;
-import javastory.game.ElementalEffectiveness;
+import javastory.game.Effectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.game.data.MobInfo;
 import javastory.scripting.EventInstanceManager;
@@ -51,7 +51,7 @@ public class Monster extends AbstractLoadedLife {
 	private final Collection<AttackerEntry> attackers = Lists.newLinkedList();
 	private EventInstanceManager eventInstance;
 	private MonsterListener listener = null;
-	private EnumMap<Element, ElementalEffectiveness> effectiveness = Maps.newEnumMap(Element.class);
+	private EnumMap<Element, Effectiveness> effectiveness = Maps.newEnumMap(Element.class);
 	private final Map<MonsterStatus, MonsterStatusEffect> statuses = Maps.newEnumMap(MonsterStatus.class);
 // 	private final List<MonsterStatusEffect> activeEffects = new ArrayList<MonsterStatusEffect>();
 // 	private final List<MonsterStatus> monsterBuffs = new ArrayList<MonsterStatus>();
@@ -549,9 +549,9 @@ public class Monster extends AbstractLoadedLife {
 		return -1;
 	}
 
-	public final ElementalEffectiveness getEffectiveness(final Element e) {
+	public final Effectiveness getEffectiveness(final Element e) {
 		if (this.statuses.size() > 0 && this.statuses.get(MonsterStatus.DOOM) != null) {
-			return ElementalEffectiveness.NORMAL; // like blue snails
+			return Effectiveness.NORMAL; // like blue snails
 		}
 		return this.effectiveness.get(e);
 	}
@@ -741,7 +741,7 @@ public class Monster extends AbstractLoadedLife {
 	}
 
 	public final void setTempEffectiveness(final Element element, final long milli) {
-		this.effectiveness.put(element, ElementalEffectiveness.WEAK);
+		this.effectiveness.put(element, Effectiveness.WEAK);
 		TimerManager.getInstance().schedule(new EffectivenessExpiration(element), milli);
 	}
 

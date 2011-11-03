@@ -19,59 +19,65 @@
 package javastory.game.data;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Map;
 
+import javastory.game.IdQuantityEntry;
 import javastory.tools.Pair;
+import javastory.wz.WzData;
+import javastory.wz.WzDataTool;
 
 import com.google.common.collect.Maps;
 
 public class ReactorInfo {
 
-	private byte facingDirection;
-	private Point tl;
-	private Point br;
-	private final Map<Byte, StateData> stateInfo = Maps.newHashMap();
+	private final Rectangle bounds;
+	private final Map<Integer, StateData> stateInfo = Maps.newHashMap();
+	private final Map<Integer, Integer> stateGraph = Maps.newHashMap();
 
-	public final void setFacingDirection(final byte facingDirection) {
-		this.facingDirection = facingDirection;
-	}
-
-	public final byte getFacingDirection() {
-		return this.facingDirection;
-	}
-
-	public void setTopLeft(final Point tl) {
-		this.tl = tl;
-	}
-
-	public void setBottomRight(final Point br) {
-		this.br = br;
-	}
-
-	public Point getTopLeft() {
-		return this.tl;
-	}
-
-	public Point getBottomRight() {
-		return this.br;
-	}
-
-	public void addState(final byte state, final int type, final Pair<Integer, Integer> reactItem, final byte nextState) {
-		final StateData newState = new StateData(type, reactItem, nextState);
-		this.stateInfo.put(state, newState);
-	}
-
-	public byte getNextState(final byte state) {
-		final StateData nextState = this.stateInfo.get(state);
-		if (nextState != null) {
-			return nextState.getNextState();
+	public ReactorInfo(int id, WzData data) {
+		WzData info = data.getChildByPath("0/event/0");
+		Rectangle bounds = null;
+		boolean areaSet = false;
+		if (info != null) {
+			int stateId = 0;
+			while (data != null) {
+				IdQuantityEntry reactionEntry = null;
+				final int type = WzDataTool.getIntConvert("type", data);
+				if (type == 100) {
+					// Reactor is triggered by an item cluster.
+					final int itemId = WzDataTool.getIntConvert("0", data);
+					final int quantity = WzDataTool.getIntConvert("1", data);
+					reactionEntry = new IdQuantityEntry(itemId, quantity);
+					if (!areaSet) {
+						final Point lt = WzDataTool.getVector("lt", data);
+						final Point rb = WzDataTool.getVector("rb", data);
+						bounds = new Rectangle(lt.x, lt.y, rb.x - lt.x, rb.y - lt.y);
+						areaSet = true;
+					}
+					StateData state = new StateData(type, reactionEntry);
+					stateInfo.put(type, state);
+				}
+				final int nextStateId = WzDataTool.getIntConvert("state", data);
+				stateGraph.put(stateId, nextStateId);
+				stateId++;
+				data = data.getChildByPath(stateId + "/event/0");
+			}
 		} else {
-			return -1;
+			// sit there and look pretty; likely a reactor such as Zakum/Papulatus doors that shows if player can enter
+			stateInfo.put(0, new StateData(999));
+			stateGraph.put(0, 0);
 		}
+		this.bounds = bounds;
 	}
 
-	public int getType(final byte state) {
-		final StateData nextState = this.stateInfo.get(state);
+	public int getNextState(final int stateId) {
+		final Integer nextId = stateGraph.get(stateId);
+		return nextId == null ? -1 : nextId.intValue();
+	}
+
+	public int getType(final int stateId) {
+		final StateData nextState = this.stateInfo.get(stateId);
 		if (nextState != null) {
 			return nextState.getType();
 		} else {
@@ -79,10 +85,14 @@ public class ReactorInfo {
 		}
 	}
 
-	public Pair<Integer, Integer> getReactItem(final byte state) {
-		final StateData nextState = this.stateInfo.get(state);
+	public Rectangle getBounds() {
+		return bounds;
+	}
+
+	public IdQuantityEntry getReactionItem(final int stateId) {
+		final StateData nextState = this.stateInfo.get(stateId);
 		if (nextState != null) {
-			return nextState.getReactItem();
+			return nextState.getReactionItem();
 		} else {
 			return null;
 		}
@@ -91,25 +101,24 @@ public class ReactorInfo {
 	private static class StateData {
 
 		private final int type;
-		private final Pair<Integer, Integer> reactItem;
-		private final byte nextState;
+		private final IdQuantityEntry reactionItem;
 
-		private StateData(final int type, final Pair<Integer, Integer> reactItem, final byte nextState) {
+		private StateData(final int type) {
 			this.type = type;
-			this.reactItem = reactItem;
-			this.nextState = nextState;
+			this.reactionItem = null;
+		}
+
+		private StateData(final int type, final IdQuantityEntry reactionItem) {
+			this.type = type;
+			this.reactionItem = reactionItem;
 		}
 
 		private int getType() {
 			return this.type;
 		}
 
-		private byte getNextState() {
-			return this.nextState;
-		}
-
-		private Pair<Integer, Integer> getReactItem() {
-			return this.reactItem;
+		private IdQuantityEntry getReactionItem() {
+			return this.reactionItem;
 		}
 	}
 }

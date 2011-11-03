@@ -31,57 +31,33 @@ import com.google.common.collect.Maps;
 
 public class ReactorFactory {
 
-	private static final WzDataProvider data = WzDataProviderFactory.getDataProvider("Reactor.wz");
-	private static Map<Integer, ReactorInfo> reactorStats = Maps.newHashMap();
+	private static final WzDataProvider reactorDataProvider = WzDataProviderFactory.getDataProvider("Reactor.wz");
+	private static Map<Integer, ReactorInfo> reactorInfoCache = Maps.newHashMap();
 
-	public static ReactorInfo getReactor(final int rid) {
-		ReactorInfo stats = reactorStats.get(Integer.valueOf(rid));
-		if (stats == null) {
-			int infoId = rid;
-			WzData reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
-			final WzData link = reactorData.getChildByPath("info/link");
+	public static ReactorInfo getReactor(final int reactorId) {
+		ReactorInfo reactorInfo = reactorInfoCache.get(Integer.valueOf(reactorId));
+		if (reactorInfo == null) {
+			int infoId = reactorId;
+			WzData data = reactorDataProvider.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
+			final WzData link = data.getChildByPath("info/link");
+			
 			if (link != null) {
-				infoId = WzDataTool.getIntConvert("info/link", reactorData);
-				stats = reactorStats.get(Integer.valueOf(infoId));
+				infoId = WzDataTool.getIntConvert("info/link", data);
+				reactorInfo = reactorInfoCache.get(Integer.valueOf(infoId));
 			}
-			if (stats == null) {
-				reactorData = data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
-				WzData reactorInfoData = reactorData.getChildByPath("0/event/0");
-				stats = new ReactorInfo();
-
-				if (reactorInfoData != null) {
-					boolean areaSet = false;
-					int i = 0;
-					while (reactorInfoData != null) {
-						Pair<Integer, Integer> reactItem = null;
-						final int type = WzDataTool.getIntConvert("type", reactorInfoData);
-						if (type == 100) { // reactor waits for item
-							reactItem = new Pair<Integer, Integer>(WzDataTool.getIntConvert("0", reactorInfoData), WzDataTool.getIntConvert("1",
-								reactorInfoData));
-							if (!areaSet) { // only set area of effect for
-											// item-triggered reactors once
-								stats.setTopLeft(WzDataTool.getPoint("lt", reactorInfoData));
-								stats.setBottomRight(WzDataTool.getPoint("rb", reactorInfoData));
-								areaSet = true;
-							}
-						}
-						stats.addState((byte) i, type, reactItem, (byte) WzDataTool.getIntConvert("state", reactorInfoData));
-						i++;
-						reactorInfoData = reactorData.getChildByPath(i + "/event/0");
-					}
-				} else { // sit there and look pretty; likely a reactor such as
-							// Zakum/Papulatus doors that shows if player can
-							// enter
-					stats.addState((byte) 0, 999, null, (byte) 0);
+			
+			if (reactorInfo == null) {
+				data = reactorDataProvider.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
+				reactorInfo = new ReactorInfo(reactorId, data);
+				reactorInfoCache.put(Integer.valueOf(infoId), reactorInfo);
+				if (reactorId != infoId) {
+					reactorInfoCache.put(Integer.valueOf(reactorId), reactorInfo);
 				}
-				reactorStats.put(Integer.valueOf(infoId), stats);
-				if (rid != infoId) {
-					reactorStats.put(Integer.valueOf(rid), stats);
-				}
-			} else { // stats exist at infoId but not rid; add to map
-				reactorStats.put(Integer.valueOf(rid), stats);
+			} else { 
+				// stats exist at infoId but not rid; add to map
+				reactorInfoCache.put(Integer.valueOf(reactorId), reactorInfo);
 			}
 		}
-		return stats;
+		return reactorInfo;
 	}
 }

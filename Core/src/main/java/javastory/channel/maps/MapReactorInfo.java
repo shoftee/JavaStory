@@ -24,4 +24,32 @@ public class MapReactorInfo {
 		this.delay = WzDataTool.getInt("reactorTime", data);
 		this.name = WzDataTool.getString("name", data, "");
 	}
+	
+	public final ReactorInfo getPrototype() {
+		return prototype;
+	}
+	
+	public final int getType(final int stateId) {
+		return prototype.getType(stateId);
+	}
+	
+	public final int getNextState(final int stateId) {
+		return prototype.getNextState(stateId);
+	}
+
+	public final byte getFacingDirection() {
+		return facingDirection;
+	}
+
+	public final Point getPosition() {
+		return position;
+	}
+
+	public final int getDelay() {
+		return delay;
+	}
+
+	public final String getName() {
+		return name;
+	}
 }

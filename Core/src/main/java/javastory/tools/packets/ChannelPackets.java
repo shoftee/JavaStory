@@ -2810,7 +2810,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_SPAWN.getValue());
 		builder.writeInt(reactor.getObjectId());
 		builder.writeInt(reactor.getReactorId());
-		builder.writeByte(reactor.getState());
+		builder.writeAsByte(reactor.getStateId());
 		builder.writeVector(reactor.getPosition());
 		builder.writeByte(reactor.getFacingDirection()); // stance
 		builder.writeAsShort(0);
@@ -2823,7 +2823,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_HIT.getValue());
 		builder.writeInt(reactor.getObjectId());
-		builder.writeByte(reactor.getState());
+		builder.writeAsByte(reactor.getStateId());
 		builder.writeVector(reactor.getPosition());
 		builder.writeAsShort(stance);
 		builder.writeAsByte(0);
@@ -2838,7 +2838,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(ServerPacketOpcode.REACTOR_DESTROY.getValue());
 		builder.writeInt(reactor.getObjectId());
-		builder.writeByte(reactor.getState());
+		builder.writeAsByte(reactor.getStateId());
 		builder.writeVector(reactor.getPosition());
 
 		return builder.getPacket();

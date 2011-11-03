@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javastory.game.BanishInfo;
 import javastory.game.Element;
-import javastory.game.ElementalEffectiveness;
+import javastory.game.Effectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;
@@ -60,7 +60,7 @@ public final class MobInfo {
 	private final boolean onlyNormalAttack;
 	private final boolean friendly;
 	private final String name;
-	private final Map<Element, ElementalEffectiveness> effectiveness;
+	private final Map<Element, Effectiveness> effectiveness;
 	private List<Integer> revives = Lists.newArrayList();
 	private final List<SkillLevelEntry> skills = Lists.newArrayList();
 	private BanishInfo banish;
@@ -145,7 +145,7 @@ public final class MobInfo {
 		}
 
 		final String elementString = WzDataTool.getString("elemAttr", info, "");
-		this.effectiveness = ElementalEffectiveness.fromString(elementString);
+		this.effectiveness = Effectiveness.fromString(elementString);
 
 		// Other data which isn't in the mob, but might in the linked data
 
@@ -282,7 +282,7 @@ public final class MobInfo {
 		return this.undead;
 	}
 
-	public ImmutableMap<Element, ElementalEffectiveness> getEffectivenessMap() {
+	public ImmutableMap<Element, Effectiveness> getEffectivenessMap() {
 		return ImmutableMap.copyOf(this.effectiveness);
 	}
 

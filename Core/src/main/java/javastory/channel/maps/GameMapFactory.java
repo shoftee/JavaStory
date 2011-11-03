@@ -363,22 +363,9 @@ public final class GameMapFactory {
 
 	private Reactor loadReactor(final WzData data, final String reactorId) {
 		final ReactorInfo info = ReactorFactory.getReactor(Integer.parseInt(reactorId));
-		final Reactor reactor = new Reactor(info, Integer.parseInt(reactorId));
-
-		final byte facingDirection = (byte) WzDataTool.getInt("f", data, 0);
-		info.setFacingDirection(facingDirection);
-
-		final int x = WzDataTool.getInt("x", data);
-		final int y = WzDataTool.getInt("y", data);
-		final Point position = new Point(x, y);
-		reactor.setPosition(position);
-
-		final int delay = WzDataTool.getInt("reactorTime", data);
-		reactor.setDelay(delay * 1000);
-		reactor.setState((byte) 0);
-		final String name = WzDataTool.getString("name", data, "");
-		reactor.setName(name);
-
+		final MapReactorInfo mapInfo = new MapReactorInfo(info, data);
+		final Reactor reactor = new Reactor(mapInfo, Integer.parseInt(reactorId));
+		reactor.setStateId((byte) 0);
 		return reactor;
 	}
 

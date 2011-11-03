@@ -36,6 +36,7 @@ import javastory.channel.server.Portal;
 import javastory.channel.server.StatEffect;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
+import javastory.game.IdQuantityEntry;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.Jobs;
@@ -537,7 +538,7 @@ public class GameMap {
 	 */
 	public final void resetReactors() {
 		for (final GameMapObject o : this.getAllReactor()) {
-			((Reactor) o).setState((byte) 0);
+			((Reactor) o).setStateId((byte) 0);
 			((Reactor) o).setTimerActive(false);
 			this.broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 0));
 		}
@@ -545,7 +546,7 @@ public class GameMap {
 
 	public final void setReactorState() {
 		for (final GameMapObject o : this.getAllReactor()) {
-			((Reactor) o).setState((byte) 1);
+			((Reactor) o).setStateId((byte) 1);
 			((Reactor) o).setTimerActive(false);
 			this.broadcastMessage(ChannelPackets.triggerReactor((Reactor) o, 1));
 		}
@@ -832,7 +833,7 @@ public class GameMap {
 	}
 
 	private void respawnReactor(final Reactor reactor) {
-		reactor.setState((byte) 0);
+		reactor.setStateId((byte) 0);
 		reactor.setAlive(true);
 		this.spawnReactor(reactor);
 	}
@@ -1003,7 +1004,8 @@ public class GameMap {
 			final Reactor react = (Reactor) o;
 
 			if (react.getReactorType() == 100) {
-				if (react.getReactItem().getLeft() == item.getItemId() && react.getReactItem().getRight() == item.getQuantity()) {
+				final IdQuantityEntry itemCluster = react.getReactItem();
+				if (itemCluster.Id == item.getItemId() && react.getReactItem().Quantity == item.getQuantity()) {
 
 					if (react.getArea().contains(drop.getPosition())) {
 						if (!react.isTimerActive()) {
@@ -1659,7 +1661,7 @@ public class GameMap {
 
 						@Override
 						public void run() {
-							ActivateItemReactor.this.reactor.setState((byte) 0);
+							ActivateItemReactor.this.reactor.setStateId((byte) 0);
 							GameMap.this.broadcastMessage(ChannelPackets.triggerReactor(ActivateItemReactor.this.reactor, 0));
 						}
 					}, this.reactor.getDelay());

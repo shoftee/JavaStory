@@ -21,29 +21,28 @@ package javastory.channel.maps;
 import java.awt.Rectangle;
 
 import javastory.channel.ChannelClient;
-import javastory.game.data.ReactorInfo;
+import javastory.game.IdQuantityEntry;
 import javastory.scripting.ReactorScriptManager;
-import javastory.tools.Pair;
 import javastory.tools.packets.ChannelPackets;
 
 public class Reactor extends AbstractGameMapObject {
 
-	private final int rid;
-	private final ReactorInfo stats;
-	private byte state;
+	private final int reactorId;
+	private final MapReactorInfo localInfo;
+	private int stateId;
 	private int delay;
 	private GameMap map;
 	private String name;
 	private boolean timerActive, alive;
 
-	public Reactor(final ReactorInfo stats, final int rid) {
-		this.stats = stats;
-		this.rid = rid;
+	public Reactor(final MapReactorInfo info, final int reactorId) {
+		this.localInfo = info;
+		this.reactorId = reactorId;
 		this.alive = true;
 	}
 
 	public final byte getFacingDirection() {
-		return this.stats.getFacingDirection();
+		return this.localInfo.getFacingDirection();
 	}
 
 	public void setTimerActive(final boolean active) {
@@ -55,15 +54,15 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public int getReactorId() {
-		return this.rid;
+		return this.reactorId;
 	}
 
-	public void setState(final byte state) {
-		this.state = state;
+	public void setStateId(final byte state) {
+		this.stateId = state;
 	}
 
-	public byte getState() {
-		return this.state;
+	public int getStateId() {
+		return this.stateId;
 	}
 
 	public boolean isAlive() {
@@ -88,7 +87,7 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public int getReactorType() {
-		return this.stats.getType(this.state);
+		return this.localInfo.getPrototype().getType(this.stateId);
 	}
 
 	public void setMap(final GameMap map) {
@@ -99,8 +98,8 @@ public class Reactor extends AbstractGameMapObject {
 		return this.map;
 	}
 
-	public Pair<Integer, Integer> getReactItem() {
-		return this.stats.getReactItem(this.state);
+	public IdQuantityEntry getReactItem() {
+		return this.localInfo.getPrototype().getReactionItem(this.stateId);
 	}
 
 	@Override
@@ -123,16 +122,16 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public void hitReactor(final int charPos, final short stance, final ChannelClient c) {
-		if (this.stats.getType(this.state) < 999 && this.stats.getType(this.state) != -1) {
+		if (this.localInfo.getType(this.stateId) < 999 && this.localInfo.getType(this.stateId) != -1) {
 			// type 2 = only hit from right (kerning swamp plants), 00 is air
 			// left 02 is ground left
 
-			if (!(this.stats.getType(this.state) == 2 && (charPos == 0 || charPos == 2))) { // next
-																					// state
-				this.state = this.stats.getNextState(this.state);
+			if (!(this.localInfo.getType(this.stateId) == 2 && (charPos == 0 || charPos == 2))) { // next
+				// state
+				this.stateId = this.localInfo.getNextState(this.stateId);
 
-				if (this.stats.getNextState(this.state) == -1) { // end of reactor
-					if (this.stats.getType(this.state) < 100) { // reactor broken
+				if (this.localInfo.getNextState(this.stateId) == -1) { // end of reactor
+					if (this.localInfo.getType(this.stateId) < 100) { // reactor broken
 						if (this.delay > 0) {
 							this.map.destroyReactor(this.getObjectId());
 						} else {// trigger as normal
@@ -144,10 +143,10 @@ public class Reactor extends AbstractGameMapObject {
 					ReactorScriptManager.getInstance().act(c, this);
 				} else { // reactor not broken yet
 					this.map.broadcastMessage(ChannelPackets.triggerReactor(this, stance));
-					if (this.state == this.stats.getNextState(this.state)) { // current state =
-																// next state,
-																// looping
-																// reactor
+					if (this.stateId == this.localInfo.getNextState(this.stateId)) { // current state =
+						// next state,
+						// looping
+						// reactor
 						ReactorScriptManager.getInstance().act(c, this);
 					}
 				}
@@ -156,24 +155,19 @@ public class Reactor extends AbstractGameMapObject {
 	}
 
 	public Rectangle getArea() {
-		final int height = this.stats.getBottomRight().y - this.stats.getTopLeft().y;
-		final int width = this.stats.getBottomRight().x - this.stats.getTopLeft().x;
-		final int origX = this.getPosition().x + this.stats.getTopLeft().x;
-		final int origY = this.getPosition().y + this.stats.getTopLeft().y;
-
-		return new Rectangle(origX, origY, width, height);
+		final Rectangle bounds = this.localInfo.getPrototype().getBounds();
+		final Rectangle area = new Rectangle(bounds);
+		area.add(this.getPosition());
+		return area;
 	}
 
 	public String getName() {
-		return this.name;
-	}
-
-	public void setName(final String name) {
-		this.name = name;
+		return this.localInfo.getName();
 	}
 
 	@Override
 	public String toString() {
-		return "Reactor " + this.getObjectId() + " of id " + this.rid + " at position " + this.getPosition().toString() + " state" + this.state + " type " + this.stats.getType(this.state);
+		return "Reactor " + this.getObjectId() + " of id " + this.reactorId + " at position " + this.getPosition().toString() + " state" + this.stateId
+			+ " type " + this.localInfo.getType(this.stateId);
 	}
 }

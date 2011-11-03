@@ -128,20 +128,20 @@ public class WzDataTool {
 		return ((WzCanvas) data.getData()).getImage();
 	}
 
-	public static Point getPoint(final WzData data) {
+	public static Point getVector(final WzData data) {
 		return (Point) data.getData();
 	}
 
-	public static Point getPoint(final String path, final WzData data) {
-		return getPoint(data.getChildByPath(path));
+	public static Point getVector(final String path, final WzData data) {
+		return getVector(data.getChildByPath(path));
 	}
 
-	public static Point getPoint(final String path, final WzData data, final Point def) {
+	public static Point getVector(final String path, final WzData data, final Point def) {
 		final WzData pointData = data.getChildByPath(path);
 		if (pointData == null) {
 			return def;
 		}
-		return getPoint(pointData);
+		return getVector(pointData);
 	}
 
 	public static String getFullDataPath(final WzData data) {

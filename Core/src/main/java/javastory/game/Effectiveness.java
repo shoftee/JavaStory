@@ -22,11 +22,11 @@ import java.util.EnumMap;
 
 import com.google.common.collect.Maps;
 
-public enum ElementalEffectiveness {
+public enum Effectiveness {
 
 	NORMAL, IMMUNE, STRONG, WEAK;
 
-	public static ElementalEffectiveness fromNumber(final int value) {
+	public static Effectiveness fromNumber(final int value) {
 		switch (value) {
 		case 1:
 			return IMMUNE;
@@ -39,14 +39,14 @@ public enum ElementalEffectiveness {
 		}
 	}
 
-	public static EnumMap<Element, ElementalEffectiveness> fromString(final String elementalAttributes) {
-		final EnumMap<Element, ElementalEffectiveness> map = Maps.newEnumMap(Element.class);
-		for (int i = 0; i < elementalAttributes.length(); i += 2) {
-			final char elementChar = elementalAttributes.charAt(i);
+	public static EnumMap<Element, Effectiveness> fromString(final String attributes) {
+		final EnumMap<Element, Effectiveness> map = Maps.newEnumMap(Element.class);
+		for (int i = 0; i < attributes.length(); i += 2) {
+			final char elementChar = attributes.charAt(i);
 			final Element element = Element.fromCharacter(elementChar);
 
-			final int effectivenessId = elementalAttributes.charAt(i + 1) - '0';
-			final ElementalEffectiveness effectiveness = ElementalEffectiveness.fromNumber(effectivenessId);
+			final int effectivenessId = attributes.charAt(i + 1) - '0';
+			final Effectiveness effectiveness = Effectiveness.fromNumber(effectivenessId);
 			map.put(element, effectiveness);
 		}
 		return map;
