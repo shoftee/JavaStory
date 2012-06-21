@@ -23,7 +23,6 @@ import java.awt.Rectangle;
 import java.util.Map;
 
 import javastory.game.IdQuantityEntry;
-import javastory.tools.Pair;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 

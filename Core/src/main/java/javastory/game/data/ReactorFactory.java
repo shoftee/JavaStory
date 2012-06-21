@@ -20,7 +20,6 @@ package javastory.game.data;
 
 import java.util.Map;
 
-import javastory.tools.Pair;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataProvider;

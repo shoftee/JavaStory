@@ -1,7 +1,6 @@
 package javastory.channel;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javastory.channel.server.Trade;

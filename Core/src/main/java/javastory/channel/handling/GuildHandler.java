@@ -20,7 +20,6 @@ package javastory.channel.handling;
 
 import java.rmi.RemoteException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.collect.Lists;

@@ -2,7 +2,6 @@ package javastory.channel.anticheat;
 
 import java.awt.Point;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;

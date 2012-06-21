@@ -35,12 +35,10 @@ public class EventScriptManager extends AbstractScriptManager {
 
 	private static class EventEntry {
 
-		public String script;
 		public Invocable invocable;
 		public EventManager eventManager;
 
-		public EventEntry(final String script, final Invocable invocable, final EventManager eventManager) {
-			this.script = script;
+		public EventEntry(final Invocable invocable, final EventManager eventManager) {
 			this.invocable = invocable;
 			this.eventManager = eventManager;
 		}
@@ -68,7 +66,7 @@ public class EventScriptManager extends AbstractScriptManager {
 
 				if (invocable != null) {
 					final EventManager eventManager = new EventManager(invocable, script);
-					final EventEntry eventEntry = new EventEntry(script, invocable, eventManager);
+					final EventEntry eventEntry = new EventEntry(invocable, eventManager);
 					this.events.put(script, eventEntry);
 				}
 			}

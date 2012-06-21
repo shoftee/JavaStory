@@ -20,7 +20,6 @@ package javastory.game.quest;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
