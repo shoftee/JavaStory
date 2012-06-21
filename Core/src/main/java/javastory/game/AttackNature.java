@@ -18,10 +18,10 @@
  */
 package javastory.game;
 
-public enum Element {
+public enum AttackNature {
 	NEUTRAL, PHYSICAL, FIRE, ICE, LIGHTING, POISON, HOLY, DARKNESS;
 
-	public static Element fromCharacter(final char c) {
+	public static AttackNature fromCharacter(final char c) {
 		switch (Character.toUpperCase(c)) {
 		case 'F':
 			return FIRE;
@@ -37,6 +37,7 @@ public enum Element {
 			return PHYSICAL;
 		case 'D':
 			return DARKNESS;
+			
 		default:
 			return null;
 		}

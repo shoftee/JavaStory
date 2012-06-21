@@ -22,7 +22,7 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.server.StatEffect;
-import javastory.game.Element;
+import javastory.game.AttackNature;
 import javastory.game.Jobs;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
@@ -39,7 +39,7 @@ public class Skill implements ISkill {
 	//
 	private final int id;
 	private final List<StatEffect> effects = Lists.newArrayList();
-	private Element element;
+	private AttackNature element;
 	private byte level;
 	private int animationTime, requiredSkill, masterLevel;
 	private boolean action;
@@ -63,9 +63,9 @@ public class Skill implements ISkill {
 		final int skillType = WzDataTool.getInt("skillType", data, -1);
 		final String elem = WzDataTool.getString("elemAttr", data, null);
 		if (elem != null) {
-			ret.element = Element.fromCharacter(elem.charAt(0));
+			ret.element = AttackNature.fromCharacter(elem.charAt(0));
 		} else {
-			ret.element = Element.NEUTRAL;
+			ret.element = AttackNature.NEUTRAL;
 		}
 		ret.invisible = WzDataTool.getInt("invisible", data, 0) > 0;
 		ret.masterLevel = WzDataTool.getInt("masterLevel", data, 0);
@@ -266,7 +266,7 @@ public class Skill implements ISkill {
 	}
 
 	@Override
-	public Element getElement() {
+	public AttackNature getElement() {
 		return this.element;
 	}
 

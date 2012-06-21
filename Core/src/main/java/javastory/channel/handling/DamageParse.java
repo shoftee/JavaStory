@@ -22,7 +22,7 @@ import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.server.StatEffect;
 import javastory.game.AttackType;
-import javastory.game.Element;
+import javastory.game.AttackNature;
 import javastory.game.Skills;
 import javastory.game.data.MobInfo;
 import javastory.io.PacketFormatException;
@@ -483,7 +483,7 @@ public final class DamageParse {
 		}
 		maxDamagePerHit *= 1.04; // Avoid any errors for now
 
-		final Element element = player.getBuffedValue(BuffStat.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
+		final AttackNature element = player.getBuffedValue(BuffStat.ELEMENT_RESET) != null ? AttackNature.NEUTRAL : theSkill.getElement();
 
 		double MaxDamagePerHit = 0;
 		int totDamageToOneMonster, totDamage = 0, fixeddmg;
@@ -600,10 +600,10 @@ public final class DamageParse {
 					// effects
 					switch (attack.skill) {
 					case 2221003:
-						monster.setTempEffectiveness(Element.FIRE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
+						monster.setTempEffectiveness(AttackNature.FIRE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
 						break;
 					case 2121003:
-						monster.setTempEffectiveness(Element.ICE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
+						monster.setTempEffectiveness(AttackNature.ICE, theSkill.getEffect(player.getCurrentSkillLevel(theSkill)).getDuration());
 						break;
 					}
 					if (effect != null && effect.getMonsterStati().size() > 0) {
@@ -633,7 +633,7 @@ public final class DamageParse {
 	}
 
 	private static double CalculateMaxMagicDamagePerHit(final ChannelCharacter chr, final ISkill skill, final Monster monster, final MobInfo mobstats,
-		final ActivePlayerStats stats, final Element elem, final Integer sharpEye, final double maxDamagePerMonster) {
+		final ActivePlayerStats stats, final AttackNature elem, final Integer sharpEye, final double maxDamagePerMonster) {
 		final int dLevel = Math.max(mobstats.getLevel() - chr.getLevel(), 0);
 		final int Accuracy = stats.getTotalInt() / 10 + stats.getTotalLuk() / 10;
 		final int MinAccuracy = mobstats.getEvasion() * (dLevel * 2 + 51) / 120;
@@ -693,7 +693,7 @@ public final class DamageParse {
 		return elemMaxDamagePerMob;
 	}
 
-	private static double ElementalStaffAttackBonus(final Element elem, final double elemMaxDamagePerMob, final ActivePlayerStats stats) {
+	private static double ElementalStaffAttackBonus(final AttackNature elem, final double elemMaxDamagePerMob, final ActivePlayerStats stats) {
 		switch (elem) {
 		case FIRE:
 			return elemMaxDamagePerMob / 100 * stats.element_fire;
@@ -734,7 +734,7 @@ public final class DamageParse {
 		if (player.getMapId() / 1000000 == 914) { // aran
 			return 199999;
 		}
-		Element element = Element.NEUTRAL;
+		AttackNature element = AttackNature.NEUTRAL;
 		if (theSkill != null) {
 			element = theSkill.getElement();
 
@@ -776,25 +776,25 @@ public final class DamageParse {
 			switch (chargeSkillId) {
 			case 1211003:
 			case 1211004:
-				element = Element.FIRE;
+				element = AttackNature.FIRE;
 				break;
 			case 1211005:
 			case 1211006:
 			case 21111005:
-				element = Element.ICE;
+				element = AttackNature.ICE;
 				break;
 			case 1211007:
 			case 1211008:
 			case 15101006:
-				element = Element.LIGHTING;
+				element = AttackNature.LIGHTING;
 				break;
 			case 1221003:
 			case 1221004:
 			case 11111007:
-				element = Element.HOLY;
+				element = AttackNature.HOLY;
 				break;
 			case 12101005:
-				element = Element.NEUTRAL;
+				element = AttackNature.NEUTRAL;
 				break;
 			default:
 				throw new RuntimeException("Unknown enum constant");
@@ -803,7 +803,7 @@ public final class DamageParse {
 			maximumDamageToMonster *= skill.getEffect(player.getCurrentSkillLevel(skill)).getDamage() / 100.0;
 		}
 		double elementalMaxDamagePerMonster;
-		if (element != Element.NEUTRAL) {
+		if (element != AttackNature.NEUTRAL) {
 			double elementalEffect;
 
 			switch (attack.skill) {

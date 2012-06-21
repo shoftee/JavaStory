@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javastory.game.BanishInfo;
-import javastory.game.Element;
+import javastory.game.AttackNature;
 import javastory.game.Effectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.wz.WzData;
@@ -58,7 +58,7 @@ public final class MobInfo {
 	private final boolean onlyNormalAttack;
 	private final boolean friendly;
 	private final String name;
-	private final Map<Element, Effectiveness> effectiveness;
+	private final Map<AttackNature, Effectiveness> effectiveness;
 	private List<Integer> revives = Lists.newArrayList();
 	private final List<SkillLevelEntry> skills = Lists.newArrayList();
 	private BanishInfo banish;
@@ -280,7 +280,7 @@ public final class MobInfo {
 		return this.undead;
 	}
 
-	public ImmutableMap<Element, Effectiveness> getEffectivenessMap() {
+	public ImmutableMap<AttackNature, Effectiveness> getEffectivenessMap() {
 		return ImmutableMap.copyOf(this.effectiveness);
 	}
 

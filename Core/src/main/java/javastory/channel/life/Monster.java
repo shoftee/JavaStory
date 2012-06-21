@@ -22,7 +22,7 @@ import javastory.channel.client.SkillFactory;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.MobPacket;
-import javastory.game.Element;
+import javastory.game.AttackNature;
 import javastory.game.Effectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.game.data.MobInfo;
@@ -50,7 +50,7 @@ public class Monster extends AbstractLoadedLife {
 	private final Collection<AttackerEntry> attackers = Lists.newLinkedList();
 	private EventInstanceManager eventInstance;
 	private MonsterListener listener = null;
-	private EnumMap<Element, Effectiveness> effectiveness = Maps.newEnumMap(Element.class);
+	private EnumMap<AttackNature, Effectiveness> effectiveness = Maps.newEnumMap(AttackNature.class);
 	private final Map<MonsterStatus, MonsterStatusEffect> statuses = Maps.newEnumMap(MonsterStatus.class);
 // 	private final List<MonsterStatusEffect> activeEffects = new ArrayList<MonsterStatusEffect>();
 // 	private final List<MonsterStatus> monsterBuffs = new ArrayList<MonsterStatus>();
@@ -548,7 +548,7 @@ public class Monster extends AbstractLoadedLife {
 		return -1;
 	}
 
-	public final Effectiveness getEffectiveness(final Element e) {
+	public final Effectiveness getEffectiveness(final AttackNature e) {
 		if (this.statuses.size() > 0 && this.statuses.get(MonsterStatus.DOOM) != null) {
 			return Effectiveness.NORMAL; // like blue snails
 		}
@@ -559,7 +559,7 @@ public class Monster extends AbstractLoadedLife {
 		if (!this.isAlive()) {
 			return;
 		}
-		final Element element = status.getSkill().getElement();
+		final AttackNature element = status.getSkill().getElement();
 		switch (this.effectiveness.get(element)) {
 		case IMMUNE:
 		case STRONG:
@@ -575,7 +575,7 @@ public class Monster extends AbstractLoadedLife {
 		final int statusSkill = status.getSkill().getId();
 		switch (statusSkill) {
 		case 2111006: { // FP compo
-			switch (this.effectiveness.get(Element.POISON)) {
+			switch (this.effectiveness.get(AttackNature.POISON)) {
 			case IMMUNE:
 			case STRONG:
 				return;
@@ -583,7 +583,7 @@ public class Monster extends AbstractLoadedLife {
 			break;
 		}
 		case 2211006: { // IL compo
-			switch (this.effectiveness.get(Element.ICE)) {
+			switch (this.effectiveness.get(AttackNature.ICE)) {
 			case IMMUNE:
 			case STRONG:
 				return;
@@ -593,7 +593,7 @@ public class Monster extends AbstractLoadedLife {
 		case 4120005:
 		case 4220005:
 		case 14110004: {
-			switch (this.effectiveness.get(Element.POISON)) {
+			switch (this.effectiveness.get(AttackNature.POISON)) {
 			case WEAK:
 				return;
 			}
@@ -739,7 +739,7 @@ public class Monster extends AbstractLoadedLife {
 		timerManager.schedule(cancelTask, duration);
 	}
 
-	public final void setTempEffectiveness(final Element element, final long milli) {
+	public final void setTempEffectiveness(final AttackNature element, final long milli) {
 		this.effectiveness.put(element, Effectiveness.WEAK);
 		TimerManager.getInstance().schedule(new EffectivenessExpiration(element), milli);
 	}
@@ -804,9 +804,9 @@ public class Monster extends AbstractLoadedLife {
 	}
 
 	private final class EffectivenessExpiration implements Runnable {
-		private final Element e;
+		private final AttackNature e;
 
-		private EffectivenessExpiration(final Element e) {
+		private EffectivenessExpiration(final AttackNature e) {
 			this.e = e;
 		}
 

@@ -20,7 +20,7 @@ package javastory.channel.client;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.server.StatEffect;
-import javastory.game.Element;
+import javastory.game.AttackNature;
 
 public interface ISkill {
 
@@ -40,7 +40,7 @@ public interface ISkill {
 
 	public boolean getAction();
 
-	public Element getElement();
+	public AttackNature getElement();
 
 	public boolean isBeginnerSkill();
 

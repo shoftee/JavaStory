@@ -39,11 +39,11 @@ public enum Effectiveness {
 		}
 	}
 
-	public static EnumMap<Element, Effectiveness> fromString(final String attributes) {
-		final EnumMap<Element, Effectiveness> map = Maps.newEnumMap(Element.class);
+	public static EnumMap<AttackNature, Effectiveness> fromString(final String attributes) {
+		final EnumMap<AttackNature, Effectiveness> map = Maps.newEnumMap(AttackNature.class);
 		for (int i = 0; i < attributes.length(); i += 2) {
 			final char elementChar = attributes.charAt(i);
-			final Element element = Element.fromCharacter(elementChar);
+			final AttackNature element = AttackNature.fromCharacter(elementChar);
 
 			final int effectivenessId = attributes.charAt(i + 1) - '0';
 			final Effectiveness effectiveness = Effectiveness.fromNumber(effectivenessId);
