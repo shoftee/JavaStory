@@ -95,24 +95,18 @@ public final class GameMapFactory {
 
 		final PortalFactory portalFactory = new PortalFactory();
 		for (final WzData portalData : data.getChildByPath("portal")) {
-			final int portalType = WzDataTool.getInt("pt", portalData);
-			final Portal portal = portalFactory.makePortal(portalType, portalData);
-
+			final Portal portal = portalFactory.createPortal(portalData);
 			map.addPortal(portal);
 		}
 
-		final FootholdTree fTree = loadFootholds(data);
-		map.setFootholds(fTree);
+		final FootholdTree footholds = loadFootholds(data);
+		map.setFootholds(footholds);
 
 		// load areas (EG PQ platforms)
 		final WzData areaData = data.getChildByPath("area");
 		if (areaData != null) {
 			for (final WzData area : areaData) {
-				final int x1 = WzDataTool.getInt("x1", area);
-				final int y1 = WzDataTool.getInt("y1", area);
-				final int x2 = WzDataTool.getInt("x2", area);
-				final int y2 = WzDataTool.getInt("y2", area);
-				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+				final Rectangle mapArea = WzDataTool.getRectangle("x1", "y1", "x2", "y2", area);
 				map.addMapleArea(mapArea);
 			}
 		}
@@ -240,8 +234,7 @@ public final class GameMapFactory {
 
 		final PortalFactory portalFactory = new PortalFactory();
 		for (final WzData portalData : data.getChildByPath("portal")) {
-			final int portalType = WzDataTool.getInt("pt", portalData);
-			final Portal portal = portalFactory.makePortal(portalType, portalData);
+			final Portal portal = portalFactory.createPortal(portalData);
 
 			map.addPortal(portal);
 		}

@@ -30,13 +30,8 @@ public class Foothold implements Comparable<Foothold> {
 	private final short nextId, prevId;
 
 	public Foothold(final WzData data) {
-		final int x1 = WzDataTool.getInt("x1", data);
-		final int y1 = WzDataTool.getInt("y1", data);
-		this.p1 = new Point(x1, y1);
-
-		final int x2 = WzDataTool.getInt("x2", data);
-		final int y2 = WzDataTool.getInt("y2", data);
-		this.p2 = new Point(x2, y2);
+		this.p1 = WzDataTool.getPoint("x1", "y1", data);
+		this.p2 = WzDataTool.getPoint("x2", "y2", data);
 
 		this.id = Integer.parseInt(data.getName());
 

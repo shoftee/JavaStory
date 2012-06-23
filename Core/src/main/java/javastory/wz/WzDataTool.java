@@ -19,6 +19,7 @@
 package javastory.wz;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 public class WzDataTool {
@@ -142,6 +143,20 @@ public class WzDataTool {
 			return def;
 		}
 		return getVector(pointData);
+	}
+	
+	public static Point getPoint(final String xPath, final String yPath, final WzData data) {
+		final int x = getInt(xPath, data);
+		final int y = getInt(yPath, data);
+		return new Point(x, y);
+	}
+	
+	public static Rectangle getRectangle(final String x1Path, final String y1Path, final String x2Path, final String y2Path, final WzData data) {
+		final int x1 = WzDataTool.getInt(x1Path, data);
+		final int y1 = WzDataTool.getInt(y1Path, data);
+		final int x2 = WzDataTool.getInt(x2Path, data);
+		final int y2 = WzDataTool.getInt(y2Path, data);
+		return new Rectangle(x1, y1, x2 - x1, y2 - y1);
 	}
 
 	public static String getFullDataPath(final WzData data) {

@@ -20,8 +20,6 @@ public interface Portal {
 
 	String getScriptName();
 
-	void setScriptName(String newName);
-
 	int getTargetMapId();
 
 	void enterPortal(ChannelClient c);
