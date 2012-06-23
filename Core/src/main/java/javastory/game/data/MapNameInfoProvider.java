@@ -17,10 +17,6 @@ public final class MapNameInfoProvider {
 			final String path = MapNameInfoProvider.this.getMapAreaDataPath(mapId.intValue());
 			final WzData data = nameData.getChildByPath(path);
 
-			if (data == null) {
-				return null;
-			}
-
 			final MapNameInfo info = new MapNameInfo(data);
 			return info;
 		}

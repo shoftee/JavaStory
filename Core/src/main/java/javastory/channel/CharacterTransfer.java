@@ -22,6 +22,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -44,6 +45,8 @@ import com.google.common.collect.Maps;
 
 public class CharacterTransfer implements Externalizable {
 
+	public final long Timestamp;
+	
 	public int CharacterId, AccountId, Fame, STR, DEX, INT, LUK, MaxHP, MaxMP, HP, MP, Exp, hpApUsed, mpApUsed, RemainingAP, Meso, SkinColorId, JobId, HairId,
 		FaceId, MapId, InitialSpawnPoint, WorldId, GuildId, BuddyListCapacity, PartyId, MessengerId, MessengerPosition, MonsterBookCover, Dojo, RebornCount,
 		Subcategory;
@@ -72,9 +75,12 @@ public class CharacterTransfer implements Externalizable {
 	public final Map<Integer, SkillEntry> Skills = Maps.newLinkedHashMap();
 
 	public CharacterTransfer() {
+		this.Timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 
 	public CharacterTransfer(final ChannelCharacter chr) {
+		this.Timestamp = Calendar.getInstance().getTimeInMillis();
+		
 		this.CharacterId = chr.getId();
 		this.AccountId = chr.getAccountId();
 		this.AccountName = chr.getClient().getAccountName();

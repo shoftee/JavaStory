@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,8 +16,6 @@ import javastory.world.core.CheaterData;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.MapEvictionListener;
-import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 
 public class PlayerStorage {
@@ -29,9 +28,29 @@ public class PlayerStorage {
 	private final Map<Integer, String> sessions = Maps.newHashMap();
 	
 	private final Map<Integer, CharacterTransfer> pendingTransfers;
+	
+	private final ScheduledThreadPoolExecutor cleanupScheduler;
+	
+	private static class TransferTimeout implements Runnable {
 
+		private final int characterId;
+		private final PlayerStorage storage;
+		
+		public TransferTimeout(PlayerStorage storage, int characterId) {
+			this.storage = storage;
+			this.characterId = characterId;
+		}
+		
+		@Override
+		public void run() {
+			this.storage.deregisterTransfer(this.characterId);
+		}
+		
+	}
+	
 	public PlayerStorage() {
-		this.pendingTransfers = new MapMaker().expireAfterWrite(1, TimeUnit.MINUTES).evictionListener(new EvictionListener()).makeMap();
+		this.pendingTransfers = Maps.newLinkedHashMap();
+		cleanupScheduler = new ScheduledThreadPoolExecutor(10);
 	}
 
 	public final boolean registerSession(final int characterId, final String sessionIP) {
@@ -73,6 +92,7 @@ public class PlayerStorage {
 		this.pendingPlayerLock.lock();
 		try {
 			this.pendingTransfers.put(characterId, chr);
+			cleanupScheduler.schedule(new TransferTimeout(this, characterId), 1, TimeUnit.MINUTES);
 		} finally {
 			this.pendingPlayerLock.unlock();
 		}
@@ -250,13 +270,6 @@ public class PlayerStorage {
 			}
 		} finally {
 			this.activePlayerLock.unlock();
-		}
-	}
-
-	private final class EvictionListener implements MapEvictionListener<Integer, CharacterTransfer> {
-		@Override
-		public void onEviction(final Integer key, final CharacterTransfer value) {
-			PlayerStorage.this.deregisterSession(key);
 		}
 	}
 

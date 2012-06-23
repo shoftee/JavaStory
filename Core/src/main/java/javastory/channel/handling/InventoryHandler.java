@@ -43,12 +43,12 @@ import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
 import javastory.game.data.RewardItemInfo;
+import javastory.game.data.RewardSetInfo;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.scripting.NpcScriptManager;
-import javastory.tools.Pair;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 
@@ -126,28 +126,27 @@ public class InventoryHandler {
 		final Item toUse = useInventory.getItem(slot);
 
 		if (toUse != null && toUse.getQuantity() >= 1 && toUse.getItemId() == itemId) {
-			if (chr.getEquipInventory().getNextFreeSlot() > -1 && chr.getUseInventory().getNextFreeSlot() > -1
-				&& chr.getSetupInventory().getNextFreeSlot() > -1 && chr.getEtcInventory().getNextFreeSlot() > -1) {
+			if (!chr.getEquipInventory().isFull() && !chr.getUseInventory().isFull()
+				&& !chr.getSetupInventory().isFull() && !chr.getEtcInventory().isFull()) {
 				final ItemInfoProvider ii = ItemInfoProvider.getInstance();
-				final Pair<Integer, List<RewardItemInfo>> rewards = ii.getRewardItem(itemId);
+				final RewardSetInfo rewardSet = ii.getRewardSet(itemId);
 
-				if (rewards != null) {
-					for (final RewardItemInfo reward : rewards.getRight()) {
-						if (Randomizer.nextInt(rewards.getLeft()) < reward.prob) { // Total
-																					// prob
-							if (GameConstants.getInventoryType(reward.itemid) == InventoryType.EQUIP) {
-								final Item item = ii.getEquipById(reward.itemid);
-								if (reward.period != -1) {
-									item.setExpiration(System.currentTimeMillis() + reward.period * 60 * 60 * 10L);
+				if (rewardSet != null) {
+					for (final RewardItemInfo reward : rewardSet.Rewards) {
+						if (Randomizer.nextInt(rewardSet.TotalProbability) < reward.Probability) { 
+							if (GameConstants.getInventoryType(reward.ItemId) == InventoryType.EQUIP) {
+								final Item item = ii.getEquipById(reward.ItemId);
+								if (reward.Period != -1) {
+									item.setExpiration(System.currentTimeMillis() + reward.Period * 60 * 60 * 10L);
 								}
 								InventoryManipulator.addbyItem(c, item);
 							} else {
-								InventoryManipulator.addById(c, reward.itemid, reward.quantity);
+								InventoryManipulator.addById(c, reward.ItemId, reward.Quantity);
 							}
 							InventoryManipulator.removeById(c, useInventory, itemId, 1, false, false);
 
-							c.write(ChannelPackets.showRewardItemAnimation(reward.itemid, reward.effect));
-							chr.getMap().broadcastMessage(chr, ChannelPackets.showRewardItemAnimation(reward.itemid, reward.effect, chr.getId()), false);
+							c.write(ChannelPackets.showRewardItemAnimation(reward.ItemId, reward.Effect));
+							chr.getMap().broadcastMessage(chr, ChannelPackets.showRewardItemAnimation(reward.ItemId, reward.Effect, chr.getId()), false);
 							break;
 						}
 					}

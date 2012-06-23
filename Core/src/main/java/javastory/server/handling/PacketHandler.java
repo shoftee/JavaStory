@@ -1,10 +1,9 @@
 package javastory.server.handling;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javastory.channel.ChannelClient;
 import javastory.client.GameClient;
 import javastory.cryptography.AesTransform;
@@ -13,17 +12,18 @@ import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
-import javastory.tools.Pair;
 import javastory.tools.Randomizer;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
+import com.google.common.collect.Maps;
+
 public abstract class PacketHandler extends IoHandlerAdapter {
 
 	private final List<String> blockedIPs = new ArrayList<String>();
-	private final Map<String, Pair<Long, Byte>> tracker = new ConcurrentHashMap<String, Pair<Long, Byte>>();
+	private final Map<String, SessionFloodEntry> floodTracker = Maps.newConcurrentMap();
 
 	public PacketHandler() {
 	}
@@ -40,31 +40,33 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 
 	@Override
 	public void sessionOpened(final IoSession session) throws Exception {
-		final String address = session.getRemoteAddress().toString().split(":")[0];
+		final InetSocketAddress address = (InetSocketAddress) session.getRemoteAddress();
+		final String ip = address.getAddress().getHostAddress();
 		if (this.blockedIPs.contains(address)) {
 			session.close(true);
 			return;
 		}
-		final Pair<Long, Byte> track = this.tracker.get(address);
-		byte count;
-		if (track == null) {
+		final SessionFloodEntry floodEntry = this.floodTracker.get(ip);
+		int count;
+		if (floodEntry == null) {
 			count = 1;
 		} else {
-			count = track.right;
-			final long difference = System.currentTimeMillis() - track.left;
+			count = floodEntry.Count;
+			final long difference = System.currentTimeMillis() - floodEntry.Timestamp;
 			if (difference < 2000) { // Less than 2 sec
 				count++;
 			} else if (difference > 20000) { // Over 20 sec
 				count = 1;
 			}
 			if (count >= 10) {
-				this.blockedIPs.add(address);
-				this.tracker.remove(address);
+				this.blockedIPs.add(ip);
+				this.floodTracker.remove(ip);
 				session.close(true);
 				return;
 			}
 		}
-		this.tracker.put(address, new Pair<Long, Byte>(System.currentTimeMillis(), count));
+		
+		this.floodTracker.put(ip, new SessionFloodEntry(System.currentTimeMillis(), count));
 
 		final byte clientIv[] = { 70, 114, 122, (byte) Randomizer.nextInt(255) };
 		final byte serverIv[] = { 82, 48, 120, (byte) Randomizer.nextInt(255) };
@@ -80,7 +82,7 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 		session.write(helloPacket);
 		session.setAttribute(GameClient.CLIENT_KEY, client);
 		session.getConfig().setBothIdleTime(30);
-		System.out.println(":: IoSession opened " + address + " ::");
+		System.out.println(":: IoSession opened " + ip + " ::");
 	}
 
 	protected abstract GameClient createClient(final AesTransform clientCrypto, final AesTransform serverCrypto, final IoSession session);

@@ -16,7 +16,6 @@ import javastory.game.ItemConsumeType;
 import javastory.game.ItemFlag;
 import javastory.game.ItemType;
 import javastory.server.EquipLevelInfo;
-import javastory.tools.Pair;
 import javastory.tools.Randomizer;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
@@ -65,7 +64,7 @@ public final class ItemInfoProvider {
 	private final Map<Integer, Boolean> isQuestItemCache = Maps.newHashMap();
 	private final Map<Integer, List<IdProbabilityEntry>> summonMobCache = Maps.newHashMap();
 	private final List<IdNameEntry> itemNameCache = Lists.newArrayList();
-	private final Map<Integer, Pair<Integer, List<RewardItemInfo>>> RewardItem = Maps.newHashMap();
+	private final Map<Integer, RewardSetInfo> RewardItem = Maps.newHashMap();
 
 	private ItemInfoProvider() {
 		System.out.println(":: Loading MapleItemInformationProvider ::");
@@ -880,11 +879,11 @@ public final class ItemInfoProvider {
 		return bRestricted == karmaID % 10 + 1;
 	}
 
-	public final Pair<Integer, List<RewardItemInfo>> getRewardItem(final int itemid) {
-		if (this.RewardItem.containsKey(itemid)) {
-			return this.RewardItem.get(itemid);
+	public final RewardSetInfo getRewardSet(final int itemId) {
+		if (this.RewardItem.containsKey(itemId)) {
+			return this.RewardItem.get(itemId);
 		}
-		final WzData data = this.getItemData(itemid);
+		final WzData data = this.getItemData(itemId);
 		if (data == null) {
 			return null;
 		}
@@ -892,25 +891,15 @@ public final class ItemInfoProvider {
 		if (rewards == null) {
 			return null;
 		}
-		int totalprob = 0; // As there are some rewards with prob above 2000, we can't assume it's always 100
 		final List<RewardItemInfo> all = new ArrayList<RewardItemInfo>();
 
 		for (final WzData reward : rewards) {
-			final RewardItemInfo struct = new RewardItemInfo();
+			final RewardItemInfo info = new RewardItemInfo(reward);
 
-			struct.itemid = WzDataTool.getInt("item", reward, 0);
-			struct.prob = (byte) WzDataTool.getInt("prob", reward, 0);
-			struct.quantity = (short) WzDataTool.getInt("count", reward, 0);
-			struct.effect = WzDataTool.getString("Effect", reward, "");
-			struct.worldmsg = WzDataTool.getString("worldMsg", reward, null);
-			struct.period = WzDataTool.getInt("period", reward, -1);
-
-			totalprob += struct.prob;
-
-			all.add(struct);
+			all.add(info);
 		}
-		final Pair<Integer, List<RewardItemInfo>> toreturn = new Pair<Integer, List<RewardItemInfo>>(totalprob, all);
-		this.RewardItem.put(itemid, toreturn);
+		final RewardSetInfo toreturn = new RewardSetInfo(all);
+		this.RewardItem.put(itemId, toreturn);
 		return toreturn;
 	}
 
