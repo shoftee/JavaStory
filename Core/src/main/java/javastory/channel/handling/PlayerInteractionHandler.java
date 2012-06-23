@@ -18,6 +18,7 @@ import javastory.channel.shops.PlayerShop;
 import javastory.channel.shops.PlayerShopItem;
 import javastory.game.GameConstants;
 import javastory.game.Inventory;
+import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.ItemFlag;
 import javastory.game.data.ItemInfoProvider;
@@ -254,7 +255,8 @@ public class PlayerInteractionHandler {
 	private static void tradeSetItems(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
 		final ItemInfoProvider ii = ItemInfoProvider.getInstance();
 		final byte typeByte = reader.readByte();
-		final Inventory inventory = chr.getInventoryByTypeByte(typeByte);
+		final InventoryType type = InventoryType.fromNumber(typeByte);
+		final Inventory inventory = chr.getInventoryByType(type);
 		final Item item = inventory.getItem((byte) reader.readShort());
 		final short quantity = reader.readShort();
 		final byte targetSlot = reader.readByte();
@@ -310,7 +312,8 @@ public class PlayerInteractionHandler {
 
 	private static void addItem(final PacketReader reader, final ChannelClient c, final ChannelCharacter chr) throws PacketFormatException {
 		final byte typeByte = reader.readByte();
-		final Inventory inventory = chr.getInventoryByTypeByte(typeByte);
+		final InventoryType type = InventoryType.fromNumber(typeByte);
+		final Inventory inventory = chr.getInventoryByType(type);
 		final byte slot = (byte) reader.readShort();
 		final short bundles = reader.readShort(); // How many in a bundle
 		final short perBundle = reader.readShort(); // Price per bundle

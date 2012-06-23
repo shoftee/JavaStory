@@ -41,12 +41,12 @@ public class QuestRequirement implements Serializable {
 
 	private static class Entry {
 
-		public int key;
-		public int value;
+		public int Key;
+		public int Value;
 
 		public Entry(final int key, final int value) {
-			this.key = key;
-			this.value = value;
+			this.Key = key;
+			this.Value = value;
 		}
 	}
 
@@ -61,7 +61,9 @@ public class QuestRequirement implements Serializable {
 			this.dataStore = Lists.newLinkedList();
 
 			for (int i = 0; i < child.size(); i++) {
-				this.dataStore.add(new Entry(i, WzDataTool.getInt(child.get(i), -1)));
+				final int value = WzDataTool.getInt(child.get(i), -1);
+				final Entry entry = new Entry(i, value);
+				this.dataStore.add(entry);
 			}
 			break;
 		}
@@ -135,15 +137,15 @@ public class QuestRequirement implements Serializable {
 		switch (this.type) {
 		case JOB:
 			for (final Entry entry : this.dataStore) {
-				if (entry.value == c.getJobId() || c.isGM()) {
+				if (entry.Value == c.getJobId() || c.isGM()) {
 					return true;
 				}
 			}
 			return false;
 		case SKILL: {
 			for (final Entry entry : this.dataStore) {
-				final boolean acquire = entry.value > 0;
-				final int skill = entry.key;
+				final int skill = entry.Key;
+				final boolean acquire = entry.Value > 0;
 
 				final byte masterSkillLevel = c.getMasterSkillLevel(SkillFactory.getSkill(skill));
 				if (acquire) {
@@ -160,8 +162,8 @@ public class QuestRequirement implements Serializable {
 		}
 		case QUEST:
 			for (final Entry entry : this.dataStore) {
-				final QuestStatus q = c.getQuestStatus(entry.key);
-				final int state = entry.value;
+				final QuestStatus q = c.getQuestStatus(entry.Key);
+				final int state = entry.Value;
 				if (state != 0) {
 					if (q == null && state == 0) {
 						continue;
@@ -173,17 +175,21 @@ public class QuestRequirement implements Serializable {
 			}
 			return true;
 		case ITEM:
-			int itemId;
-			short quantity;
-
 			for (final Entry entry : this.dataStore) {
-				itemId = entry.key;
-				quantity = 0;
+				final int itemId = entry.Key;
+				short quantity = 0;
 				for (final Item item : c.getInventoryForItem(itemId).listById(itemId)) {
 					quantity += item.getQuantity();
 				}
-				final int count = entry.value;
-				if (quantity < count || count <= 0 && quantity > 0) {
+
+				final int requiredCount = entry.Value;
+				// Abort checking if we're lacking items.
+				if (requiredCount > 0 && quantity < requiredCount) {
+					return false;
+				}
+
+				// Abort checking if we're expected to NOT HAVE the items and we do.
+				if (requiredCount <= 0 && quantity > 0) {
 					return false;
 				}
 			}
@@ -200,9 +206,9 @@ public class QuestRequirement implements Serializable {
 			return cal.getTimeInMillis() >= System.currentTimeMillis();
 		case MONSTER:
 			for (final Entry entry : this.dataStore) {
-				final int mobId = entry.key;
-				final int killReq = entry.value;
-				if (c.getQuestStatus(this.questId).getMobKills(mobId) < killReq) {
+				final int mobId = entry.Key;
+				final int requiredKillCount = entry.Value;
+				if (c.getQuestStatus(this.questId).getMobKills(mobId) < requiredKillCount) {
 					return false;
 				}
 			}
@@ -217,20 +223,24 @@ public class QuestRequirement implements Serializable {
 		case MIN_MONSTER_BOOK:
 			if (c.getMonsterBook().getTotalCards() >= this.intStore) {
 				return true;
+			} else {
+				return false;
 			}
-			return false;
 		case FAME:
 			return c.getFame() <= this.intStore;
 		case QUEST_COMPLETED:
 			if (c.getNumQuest() >= this.intStore) {
 				return true;
+			} else {
+				return false;
 			}
-			return false;
 		case INTERVAL:
-			return c.getQuestStatus(this.questId).getState() != 2
-				|| c.getQuestStatus(this.questId).getCompletionTime() <= System.currentTimeMillis() - this.intStore * 60 * 1000L;
-//			case PET:
-//			case MIN_PET_TAMENESS:
+			final boolean isCompleted = c.getQuestStatus(this.questId).getState() != 2;
+			final long startTimestamp = this.intStore * 60 * 1000L;
+			final long completionTimeLimit = c.getQuestStatus(this.questId).getCompletionTime();
+			return isCompleted || completionTimeLimit <= System.currentTimeMillis() - startTimestamp;
+			//	case PET:
+			//	case MIN_PET_TAMENESS:
 		default:
 			return true;
 		}

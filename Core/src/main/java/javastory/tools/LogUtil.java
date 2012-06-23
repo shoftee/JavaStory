@@ -22,8 +22,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class LogUtil {
 
@@ -32,8 +34,7 @@ public class LogUtil {
 		MapTimer_Log = "Log_MapTimer_Except.rtf", GMCommand_Log = "Log_GMCommand.rtf", IP_Log = "Log_AccountIP.rtf", Horntail_Log = "Log_Horntail.rtf",
 		Pinkbean_Log = "Log_Pinkbean.rtf";
 	// End
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+	
 	public static void log(final String file, final String msg) {
 		FileOutputStream out = null;
 		try {
@@ -69,7 +70,10 @@ public class LogUtil {
 	}
 
 	public static String CurrentReadable_Time() {
-		return sdf.format(Calendar.getInstance().getTime());
+		// Sorry, DateFormat is not thread-safe, so we can't extract it as a static field :(
+		final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		final Date currentTime = Calendar.getInstance().getTime();
+		return sdf.format(currentTime);
 	}
 
 	public static String getString(final Throwable e) {

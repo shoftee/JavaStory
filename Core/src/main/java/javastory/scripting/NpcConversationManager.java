@@ -30,6 +30,7 @@ import javastory.db.Database;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
 import javastory.game.Inventory;
+import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
@@ -290,7 +291,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void expandInventory(final byte type, final int amt) {
-		super.client.getPlayer().getInventoryByTypeByte(type).addSlot((byte) 4);
+		InventoryType inventoryType = InventoryType.fromNumber(type);
+		super.client.getPlayer().getInventoryByType(inventoryType).addSlot((byte) 4);
 	}
 
 	public void unequipEverything() {
@@ -729,7 +731,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public final Inventory getInventory(final byte type) {
-		return super.client.getPlayer().getInventoryByTypeByte(type);
+		final InventoryType inventoryType = InventoryType.fromNumber(type);
+		return super.client.getPlayer().getInventoryByType(inventoryType);
 	}
 
 	public final CarnivalParty getCarnivalParty() {
@@ -762,7 +765,8 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public final boolean dropItem(final int slot, final int invType, final int quantity) {
-		final Inventory inventory = super.client.getPlayer().getInventoryByTypeByte((byte) invType);
+		final InventoryType type = InventoryType.fromNumber((byte)invType);
+		final Inventory inventory = super.client.getPlayer().getInventoryByType(type);
 		if (inventory == null) {
 			return false;
 		}

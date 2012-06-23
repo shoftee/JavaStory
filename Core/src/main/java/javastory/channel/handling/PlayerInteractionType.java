@@ -23,7 +23,7 @@ public enum PlayerInteractionType {
 	VIEW_MERCHANT_VISITOR(0x2C),
 	VIEW_MERCHANT_BLACKLIST(0x2D);
 
-	byte value;
+	final byte value;
 
 	private PlayerInteractionType(int value) {
 		this.value = (byte) value;

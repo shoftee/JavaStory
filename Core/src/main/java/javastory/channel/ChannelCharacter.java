@@ -263,9 +263,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	private MultiInventory inventory;
 
-	private ChannelClient client;
+	private transient ChannelClient client;
 
-	private PlayerRandomStream randomStream;
+	private transient PlayerRandomStream randomStream;
 
 	private ChannelCharacter() {
 		this.setStance(0);
@@ -940,9 +940,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 			con.setAutoCommit(false);
 
-			{
-				this.saveCharacterData(con);
-			}
+			this.saveCharacterData(con);
 
 			for (final Pet pet : this.pets) {
 				if (pet.isSummoned()) {
@@ -1017,80 +1015,78 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	private void saveCharacterData(final Connection con) throws SQLException {
 		try (final PreparedStatement ps = this.getUpdateCharacterData(con)) {
-			ps.setInt(1, this.level);
-			ps.setInt(2, this.fame);
-			ps.setInt(3, this.stats.getStr());
-			ps.setInt(4, this.stats.getDex());
-			ps.setInt(5, this.stats.getLuk());
-			ps.setInt(6, this.stats.getInt());
-			ps.setInt(7, this.exp);
-			ps.setInt(8, this.stats.getHp() < 1 ? 50 : this.stats.getHp());
-			ps.setInt(9, this.stats.getMp());
-			ps.setInt(10, this.stats.getMaxHp());
-			ps.setInt(11, this.stats.getMaxMp());
-
-			final String joinedSp = Joiner.on(',').join(Lists.newArrayList(this.remainingSp));
-			ps.setString(12, joinedSp);
-
-			ps.setInt(13, this.remainingAp);
-			ps.setInt(14, this.gmLevel);
-			ps.setInt(15, this.skinColorId);
-			ps.setInt(16, this.gender.asNumber());
-			ps.setInt(17, this.jobId);
-			ps.setInt(18, this.hairId);
-			ps.setInt(19, this.faceId);
-
-			if (this.map.getForcedReturnId() != 999999999) {
-				ps.setInt(20, this.map.getForcedReturnId());
-			} else {
-				ps.setInt(20, this.stats.getHp() < 1 ? this.map.getReturnMapId() : this.map.getId());
-			}
-
-			ps.setInt(21, this.meso);
-			ps.setInt(22, this.hpApUsed);
-			ps.setInt(23, this.mpApUsed);
-
-			if (this.map == null) {
-				ps.setInt(24, 0);
-			} else {
-				final Portal closest = this.map.findClosestSpawnpoint(this.getPosition());
-				ps.setInt(24, closest != null ? closest.getId() : 0);
-			}
-
-			ps.setInt(25, this.party != null ? this.party.getId() : -1);
-			ps.setInt(26, this.buddies.getCapacity());
-
-			if (this.messenger != null) {
-				ps.setInt(27, this.messenger.getId());
-				ps.setInt(28, this.messengerPosition);
-			} else {
-				ps.setInt(27, 0);
-				ps.setInt(28, 4);
-			}
-
-			ps.setInt(29, this.bookCover);
-			ps.setInt(30, this.dojo);
-			ps.setInt(31, this.dojoRecord);
-			ps.setInt(32, this.getReborns());
-			ps.setInt(33, this.subcategory);
-			ps.setInt(34, this.id);
-
-			if (ps.executeUpdate() < 1) {
+			final int affectedRows = ps.executeUpdate();
+			if (affectedRows < 1) {
 				throw new DatabaseException("Character not in database (" + this.id + ")");
 			}
 		}
 	}
 
 	private PreparedStatement getUpdateCharacterData(final Connection con) throws SQLException {
-		final PreparedStatement ps = con
-			.prepareStatement(
-				"UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?",
-				Statement.RETURN_GENERATED_KEYS);
+		final String sql = "UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpApUsed = ?, mpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, monsterbookcover = ?, dojo_pts = ?, dojoRecord = ?, reborns = ?, subcategory = ? WHERE id = ?";
+		final PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		ps.setInt(1, this.level);
+		ps.setInt(2, this.fame);
+		ps.setInt(3, this.stats.getStr());
+		ps.setInt(4, this.stats.getDex());
+		ps.setInt(5, this.stats.getLuk());
+		ps.setInt(6, this.stats.getInt());
+		ps.setInt(7, this.exp);
+
+		final int hp = this.stats.getHp();
+		final int hpToSave = hp < 1 ? 50 : hp;
+		ps.setInt(8, hpToSave);
+		ps.setInt(9, this.stats.getMp());
+		ps.setInt(10, this.stats.getMaxHp());
+		ps.setInt(11, this.stats.getMaxMp());
+
+		final String joinedSp = Joiner.on(',').join(Lists.newArrayList(this.remainingSp));
+		ps.setString(12, joinedSp);
+
+		ps.setInt(13, this.remainingAp);
+		ps.setInt(14, this.gmLevel);
+		ps.setInt(15, this.skinColorId);
+		ps.setInt(16, this.gender.asNumber());
+		ps.setInt(17, this.jobId);
+		ps.setInt(18, this.hairId);
+		ps.setInt(19, this.faceId);
+
+		if (this.map.getForcedReturnId() != 999999999) {
+			ps.setInt(20, this.map.getForcedReturnId());
+		} else {
+			ps.setInt(20, hp < 1 ? this.map.getReturnMapId() : this.map.getId());
+		}
+
+		ps.setInt(21, this.meso);
+		ps.setInt(22, this.hpApUsed);
+		ps.setInt(23, this.mpApUsed);
+
+		final Portal closest = this.map.findClosestSpawnpoint(this.getPosition());
+		ps.setInt(24, closest != null ? closest.getId() : 0);
+
+		ps.setInt(25, this.party != null ? this.party.getId() : -1);
+		ps.setInt(26, this.buddies.getCapacity());
+
+		if (this.messenger != null) {
+			ps.setInt(27, this.messenger.getId());
+			ps.setInt(28, this.messengerPosition);
+		} else {
+			ps.setInt(27, 0);
+			ps.setInt(28, 4);
+		}
+
+		ps.setInt(29, this.bookCover);
+		ps.setInt(30, this.dojo);
+		ps.setInt(31, this.dojoRecord);
+		ps.setInt(32, this.getReborns());
+		ps.setInt(33, this.subcategory);
+		ps.setInt(34, this.id);
 		return ps;
 	}
 
 	private void saveTeleportRockLocations(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = con.prepareStatement("INSERT INTO trocklocations(characterid, mapid) VALUES(?, ?) ")) {
+		final String sql = "INSERT INTO trocklocations(characterid, mapid) VALUES(?, ?) ";
+		try (final PreparedStatement ps = con.prepareStatement(sql)) {
 			for (int i = 0; i < this.getRockSize(); i++) {
 				if (this.teleportRocks[i] != 999999999) {
 					ps.setInt(1, this.getId());
@@ -1102,7 +1098,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	private void saveWishlist(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?) ")) {
+		final String sql = "INSERT INTO wishlist(characterid, sn) VALUES(?, ?) ";
+		try (final PreparedStatement ps = con.prepareStatement(sql)) {
 			for (int i = 0; i < this.getWishlistSize(); i++) {
 				ps.setInt(1, this.getId());
 				ps.setInt(2, this.wishlist[i]);
@@ -1113,21 +1110,22 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	private void saveAccountInfo(final Connection con) throws SQLException {
 		try (final PreparedStatement ps = this.getUpdateAccount(con)) {
-			ps.setInt(1, this.aCash);
-			ps.setInt(2, this.maplePoints);
-			ps.setInt(3, this.vpoints);
-			ps.setInt(4, this.client.getAccountId());
 			ps.execute();
 		}
 	}
 
-	private PreparedStatement getUpdateAccount(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("UPDATE accounts SET `ACash` = ?, `mPoints` = ?, `vpoints` = ? WHERE id = ?");
+	private PreparedStatement getUpdateAccount(final Connection connection) throws SQLException {
+		final String sql = "UPDATE accounts SET `ACash` = ?, `mPoints` = ?, `vpoints` = ? WHERE id = ?";
+		final PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, this.aCash);
+		ps.setInt(2, this.maplePoints);
+		ps.setInt(3, this.vpoints);
+		ps.setInt(4, this.client.getAccountId());
 		return ps;
 	}
 
-	private void saveBuddyEntries(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = this.getInsertBuddyEntry(con)) {
+	private void saveBuddyEntries(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = this.getInsertBuddyEntry(connection)) {
 			for (final BuddyListEntry entry : this.buddies.getBuddies()) {
 				if (entry.isVisible()) {
 					ps.setInt(2, entry.getCharacterId());
@@ -1137,14 +1135,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private PreparedStatement getInsertBuddyEntry(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, 0)");
+	private PreparedStatement getInsertBuddyEntry(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, 0)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		return ps;
 	}
 
-	private void saveSavedLocations(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = this.getInsertSavedLocation(con)) {
+	private void saveSavedLocations(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = this.getInsertSavedLocation(connection)) {
 			for (final Map.Entry<SavedLocationType, Integer> entry : this.savedLocations.entrySet()) {
 				ps.setInt(2, entry.getKey().asNumber());
 				ps.setInt(3, entry.getValue());
@@ -1153,14 +1152,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private PreparedStatement getInsertSavedLocation(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
+	private PreparedStatement getInsertSavedLocation(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		return ps;
 	}
 
-	private void saveSkillCooldowns(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = this.getInsertSkillCooldown(con)) {
+	private void saveSkillCooldowns(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = this.getInsertSkillCooldown(connection)) {
 			for (final PlayerCooldownValueHolder cooling : this.getAllCooldowns()) {
 				ps.setInt(2, cooling.skillId);
 				ps.setLong(3, cooling.startTime);
@@ -1170,14 +1170,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private PreparedStatement getInsertSkillCooldown(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("INSERT INTO skills_cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)");
+	private PreparedStatement getInsertSkillCooldown(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO skills_cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		return ps;
 	}
 
-	private void saveSkillInfo(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = this.getInsertSkillInfo(con)) {
+	private void saveSkillInfo(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = this.getInsertSkillInfo(connection)) {
 			for (final Entry<ISkill, SkillEntry> skill : this.skills.entrySet()) {
 
 				final int skillId = skill.getKey().getId();
@@ -1192,16 +1193,16 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private PreparedStatement getInsertSkillInfo(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("INSERT INTO skills (characterid, skillid, skilllevel, masterlevel) VALUES (?, ?, ?, ?)");
+	private PreparedStatement getInsertSkillInfo(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO skills (characterid, skillid, skilllevel, masterlevel) VALUES (?, ?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		return ps;
 	}
 
-	private void saveQuestStatus(final Connection con) throws SQLException {
-		try (	final PreparedStatement questStatement = this.getInsertQuestStatus(con);
-				final PreparedStatement mobStatement = this.getInsertQuestMobStatus(con)) {
-			questStatement.setInt(1, this.id);
+	private void saveQuestStatus(final Connection connection) throws SQLException {
+		try (	final PreparedStatement questStatement = this.getInsertQuestStatus(connection);
+				final PreparedStatement mobStatement = this.getInsertQuestMobStatus(connection)) {
 			for (final QuestStatus quest : this.quests.values()) {
 				this.setQuestStatusData(questStatement, quest);
 				questStatement.executeUpdate();
@@ -1232,19 +1233,20 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		statement.setString(6, quest.getCustomData());
 	}
 
-	private PreparedStatement getInsertQuestMobStatus(final Connection con) throws SQLException {
-		return con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
+	private PreparedStatement getInsertQuestMobStatus(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)";
+		return connection.prepareStatement(sql);
 	}
 
-	private PreparedStatement getInsertQuestStatus(final Connection con) throws SQLException {
-		return con
-			.prepareStatement(
-				"INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)",
-				Statement.RETURN_GENERATED_KEYS);
+	private PreparedStatement getInsertQuestStatus(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		ps.setInt(1, this.id);
+		return ps;
 	}
 
-	private void saveQuestInfo(final Connection con) throws SQLException {
-		try (final PreparedStatement ps = this.getInsertQuestInfo(con)) {
+	private void saveQuestInfo(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = this.getInsertQuestInfo(connection)) {
 			for (final Entry<Integer, String> q : this.questInfo.entrySet()) {
 				ps.setInt(2, q.getKey());
 				ps.setString(3, q.getValue());
@@ -1253,21 +1255,22 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private PreparedStatement getInsertQuestInfo(final Connection con) throws SQLException {
-		final PreparedStatement ps = con.prepareStatement("INSERT INTO questinfo (`characterid`, `quest`, `data`) VALUES (?, ?, ?)");
+	private PreparedStatement getInsertQuestInfo(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO questinfo (`characterid`, `quest`, `data`) VALUES (?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		return ps;
 	}
 
-	private void saveInventoryItems(final Connection con) throws SQLException {
-		try (final PreparedStatement items = this.getInsertInventoryItem(con)) {
+	private void saveInventoryItems(final Connection connection) throws SQLException {
+		try (final PreparedStatement items = this.getInsertInventoryItem(connection)) {
 
 			this.saveItemInventory(items, this.getUseInventory());
 			this.saveItemInventory(items, this.getSetupInventory());
 			this.saveItemInventory(items, this.getEtcInventory());
 			this.saveItemInventory(items, this.getCashInventory());
 
-			try (final PreparedStatement equips = this.getInsertInventoryEquip(con)) {
+			try (final PreparedStatement equips = this.getInsertInventoryEquip(connection)) {
 				this.saveEquipInventory(items, equips, this.getEquipInventory());
 				this.saveEquipInventory(items, equips, this.getEquippedItemsInventory());
 			}
@@ -1275,7 +1278,6 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	private void saveItemInventory(final PreparedStatement statement, final Inventory inventory) throws SQLException {
-		statement.setInt(1, this.id);
 		statement.setInt(2, inventory.getType().asNumber());
 		for (final Item item : inventory) {
 			this.setItemData(statement, item);
@@ -1341,26 +1343,27 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		statement.setInt(22, equip.getItemEXP());
 	}
 
-	private PreparedStatement getInsertInventoryEquip(final Connection con) throws SQLException {
-		return con.prepareStatement("INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	private PreparedStatement getInsertInventoryEquip(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO inventoryequipment VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		return connection.prepareStatement(sql);
 	}
 
-	private PreparedStatement getInsertInventoryItem(final Connection con) throws SQLException {
-		return con
-			.prepareStatement(
-				"INSERT INTO inventoryitems (characterid, inventorytype, itemid, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-				Statement.RETURN_GENERATED_KEYS);
+	private PreparedStatement getInsertInventoryItem(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO inventoryitems (characterid, inventorytype, itemid, position, quantity, owner, GM_Log, petid, expiredate, flag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		ps.setInt(1, this.id);
+		return ps;
 	}
 
-	private void saveInventorySlots(final Connection con) throws SQLException {
-		try (PreparedStatement ps = this.getInsertInventorySlots(con)) {
+	private void saveInventorySlots(final Connection connection) throws SQLException {
+		try (PreparedStatement ps = this.getInsertInventorySlots(connection)) {
 			ps.execute();
 		}
 	}
 
-	private PreparedStatement getInsertInventorySlots(final Connection con) throws SQLException {
-		final PreparedStatement ps = con
-			.prepareStatement("INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)");
+	private PreparedStatement getInsertInventorySlots(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO inventoryslot (characterid, `equip`, `use`, `setup`, `etc`, `cash`) VALUES (?, ?, ?, ?, ?, ?)";
+		final PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, this.id);
 		ps.setInt(2, this.getEquipInventory().getSlotLimit());
 		ps.setInt(3, this.getUseInventory().getSlotLimit());
@@ -1370,16 +1373,14 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		return ps;
 	}
 
-	private void saveSkillMacros(final Connection con) throws SQLException {
-		try (PreparedStatement ps = con
-			.prepareStatement("INSERT INTO skillmacros (characterid, skill1, skill2, skill3, name, shout, position) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+	private void saveSkillMacros(final Connection connection) throws SQLException {
+		try (final PreparedStatement ps = getInsertSkillMacros(connection)) {
 			for (int i = 0; i < 5; i++) {
 				final SkillMacro macro = this.skillMacros[i];
 				if (macro == null) {
 					continue;
 				}
 
-				ps.setInt(1, this.id);
 				ps.setInt(2, macro.getSkill1());
 				ps.setInt(3, macro.getSkill2());
 				ps.setInt(4, macro.getSkill3());
@@ -1391,8 +1392,15 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	private void deleteByCharacterId(final Connection con, final String sql) throws SQLException {
-		try (PreparedStatement ps = con.prepareStatement(sql)) {
+	private PreparedStatement getInsertSkillMacros(final Connection connection) throws SQLException {
+		final String sql = "INSERT INTO skillmacros (characterid, skill1, skill2, skill3, name, shout, position) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, this.id);
+		return ps;
+	}
+
+	private void deleteByCharacterId(final Connection connection, final String sql) throws SQLException {
+		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setInt(1, this.id);
 			ps.executeUpdate();
 		}
@@ -2917,11 +2925,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		return this.inventory.get(GameConstants.getInventoryType(itemId));
 	}
 
-	public final Inventory getInventoryByTypeByte(final byte typeByte) {
-		final InventoryType type = InventoryType.fromNumber(typeByte);
-		if (type == null) {
-			return null;
-		}
+	public final Inventory getInventoryByType(final InventoryType type) {
 		return this.inventory.get(type);
 	}
 

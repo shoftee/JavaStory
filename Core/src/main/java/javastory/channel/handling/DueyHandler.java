@@ -15,6 +15,7 @@ import javastory.db.Database;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
 import javastory.game.Inventory;
+import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.ItemFlag;
 import javastory.game.ItemType;
@@ -56,7 +57,7 @@ public class DueyHandler {
 			if (player.getConversationState() != 2) {
 				return;
 			}
-			final byte inventoryId = reader.readByte();
+			final byte typeByte = reader.readByte();
 			final short itemPos = reader.readShort();
 			final short amount = reader.readShort();
 			final int mesos = reader.readInt();
@@ -82,8 +83,9 @@ public class DueyHandler {
 						 * ChannelServer.getInstance().reconnectWorld(); }
 						 */
 
-						if (inventoryId > 0) {
-							final Inventory inventory = player.getInventoryByTypeByte(inventoryId);
+						if (typeByte > 0) {
+							final InventoryType type = InventoryType.fromNumber(typeByte);
+							final Inventory inventory = player.getInventoryByType(type);
 							final Item item = inventory.getItem((byte) itemPos);
 							if (item == null) {
 								c.write(ChannelPackets.sendDuey((byte) 17, null)); // Unsuccessfull

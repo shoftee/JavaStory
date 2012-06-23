@@ -26,19 +26,6 @@ public enum Effectiveness {
 
 	NORMAL, IMMUNE, STRONG, WEAK;
 
-	public static Effectiveness fromNumber(final int value) {
-		switch (value) {
-		case 1:
-			return IMMUNE;
-		case 2:
-			return STRONG;
-		case 3:
-			return WEAK;
-		default:
-			throw new IllegalArgumentException("Unkown effectiveness: " + value);
-		}
-	}
-
 	public static EnumMap<AttackNature, Effectiveness> fromString(final String attributes) {
 		final EnumMap<AttackNature, Effectiveness> map = Maps.newEnumMap(AttackNature.class);
 		for (int i = 0; i < attributes.length(); i += 2) {
@@ -52,4 +39,16 @@ public enum Effectiveness {
 		return map;
 	}
 
+	private static Effectiveness fromNumber(final int value) {
+		switch (value) {
+		case 1:
+			return IMMUNE;
+		case 2:
+			return STRONG;
+		case 3:
+			return WEAK;
+		default:
+			return NORMAL;
+		}
+	}
 }

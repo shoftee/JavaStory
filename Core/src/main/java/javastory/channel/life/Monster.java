@@ -570,8 +570,9 @@ public class Monster extends AbstractLoadedLife {
 		default:
 			return;
 		}
-		// compos don't have an elemental (they have 2 - so we have to hack
-		// here...)
+		
+		// compos don't have an elemental 
+		// (they have 2 - so we have to hack here...)
 		final int statusSkill = status.getSkill().getId();
 		switch (statusSkill) {
 		case 2111006: { // FP compo
@@ -600,13 +601,16 @@ public class Monster extends AbstractLoadedLife {
 			break;
 		}
 		}
-		final Map<MonsterStatus, Integer> statis = status.getEffects();
+		final Map<MonsterStatus, Integer> statusEffects = status.getEffects();
 		if (this.stats.isBoss()) {
-			if (!(statis.containsKey(MonsterStatus.SPEED) && statis.containsKey(MonsterStatus.NINJA_AMBUSH) && statis.containsKey(MonsterStatus.WATK))) {
+			final boolean hasSpeed = statusEffects.containsKey(MonsterStatus.SPEED);
+			final boolean hasNinjaAmbush = statusEffects.containsKey(MonsterStatus.NINJA_AMBUSH);
+			final boolean hasWatk = statusEffects.containsKey(MonsterStatus.WATK);
+			if (hasSpeed || hasNinjaAmbush || hasWatk) {
 				return;
 			}
 		}
-		for (final MonsterStatus stat : statis.keySet()) {
+		for (final MonsterStatus stat : statusEffects.keySet()) {
 			final MonsterStatusEffect oldEffect = this.statuses.get(stat);
 			if (oldEffect != null) {
 				oldEffect.removeActiveStatus(stat);
@@ -622,11 +626,11 @@ public class Monster extends AbstractLoadedLife {
 			@Override
 			public final void run() {
 				if (Monster.this.isAlive()) {
-					Monster.this.map.broadcastMessage(MobPacket.cancelMonsterStatus(Monster.this.getObjectId(), statis), Monster.this.getPosition());
+					Monster.this.map.broadcastMessage(MobPacket.cancelMonsterStatus(Monster.this.getObjectId(), statusEffects), Monster.this.getPosition());
 					if (Monster.this.getController() != null && !Monster.this.getController().isMapObjectVisible(Monster.this)) {
-						Monster.this.getController().getClient().write(MobPacket.cancelMonsterStatus(Monster.this.getObjectId(), statis));
+						Monster.this.getController().getClient().write(MobPacket.cancelMonsterStatus(Monster.this.getObjectId(), statusEffects));
 					}
-					for (final MonsterStatus stat : statis.keySet()) {
+					for (final MonsterStatus stat : statusEffects.keySet()) {
 						Monster.this.statuses.remove(stat);
 					}
 					Monster.this.setVenomMulti((byte) 0);
@@ -692,7 +696,7 @@ public class Monster extends AbstractLoadedLife {
 			status.setPoisonSchedule(timerManager.register(new PoisonTask(damage, from, status, cancelTask, false), 1000, 1000));
 		}
 
-		for (final MonsterStatus stat : statis.keySet()) {
+		for (final MonsterStatus stat : statusEffects.keySet()) {
 			this.statuses.put(stat, status);
 		}
 		this.map.broadcastMessage(MobPacket.applyMonsterStatus(this.getObjectId(), status), this.getPosition());

@@ -58,8 +58,9 @@ public class InventoryHandler {
 
 	public static void handleItemMove(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 		reader.skip(4);
-		final byte mode = reader.readByte();
-		final Inventory inventory = c.getPlayer().getInventoryByTypeByte(mode);
+		final byte typeByte = reader.readByte();
+		final InventoryType type = InventoryType.fromNumber(typeByte);
+		final Inventory inventory = c.getPlayer().getInventoryByType(type);
 		final byte src = (byte) reader.readShort();
 		final byte dst = (byte) reader.readShort();
 		final short quantity = reader.readShort();
@@ -77,8 +78,9 @@ public class InventoryHandler {
 
 	public static void handleItemSort(final PacketReader reader, final ChannelClient c) throws PacketFormatException {
 		reader.skip(4);
-		final byte mode = reader.readByte();
-		final Inventory inventory = c.getPlayer().getInventoryByTypeByte(mode);
+		final byte typeByte = reader.readByte();
+		final InventoryType type = InventoryType.fromNumber(typeByte);
+		final Inventory inventory = c.getPlayer().getInventoryByType(type);
 		boolean sorted = false;
 		while (!sorted) {
 			final byte freeSlot = (byte) inventory.getNextFreeSlot();
@@ -97,7 +99,7 @@ public class InventoryHandler {
 				}
 			}
 		}
-		c.write(ChannelPackets.finishedSort(mode));
+		c.write(ChannelPackets.finishedSort(typeByte));
 		c.write(ChannelPackets.enableActions());
 	}
 
@@ -1033,8 +1035,9 @@ public class InventoryHandler {
 		case 5520001:
 		case 5520000: {
 			// Karma
-			final byte mode = (byte) reader.readInt();
-			final Inventory inventory = player.getInventoryByTypeByte(mode);
+			final byte typeByte = (byte) reader.readInt();
+			final InventoryType type = InventoryType.fromNumber(typeByte);
+			final Inventory inventory = player.getInventoryByType(type);
 			final Item item = inventory.getItem((byte) reader.readInt());
 
 			if (item != null) {
@@ -1075,8 +1078,9 @@ public class InventoryHandler {
 		}
 		case 5060001: {
 			// Sealing Lock
-			final byte inventoryType = (byte) reader.readInt();
-			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
+			final byte typeByte = (byte) reader.readInt();			
+			final InventoryType type = InventoryType.fromNumber(typeByte);
+			final Inventory inventory = player.getInventoryByType(type);
 			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
@@ -1084,14 +1088,15 @@ public class InventoryHandler {
 				flag |= ItemFlag.LOCK.getValue();
 				item.setFlag(flag);
 
-				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
+				c.write(ChannelPackets.updateSpecialItemUse(item, typeByte));
 				used = true;
 			}
 			break;
 		}
 		case 5061000: { // Sealing Lock 7 days
-			final byte inventoryType = (byte) reader.readInt();
-			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
+			final byte typeByte = (byte) reader.readInt();
+			final InventoryType type = InventoryType.fromNumber(typeByte);
+			final Inventory inventory = player.getInventoryByType(type);
 			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
@@ -1100,14 +1105,15 @@ public class InventoryHandler {
 				item.setFlag(flag);
 				item.setExpiration(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
 
-				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
+				c.write(ChannelPackets.updateSpecialItemUse(item, typeByte));
 				used = true;
 			}
 			break;
 		}
 		case 5061001: { // Sealing Lock 30 days
-			final byte inventoryType = (byte) reader.readInt();
-			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
+			final byte typeByte = (byte) reader.readInt();
+			final InventoryType type = InventoryType.fromNumber(typeByte);
+			final Inventory inventory = player.getInventoryByType(type);
 			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
@@ -1117,14 +1123,15 @@ public class InventoryHandler {
 
 				item.setExpiration(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000);
 
-				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
+				c.write(ChannelPackets.updateSpecialItemUse(item, typeByte));
 				used = true;
 			}
 			break;
 		}
 		case 5061002: { // Sealing Lock 90 days
-			final byte inventoryType = (byte) reader.readInt();
-			final Inventory inventory = player.getInventoryByTypeByte(inventoryType);
+			final byte typeByte = (byte) reader.readInt();
+			final InventoryType type = InventoryType.fromNumber(typeByte);
+			final Inventory inventory = player.getInventoryByType(type);
 			final Item item = inventory.getItem((byte) reader.readInt());
 			// another int here, lock = 5A E5 F2 0A, 7 day = D2 30 F3 0A
 			if (item != null && item.getExpiration() == -1) {
@@ -1134,7 +1141,7 @@ public class InventoryHandler {
 
 				item.setExpiration(System.currentTimeMillis() + 90 * 24 * 60 * 60 * 1000);
 
-				c.write(ChannelPackets.updateSpecialItemUse(item, inventoryType));
+				c.write(ChannelPackets.updateSpecialItemUse(item, typeByte));
 				used = true;
 			}
 			break;
@@ -1279,9 +1286,11 @@ public class InventoryHandler {
 
 				Item item = null;
 				if (reader.readByte() == 1) { // item
-					final byte invType = (byte) reader.readInt();
+					final byte typeByte = (byte) reader.readInt();
 					final byte pos = (byte) reader.readInt();
-					item = player.getInventoryByTypeByte(invType).getItem(pos);
+					
+					final InventoryType type = InventoryType.fromNumber(typeByte);
+					item = player.getInventoryByType(type).getItem(pos);
 				}
 
 				try {
