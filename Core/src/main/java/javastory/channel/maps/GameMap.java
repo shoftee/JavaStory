@@ -28,7 +28,7 @@ import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.life.Npc;
 import javastory.channel.life.SpawnPointAreaBoss;
-import javastory.channel.life.Spawns;
+import javastory.channel.life.Spawnable;
 import javastory.channel.packet.MobPacket;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
@@ -58,7 +58,7 @@ import com.google.common.collect.Maps;
 public class GameMap {
 
 	private final Map<Integer, GameMapObject> mapObjects;
-	private final Collection<Spawns> monsterSpawn;
+	private final Collection<Spawnable> monsterSpawn;
 	private final List<ChannelCharacter> characters;
 	private final Map<Integer, Portal> portals;
 	private final List<Rectangle> areas;
@@ -1426,9 +1426,9 @@ public class GameMap {
 		} else if (this.maxRegularSpawn > spawnSize) {
 			this.maxRegularSpawn = spawnSize - spawnSize / 15;
 		}
-		final Collection<Spawns> newSpawn = Lists.newLinkedList();
-		final Collection<Spawns> newBossSpawn = Lists.newLinkedList();
-		for (final Spawns s : this.monsterSpawn) {
+		final Collection<Spawnable> newSpawn = Lists.newLinkedList();
+		final Collection<Spawnable> newBossSpawn = Lists.newLinkedList();
+		for (final Spawnable s : this.monsterSpawn) {
 			if (s.getCarnivalTeam() >= 2) {
 				continue; // Remove carnival spawned mobs
 			}
@@ -1675,7 +1675,7 @@ public class GameMap {
 			final int numShouldSpawn = this.monsterSpawn.size() - this.spawnedMonstersOnMap.get();
 			if (numShouldSpawn > 0) {
 				int spawned = 0;
-				for (final Spawns spawnPoint : this.monsterSpawn) {
+				for (final Spawnable spawnPoint : this.monsterSpawn) {
 					spawnPoint.spawnMonster(this);
 					spawned++;
 					if (spawned >= numShouldSpawn) {
@@ -1690,9 +1690,9 @@ public class GameMap {
 			final int numShouldSpawn = this.maxRegularSpawn - this.spawnedMonstersOnMap.get();
 			if (numShouldSpawn > 0) {
 				int spawned = 0;
-				final List<Spawns> randomSpawn = Lists.newArrayList(this.monsterSpawn);
+				final List<Spawnable> randomSpawn = Lists.newArrayList(this.monsterSpawn);
 				Collections.shuffle(randomSpawn);
-				for (final Spawns spawnPoint : randomSpawn) {
+				for (final Spawnable spawnPoint : randomSpawn) {
 					if (spawnPoint.shouldSpawn()) {
 						spawnPoint.spawnMonster(this);
 						spawned++;

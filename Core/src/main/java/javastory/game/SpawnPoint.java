@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javastory.channel.life.Monster;
 import javastory.channel.life.MonsterListener;
-import javastory.channel.life.Spawns;
+import javastory.channel.life.Spawnable;
 import javastory.channel.maps.GameMap;
 import javastory.tools.packets.ChannelPackets;
 
-public class SpawnPoint extends Spawns {
+public class SpawnPoint implements Spawnable {
 
 	private final Monster monster;
 	private final Point pos;

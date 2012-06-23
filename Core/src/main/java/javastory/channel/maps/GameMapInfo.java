@@ -80,8 +80,6 @@ public final class GameMapInfo {
 		} else {
 			this.areas = Lists.newArrayList();
 		}
-		
-		
 	}
 
 	private FootholdTree loadFootholds(WzData data) {

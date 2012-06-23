@@ -25,7 +25,7 @@ import javastory.channel.maps.GameMap;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 
-public class SpawnPointAreaBoss extends Spawns {
+public class SpawnPointAreaBoss implements Spawnable {
 
 	private final Monster monster;
 	private final Point pos1;

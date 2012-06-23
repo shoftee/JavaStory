@@ -20,12 +20,12 @@ package javastory.channel.life;
 
 import javastory.channel.maps.GameMap;
 
-public abstract class Spawns {
-	public abstract Monster getMonster();
+public interface Spawnable {
+	public Monster getMonster();
 
-	public abstract byte getCarnivalTeam();
+	public byte getCarnivalTeam();
 
-	public abstract boolean shouldSpawn();
+	public boolean shouldSpawn();
 
-	public abstract Monster spawnMonster(GameMap map);
+	public Monster spawnMonster(GameMap map);
 }

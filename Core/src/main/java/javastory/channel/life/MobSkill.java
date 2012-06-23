@@ -213,10 +213,10 @@ public class MobSkill {
 			final BanishInfo info = monster.getStats().getBanishInfo();
 			if (this.lt != null && this.rb != null && skill) {
 				for (final ChannelCharacter chr : this.getPlayersInRange(monster, player)) {
-					chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
+					chr.changeMapBanish(info.Map, info.Portal, info.Message);
 				}
 			} else {
-				player.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
+				player.changeMapBanish(info.Map, info.Portal, info.Message);
 			}
 			break;
 		case 131: // Mist
