@@ -36,6 +36,7 @@ public class PortalFactory {
 
 		public GenericPortal(final int currentDoorId, final WzData data) {
 			this.type = WzDataTool.getInt("pt", data);
+			this.name = WzDataTool.getString("pn", data);
 
 			if (this.type == Portal.DOOR_PORTAL) {
 				this.id = currentDoorId;
@@ -43,7 +44,6 @@ public class PortalFactory {
 				this.id = Integer.parseInt(this.name);
 			}
 
-			this.name = WzDataTool.getString("pn", data);
 			this.target = WzDataTool.getString("tn", data);
 			this.targetmap = WzDataTool.getInt("tm", data);
 			this.position = WzDataTool.getPoint("x", "y", data);

@@ -44,20 +44,12 @@ public final class Database implements ConnectionPool {
 		final String dbConfigFilename = System.getProperty("dbConfigFilename", "database.properties");
 		final Properties properties = new Properties();
 
-		InputStreamReader reader = null;
-		try {
-			reader = new FileReader(dbConfigFilename);
+		try (InputStreamReader reader = new FileReader(dbConfigFilename)) {
 			properties.load(reader);
 		} catch (final IOException ex) {
 			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-		} finally {
-			try {
-				reader.close();
-			} catch (final IOException ex) {
-				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-			}
 		}
-		
+
 		return Maps.fromProperties(properties);
 	}
 
@@ -73,9 +65,11 @@ public final class Database implements ConnectionPool {
 				return new PooledConnection(newConnection, this);
 			} catch (final SQLException exception) {
 				Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exception);
+				return null;
 			}
+		} else {
+			return fromQueue;
 		}
-		return fromQueue;
 	}
 
 	@Override

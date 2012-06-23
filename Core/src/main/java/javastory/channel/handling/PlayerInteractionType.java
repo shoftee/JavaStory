@@ -26,7 +26,7 @@ public enum PlayerInteractionType {
 	byte value;
 
 	private PlayerInteractionType(int value) {
-		value = (byte) value;
+		this.value = (byte) value;
 	}
 
 	public byte toNumber() {

@@ -42,7 +42,7 @@ public abstract class PacketHandler extends IoHandlerAdapter {
 	public void sessionOpened(final IoSession session) throws Exception {
 		final InetSocketAddress address = (InetSocketAddress) session.getRemoteAddress();
 		final String ip = address.getAddress().getHostAddress();
-		if (this.blockedIPs.contains(address)) {
+		if (this.blockedIPs.contains(ip)) {
 			session.close(true);
 			return;
 		}
