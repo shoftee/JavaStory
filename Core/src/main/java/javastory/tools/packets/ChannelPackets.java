@@ -18,6 +18,7 @@ import javastory.channel.ChannelServer;
 import javastory.channel.DiseaseValue;
 import javastory.channel.DoorInfo;
 import javastory.channel.Guild;
+import javastory.channel.GuildEmblem;
 import javastory.channel.GuildMember;
 import javastory.channel.GuildSummary;
 import javastory.channel.Party;
@@ -122,7 +123,7 @@ public final class ChannelPackets {
 		PacketHelper.addRocksInfo(builder, chr);
 		PacketHelper.addMonsterBookInfo(builder, chr);
 		chr.writeQuestInfoPacket(builder); // for every questinfo: int16_t questid,
-										// string questdata
+											// string questdata
 		builder.writeAsShort(0); // PQ rank
 		builder.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
 
@@ -187,14 +188,14 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket updateSp(final ChannelCharacter chr, final boolean itemReaction) { // this
-																							// will
-																							// do..
+		// will
+		// do..
 		return updateSp(chr, itemReaction, false);
 	}
 
 	public static GamePacket updateSp(final ChannelCharacter chr, final boolean itemReaction, final boolean overrideJob) { // this
-																														// will
-																														// do..
+																															// will
+																															// do..
 		final PacketBuilder builder = new PacketBuilder();
 		builder.writeAsShort(ServerPacketOpcode.UPDATE_STATS.getValue());
 		builder.writeAsByte(itemReaction);
@@ -757,10 +758,8 @@ public final class ChannelPackets {
 
 			if (gs != null) {
 				builder.writeLengthPrefixedString(gs.getName());
-				builder.writeAsShort(gs.getLogoBG());
-				builder.writeByte(gs.getLogoBGColor());
-				builder.writeAsShort(gs.getLogo());
-				builder.writeByte(gs.getLogoColor());
+				final GuildEmblem emblem = gs.getEmblem();
+				emblem.writeTo(builder);
 			} else {
 				builder.writeInt(0);
 				builder.writeInt(0);
@@ -768,13 +767,12 @@ public final class ChannelPackets {
 		}
 		builder.writeAsShort(0);
 		builder.writeAsShort(1016);
-		builder.writeInt(0); // i think
-		builder.writeInt(chr.getBuffedValue(BuffStat.MORPH) != null ? 2 : 0); // Should
-																				// be
-																				// a
-																				// byte,
-																				// but
-																				// nvm
+		
+		// i think
+		builder.writeInt(0);
+
+		// Should be a byte, but nvm
+		builder.writeInt(chr.getBuffedValue(BuffStat.MORPH) != null ? 2 : 0);
 
 		long buffmask = 0;
 		Integer buffvalue = null;
@@ -943,8 +941,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket closeRangeAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final List<AttackPair> damage,
-		final int lvl) {
+	public static GamePacket closeRangeAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation,
+		final byte speed, final List<AttackPair> damage, final int lvl) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.CLOSE_RANGE_ATTACK.getValue());
@@ -991,8 +989,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket rangedAttack(final int cid, final byte tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final int itemid,
-		final List<AttackPair> damage, final Point pos, final int lvl) {
+	public static GamePacket rangedAttack(final int cid, final byte tbyte, final int skill, final int level, final byte display, final byte animation,
+		final byte speed, final int itemid, final List<AttackPair> damage, final Point pos, final int lvl) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.RANGED_ATTACK.getValue());
@@ -1027,8 +1025,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket magicAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation, final byte speed, final List<AttackPair> damage,
-		final int charge, final int lvl) {
+	public static GamePacket magicAttack(final int cid, final int tbyte, final int skill, final int level, final byte display, final byte animation,
+		final byte speed, final List<AttackPair> damage, final int charge, final int lvl) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.MAGIC_ATTACK.getValue());
@@ -1390,8 +1388,8 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket damagePlayer(final int skill, final int monsteridfrom, final int cid, final int damage, final int fake, final byte direction, final int reflect, final boolean isPowerGuard,
-		final int oid, final int pos_x, final int pos_y) {
+	public static GamePacket damagePlayer(final int skill, final int monsteridfrom, final int cid, final int damage, final int fake, final byte direction,
+		final int reflect, final boolean isPowerGuard, final int oid, final int pos_x, final int pos_y) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.DAMAGE_PLAYER.getValue());
@@ -2917,10 +2915,8 @@ public final class ChannelPackets {
 		guild.addMemberData(builder);
 
 		builder.writeInt(guild.getCapacity());
-		builder.writeAsShort(guild.getLogoBG());
-		builder.writeAsByte(guild.getLogoBGColor());
-		builder.writeAsShort(guild.getLogo());
-		builder.writeAsByte(guild.getLogoColor());
+		final GuildEmblem emblem = guild.getEmblem();
+
 		builder.writeLengthPrefixedString(guild.getNotice());
 		builder.writeInt(guild.getGuildPoints());
 		builder.writeInt(0);
@@ -3066,16 +3062,14 @@ public final class ChannelPackets {
 		return builder.getPacket();
 	}
 
-	public static GamePacket guildEmblemChange(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) {
+	public static GamePacket guildEmblemChange(final int guildId, final GuildEmblem emblem) {
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.GUILD_OPERATION.getValue());
 		builder.writeAsByte(0x42);
-		builder.writeInt(gid);
-		builder.writeAsShort(bg);
-		builder.writeByte(bgcolor);
-		builder.writeAsShort(logo);
-		builder.writeByte(logocolor);
+		builder.writeInt(guildId);
+
+		emblem.writeTo(builder);
 
 		return builder.getPacket();
 	}
@@ -3232,7 +3226,7 @@ public final class ChannelPackets {
 	}
 
 	public static GamePacket showMagnet(final int mobid, final byte success) { // Monster
-																	// Magnet
+		// Magnet
 		final PacketBuilder builder = new PacketBuilder();
 
 		builder.writeAsShort(ServerPacketOpcode.SHOW_MAGNET.getValue());
@@ -3653,7 +3647,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(ServerPacketOpcode.ENERGY.getValue());
 		builder.writeLengthPrefixedString("massacre_" + (type == 0 ? "cool" : type == 1 ? "kill" : "miss"));
 		builder.writeLengthPrefixedString(Integer.toString(amount));
-//mc.getClient().getSession().writeAsByte(MaplePacketCreator.updatePyramidInfo(1, mc.getInstance(PartyQuest.NETT_PYRAMID).gainReturnKills());  
+		//mc.getClient().getSession().writeAsByte(MaplePacketCreator.updatePyramidInfo(1, mc.getInstance(PartyQuest.NETT_PYRAMID).gainReturnKills());  
 		return builder.getPacket();
 	}
 

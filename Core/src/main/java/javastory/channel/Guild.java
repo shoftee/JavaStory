@@ -38,7 +38,8 @@ public final class Guild {
 	private boolean rebuildIndex = true;
 	// Guild information fields:
 	private String name, notice;
-	private int id, guildPoints, logo, logoColor, leader, capacity, logoBG, logoBGColor, signature;
+	private GuildEmblem emblem;
+	private int id, guildPoints, leader, capacity, signature;
 	private final Map<MemberRank, String> rankTitles = Maps.newEnumMap(MemberRank.class);
 	private final Map<Integer, GuildMember> members = new CopyOnWriteMap<>();
 	// Misc filds:
@@ -47,24 +48,81 @@ public final class Guild {
 
 	public Guild(final GuildMember initiator) {
 		super();
-		final int guildid = initiator.getGuildId();
+		final Connection connection = Database.getConnection();
 		try {
-			final Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM guilds WHERE guildid=" + guildid);
-			ResultSet rs = ps.executeQuery();
+			final int guildId = initiator.getGuildId();
+			try (	PreparedStatement ps = getGuildSelectStatement(connection, guildId);
+					ResultSet rs = ps.executeQuery()) {
+
+				if (!rs.first()) {
+					this.id = -1;
+					return;
+				}
+
+				this.id = guildId;
+				this.name = rs.getString("name");
+				this.guildPoints = rs.getInt("GP");
+
+				this.emblem = new GuildEmblem(rs);
+				this.capacity = rs.getInt("capacity");
+
+				this.rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
+				this.rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
+				this.rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
+				this.rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
+				this.rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
+
+				this.leader = rs.getInt("leader");
+				this.notice = rs.getString("notice");
+				this.signature = rs.getInt("signature");
+			}
+
+			try (	PreparedStatement ps = getSelectMemberInfoStatement(guildId, connection);
+					ResultSet rs = ps.executeQuery()) {
+				if (!rs.first()) {
+					System.err.println("No members in guild.  Impossible...");
+					return;
+				}
+				do {
+					final GuildMember member = new GuildMember(rs);
+					final int characterId = member.getCharacterId();
+					this.members.put(characterId, member);
+				} while (rs.next());
+				this.setOnline(initiator.getCharacterId(), true, initiator.getChannel());
+			}
+		} catch (final SQLException se) {
+			System.err.println("unable to read guild information from sql" + se);
+			return;
+		}
+	}
+
+	private PreparedStatement getSelectMemberInfoStatement(final int guildid, final Connection connection) throws SQLException {
+		final String sql = "SELECT `id`, `name`, `level`, `job`, `guildrank` FROM `characters` WHERE `guildid` = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, guildid);
+		return ps;
+	}
+
+	private PreparedStatement getGuildSelectStatement(final Connection connection, final int guildId) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("SELECT * FROM `guilds` WHERE `guildid` = ?");
+		ps.setInt(1, guildId);
+		return ps;
+	}
+
+	public Guild(final int guildId) {
+		// retrieves the guild from database, with guildId
+		final Connection connection = Database.getConnection();
+		try (	PreparedStatement ps = getGuildSelectStatement(connection, guildId);
+				ResultSet rs = ps.executeQuery()) {
 			if (!rs.first()) {
-				rs.close();
-				ps.close();
+				// no result... most likely to be someone from a disbanded guild that got rolled back
 				this.id = -1;
 				return;
 			}
-			this.id = guildid;
+			this.id = guildId;
 			this.name = rs.getString("name");
 			this.guildPoints = rs.getInt("GP");
-			this.logo = rs.getInt("logo");
-			this.logoColor = rs.getInt("logoColor");
-			this.logoBG = rs.getInt("logoBG");
-			this.logoBGColor = rs.getInt("logoBGColor");
+			this.emblem = new GuildEmblem(rs);
 			this.capacity = rs.getInt("capacity");
 			this.rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
 			this.rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
@@ -74,107 +132,35 @@ public final class Guild {
 			this.leader = rs.getInt("leader");
 			this.notice = rs.getString("notice");
 			this.signature = rs.getInt("signature");
-			rs.close();
-			ps.close();
-			ps = con.prepareStatement("SELECT id, name, level, job, guildrank FROM characters WHERE guildid = ?");
-			ps.setInt(1, guildid);
-			rs = ps.executeQuery();
-			if (!rs.first()) {
-				System.err.println("No members in guild.  Impossible...");
-				rs.close();
-				ps.close();
-				return;
-			}
-			do {
-				final GuildMember member = new GuildMember(rs);
-				final int characterId = member.getCharacterId();
-				this.members.put(characterId, member);
-			} while (rs.next());
-			this.setOnline(initiator.getCharacterId(), true, initiator.getChannel());
-			rs.close();
-			ps.close();
 		} catch (final SQLException se) {
 			System.err.println("unable to read guild information from sql" + se);
 			return;
 		}
 	}
 
-	public Guild(final int guildId) {
-		// retrieves the guild from database, with guildid
-		final Connection con = Database.getConnection();
-		try (PreparedStatement ps = con.prepareStatement("SELECT * FROM `guilds` WHERE `guildid` = ?")) {
-			ps.setInt(1, guildId);
-			try (ResultSet rs = ps.executeQuery()) {
-				if (!rs.first()) { // no result... most likely to be someone from a disbanded guild that got rolled back
-					rs.close();
-					ps.close();
-					this.id = -1;
-					return;
-				}
-				this.id = guildId;
-				this.name = rs.getString("name");
-				this.guildPoints = rs.getInt("GP");
-				this.logo = rs.getInt("logo");
-				this.logoColor = rs.getInt("logoColor");
-				this.logoBG = rs.getInt("logoBG");
-				this.logoBGColor = rs.getInt("logoBGColor");
-				this.capacity = rs.getInt("capacity");
-				this.rankTitles.put(MemberRank.MASTER, rs.getString("rank1title"));
-				this.rankTitles.put(MemberRank.JR_MASTER, rs.getString("rank2title"));
-				this.rankTitles.put(MemberRank.MEMBER_HIGH, rs.getString("rank3title"));
-				this.rankTitles.put(MemberRank.MEMBER_MIDDLE, rs.getString("rank4title"));
-				this.rankTitles.put(MemberRank.MEMBER_LOW, rs.getString("rank5title"));
-				this.leader = rs.getInt("leader");
-				this.notice = rs.getString("notice");
-				this.signature = rs.getInt("signature");
-			}
+	private void deleteFromDatabase() {
+		final Connection connection = Database.getConnection();
+		try (	PreparedStatement unmarkCharacters = getUnmarkCharactersStatement(connection);
+				PreparedStatement deleteGuild = getDeleteGuildStatement(connection)) {
+
+			unmarkCharacters.execute();
+			deleteGuild.execute();
+			this.broadcast(ChannelPackets.guildDisband(this.id));
 		} catch (final SQLException se) {
-			System.err.println("unable to read guild information from sql" + se);
-			return;
+			System.err.println("Error deleting guild from database: " + se);
 		}
 	}
 
-	private void writeToDB(final boolean bDisband) {
-		try {
-			final Connection con = Database.getConnection();
-			if (!bDisband) {
-				final StringBuilder buf = new StringBuilder();
-				buf.append("UPDATE guilds SET GP = ?, logo = ?, ");
-				buf.append("logoColor = ?, logoBG = ?, logoBGColor = ?, ");
-				buf.append("rank1title = ?, rank2title = ?, rank3title = ?, ");
-				buf.append("rank4title = ?, rank5title = ?, capacity = ?, ");
-				buf.append("notice = ? WHERE guildid = ?");
-				try (PreparedStatement ps = con.prepareStatement(buf.toString())) {
-					ps.setInt(1, this.guildPoints);
-					ps.setInt(2, this.logo);
-					ps.setInt(3, this.logoColor);
-					ps.setInt(4, this.logoBG);
-					ps.setInt(5, this.logoBGColor);
-					ps.setString(6, this.rankTitles.get(MemberRank.MASTER));
-					ps.setString(7, this.rankTitles.get(MemberRank.JR_MASTER));
-					ps.setString(8, this.rankTitles.get(MemberRank.MEMBER_HIGH));
-					ps.setString(9, this.rankTitles.get(MemberRank.MEMBER_MIDDLE));
-					ps.setString(10, this.rankTitles.get(MemberRank.MEMBER_LOW));
-					ps.setInt(11, this.capacity);
-					ps.setString(12, this.notice);
-					ps.setInt(13, this.id);
-					ps.execute();
-				}
-			} else {
-				PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = 0, guildrank = 5 WHERE guildid = ?");
-				ps.setInt(1, this.id);
-				ps.execute();
-				ps.close();
+	private PreparedStatement getDeleteGuildStatement(final Connection connection) throws SQLException {
+		final PreparedStatement ps = connection.prepareStatement("DELETE FROM guilds WHERE guildid = ?");
+		ps.setInt(1, this.id);
+		return ps;
+	}
 
-				ps = con.prepareStatement("DELETE FROM guilds WHERE guildid = ?");
-				ps.setInt(1, this.id);
-				ps.execute();
-				ps.close();
-				this.broadcast(ChannelPackets.guildDisband(this.id));
-			}
-		} catch (final SQLException se) {
-			System.err.println("Error saving guild to SQL" + se);
-		}
+	private PreparedStatement getUnmarkCharactersStatement(final Connection connection) throws SQLException {
+		final PreparedStatement ps = connection.prepareStatement("UPDATE characters SET guildid = 0, guildrank = 5 WHERE guildid = ?");
+		ps.setInt(1, this.id);
+		return ps;
 	}
 
 	public int getId() {
@@ -189,36 +175,8 @@ public final class Guild {
 		return this.guildPoints;
 	}
 
-	public int getLogo() {
-		return this.logo;
-	}
-
-	public void setLogo(final int l) {
-		this.logo = l;
-	}
-
-	public int getLogoColor() {
-		return this.logoColor;
-	}
-
-	public void setLogoColor(final int c) {
-		this.logoColor = c;
-	}
-
-	public int getLogoBG() {
-		return this.logoBG;
-	}
-
-	public void setLogoBG(final int bg) {
-		this.logoBG = bg;
-	}
-
-	public int getLogoBGColor() {
-		return this.logoBGColor;
-	}
-
-	public void setLogoBGColor(final int c) {
-		this.logoBGColor = c;
+	public GuildEmblem getEmblem() {
+		return this.emblem;
 	}
 
 	public String getNotice() {
@@ -335,36 +293,53 @@ public final class Guild {
 
 	// function to create guild, returns the guild id if successful, 0 if not
 	public static int createGuild(final int leaderId, final String name) {
+		final Connection connection = Database.getConnection();
 		try {
-			final Connection con = Database.getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT guildid FROM guilds WHERE name = ?");
-			ps.setString(1, name);
-			ResultSet rs = ps.executeQuery();
-			if (rs.first()) {// name taken
-				rs.close();
-				ps.close();
-				return 0;
+			try (	PreparedStatement selectNameStatement = getSelectGuildStatement(connection, name);
+					ResultSet rs = selectNameStatement.executeQuery()) {
+
+				if (rs.first()) {
+					// the guild name is taken.
+					// TODO: shouldn't we do this a bit earlier?
+					return 0;
+				}
 			}
-			ps.close();
-			rs.close();
-			ps = con.prepareStatement("INSERT INTO guilds (`leader`, `name`, `signature`, `alliance`) VALUES (?, ?, ?, 0)");
-			ps.setInt(1, leaderId);
-			ps.setString(2, name);
-			ps.setInt(3, (int) System.currentTimeMillis());
-			ps.execute();
-			ps.close();
-			ps = con.prepareStatement("SELECT guildid FROM guilds WHERE leader = ?");
-			ps.setInt(1, leaderId);
-			rs = ps.executeQuery();
-			rs.first();
-			final int result = rs.getInt("guildid");
-			rs.close();
-			ps.close();
-			return result;
+
+			try (PreparedStatement ps = getInsertGuildStatement(connection, leaderId, name)) {
+				ps.execute();
+			}
+
+			try (	PreparedStatement ps = getSelectGuildByLeaderStatement(connection, leaderId);
+					ResultSet rs = ps.executeQuery()) {
+
+				rs.first();
+				final int result = rs.getInt("guildid");
+				return result;
+			}
 		} catch (final SQLException se) {
-			System.err.println("SQL THROW" + se);
+			System.err.println("Error during guild creation: " + se);
 			return 0;
 		}
+	}
+
+	private static PreparedStatement getSelectGuildByLeaderStatement(final Connection connection, final int leaderId) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("SELECT guildid FROM guilds WHERE leader = ?");
+		ps.setInt(1, leaderId);
+		return ps;
+	}
+
+	private static PreparedStatement getInsertGuildStatement(final Connection connection, final int leaderId, final String name) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("INSERT INTO guilds (`leader`, `name`, `signature`, `alliance`) VALUES (?, ?, ?, 0)");
+		ps.setInt(1, leaderId);
+		ps.setString(2, name);
+		ps.setInt(3, (int) System.currentTimeMillis());
+		return ps;
+	}
+
+	private static PreparedStatement getSelectGuildStatement(final Connection connection, final String name) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("SELECT guildid FROM guilds WHERE name = ?");
+		ps.setString(1, name);
+		return ps;
 	}
 
 	public boolean addGuildMember(final GuildMember member) {
@@ -450,80 +425,109 @@ public final class Guild {
 	}
 
 	public void changeRankTitle(final String[] titles) {
+		Map<MemberRank, String> newTitles = Maps.newHashMap();
 		for (int i = 1; i <= 5; i++) {
 			final MemberRank rank = MemberRank.fromNumber(i);
-			this.rankTitles.put(rank, titles[i - 1]);
+			newTitles.put(rank, titles[i - 1]);
 		}
-		this.broadcast(ChannelPackets.rankTitleChange(this.id, titles));
 
 		final Connection con = Database.getConnection();
-		try (PreparedStatement ps = con
-			.prepareStatement("UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?")) {
-			ps.setString(1, this.rankTitles.get(MemberRank.MASTER));
-			ps.setString(2, this.rankTitles.get(MemberRank.JR_MASTER));
-			ps.setString(3, this.rankTitles.get(MemberRank.MEMBER_HIGH));
-			ps.setString(4, this.rankTitles.get(MemberRank.MEMBER_MIDDLE));
-			ps.setString(5, this.rankTitles.get(MemberRank.MEMBER_LOW));
-			ps.setInt(6, this.id);
+		try (PreparedStatement ps = getUpdateMemberRanksStatement(con, newTitles)) {
 			ps.execute();
+
+			this.rankTitles.putAll(newTitles);
+			this.broadcast(ChannelPackets.rankTitleChange(this.id, titles));
 		} catch (final SQLException ex) {
 			System.err.println("Could not save rank titles: " + ex);
 		}
 	}
 
+	private PreparedStatement getUpdateMemberRanksStatement(final Connection connection, final Map<MemberRank, String> newTitles) throws SQLException {
+		final String sql = "UPDATE guilds SET rank1title = ?, rank2title = ?, rank3title = ?, rank4title = ?, rank5title = ? WHERE guildid = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setString(1, newTitles.get(MemberRank.MASTER));
+		ps.setString(2, newTitles.get(MemberRank.JR_MASTER));
+		ps.setString(3, newTitles.get(MemberRank.MEMBER_HIGH));
+		ps.setString(4, newTitles.get(MemberRank.MEMBER_MIDDLE));
+		ps.setString(5, newTitles.get(MemberRank.MEMBER_LOW));
+		ps.setInt(6, this.id);
+		return ps;
+	}
+
 	public void disbandGuild() {
-		this.writeToDB(true);
+		this.deleteFromDatabase();
 		this.broadcast(null, -1, GuildOperationType.DISBAND);
 	}
 
-	public void setGuildEmblem(final short bg, final byte bgcolor, final short logo, final byte logocolor) {
-		this.logoBG = bg;
-		this.logoBGColor = bgcolor;
-		this.logo = logo;
-		this.logoColor = logocolor;
-		this.broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
-		final Connection con = Database.getConnection();
-		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?")) {
-			ps.setInt(1, logo);
-			ps.setInt(2, this.logoColor);
-			ps.setInt(3, this.logoBG);
-			ps.setInt(4, this.logoBGColor);
-			ps.setInt(5, this.id);
+	public void setGuildEmblem(final short fgStyle, final byte fgColor, final short bgStyle, final byte bgColor) {
+		final GuildEmblem newEmblem = new GuildEmblem(fgStyle, fgColor, bgStyle, bgColor);
+
+		final Connection connection = Database.getConnection();
+		try (PreparedStatement ps = getUpdateEmblemStatement(connection, newEmblem)) {
 			ps.execute();
+
+			this.emblem = newEmblem;
+			this.broadcast(null, -1, GuildOperationType.EMBELMCHANGE);
 		} catch (final SQLException ex) {
 			System.err.println("Could not save guild emblem: " + ex);
 		}
 	}
 
+	private PreparedStatement getUpdateEmblemStatement(final Connection connection, GuildEmblem newEmblem) throws SQLException {
+		final String sql = "UPDATE guilds SET logo = ?, logoColor = ?, logoBG = ?, logoBGColor = ? WHERE guildid = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, newEmblem.getFgStyle());
+		ps.setInt(2, newEmblem.getFgColor());
+		ps.setInt(3, newEmblem.getBgStyle());
+		ps.setInt(4, newEmblem.getBgColor());
+		ps.setInt(5, this.id);
+		return ps;
+	}
+
 	public boolean increaseCapacity() {
-		if (this.capacity + GUILD_CAPACITY_STEP > GUILD_CAPACITY_MAX) {
+		int newCapacity = this.capacity + GUILD_CAPACITY_STEP;
+		if (newCapacity > GUILD_CAPACITY_MAX) {
 			return false;
 		}
-		this.capacity += 5;
-		this.broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
-		final Connection con = Database.getConnection();
-		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?")) {
-			ps.setInt(1, this.capacity);
-			ps.setInt(2, this.id);
+
+		final Connection connection = Database.getConnection();
+		try (PreparedStatement ps = getUpdateCapacityStatement(connection, newCapacity)) {
 			ps.execute();
+
+			this.capacity = newCapacity;
+			this.broadcast(ChannelPackets.guildCapacityChange(this.id, this.capacity));
 		} catch (final SQLException ex) {
 			System.err.println("Could not save guild member capacity: " + ex);
 		}
 		return true;
 	}
 
-	public void gainGuildPoints(final int amount) {
-		this.guildPoints += amount;
-		this.guildMessage(ChannelPackets.updateGuildPoints(this.id, this.guildPoints));
-		final Connection con = Database.getConnection();
+	private PreparedStatement getUpdateCapacityStatement(final Connection connection, int newCapacity) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("UPDATE guilds SET capacity = ? WHERE guildid = ?");
+		ps.setInt(1, newCapacity);
+		ps.setInt(2, this.id);
+		return ps;
+	}
 
-		try (PreparedStatement ps = con.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?")) {
-			ps.setInt(1, this.guildPoints);
-			ps.setInt(2, this.id);
+	public void gainGuildPoints(final int amount) {
+		int newAmount = this.guildPoints + amount;
+
+		final Connection connection = Database.getConnection();
+		try (PreparedStatement ps = getUpdateGuildPointsStatement(connection, newAmount)) {
 			ps.execute();
+
+			this.guildPoints = newAmount;
+			this.guildMessage(ChannelPackets.updateGuildPoints(this.id, this.guildPoints));
 		} catch (final SQLException e) {
 			System.err.println("Saving guild point ERROR" + e);
 		}
+	}
+
+	private PreparedStatement getUpdateGuildPointsStatement(final Connection connection, int newAmount) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement("UPDATE guilds SET gp = ? WHERE guildid = ?");
+		ps.setInt(1, newAmount);
+		ps.setInt(2, this.id);
+		return ps;
 	}
 
 	public void addMemberData(final PacketBuilder builder) {

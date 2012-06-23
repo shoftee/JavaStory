@@ -22,7 +22,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -75,11 +74,11 @@ public class CharacterTransfer implements Externalizable {
 	public final Map<Integer, SkillEntry> Skills = Maps.newLinkedHashMap();
 
 	public CharacterTransfer() {
-		this.Timestamp = Calendar.getInstance().getTimeInMillis();
+		this.Timestamp = System.currentTimeMillis();
 	}
 
 	public CharacterTransfer(final ChannelCharacter chr) {
-		this.Timestamp = Calendar.getInstance().getTimeInMillis();
+		this.Timestamp = System.currentTimeMillis();
 		
 		this.CharacterId = chr.getId();
 		this.AccountId = chr.getAccountId();

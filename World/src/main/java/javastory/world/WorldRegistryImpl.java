@@ -333,7 +333,7 @@ public class WorldRegistryImpl extends GenericRemoteObject implements WorldRegis
 	public void setGuildEmblem(final int gid, final short bg, final byte bgcolor, final short logo, final byte logocolor) throws RemoteException {
 		final Guild guild = this.guilds.get(gid);
 		if (guild != null) {
-			guild.setGuildEmblem(bg, bgcolor, logo, logocolor);
+			guild.setGuildEmblem(logo, logocolor, bg, bgcolor);
 		}
 	}
 

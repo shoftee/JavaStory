@@ -44,7 +44,7 @@ public class PlayerStats implements PacketWritable {
 	}
 
 	@Override
-	public void connectData(final PacketBuilder builder) {
+	public void writeTo(final PacketBuilder builder) {
 		builder.writeAsShort(this.STR);
 		builder.writeAsShort(this.DEX);
 		builder.writeAsShort(this.INT);

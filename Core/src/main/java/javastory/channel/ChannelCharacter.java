@@ -1984,7 +1984,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 	public void silentGiveBuffs(final Collection<PlayerBuffValueHolder> buffs) {
 		for (final PlayerBuffValueHolder value : buffs) {
-			value.effect.silentApplyBuff(this, value.startTime);
+			value.Effect.silentApplyBuff(this, value.StartTime);
 		}
 	}
 

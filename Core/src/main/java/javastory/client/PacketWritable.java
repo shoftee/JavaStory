@@ -7,5 +7,5 @@ import javastory.io.PacketBuilder;
  * @author shoftee
  */
 public interface PacketWritable {
-	public void connectData(PacketBuilder builder);
+	public void writeTo(PacketBuilder builder);
 }

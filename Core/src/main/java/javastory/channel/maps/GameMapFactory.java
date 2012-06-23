@@ -107,7 +107,7 @@ public final class GameMapFactory {
 		if (areaData != null) {
 			for (final WzData area : areaData) {
 				final Rectangle mapArea = WzDataTool.getRectangle("x1", "y1", "x2", "y2", area);
-				map.addMapleArea(mapArea);
+				map.addArea(mapArea);
 			}
 		}
 
@@ -250,7 +250,7 @@ public final class GameMapFactory {
 				final int x2 = WzDataTool.getInt("x2", area);
 				final int y2 = WzDataTool.getInt("y2", area);
 				final Rectangle mapArea = new Rectangle(x1, y1, x2 - x1, y2 - y1);
-				map.addMapleArea(mapArea);
+				map.addArea(mapArea);
 			}
 		}
 

@@ -24,36 +24,18 @@ public class GuildSummary implements Serializable {
 
 	public static final long serialVersionUID = 3565477792085301248L;
 	private final String name;
-	private final short logoBG;
-	private final byte logoBGColor;
-	private final short logo;
-	private final byte logoColor;
+	private GuildEmblem emblem;
 
 	public GuildSummary(final Guild g) {
 		this.name = g.getName();
-		this.logoBG = (short) g.getLogoBG();
-		this.logoBGColor = (byte) g.getLogoBGColor();
-		this.logo = (short) g.getLogo();
-		this.logoColor = (byte) g.getLogoColor();
+		this.emblem = g.getEmblem();
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	public short getLogoBG() {
-		return this.logoBG;
-	}
-
-	public byte getLogoBGColor() {
-		return this.logoBGColor;
-	}
-
-	public short getLogo() {
-		return this.logo;
-	}
-
-	public byte getLogoColor() {
-		return this.logoColor;
+	public GuildEmblem getEmblem() {
+		return this.emblem;
 	}
 }

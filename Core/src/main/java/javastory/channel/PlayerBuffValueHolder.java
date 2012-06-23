@@ -25,11 +25,11 @@ import javastory.channel.server.StatEffect;
 public class PlayerBuffValueHolder implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	public long startTime;
-	public StatEffect effect;
+	public final long StartTime;
+	public final StatEffect Effect;
 
 	public PlayerBuffValueHolder(final long startTime, final StatEffect effect) {
-		this.startTime = startTime;
-		this.effect = effect;
+		this.StartTime = startTime;
+		this.Effect = effect;
 	}
 }

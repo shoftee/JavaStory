@@ -34,7 +34,7 @@ public final class GameCharacterPacket {
 		builder.writeZeroBytes(24);
 		builder.writeAsByte(chr.getLevel()); // level
 		builder.writeAsShort(chr.getJobId()); // job
-		chr.getStats().connectData(builder);
+		chr.getStats().writeTo(builder);
 		builder.writeAsShort(chr.getRemainingAp()); // remaining ap
 		if (Jobs.isEvan(chr.getJobId())) {
 			final int size = chr.getRemainingSpSize();

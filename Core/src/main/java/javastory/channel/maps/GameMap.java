@@ -1393,7 +1393,7 @@ public class GameMap {
 		return this.portals.get(portalid);
 	}
 
-	public final void addMapleArea(final Rectangle rec) {
+	public final void addArea(final Rectangle rec) {
 		this.areas.add(rec);
 	}
 

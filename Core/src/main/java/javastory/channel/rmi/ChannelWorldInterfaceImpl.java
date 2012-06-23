@@ -351,7 +351,7 @@ public class ChannelWorldInterfaceImpl extends GenericRemoteObject implements Ch
 	@Override
 	public void changeEmblem(final int gid, final Collection<Integer> affectedPlayers, final GuildSummary mgs) throws RemoteException {
 		ChannelServer.getInstance().updateGuildSummary(gid, mgs);
-		this.sendPacket(affectedPlayers, ChannelPackets.guildEmblemChange(gid, mgs.getLogoBG(), mgs.getLogoBGColor(), mgs.getLogo(), mgs.getLogoColor()), -1);
+		this.sendPacket(affectedPlayers, ChannelPackets.guildEmblemChange(gid, mgs.getEmblem()), -1);
 		this.setGuildAndRank(affectedPlayers, -1, null, -1);	//respawn player
 	}
 
