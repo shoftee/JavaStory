@@ -2916,6 +2916,7 @@ public final class ChannelPackets {
 
 		builder.writeInt(guild.getCapacity());
 		final GuildEmblem emblem = guild.getEmblem();
+		emblem.writeTo(builder);
 
 		builder.writeLengthPrefixedString(guild.getNotice());
 		builder.writeInt(guild.getGuildPoints());
