@@ -42,7 +42,7 @@ public final class QuestInfoProvider {
 		final WzData questRequirements = requirements.getChildByPath(String.valueOf(questId));
 		final WzData questActions = actions.getChildByPath(String.valueOf(questId));
 
-		if (questRequirements == null && questActions == null) {
+		if (questRequirements == null || questActions == null) {
 			return null;
 		}
 		//-------------------------------------------------

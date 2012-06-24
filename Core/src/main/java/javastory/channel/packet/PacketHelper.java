@@ -26,8 +26,8 @@ import com.google.common.collect.Lists;
 public class PacketHelper {
 
 	private static final long FT_UT_OFFSET = 116444592000000000L; // EDT
-	public static final byte unk1[] = new byte[] { (byte) 0x00, (byte) 0x40, (byte) 0xE0, (byte) 0xFD };
-	public static final byte unk2[] = new byte[] { (byte) 0x3B, (byte) 0x37, (byte) 0x4F, (byte) 0x01 };
+	public static final byte WEIRD_BYTE_MAGIC[] = new byte[] { (byte) 0x00, (byte) 0x40, (byte) 0xE0, (byte) 0xFD, (byte) 0x3B, (byte) 0x37, (byte) 0x4F,
+																(byte) 0x01 };
 
 	public static long getFiletimeFromMillis(final long realTimestamp) {
 		final long time = realTimestamp / 1000 / 60; // convert to minutes
@@ -152,8 +152,7 @@ public class PacketHelper {
 																	// slots
 		builder.writeByte(chr.getEtcInventory().getSlotLimit()); // etc slots
 		builder.writeByte(chr.getCashInventory().getSlotLimit()); // cash slots
-		builder.writeBytes(unk1);
-		builder.writeBytes(unk2);
+		builder.writeBytes(WEIRD_BYTE_MAGIC);
 		Inventory inventory = chr.getEquippedItemsInventory();
 		final List<Item> equipped = Lists.newArrayList(inventory);
 
@@ -286,8 +285,7 @@ public class PacketHelper {
 				builder.writeInt(equip.getViciousHammer());
 				builder.writeZeroBytes(12);
 				builder.writeLong(0);
-				builder.writeBytes(unk1);
-				builder.writeBytes(unk2);
+				builder.writeBytes(WEIRD_BYTE_MAGIC);
 				builder.writeInt(-1);
 			} else {
 				builder.writeAsShort(item.getQuantity());

@@ -35,13 +35,20 @@ public class Mount implements Serializable {
 		if (!this.changed) {
 			return;
 		}
-		final Connection con = Database.getConnection();
-		try (PreparedStatement ps = con.prepareStatement("UPDATE mountdata set `Level` = ?, `Exp` = ?, `Fatigue` = ? WHERE characterid = ?")) {
-			ps.setInt(1, this.level);
-			ps.setInt(2, this.exp);
-			ps.setInt(3, this.fatigue);
-			ps.setInt(4, characterId);
+		final Connection connection = Database.getConnection();
+		try (PreparedStatement ps = getUpdateMountData(connection, characterId)) {
+			ps.execute();
 		}
+	}
+
+	private PreparedStatement getUpdateMountData(final Connection connection, final int characterId) throws SQLException {
+		final String sql = "UPDATE mountdata set `Level` = ?, `Exp` = ?, `Fatigue` = ? WHERE characterid = ?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, this.level);
+		ps.setInt(2, this.exp);
+		ps.setInt(3, this.fatigue);
+		ps.setInt(4, characterId);
+		return ps;
 	}
 
 	public int getId() {
@@ -114,10 +121,14 @@ public class Mount implements Serializable {
 	public void increaseFatigue() {
 		this.changed = true;
 		this.fatigue++;
-		if (this.fatigue > 100 && this.owner.get() != null) {
-			this.owner.get().dispelSkill(1004);
+		final ChannelCharacter player = this.owner.get();
+		if (player != null) {
+			if (this.fatigue > 100) {
+				player.dispelSkill(1004);
+
+			}
+			player.getMap().broadcastMessage(ChannelPackets.updateMount(player, false));
 		}
-		this.update();
 	}
 
 	public void increaseExp() {
@@ -132,12 +143,5 @@ public class Mount implements Serializable {
 			e = Randomizer.nextInt(28) + 25 / 2;
 		}
 		this.setExp(this.exp + e);
-	}
-
-	public void update() {
-		final ChannelCharacter chr = this.owner.get();
-		if (chr != null) {
-			chr.getMap().broadcastMessage(ChannelPackets.updateMount(chr, false));
-		}
 	}
 }

@@ -23,6 +23,7 @@ import javastory.wz.WzDataFileEntry;
 import javastory.wz.WzDataProvider;
 import javastory.wz.WzDataProviderFactory;
 import javastory.wz.WzDataTool;
+import javastory.wz.WzDataType;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -264,7 +265,7 @@ public final class ItemInfoProvider {
 		this.wholePriceCache.put(itemId, pEntry);
 		return pEntry;
 	}
-
+	
 	public final double getPrice(final int itemId) {
 		if (this.priceCache.containsKey(itemId)) {
 			return this.priceCache.get(itemId);
@@ -276,9 +277,9 @@ public final class ItemInfoProvider {
 		double pEntry = 0.0;
 		WzData pData = item.getChildByPath("info/unitPrice");
 		if (pData != null) {
-			try {
+			if (pData.getType() == WzDataType.DOUBLE) {
 				pEntry = WzDataTool.getDouble(pData);
-			} catch (final Exception e) {
+			} else {
 				pEntry = WzDataTool.getInt(pData);
 			}
 		} else {

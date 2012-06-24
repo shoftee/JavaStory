@@ -140,9 +140,11 @@ public class Shop {
 			} else {
 				price = ii.getPrice(item.getItemId());
 			}
-			final int recvMesos = (int) Math.max(Math.ceil(price * quantity), 0);
-			if (price != -1 && recvMesos > 0) {
-				c.getPlayer().gainMeso(recvMesos, false);
+			if (price > 0) {
+				final int recvMesos = (int) Math.ceil(price * quantity);
+				if (recvMesos > 0) {
+					c.getPlayer().gainMeso(recvMesos, false);
+				}
 			}
 			c.write(ChannelPackets.confirmShopTransaction((byte) 0x8));
 		}

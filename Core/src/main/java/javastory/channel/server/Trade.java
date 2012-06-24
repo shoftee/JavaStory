@@ -53,9 +53,8 @@ public final class Trade {
 			this.chr.gainMeso(this.meso, false, true, false);
 		}
 		this.meso = 0;
-		if (this.items != null) { // just to be on the safe side...
-			this.items.clear();
-		}
+
+		this.items.clear();
 		this.chr.getClient().write(ChannelPackets.getTradeCancel(this.tradingslot));
 	}
 
