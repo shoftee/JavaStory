@@ -15,13 +15,14 @@ import javastory.channel.client.MemberRank;
 import javastory.db.Database;
 import javastory.io.GamePacket;
 import javastory.io.PacketBuilder;
+import javastory.registry.Universe;
+import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.server.GameService;
 import javastory.server.Notes;
 import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.GuildOperationResponse;
 import javastory.world.core.GuildOperationType;
-import javastory.world.core.WorldRegistry;
 
 import org.apache.mina.util.CopyOnWriteMap;
 
@@ -208,7 +209,7 @@ public final class Guild {
 
 	// multi-purpose function that reaches every member of guild (except the character with exceptionId) in all channels with as little access to rmi as possible
 	private void broadcast(final GamePacket packet, final int exceptionId, final GuildOperationType operation) {
-		final WorldRegistry registry = GameService.getWorldRegistry();
+		final WorldRegistry registry = Universe.getWorldRegistry();
 		this.lock.lock();
 		try {
 			try {
@@ -241,7 +242,7 @@ public final class Guild {
 		if (!this.rebuildIndex) {
 			return;
 		}
-		final Set<Integer> activeChannels = GameService.getWorldRegistry().getActiveChannels();
+		final Set<Integer> activeChannels = Universe.getWorldRegistry().getActiveChannels();
 		this.channelIndex = HashMultimap.create();
 		for (final Map.Entry<Integer, GuildMember> entry : this.members.entrySet()) {
 			final GuildMember member = entry.getValue();
@@ -375,7 +376,7 @@ public final class Guild {
 		this.members.remove(targetId);
 		try {
 			if (target.isOnline()) {
-				GameService.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, 0, MemberRank.MEMBER_LOW);
+				Universe.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, 0, MemberRank.MEMBER_LOW);
 			} else {
 				Notes.send(initiator.getName(), target.getName(), "You have been expelled from the guild.");
 			}
@@ -389,7 +390,7 @@ public final class Guild {
 		final GuildMember target = this.getMember(targetId);
 		try {
 			if (target.isOnline()) {
-				GameService.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, this.id, newRank);
+				Universe.getWorldRegistry().getChannel(target.getChannel()).setGuildAndRank(targetId, this.id, newRank);
 			}
 		} catch (final RemoteException ex) {
 			System.err.println("Could not change rank: " + ex);

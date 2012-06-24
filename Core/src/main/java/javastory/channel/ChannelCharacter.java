@@ -1162,9 +1162,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private void saveSkillCooldowns(final Connection connection) throws SQLException {
 		try (final PreparedStatement ps = this.getInsertSkillCooldown(connection)) {
 			for (final PlayerCooldownValueHolder cooling : this.getAllCooldowns()) {
-				ps.setInt(2, cooling.skillId);
-				ps.setLong(3, cooling.startTime);
-				ps.setLong(4, cooling.length);
+				ps.setInt(2, cooling.SkillId);
+				ps.setLong(3, cooling.StartTime);
+				ps.setLong(4, cooling.Length);
 				ps.execute();
 			}
 		}
@@ -3804,9 +3804,9 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		int time;
 		if (cooldowns != null) {
 			for (final PlayerCooldownValueHolder cooldown : cooldowns) {
-				time = (int) (cooldown.length + cooldown.startTime - System.currentTimeMillis());
-				final ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, cooldown.skillId), time);
-				this.addCooldown(cooldown.skillId, System.currentTimeMillis(), time, timer);
+				time = (int) (cooldown.Length + cooldown.StartTime - System.currentTimeMillis());
+				final ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(this, cooldown.SkillId), time);
+				this.addCooldown(cooldown.SkillId, System.currentTimeMillis(), time, timer);
 			}
 		} else {
 			final Connection con = Database.getConnection();
@@ -3895,11 +3895,11 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 					@Override
 					public void run() {
-						ChannelCharacter.this.dispelDebuff(disease.disease);
+						ChannelCharacter.this.dispelDebuff(disease.Disease);
 					}
-				}, disease.length + disease.startTime - System.currentTimeMillis());
+				}, disease.Length + disease.StartTime - System.currentTimeMillis());
 
-				this.diseases.put(disease.disease, new DiseaseValueHolder(disease.startTime, disease.length));
+				this.diseases.put(disease.Disease, new DiseaseValueHolder(disease.StartTime, disease.Length));
 			}
 		}
 	}

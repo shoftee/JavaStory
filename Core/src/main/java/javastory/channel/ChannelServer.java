@@ -25,6 +25,8 @@ import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.ItemMakerFactory;
 import javastory.game.data.RandomRewards;
 import javastory.io.GamePacket;
+import javastory.registry.Universe;
+import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.WorldChannelInterface;
 import javastory.scripting.EventScriptManager;
@@ -92,7 +94,7 @@ public final class ChannelServer extends GameService {
 	@Override
 	protected void connectToWorld() {
 		try {
-			worldRegistry = super.getRegistry();
+			final WorldRegistry worldRegistry = Universe.getOrBindWorldRegistry();
 
 			// TODO: implement the interface in this class.
 			this.cwi = new ChannelWorldInterfaceImpl(this);

@@ -9,6 +9,8 @@ import java.util.Properties;
 
 import javastory.config.ChannelInfo;
 import javastory.db.Database;
+import javastory.registry.Universe;
+import javastory.registry.WorldRegistry;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldLoginInterface;
 import javastory.server.GameService;
@@ -74,7 +76,7 @@ public class LoginServer extends GameService {
 	@Override
 	protected final void connectToWorld() {
 		try {
-			worldRegistry = super.getRegistry();
+			final WorldRegistry worldRegistry = Universe.getOrBindWorldRegistry();
 
 			this.lwi = new LoginWorldInterfaceImpl();
 			this.wli = worldRegistry.registerLoginServer(this.lwi);
@@ -108,6 +110,7 @@ public class LoginServer extends GameService {
 	public final void shutdown() {
 		System.out.println("Shutting down...");
 		try {
+			final WorldRegistry worldRegistry = Universe.getWorldRegistry();
 			worldRegistry.deregisterLoginServer(this.lwi);
 		} catch (final RemoteException e) {
 			//

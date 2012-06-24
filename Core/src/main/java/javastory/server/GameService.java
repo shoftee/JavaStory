@@ -10,11 +10,11 @@ import java.rmi.registry.Registry;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javastory.registry.WorldRegistry;
 import javastory.rmi.Sockets;
 import javastory.server.handling.GameCodecFactory;
 import javastory.server.handling.PacketHandler;
 import javastory.world.core.ServerStatus;
-import javastory.world.core.WorldRegistry;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
@@ -28,8 +28,6 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 public abstract class GameService {
 
 	private final static IoFilter packetFilter = new ProtocolCodecFilter(new GameCodecFactory());
-
-	protected static WorldRegistry worldRegistry;
 
 	private IoAcceptor acceptor;
 	private volatile ServerStatus status;
@@ -65,12 +63,6 @@ public abstract class GameService {
 		this.acceptor.getSessionConfig().setWriterIdleTime(0);
 		this.acceptor.getFilterChain().addLast("codec", getPacketFilter());
 		this.acceptor.setHandler(handler);
-	}
-
-	protected final WorldRegistry getRegistry() throws RemoteException, AccessException, NotBoundException {
-		final String registryIP = System.getProperty("org.javastory.world.ip");
-		final Registry registry = LocateRegistry.getRegistry(registryIP, Registry.REGISTRY_PORT, Sockets.getClientFactory());
-		return (WorldRegistry) registry.lookup("WorldRegistry");
 	}
 
 	protected final void bind(final PacketHandler handler) {
@@ -114,7 +106,4 @@ public abstract class GameService {
 
 	public abstract void shutdown();
 
-	public static WorldRegistry getWorldRegistry() {
-		return worldRegistry;
-	}
 }

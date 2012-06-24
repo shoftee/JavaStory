@@ -22,13 +22,13 @@ import javastory.channel.PlayerBuffStorage;
 import javastory.channel.client.MemberRank;
 import javastory.config.ChannelInfo;
 import javastory.db.Database;
+import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.LoginWorldInterface;
 import javastory.rmi.WorldChannelInterface;
 import javastory.rmi.WorldLoginInterface;
 import javastory.world.core.ServerStatus;
-import javastory.world.core.WorldRegistry;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;

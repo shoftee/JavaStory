@@ -23,13 +23,14 @@ import java.io.Serializable;
 public class PlayerCooldownValueHolder implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	public int skillId;
-	public long startTime;
-	public long length;
+	
+	public final int SkillId;
+	public final long StartTime;
+	public final long Length;
 
 	public PlayerCooldownValueHolder(final int skillId, final long startTime, final long length) {
-		this.skillId = skillId;
-		this.startTime = startTime;
-		this.length = length;
+		this.SkillId = skillId;
+		this.StartTime = startTime;
+		this.Length = length;
 	}
 }

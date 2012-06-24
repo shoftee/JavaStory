@@ -72,8 +72,8 @@ public class PacketHelper {
 	public static void addCoolDownInfo(final PacketBuilder builder, final ChannelCharacter chr) {
 		builder.writeAsShort(chr.getAllCooldowns().size());
 		for (final PlayerCooldownValueHolder cooling : chr.getAllCooldowns()) {
-			builder.writeInt(cooling.skillId);
-			builder.writeAsShort((int) (cooling.length + cooling.startTime - System.currentTimeMillis()) / 1000);
+			builder.writeInt(cooling.SkillId);
+			builder.writeAsShort((int) (cooling.Length + cooling.StartTime - System.currentTimeMillis()) / 1000);
 		}
 	}
 

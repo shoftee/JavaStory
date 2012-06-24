@@ -718,9 +718,9 @@ public class StatEffect implements Serializable {
 
 		} else if (this.isTimeLeap()) { // Time Leap
 			for (final PlayerCooldownValueHolder i : applyto.getAllCooldowns()) {
-				if (i.skillId != 5121010) {
-					applyto.removeCooldown(i.skillId);
-					applyto.getClient().write(ChannelPackets.skillCooldown(i.skillId, 0));
+				if (i.SkillId != 5121010) {
+					applyto.removeCooldown(i.SkillId);
+					applyto.getClient().write(ChannelPackets.skillCooldown(i.SkillId, 0));
 				}
 			}
 		}
@@ -766,9 +766,9 @@ public class StatEffect implements Serializable {
 					}
 					if (this.isTimeLeap()) {
 						for (final PlayerCooldownValueHolder i : affected.getAllCooldowns()) {
-							if (i.skillId != 5121010) {
-								affected.removeCooldown(i.skillId);
-								affected.getClient().write(ChannelPackets.skillCooldown(i.skillId, 0));
+							if (i.SkillId != 5121010) {
+								affected.removeCooldown(i.SkillId);
+								affected.getClient().write(ChannelPackets.skillCooldown(i.SkillId, 0));
 							}
 						}
 					}

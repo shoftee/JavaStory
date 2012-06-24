@@ -22,10 +22,10 @@ package javastory.world;
 
 import java.rmi.RemoteException;
 
+import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.WorldLoginInterface;
-import javastory.world.core.WorldRegistry;
 
 import com.google.common.collect.ImmutableMap;
 

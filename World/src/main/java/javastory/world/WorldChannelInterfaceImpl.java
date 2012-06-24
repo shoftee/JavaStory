@@ -19,6 +19,7 @@ import javastory.channel.PartyMember;
 import javastory.channel.PlayerBuffValueHolder;
 import javastory.channel.client.MemberRank;
 import javastory.io.GamePacket;
+import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
 import javastory.rmi.GenericRemoteObject;
 import javastory.rmi.LoginWorldInterface;
@@ -30,7 +31,6 @@ import javastory.world.core.CheaterData;
 import javastory.world.core.PartyOperation;
 import javastory.world.core.PlayerCooldownValueHolder;
 import javastory.world.core.PlayerDiseaseValueHolder;
-import javastory.world.core.WorldRegistry;
 
 public class WorldChannelInterfaceImpl extends GenericRemoteObject implements WorldChannelInterface {
 

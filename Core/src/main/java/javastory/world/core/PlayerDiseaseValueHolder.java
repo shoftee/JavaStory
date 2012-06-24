@@ -25,14 +25,14 @@ import javastory.channel.client.Disease;
 public class PlayerDiseaseValueHolder implements Serializable {
 
 	private static final long serialVersionUID = 9179541993413738569L;
-	public int diseaseid;
-	public long startTime;
-	public long length;
-	public Disease disease;
+	
+	public final long StartTime;
+	public final long Length;
+	public final Disease Disease;
 
 	public PlayerDiseaseValueHolder(final Disease disease, final long startTime, final long length) {
-		this.disease = disease;
-		this.startTime = startTime;
-		this.length = length;
+		this.Disease = disease;
+		this.StartTime = startTime;
+		this.Length = length;
 	}
 }
