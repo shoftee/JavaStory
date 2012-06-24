@@ -1541,10 +1541,10 @@ public final class ChannelPackets {
 		long firstmask = 0;
 		long secondmask = 0;
 		for (final BuffStatValue statup : statups) {
-			if (statup.stat.isFirst()) {
-				firstmask |= statup.stat.getValue();
+			if (statup.Stat.isFirst()) {
+				firstmask |= statup.Stat.getValue();
 			} else {
-				secondmask |= statup.stat.getValue();
+				secondmask |= statup.Stat.getValue();
 			}
 		}
 		builder.writeLong(firstmask);
@@ -1607,7 +1607,7 @@ public final class ChannelPackets {
 
 		builder.writeAsShort(0);
 		for (final BuffStatValue stat : statups) {
-			builder.writeInt(stat.value);
+			builder.writeInt(stat.Value);
 			builder.writeLong(skillid);
 			builder.writeZeroBytes(infusion ? 6 : 1);
 			builder.writeAsShort(duration);
@@ -1628,7 +1628,7 @@ public final class ChannelPackets {
 		writeLongMask(builder, statups);
 		builder.writeAsShort(0);
 		for (final BuffStatValue stat : statups) {
-			builder.writeInt(stat.value);
+			builder.writeInt(stat.Value);
 			builder.writeLong(skillid);
 			builder.writeZeroBytes(infusion ? 7 : 1);
 			builder.writeAsShort(duration);// duration... seconds
@@ -1709,7 +1709,7 @@ public final class ChannelPackets {
 		builder.writeAsShort(ServerPacketOpcode.GIVE_BUFF.getValue());
 		writeLongMask(builder, statups);
 		for (final BuffStatValue statup : statups) {
-			builder.writeAsShort(statup.value);
+			builder.writeAsShort(statup.Value);
 			builder.writeInt(buffid);
 			builder.writeInt(bufflength);
 		}
@@ -1793,9 +1793,9 @@ public final class ChannelPackets {
 		writeLongMask(builder, statups);
 		for (final BuffStatValue statup : statups) {
 			if (effect.isMorph() && !effect.isPirateMorph()) {
-				builder.writeAsByte(statup.value);
+				builder.writeAsByte(statup.Value);
 			} else {
-				builder.writeAsShort(statup.value);
+				builder.writeAsShort(statup.Value);
 			}
 		}
 		builder.writeAsShort(0); // same as give_buff

@@ -39,8 +39,13 @@ public class QuestRequirement implements Serializable {
 	private String stringStore;
 	private List<Entry> dataStore;
 
-	private static class Entry {
+	private static class Entry implements Serializable {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5791071340009895274L;
+		
 		public int Key;
 		public int Value;
 

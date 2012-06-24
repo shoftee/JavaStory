@@ -18,8 +18,15 @@
  */
 package javastory.channel.client;
 
-public class BuddyListEntry {
+import java.io.Serializable;
 
+public class BuddyListEntry implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3264298238627998238L;
+	
 	private final String name, group;
 	private final int characterId;
 	private int channelId;

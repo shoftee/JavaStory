@@ -129,13 +129,10 @@ public class InterServerHandler {
 				client.write(ChannelPackets.updateQuestMobKills(status));
 			}
 		}
-		final SimpleCharacterInfo pendingBuddyRequest = player.getBuddyList().pollPendingRequest();
-		if (pendingBuddyRequest != null) {
-			player.getBuddyList().put(
-				new BuddyListEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getId(), "ETC", -1, false, pendingBuddyRequest.getLevel(),
-					pendingBuddyRequest.getJob()));
-			client.write(ChannelPackets.requestBuddylistAdd(pendingBuddyRequest.getId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(),
-				pendingBuddyRequest.getJob()));
+		final SimpleCharacterInfo request = player.getBuddyList().pollPendingRequest();
+		if (request != null) {
+			player.getBuddyList().put(new BuddyListEntry(request.Name, request.Id, "ETC", -1, false, request.Level, request.Job));
+			client.write(ChannelPackets.requestBuddylistAdd(request.Id, request.Name, request.Level, request.Job));
 		}
 		player.expirationTask();
 		if (player.getJobId() == 132) { // DARKKNIGHT

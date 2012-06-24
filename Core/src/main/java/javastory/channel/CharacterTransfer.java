@@ -331,10 +331,11 @@ public class CharacterTransfer implements Externalizable {
 		out.writeShort(this.BuddyListCapacity);
 		out.writeShort(this.BuddyListEntries.size());
 		for (final Map.Entry<SimpleCharacterInfo, Boolean> qs : this.BuddyListEntries.entrySet()) {
-			out.writeInt(qs.getKey().getId());
-			out.writeUTF(qs.getKey().getName());
-			out.writeInt(qs.getKey().getLevel());
-			out.writeInt(qs.getKey().getJob());
+			final SimpleCharacterInfo characterInfo = qs.getKey();
+			out.writeInt(characterInfo.Id);
+			out.writeUTF(characterInfo.Name);
+			out.writeInt(characterInfo.Level);
+			out.writeInt(characterInfo.Job);
 			out.writeBoolean(qs.getValue());
 		}
 

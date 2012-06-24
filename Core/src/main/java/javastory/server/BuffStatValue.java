@@ -1,19 +1,26 @@
 package javastory.server;
 
+import java.io.Serializable;
+
 import javastory.channel.client.BuffStat;
 
 /**
  * 
  * @author shoftee
  */
-public class BuffStatValue {
+public class BuffStatValue implements Serializable {
 
-	public BuffStat stat;
-	public int value;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7052182724878936305L;
+	
+	public final BuffStat Stat;
+	public final int Value;
 
 	public BuffStatValue(final BuffStat stat, final int value) {
-		this.stat = stat;
-		this.value = value;
+		this.Stat = stat;
+		this.Value = value;
 	}
 
 	@Override
@@ -28,14 +35,14 @@ public class BuffStatValue {
 			return false;
 		}
 		final BuffStatValue other = (BuffStatValue) obj;
-		return this.stat == other.stat && this.value == other.value;
+		return this.Stat == other.Stat && this.Value == other.Value;
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 43 * hash + (this.stat != null ? this.stat.hashCode() : 0);
-		hash = 43 * hash + this.value;
+		hash = 43 * hash + (this.Stat != null ? this.Stat.hashCode() : 0);
+		hash = 43 * hash + this.Value;
 		return hash;
 	}
 }

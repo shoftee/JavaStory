@@ -615,7 +615,8 @@ public class StatEffect implements Serializable {
 			}
 		} else if (!primary && this.isResurrection()) {
 			hpchange = stat.getMaxHp();
-			applyto.setStance(0); //TODO fix death bug, player doesnt spawn on other screen
+			// TODO fix death bug, player doesnt spawn on other screen
+			applyto.setStance(0); 
 		}
 		if (this.isDispel() && this.makeChanceResult()) {
 			applyto.dispelDebuffs();

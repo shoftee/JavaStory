@@ -224,7 +224,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private final Map<ISkill, SkillEntry> skills;
 
 	// TODO: Surely this shouldn't be here?
-	private final List<Door> doors;
+	private transient final List<Door> doors;
 
 	private final List<Pet> pets;
 
@@ -1759,7 +1759,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			this.prepareBeholderEffect();
 		}
 		for (final BuffStatValue statup : effect.getStatups()) {
-			this.effects.put(statup.stat, new BuffStatValueHolder(effect, starttime, schedule, statup.value));
+			this.effects.put(statup.Stat, new BuffStatValueHolder(effect, starttime, schedule, statup.Value));
 		}
 		this.stats.recalcLocalStats();
 	}
@@ -1842,7 +1842,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			final List<BuffStatValue> statups = effect.getStatups();
 			buffstats = Lists.newArrayListWithCapacity(statups.size());
 			for (final BuffStatValue statup : statups) {
-				buffstats.add(statup.stat);
+				buffstats.add(statup.Stat);
 			}
 		}
 		this.deregisterBuffStats(buffstats);

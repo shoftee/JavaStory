@@ -19,32 +19,23 @@
 
 package javastory.client;
 
-public class SimpleCharacterInfo {
+import java.io.Serializable;
 
-	private final int id, level, job;
-	private final String name;
+public class SimpleCharacterInfo implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6588000376596664820L;
+	
+	public final int Id, Level, Job;
+	public final String Name;
 
 	public SimpleCharacterInfo(final int id, final String name, final int level, final int job) {
 		super();
-		this.id = id;
-		this.name = name;
-		this.level = level;
-		this.job = job;
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public int getLevel() {
-		return this.level;
-	}
-
-	public int getJob() {
-		return this.job;
+		this.Id = id;
+		this.Name = name;
+		this.Level = level;
+		this.Job = job;
 	}
 }

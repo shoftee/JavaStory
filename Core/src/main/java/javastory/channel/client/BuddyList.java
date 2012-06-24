@@ -37,9 +37,10 @@ import com.google.common.collect.Maps;
 
 public class BuddyList implements Serializable {
 	private static final long serialVersionUID = 1413738569L;
-	private final Map<Integer, BuddyListEntry> buddies = Maps.newLinkedHashMap();
+
+	private transient final Map<Integer, BuddyListEntry> buddies = Maps.newLinkedHashMap();
+	private transient final Deque<SimpleCharacterInfo> pendingRequests = Lists.newLinkedList();
 	private int capacity;
-	private final Deque<SimpleCharacterInfo> pendingRequests = Lists.newLinkedList();
 
 	public BuddyList(final int capacity) {
 		super();
@@ -106,15 +107,13 @@ public class BuddyList implements Serializable {
 	}
 
 	public void loadFromTransfer(final Map<SimpleCharacterInfo, Boolean> data) {
-		SimpleCharacterInfo buddyid;
-		boolean pair;
 		for (final Map.Entry<SimpleCharacterInfo, Boolean> qs : data.entrySet()) {
-			buddyid = qs.getKey();
-			pair = qs.getValue();
-			if (!pair) {
-				this.pendingRequests.push(buddyid);
+			final SimpleCharacterInfo buddy = qs.getKey();
+			final boolean isPending = qs.getValue();
+			if (!isPending) {
+				this.pendingRequests.push(buddy);
 			} else {
-				this.put(new BuddyListEntry(buddyid.getName(), buddyid.getId(), "ETC", -1, true, buddyid.getLevel(), buddyid.getJob()));
+				this.put(new BuddyListEntry(buddy.Name, buddy.Id, "ETC", -1, true, buddy.Level, buddy.Job));
 			}
 		}
 	}

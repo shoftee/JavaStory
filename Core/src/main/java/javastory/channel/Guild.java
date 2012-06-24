@@ -18,7 +18,6 @@ import javastory.io.PacketBuilder;
 import javastory.registry.Universe;
 import javastory.registry.WorldRegistry;
 import javastory.rmi.ChannelWorldInterface;
-import javastory.server.GameService;
 import javastory.server.Notes;
 import javastory.tools.packets.ChannelPackets;
 import javastory.world.core.GuildOperationResponse;
