@@ -16,7 +16,6 @@ import javastory.channel.PartyMember;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.MemberRank;
 import javastory.channel.client.SkillEntry;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.maps.AramiaFireWorks;
 import javastory.channel.maps.Event_DojoAgent;
 import javastory.channel.maps.GameMap;
@@ -35,6 +34,7 @@ import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
+import javastory.game.data.SkillInfoProvider;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.server.channel.GuildRanking;
 import javastory.tools.Randomizer;
@@ -88,7 +88,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public void giveBuff(final int skill, final int level) {
-		SkillFactory.getSkill(skill).getEffect(level).applyTo(super.client.getPlayer());
+		SkillInfoProvider.getSkill(skill).getEffect(level).applyTo(super.client.getPlayer());
 	}
 
 	public byte getType() {
@@ -319,7 +319,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public boolean hasSkill(final int skillid) {
-		final ISkill theSkill = SkillFactory.getSkill(skillid);
+		final ISkill theSkill = SkillInfoProvider.getSkill(skillid);
 		if (theSkill != null) {
 			return super.client.getPlayer().getCurrentSkillLevel(theSkill) > 0;
 		}

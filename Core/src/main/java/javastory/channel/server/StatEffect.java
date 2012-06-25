@@ -19,7 +19,6 @@ import javastory.channel.client.Disease;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.MonsterStatus;
 import javastory.channel.client.MonsterStatusEffect;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.Door;
 import javastory.channel.maps.GameMap;
@@ -33,6 +32,7 @@ import javastory.game.Inventory;
 import javastory.game.Item;
 import javastory.game.Stat;
 import javastory.game.StatValue;
+import javastory.game.data.SkillInfoProvider;
 import javastory.server.BuffStatValue;
 import javastory.server.TimerManager;
 import javastory.tools.Randomizer;
@@ -46,6 +46,7 @@ import com.google.common.collect.Maps;
 
 public class StatEffect implements Serializable {
 	private static final long serialVersionUID = 9179541993413738569L;
+	
 	private byte mastery, mhpR, mmpR, mobCount, attackCount, bulletCount;
 	private short hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, mpCon, hpCon, damage, prop;
 	private double hpR, mpR;
@@ -785,7 +786,7 @@ public class StatEffect implements Serializable {
 
 		for (final GameMapObject mo : affected) {
 			if (this.makeChanceResult()) {
-				((Monster) mo).applyStatus(applyfrom, new MonsterStatusEffect(this.getMonsterStati(), SkillFactory.getSkill(this.sourceid), null, false), this.isPoison(),
+				((Monster) mo).applyStatus(applyfrom, new MonsterStatusEffect(this.getMonsterStati(), SkillInfoProvider.getSkill(this.sourceid), null, false), this.isPoison(),
 					this.getDuration(), false);
 			}
 			i++;
@@ -1088,7 +1089,7 @@ public class StatEffect implements Serializable {
 
 				final int ElemSkillId = getElementalAmp(applyfrom.getJobId());
 				if (ElemSkillId != -1) {
-					final ISkill amp = SkillFactory.getSkill(ElemSkillId);
+					final ISkill amp = SkillInfoProvider.getSkill(ElemSkillId);
 					final int ampLevel = applyfrom.getCurrentSkillLevel(amp);
 					if (ampLevel > 0) {
 						final StatEffect ampStat = amp.getEffect(ampLevel);
@@ -1120,14 +1121,14 @@ public class StatEffect implements Serializable {
 		switch (chr.getJobId()) {
 		case 411:
 		case 412:
-			al = SkillFactory.getSkill(4110000);
+			al = SkillInfoProvider.getSkill(4110000);
 			if (chr.getCurrentSkillLevel(al) == 0) {
 				return null;
 			}
 			return al.getEffect(chr.getCurrentSkillLevel(al));
 		case 1411:
 		case 1412:
-			al = SkillFactory.getSkill(14110003);
+			al = SkillInfoProvider.getSkill(14110003);
 			if (chr.getCurrentSkillLevel(al) == 0) {
 				return null;
 			}

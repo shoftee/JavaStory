@@ -23,8 +23,8 @@ import java.awt.Point;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.anticheat.CheatingOffense;
-import javastory.channel.client.SkillFactory;
 import javastory.game.GameConstants;
+import javastory.game.data.SkillInfoProvider;
 import javastory.tools.packets.ChannelPackets;
 
 public class Summon extends AbstractAnimatedGameMapObject {
@@ -47,7 +47,7 @@ public class Summon extends AbstractAnimatedGameMapObject {
 		super();
 		this.ownerid = owner.getId();
 		this.skill = skill;
-		this.skillLevel = owner.getCurrentSkillLevel(SkillFactory.getSkill(skill));
+		this.skillLevel = owner.getCurrentSkillLevel(SkillInfoProvider.getSkill(skill));
 		if (this.skillLevel == 0) {
 			return;
 		}

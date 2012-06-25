@@ -23,9 +23,9 @@ import java.util.List;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.client.ISkill;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.server.StatEffect;
 import javastory.game.Skills;
+import javastory.game.data.SkillInfoProvider;
 
 public class AttackInfo {
 
@@ -41,7 +41,7 @@ public class AttackInfo {
 			return null;
 		}
 		if (Skills.isLinkedAranSkill(this.skill)) {
-			final ISkill skillLink = SkillFactory.getSkill(this.skill);
+			final ISkill skillLink = SkillInfoProvider.getSkill(this.skill);
 			if (this.display > 80) {
 				if (!skillLink.getAction()) {
 					// AutobanManager.getInstance().autoban(chr.getClient(),

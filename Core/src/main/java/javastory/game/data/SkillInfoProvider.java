@@ -1,7 +1,9 @@
-package javastory.channel.client;
+package javastory.game.data;
 
 import java.util.Map;
 
+import javastory.channel.client.ISkill;
+import javastory.channel.client.Skill;
 import javastory.tools.StringUtil;
 import javastory.wz.WzData;
 import javastory.wz.WzDataDirectoryEntry;
@@ -12,25 +14,22 @@ import javastory.wz.WzDataTool;
 
 import com.google.common.collect.Maps;
 
-public final class SkillFactory {
+public final class SkillInfoProvider {
 
 	private static final Map<Integer, ISkill> skills = Maps.newHashMap();
 	private static final Map<Integer, SummonSkillEntry> summonSkills = Maps.newHashMap();
 	private final static WzData stringData = WzDataProviderFactory.getDataProvider("String.wz").getData("Skill.img");
 
-	private SkillFactory() {
+	private SkillInfoProvider() {
 	}
 
 	public static ISkill getSkill(final int id) {
 		if (!skills.isEmpty()) {
 			return skills.get(Integer.valueOf(id));
 		}
-		System.out.println(":: Loading SkillFactory ::");
+		System.out.println(":: Loading SkillInfoProvider ::");
 		final WzDataProvider datasource = WzDataProviderFactory.getDataProvider("Skill.wz");
 		final WzDataDirectoryEntry root = datasource.getRoot();
-		int skillId;
-		WzData summonData;
-		SummonSkillEntry summonSkillEntry;
 		for (final WzDataFileEntry topDir : root.getFiles()) {
 			// Loop thru jobs
 			if (topDir.getName().length() > 8) {
@@ -46,16 +45,14 @@ public final class SkillFactory {
 					if (skill == null) {
 						continue;
 					}
-					skillId = Integer.parseInt(skill.getName());
+					final int skillId = Integer.parseInt(skill.getName());
 					skills.put(skillId, Skill.loadFromData(skillId, skill));
-					summonData = skill.getChildByPath("summon/attack1/info");
+					final WzData summonData = skill.getChildByPath("summon/attack1/info");
 					if (summonData == null) {
 						continue;
 					}
-					summonSkillEntry = new SummonSkillEntry();
-					summonSkillEntry.attackAfter = (short) WzDataTool.getInt("attackAfter", summonData, 999999);
-					summonSkillEntry.type = (byte) WzDataTool.getInt("type", summonData, 0);
-					summonSkillEntry.mobCount = (byte) WzDataTool.getInt("mobCount", summonData, 1);
+					
+					final SummonSkillEntry summonSkillEntry = new SummonSkillEntry(summonData);
 					summonSkills.put(skillId, summonSkillEntry);
 				}
 			}

@@ -18,7 +18,6 @@ import javastory.channel.client.BuffStat;
 import javastory.channel.client.Disease;
 import javastory.channel.client.MonsterStatus;
 import javastory.channel.client.MonsterStatusEffect;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapObjectType;
 import javastory.channel.packet.MobPacket;
@@ -26,6 +25,7 @@ import javastory.game.AttackNature;
 import javastory.game.Effectiveness;
 import javastory.game.SkillLevelEntry;
 import javastory.game.data.MobInfo;
+import javastory.game.data.SkillInfoProvider;
 import javastory.scripting.EventInstanceManager;
 import javastory.server.TimerManager;
 import javastory.server.handling.ServerConstants;
@@ -648,26 +648,26 @@ public class Monster extends AbstractLoadedLife {
 
 			switch (from.getJobId()) {
 			case 412:
-				poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(4120005));
+				poisonLevel = from.getCurrentSkillLevel(SkillInfoProvider.getSkill(4120005));
 				if (poisonLevel <= 0) {
 					return;
 				}
-				matk = SkillFactory.getSkill(4120005).getEffect(poisonLevel).getMatk();
+				matk = SkillInfoProvider.getSkill(4120005).getEffect(poisonLevel).getMatk();
 				break;
 			case 422:
-				poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(4220005));
+				poisonLevel = from.getCurrentSkillLevel(SkillInfoProvider.getSkill(4220005));
 				if (poisonLevel <= 0) {
 					return;
 				}
-				matk = SkillFactory.getSkill(4220005).getEffect(poisonLevel).getMatk();
+				matk = SkillInfoProvider.getSkill(4220005).getEffect(poisonLevel).getMatk();
 				break;
 			case 1411:
 			case 1412:
-				poisonLevel = from.getCurrentSkillLevel(SkillFactory.getSkill(14110004));
+				poisonLevel = from.getCurrentSkillLevel(SkillInfoProvider.getSkill(14110004));
 				if (poisonLevel <= 0) {
 					return;
 				}
-				matk = SkillFactory.getSkill(14110004).getEffect(poisonLevel).getMatk();
+				matk = SkillInfoProvider.getSkill(14110004).getEffect(poisonLevel).getMatk();
 				break;
 			default:
 				return; // Hack, using venom without the job required

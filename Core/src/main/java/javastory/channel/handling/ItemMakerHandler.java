@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
@@ -17,6 +16,7 @@ import javastory.game.data.ItemMakerFactory;
 import javastory.game.data.ItemRecipe;
 import javastory.game.data.ItemRecipeEntry;
 import javastory.game.data.MakerItemInfo;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.Randomizer;
@@ -308,11 +308,11 @@ public class ItemMakerHandler {
 	private static boolean hasSkill(final ChannelClient c, final int reqlvl) {
 		final ChannelCharacter player = c.getPlayer();
 		if (Jobs.isCygnus(player.getJobId())) { // KoC Maker skill.
-			return player.getCurrentSkillLevel(SkillFactory.getSkill(10001007)) >= reqlvl;
+			return player.getCurrentSkillLevel(SkillInfoProvider.getSkill(10001007)) >= reqlvl;
 		} else if (Jobs.isAran(player.getJobId())) { // KoC Maker skill.
-			return player.getCurrentSkillLevel(SkillFactory.getSkill(20001007)) >= reqlvl;
+			return player.getCurrentSkillLevel(SkillInfoProvider.getSkill(20001007)) >= reqlvl;
 		} else {
-			return player.getCurrentSkillLevel(SkillFactory.getSkill(1007)) >= reqlvl;
+			return player.getCurrentSkillLevel(SkillInfoProvider.getSkill(1007)) >= reqlvl;
 		}
 	}
 }

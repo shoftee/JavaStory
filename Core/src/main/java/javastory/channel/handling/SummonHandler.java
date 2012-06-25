@@ -29,8 +29,6 @@ import javastory.channel.anticheat.CheatingOffense;
 import javastory.channel.client.BuffStat;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.MonsterStatusEffect;
-import javastory.channel.client.SkillFactory;
-import javastory.channel.client.SummonSkillEntry;
 import javastory.channel.life.Monster;
 import javastory.channel.life.SummonAttackEntry;
 import javastory.channel.maps.GameMap;
@@ -40,6 +38,8 @@ import javastory.channel.maps.Summon;
 import javastory.channel.maps.SummonMovementType;
 import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.server.StatEffect;
+import javastory.game.data.SkillInfoProvider;
+import javastory.game.data.SummonSkillEntry;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.packets.ChannelPackets;
@@ -113,7 +113,7 @@ public final class SummonHandler {
 		if (summon.getOwnerId() != chr.getId()) {
 			return;
 		}
-		final SummonSkillEntry sse = SkillFactory.getSummonData(summon.getSkill());
+		final SummonSkillEntry sse = SkillInfoProvider.getSummonData(summon.getSkill());
 		if (sse == null) {
 			return;
 		}
@@ -123,7 +123,7 @@ public final class SummonHandler {
 		final byte animation = reader.readByte();
 		reader.skip(8);
 		final byte numAttacked = reader.readByte();
-		if (numAttacked > sse.mobCount) {
+		if (numAttacked > sse.MobCount) {
 			//AutobanManager.getInstance().autoban(c, "Attacking more monster that summon can do (Skillid : "+summon.getSkill()+" Count : " + numAttacked + ", allowed : " + sse.mobCount + ")");
 			return;
 		}
@@ -147,7 +147,7 @@ public final class SummonHandler {
 		map.broadcastMessage(chr, ChannelPackets.summonAttack(summon.getOwnerId(), summon.getSkill(), animation, allDamage, chr.getLevel()), summon
 			.getPosition());
 
-		final ISkill summonSkill = SkillFactory.getSkill(summon.getSkill());
+		final ISkill summonSkill = SkillInfoProvider.getSkill(summon.getSkill());
 		final StatEffect summonEffect = summonSkill.getEffect(summon.getSkillLevel());
 
 		for (final SummonAttackEntry attackEntry : allDamage) {

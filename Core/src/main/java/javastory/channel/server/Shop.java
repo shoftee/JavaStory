@@ -10,7 +10,6 @@ import java.util.Set;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.Pet;
-import javastory.channel.client.SkillFactory;
 import javastory.db.Database;
 import javastory.game.GameConstants;
 import javastory.game.Inventory;
@@ -18,6 +17,7 @@ import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.Skills;
 import javastory.game.data.ItemInfoProvider;
+import javastory.game.data.SkillInfoProvider;
 import javastory.server.ShopItem;
 import javastory.tools.packets.ChannelPackets;
 
@@ -162,7 +162,7 @@ public class Shop {
 		final int skill = Skills.getMasterySkillId(player.getJobId());
 
 		if (skill != 0) {
-			slotMax += player.getCurrentSkillLevel(SkillFactory.getSkill(skill)) * 10;
+			slotMax += player.getCurrentSkillLevel(SkillInfoProvider.getSkill(skill)) * 10;
 		}
 		if (item.getQuantity() < slotMax) {
 			final int price = (int) Math.round(ii.getPrice(item.getItemId()) * (slotMax - item.getQuantity()));

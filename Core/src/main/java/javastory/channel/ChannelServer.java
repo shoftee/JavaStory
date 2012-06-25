@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javastory.channel.client.SkillFactory;
 import javastory.channel.handling.ChannelPacketHandler;
 import javastory.channel.maps.GameMapFactory;
 import javastory.channel.maps.MapTimer;
@@ -24,6 +23,7 @@ import javastory.config.WorldInfo;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.ItemMakerFactory;
 import javastory.game.data.RandomRewards;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.GamePacket;
 import javastory.registry.Universe;
 import javastory.registry.WorldRegistry;
@@ -131,7 +131,7 @@ public final class ChannelServer extends GameService {
 		ItemMakerFactory.getInstance();
 		ItemInfoProvider.getInstance();
 		RandomRewards.getInstance();
-		SkillFactory.getSkill(99999999);
+		SkillInfoProvider.getSkill(99999999);
 		this.players = new PlayerStorage();
 
 		final PacketHandler serverHandler = new ChannelPacketHandler(this.channelId);

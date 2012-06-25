@@ -13,10 +13,10 @@ import javastory.channel.MessengerMember;
 import javastory.channel.PartyMember;
 import javastory.channel.PlayerBuffValueHolder;
 import javastory.channel.client.BuddyListEntry;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.SavedLocationType;
 import javastory.client.SimpleCharacterInfo;
+import javastory.game.data.SkillInfoProvider;
 import javastory.game.quest.QuestStatus;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
@@ -120,7 +120,7 @@ public class InterServerHandler {
 			LogUtil.outputFileError(LogUtil.Login_Error, e);
 		}
 		client.write(FamilyPacket.getFamilyData());
-		player.sendMacros();
+		player.getSkillMacros().send(client);
 		player.showNote();
 		player.updatePartyMemberHP();
 		client.write(ChannelPackets.getKeymap(player.getKeyLayout()));
@@ -139,7 +139,7 @@ public class InterServerHandler {
 			player.checkBerserk();
 		}
 		if (player.isGM()) {
-			SkillFactory.getSkill(9001001).getEffect(1).applyTo(player); // GM
+			SkillInfoProvider.getSkill(9001001).getEffect(1).applyTo(player); // GM
 																			// haste
 		}
 	}

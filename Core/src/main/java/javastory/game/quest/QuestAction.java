@@ -24,7 +24,6 @@ import java.util.Map;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelServer;
 import javastory.channel.client.ISkill;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.server.InventoryManipulator;
 import javastory.game.GameConstants;
 import javastory.game.Gender;
@@ -32,6 +31,7 @@ import javastory.game.Inventory;
 import javastory.game.Jobs;
 import javastory.game.Stat;
 import javastory.game.data.ItemInfoProvider;
+import javastory.game.data.SkillInfoProvider;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
 import javastory.wz.WzData;
@@ -192,7 +192,7 @@ public class QuestAction implements Serializable {
 				final int skillid = WzDataTool.getInt(sEntry.getChildByPath("id"));
 				final int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
 				final int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
-				final ISkill skillObject = SkillFactory.getSkill(skillid);
+				final ISkill skillObject = SkillInfoProvider.getSkill(skillid);
 
 				for (final WzData applicableJob : sEntry.getChildByPath("job")) {
 					if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {
@@ -412,7 +412,7 @@ public class QuestAction implements Serializable {
 				final int skillid = WzDataTool.getInt(sEntry.getChildByPath("id"));
 				final int skillLevel = WzDataTool.getInt(sEntry.getChildByPath("skillLevel"), 0);
 				final int masterLevel = WzDataTool.getInt(sEntry.getChildByPath("masterLevel"), 0);
-				final ISkill skillObject = SkillFactory.getSkill(skillid);
+				final ISkill skillObject = SkillInfoProvider.getSkill(skillid);
 
 				for (final WzData applicableJob : sEntry.getChildByPath("job")) {
 					if (skillObject.isBeginnerSkill() || c.getJobId() == WzDataTool.getInt(applicableJob)) {

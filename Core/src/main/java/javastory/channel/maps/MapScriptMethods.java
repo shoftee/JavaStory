@@ -5,9 +5,9 @@ import java.awt.Point;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.life.LifeFactory;
 import javastory.game.data.ItemInfoProvider;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.PacketBuilder;
 import javastory.server.handling.ServerPacketOpcode;
 import javastory.tools.Randomizer;
@@ -302,12 +302,12 @@ public class MapScriptMethods {
 			break;
 		}
 		case iceCave: {
-			player.changeSkillLevel(SkillFactory.getSkill(20000014), (byte) -1, (byte) 0);
-			player.changeSkillLevel(SkillFactory.getSkill(20000015), (byte) -1, (byte) 0);
-			player.changeSkillLevel(SkillFactory.getSkill(20000016), (byte) -1, (byte) 0);
-			player.changeSkillLevel(SkillFactory.getSkill(20000017), (byte) -1, (byte) 0);
-			player.changeSkillLevel(SkillFactory.getSkill(20000018), (byte) -1, (byte) 0);
-			player.changeSkillLevel(SkillFactory.getSkill(20000014), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000014), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000015), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000016), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000017), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000018), (byte) -1, (byte) 0);
+			player.changeSkillLevel(SkillInfoProvider.getSkill(20000014), (byte) -1, (byte) 0);
 			c.write(UIPacket.ShowWZEffect("Effect/Direction1.img/aranTutorial/ClickLirin"));
 			c.write(UIPacket.IntroDisableUI(false));
 			c.write(UIPacket.IntroLock(false));

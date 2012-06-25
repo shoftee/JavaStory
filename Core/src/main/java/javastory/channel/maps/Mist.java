@@ -24,10 +24,10 @@ import java.awt.Rectangle;
 import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.ISkill;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
 import javastory.channel.server.StatEffect;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.GamePacket;
 import javastory.tools.packets.ChannelPackets;
 
@@ -58,7 +58,7 @@ public class Mist extends AbstractGameMapObject {
 		this.mistPosition = mistPosition;
 		this.owner = owner;
 		this.source = source;
-		this.skilllevel = owner.getCurrentSkillLevel(SkillFactory.getSkill(source.getSourceId()));
+		this.skilllevel = owner.getCurrentSkillLevel(SkillInfoProvider.getSkill(source.getSourceId()));
 
 		switch (source.getSourceId()) {
 		case 4221006: // Smoke Screen
@@ -86,7 +86,7 @@ public class Mist extends AbstractGameMapObject {
 	}
 
 	public ISkill getSourceSkill() {
-		return SkillFactory.getSkill(this.source.getSourceId());
+		return SkillInfoProvider.getSkill(this.source.getSourceId());
 	}
 
 	public boolean isMobMist() {

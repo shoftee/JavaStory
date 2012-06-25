@@ -9,7 +9,6 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.Pet;
 import javastory.channel.client.PetCommand;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.PetPacket;
 import javastory.channel.server.InventoryManipulator;
@@ -20,6 +19,7 @@ import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.PetDataFactory;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.Randomizer;
@@ -49,7 +49,7 @@ public class PetHandler {
 				if (pet.isSummoned()) { // Already summoned, let's keep it
 					chr.unequipPet(pet, true, false);
 				} else {
-					if (chr.getCurrentSkillLevel(SkillFactory.getSkill(8)) == 0 && chr.getPet(0) != null) {
+					if (chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(8)) == 0 && chr.getPet(0) != null) {
 						chr.unequipPet(chr.getPet(0), false, false);
 					}
 					if (reader.readByte() == 1) { // Follow the Lead

@@ -44,8 +44,6 @@ import javastory.channel.client.MultiInventory;
 import javastory.channel.client.Pet;
 import javastory.channel.client.Skill;
 import javastory.channel.client.SkillEntry;
-import javastory.channel.client.SkillFactory;
-import javastory.channel.client.SkillMacro;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.AbstractAnimatedGameMapObject;
@@ -89,6 +87,7 @@ import javastory.game.Stat;
 import javastory.game.StatValue;
 import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
+import javastory.game.data.SkillInfoProvider;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.game.quest.QuestStatus;
@@ -229,7 +228,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private final List<Pet> pets;
 
 	// TODO: Extract SkillMacro list into a class. 
-	private SkillMacro[] skillMacros = new SkillMacro[5];
+	private SkillMacroSet skillMacros;
 
 	// TODO: This stuff should be in GuildMember
 	private int guildId;
@@ -422,7 +421,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		// TODO: transfer of active quest information
 
 		for (final Map.Entry<Integer, SkillEntry> qs : ct.Skills.entrySet()) {
-			ret.skills.put(SkillFactory.getSkill(qs.getKey()), qs.getValue());
+			ret.skills.put(SkillInfoProvider.getSkill(qs.getKey()), qs.getValue());
 		}
 		ret.monsterBook = ct.MonsterBook;
 		ret.inventory = ct.Inventories;
@@ -561,16 +560,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	private void loadSkillMacros(final int characterId, final Connection con) throws SQLException {
 		try (	final PreparedStatement ps = getSelectSkillMacros(characterId, con);
 				final ResultSet rs = ps.executeQuery()) {
-			int position;
-			while (rs.next()) {
-				position = rs.getInt("position");
-				final int skillId1 = rs.getInt("skill1");
-				final int skillId2 = rs.getInt("skill2");
-				final int skillId3 = rs.getInt("skill3");
-				final int shout = rs.getInt("shout");
-				final SkillMacro macro = new SkillMacro(skillId1, skillId2, skillId3, rs.getString("name"), shout, position);
-				this.skillMacros[position] = macro;
-			}
+			this.skillMacros = new SkillMacroSet(rs);
 		}
 	}
 
@@ -590,7 +580,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 					this.BlessOfFairy_Origin = rs.getString("name");
 					final SkillEntry skillEntry = new SkillEntry(maxlevel, (byte) 0);
 					final int skillId = Skills.getBlessOfFairyForJob(this.jobId);
-					this.skills.put(SkillFactory.getSkill(skillId), skillEntry);
+					this.skills.put(SkillInfoProvider.getSkill(skillId), skillEntry);
 					break;
 				}
 			}
@@ -606,7 +596,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 					final byte masterLevel = rs.getByte("masterlevel");
 					final byte skillLevel = rs.getByte("skilllevel");
 					final SkillEntry skillEntry = new SkillEntry(skillLevel, masterLevel);
-					this.skills.put(SkillFactory.getSkill(skillId), skillEntry);
+					this.skills.put(SkillInfoProvider.getSkill(skillId), skillEntry);
 				}
 			}
 		}
@@ -950,7 +940,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			}
 
 			this.deleteByCharacterId(con, "DELETE FROM skillmacros WHERE characterid = ?");
-			this.saveSkillMacros(con);
+			this.getSkillMacros().saveToDb(this.id, con);
 
 			this.deleteByCharacterId(con, "DELETE FROM inventoryslot WHERE characterid = ?");
 			this.saveInventorySlots(con);
@@ -1370,32 +1360,6 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		ps.setInt(4, this.getSetupInventory().getSlotLimit());
 		ps.setInt(5, this.getEtcInventory().getSlotLimit());
 		ps.setInt(6, this.getCashInventory().getSlotLimit());
-		return ps;
-	}
-
-	private void saveSkillMacros(final Connection connection) throws SQLException {
-		try (final PreparedStatement ps = getInsertSkillMacros(connection)) {
-			for (int i = 0; i < 5; i++) {
-				final SkillMacro macro = this.skillMacros[i];
-				if (macro == null) {
-					continue;
-				}
-
-				ps.setInt(2, macro.getSkill1());
-				ps.setInt(3, macro.getSkill2());
-				ps.setInt(4, macro.getSkill3());
-				ps.setString(5, macro.getName());
-				ps.setInt(6, macro.getShout());
-				ps.setInt(7, i);
-				ps.execute();
-			}
-		}
-	}
-
-	private PreparedStatement getInsertSkillMacros(final Connection connection) throws SQLException {
-		final String sql = "INSERT INTO skillmacros (characterid, skill1, skill2, skill3, name, shout, position) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		PreparedStatement ps = connection.prepareStatement(sql);
-		ps.setInt(1, this.id);
 		return ps;
 	}
 
@@ -2016,7 +1980,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public final void handleEnergyCharge(final int skillid, final byte targets) {
-		final ISkill echskill = SkillFactory.getSkill(skillid);
+		final ISkill echskill = SkillInfoProvider.getSkill(skillid);
 		final byte skilllevel = this.getCurrentSkillLevel(echskill);
 		if (skilllevel > 0) {
 			if (targets > 0) {
@@ -2053,12 +2017,12 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		switch (this.getJobId()) {
 		case 1110:
 		case 1111:
-			comboSkill = SkillFactory.getSkill(11111001);
-			advancedComboSkill = SkillFactory.getSkill(11110005);
+			comboSkill = SkillInfoProvider.getSkill(11111001);
+			advancedComboSkill = SkillInfoProvider.getSkill(11110005);
 			break;
 		default:
-			comboSkill = SkillFactory.getSkill(1111002);
-			advancedComboSkill = SkillFactory.getSkill(1120003);
+			comboSkill = SkillInfoProvider.getSkill(1111002);
+			advancedComboSkill = SkillInfoProvider.getSkill(1120003);
 			break;
 		}
 
@@ -2093,10 +2057,10 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		switch (this.getJobId()) {
 		case 1110:
 		case 1111:
-			comboSkill = SkillFactory.getSkill(11111001);
+			comboSkill = SkillInfoProvider.getSkill(11111001);
 			break;
 		default:
-			comboSkill = SkillFactory.getSkill(1111002);
+			comboSkill = SkillInfoProvider.getSkill(1111002);
 			break;
 		}
 
@@ -2545,14 +2509,14 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			this.map.spawnDragon(this.dragon);
 			if (newJob == 2217) {
 				for (final int id : Skill.EVAN_SKILLS_1) {
-					final ISkill skill = SkillFactory.getSkill(id);
+					final ISkill skill = SkillInfoProvider.getSkill(id);
 					if (skill != null && this.getCurrentSkillLevel(skill) <= 0 && this.getMasterSkillLevel(skill) <= 0) {
 						this.changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel());
 					}
 				}
 			} else if (newJob == 2218) {
 				for (final int id : Skill.EVAN_SKILLS_2) {
-					final ISkill skill = SkillFactory.getSkill(id);
+					final ISkill skill = SkillInfoProvider.getSkill(id);
 					if (skill != null && this.getCurrentSkillLevel(skill) <= 0 && this.getMasterSkillLevel(skill) <= 0) {
 						this.changeSkillLevel(skill, skill.getMaxLevel(), skill.getMaxLevel());
 					}
@@ -2561,7 +2525,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 
 		} else if (newJob >= 431 && newJob <= 434) { // master skills
 			for (final int id : Skill.DUALBLADE_SKILLS) {
-				final ISkill skill = SkillFactory.getSkill(id);
+				final ISkill skill = SkillInfoProvider.getSkill(id);
 				if (skill != null && this.getCurrentSkillLevel(skill) <= 0 && this.getMasterSkillLevel(skill) <= 0) {
 					this.changeSkillLevel(skill, (byte) 0, (byte) skill.getMasterLevel());
 				}
@@ -3114,7 +3078,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(10, 12);
 		} else if (this.jobId >= 100 && this.jobId <= 132) {
 			// Warrior
-			final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
+			final ISkill improvingMaxHP = SkillInfoProvider.getSkill(1000001);
 			final int slevel = this.getCurrentSkillLevel(improvingMaxHP);
 			if (slevel > 0) {
 				maxhp += improvingMaxHP.getEffect(slevel).getX();
@@ -3123,7 +3087,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(4, 6);
 		} else if (this.jobId >= 200 && this.jobId <= 232) {
 			// Magician
-			final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+			final ISkill improvingMaxMP = SkillInfoProvider.getSkill(2000001);
 			final int skillLevel = this.getCurrentSkillLevel(improvingMaxMP);
 			if (skillLevel > 0) {
 				maxmp += improvingMaxMP.getEffect(skillLevel).getX() * 2;
@@ -3137,7 +3101,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(14, 16);
 		} else if (this.jobId >= 500 && this.jobId <= 522) {
 			// Pirate
-			final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
+			final ISkill improvingMaxHP = SkillInfoProvider.getSkill(5100000);
 			final int slevel = this.getCurrentSkillLevel(improvingMaxHP);
 			if (slevel > 0) {
 				maxhp += improvingMaxHP.getEffect(slevel).getX();
@@ -3146,7 +3110,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(18, 22);
 		} else if (this.jobId >= 1100 && this.jobId <= 1111) {
 			// Soul Master
-			final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
+			final ISkill improvingMaxHP = SkillInfoProvider.getSkill(11000000);
 			final int slevel = this.getCurrentSkillLevel(improvingMaxHP);
 			if (slevel > 0) {
 				maxhp += improvingMaxHP.getEffect(slevel).getX();
@@ -3155,7 +3119,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(4, 6);
 		} else if (this.jobId >= 1200 && this.jobId <= 1211) {
 			// Flame Wizard
-			final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+			final ISkill improvingMaxMP = SkillInfoProvider.getSkill(12000000);
 			final int slevel = this.getCurrentSkillLevel(improvingMaxMP);
 			if (slevel > 0) {
 				maxmp += improvingMaxMP.getEffect(slevel).getX() * 2;
@@ -3168,7 +3132,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			maxmp += Randomizer.rand(50, 52);
 		} else if (this.jobId >= 1500 && this.jobId <= 1512) {
 			// Pirate
-			final ISkill improvingMaxHP = SkillFactory.getSkill(15100000);
+			final ISkill improvingMaxHP = SkillInfoProvider.getSkill(15100000);
 			final int slevel = this.getCurrentSkillLevel(improvingMaxHP);
 			if (slevel > 0) {
 				maxhp += improvingMaxHP.getEffect(slevel).getX();
@@ -3247,20 +3211,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 	}
 
-	public void sendMacros() {
-		for (int i = 0; i < 5; i++) {
-			if (this.skillMacros[i] != null) {
-				this.client.write(ChannelPackets.getMacros(this.skillMacros));
-				break;
-			}
-		}
-	}
-
-	public void updateMacros(final int position, final SkillMacro updateMacro) {
-		this.skillMacros[position] = updateMacro;
-	}
-
-	public final SkillMacro[] getMacros() {
+	public final SkillMacroSet getSkillMacros() {
 		return this.skillMacros;
 	}
 
@@ -3728,7 +3679,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	}
 
 	public int getSkillLevel(final int skill) {
-		final SkillEntry ret = this.skills.get(SkillFactory.getSkill(skill));
+		final SkillEntry ret = this.skills.get(SkillInfoProvider.getSkill(skill));
 		if (ret == null) {
 			return 0;
 		}
@@ -3994,7 +3945,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 			this.BerserkSchedule = null;
 		}
 
-		final ISkill berserkX = SkillFactory.getSkill(1320006);
+		final ISkill berserkX = SkillInfoProvider.getSkill(1320006);
 		final int skilllevel = this.getCurrentSkillLevel(berserkX);
 		if (skilllevel >= 1) {
 			final StatEffect ampStat = berserkX.getEffect(skilllevel);
@@ -4025,7 +3976,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		if (this.beholderBuffSchedule != null) {
 			this.beholderBuffSchedule.cancel(false);
 		}
-		final ISkill bHealing = SkillFactory.getSkill(1320008);
+		final ISkill bHealing = SkillInfoProvider.getSkill(1320008);
 		final int bHealingLvl = this.getCurrentSkillLevel(bHealing);
 		if (bHealingLvl > 0) {
 			final StatEffect healEffect = bHealing.getEffect(bHealingLvl);
@@ -4043,7 +3994,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 				}
 			}, healInterval, healInterval);
 		}
-		final ISkill bBuff = SkillFactory.getSkill(1320009);
+		final ISkill bBuff = SkillInfoProvider.getSkill(1320009);
 		final int bBuffLvl = this.getCurrentSkillLevel(bBuff);
 		if (bBuffLvl > 0) {
 			final StatEffect buffEffect = bBuff.getEffect(bBuffLvl);

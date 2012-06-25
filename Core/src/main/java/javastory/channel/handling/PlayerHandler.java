@@ -15,7 +15,6 @@ import javastory.channel.client.BuffStat;
 import javastory.channel.client.CancelCooldownAction;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.KeyBinding;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.client.SkillMacro;
 import javastory.channel.life.MobSkill;
 import javastory.channel.life.Monster;
@@ -39,6 +38,7 @@ import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.MobAttackInfo;
 import javastory.game.data.MobAttackInfoFactory;
 import javastory.game.data.MobSkillFactory;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.server.TimerManager;
@@ -81,7 +81,7 @@ public class PlayerHandler {
 			skill3 = reader.readInt();
 
 			macro = new SkillMacro(skill1, skill2, skill3, name, shout, i);
-			chr.updateMacros(i, macro);
+			chr.getSkillMacros().update(i, macro);
 		}
 	}
 
@@ -246,21 +246,21 @@ public class PlayerHandler {
 			} else if (type != -2 && type != -3 && type != -4) {
 				switch (chr.getJobId()) {
 				case 112: {
-					final ISkill skill = SkillFactory.getSkill(1120004);
+					final ISkill skill = SkillInfoProvider.getSkill(1120004);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
 						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
 					break;
 				}
 				case 122: {
-					final ISkill skill = SkillFactory.getSkill(1220005);
+					final ISkill skill = SkillInfoProvider.getSkill(1220005);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
 						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
 					break;
 				}
 				case 132: {
-					final ISkill skill = SkillFactory.getSkill(1320005);
+					final ISkill skill = SkillInfoProvider.getSkill(1320005);
 					if (chr.getCurrentSkillLevel(skill) > 0) {
 						damage = (int) (skill.getEffect(chr.getCurrentSkillLevel(skill)).getX() / 1000.0 * damage);
 					}
@@ -346,7 +346,7 @@ public class PlayerHandler {
 			case 80:
 			case 90:
 			case 100:
-				SkillFactory.getSkill(21000000).getEffect(combo / 10).applyComboBuff(chr, combo);
+				SkillInfoProvider.getSkill(21000000).getEffect(combo / 10).applyComboBuff(chr, combo);
 				break;
 			}
 		}
@@ -367,13 +367,13 @@ public class PlayerHandler {
 	}
 
 	public static void handleCancelBuff(final int sourceid, final ChannelCharacter chr) {
-		final ISkill skill = SkillFactory.getSkill(sourceid);
+		final ISkill skill = SkillInfoProvider.getSkill(sourceid);
 
 		if (skill.isChargeSkill()) {
 			chr.setKeyDownSkill_Time(0);
 			chr.getMap().broadcastMessage(chr, ChannelPackets.skillCancel(chr, sourceid), false);
 		} else {
-			chr.cancelEffect(SkillFactory.getSkill(sourceid).getEffect(1), false, -1);
+			chr.cancelEffect(SkillInfoProvider.getSkill(sourceid).getEffect(1), false, -1);
 		}
 	}
 
@@ -384,7 +384,7 @@ public class PlayerHandler {
 		final byte speed = reader.readByte();
 		final byte unk = reader.readByte(); // Added on v.82
 
-		final ISkill skill = SkillFactory.getSkill(skillId);
+		final ISkill skill = SkillInfoProvider.getSkill(skillId);
 		final int skilllevel_serv = chr.getCurrentSkillLevel(skill);
 
 		if (skilllevel_serv > 0 && skilllevel_serv == level && skill.isChargeSkill() && level > 0) {
@@ -401,7 +401,7 @@ public class PlayerHandler {
 		reader.skip(4); // Old X and Y
 		final int skillid = reader.readInt();
 		final int skillLevel = reader.readByte();
-		final ISkill skill = SkillFactory.getSkill(skillid);
+		final ISkill skill = SkillInfoProvider.getSkill(skillid);
 
 		if (chr.getCurrentSkillLevel(skill) == 0 || chr.getCurrentSkillLevel(skill) != skillLevel) {
 			if (!Skills.isMulungSkill(skillid)) {
@@ -492,7 +492,7 @@ public class PlayerHandler {
 		ISkill skill = null;
 
 		if (attack.skill != 0) {
-			skill = SkillFactory.getSkill(Skills.getLinkedAranSkill(attack.skill));
+			skill = SkillInfoProvider.getSkill(Skills.getLinkedAranSkill(attack.skill));
 			skillLevel = chr.getCurrentSkillLevel(skill);
 			if (skillLevel == 0) {
 				c.disconnect(true);
@@ -552,9 +552,9 @@ public class PlayerHandler {
 		// handle sacrifice hp loss
 		if (attack.targets > 0 && attack.skill == 1211002) { // handle charged
 																// blow
-			final int advcharge_level = chr.getCurrentSkillLevel(SkillFactory.getSkill(1220010));
+			final int advcharge_level = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(1220010));
 			if (advcharge_level > 0) {
-				if (!SkillFactory.getSkill(1220010).getEffect(advcharge_level).makeChanceResult()) {
+				if (!SkillInfoProvider.getSkill(1220010).getEffect(advcharge_level).makeChanceResult()) {
 					chr.cancelEffectFromBuffStat(BuffStat.WK_CHARGE);
 				}
 			} else {
@@ -568,9 +568,9 @@ public class PlayerHandler {
 		} else if (comboBuff != null) {
 			ISkill combo;
 			if (player.getJobId() == 1110 || player.getJobId() == 1111) {
-				combo = SkillFactory.getSkill(11111001);
+				combo = SkillInfoProvider.getSkill(11111001);
 			} else {
-				combo = SkillFactory.getSkill(1111002);
+				combo = SkillInfoProvider.getSkill(1111002);
 			}
 			maxdamage *= 1.0 + (combo.getEffect(player.getCurrentSkillLevel(combo)).getDamage() / 100.0 - 1.0) * (comboBuff.intValue() - 1);
 		}
@@ -604,7 +604,7 @@ public class PlayerHandler {
 		ISkill skill = null;
 
 		if (attack.skill != 0) {
-			skill = SkillFactory.getSkill(attack.skill);
+			skill = SkillInfoProvider.getSkill(attack.skill);
 			skillLevel = chr.getCurrentSkillLevel(skill);
 			if (skillLevel == 0) {
 				c.disconnect(true);
@@ -711,7 +711,7 @@ public class PlayerHandler {
 			return;
 		}
 		final AttackInfo attack = DamageParse.parseDmgMa(reader);
-		final ISkill skill = SkillFactory.getSkill(attack.skill);
+		final ISkill skill = SkillInfoProvider.getSkill(attack.skill);
 		final int skillLevel = chr.getCurrentSkillLevel(skill);
 		if (skillLevel == 0) {
 			c.disconnect(true);

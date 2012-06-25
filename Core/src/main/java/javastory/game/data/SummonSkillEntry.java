@@ -16,13 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package javastory.channel.client;
+package javastory.game.data;
+
+import javastory.wz.WzData;
+import javastory.wz.WzDataTool;
 
 public class SummonSkillEntry {
 
-	public byte type;
-	public byte mobCount;
-	public short attackAfter;
+	public final byte Type;
+	public final byte MobCount;
+	public final short AttackAfter;
 //    public short bulletSpeed; // To be parsed by the client only
 	// TODO store range position
+	
+	public SummonSkillEntry(final WzData data) {
+		this.AttackAfter = (short) WzDataTool.getInt("attackAfter", data, 999999);
+		this.Type = (byte) WzDataTool.getInt("type", data, 0);
+		this.MobCount = (byte) WzDataTool.getInt("mobCount", data, 1);
+	}
 }

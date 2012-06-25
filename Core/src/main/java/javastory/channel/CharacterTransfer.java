@@ -33,7 +33,6 @@ import javastory.channel.client.MonsterBook;
 import javastory.channel.client.Mount;
 import javastory.channel.client.MultiInventory;
 import javastory.channel.client.SkillEntry;
-import javastory.channel.client.SkillMacro;
 import javastory.channel.maps.SavedLocationType;
 import javastory.channel.server.Storage;
 import javastory.client.SimpleCharacterInfo;
@@ -60,7 +59,7 @@ public class CharacterTransfer implements Externalizable {
 	public int Level;
 	public MonsterBook MonsterBook;
 	public MultiInventory Inventories;
-	public SkillMacro[] SkillMacros;
+	public SkillMacroSet SkillMacros;
 	public KeyLayout KeyLayout;
 	public EnumMap<SavedLocationType, Integer> SavedLocations;
 
@@ -154,7 +153,7 @@ public class CharacterTransfer implements Externalizable {
 		}
 
 		this.BlessOfFairy = chr.getBlessOfFairyOrigin();
-		this.SkillMacros = chr.getMacros();
+		this.SkillMacros = chr.getSkillMacros();
 		this.KeyLayout = chr.getKeyLayout();
 		this.SavedLocations = chr.getSavedLocations();
 		this.LastFameTime = chr.getLastFameTime();
@@ -209,7 +208,7 @@ public class CharacterTransfer implements Externalizable {
 
 		this.BlessOfFairy = (String) in.readObject();
 
-		this.SkillMacros = (SkillMacro[]) in.readObject();
+		this.SkillMacros = (SkillMacroSet) in.readObject();
 		this.KeyLayout = (KeyLayout) in.readObject();
 		this.SavedLocations = (EnumMap<SavedLocationType, Integer>) in.readObject();
 		this.LastFameTime = in.readLong();

@@ -1,39 +1,34 @@
 package javastory.channel;
 
 import java.awt.Point;
+import java.io.Serializable;
 
 /**
  * 
  * @author shoftee
  */
-public class DoorInfo {
-	private final int townId;
-	private final int targetId;
-	private final Point position;
+public class DoorInfo implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8520828348027890204L;
+
 	public static final DoorInfo NONE = new DoorInfo();
 
+	public final int TownId;
+	public final int TargetId;
+	public final Point Position;
+
 	private DoorInfo() {
-		this.townId = 999999999;
-		this.targetId = 999999999;
-		this.position = new Point(0, 0);
+		this.TownId = 999999999;
+		this.TargetId = 999999999;
+		this.Position = new Point(0, 0);
 	}
 
 	public DoorInfo(final int townId, final int targetId, final Point position) {
-		this.townId = townId;
-		this.targetId = targetId;
-		this.position = position;
+		this.TownId = townId;
+		this.TargetId = targetId;
+		this.Position = position;
 	}
-
-	public int getTownId() {
-		return this.townId;
-	}
-
-	public int getTargetId() {
-		return this.targetId;
-	}
-
-	public Point getPosition() {
-		return this.position;
-	}
-
 }

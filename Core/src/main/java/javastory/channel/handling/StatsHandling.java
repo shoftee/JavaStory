@@ -8,11 +8,11 @@ import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.ISkill;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.server.AutobanManager;
 import javastory.game.Skills;
 import javastory.game.Stat;
 import javastory.game.StatValue;
+import javastory.game.data.SkillInfoProvider;
 import javastory.io.PacketFormatException;
 import javastory.io.PacketReader;
 import javastory.tools.Randomizer;
@@ -68,7 +68,7 @@ public class StatsHandling {
 				if (chr.getJobId() == 0) { // Beginner
 					MaxHP += Randomizer.rand(8, 12);
 				} else if (chr.getJobId() >= 100 && chr.getJobId() <= 132) { // Warrior
-					improvingMaxHP = SkillFactory.getSkill(1000001);
+					improvingMaxHP = SkillInfoProvider.getSkill(1000001);
 					improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
 					MaxHP += Randomizer.rand(20, 24);
 					if (improvingMaxHPLevel >= 1) {
@@ -81,14 +81,14 @@ public class StatsHandling {
 				} else if (chr.getJobId() >= 400 && chr.getJobId() <= 422) { // Thief
 					MaxHP += Randomizer.rand(20, 24);
 				} else if (chr.getJobId() >= 500 && chr.getJobId() <= 522) { // Pirate
-					improvingMaxHP = SkillFactory.getSkill(5100000);
+					improvingMaxHP = SkillInfoProvider.getSkill(5100000);
 					improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
 					MaxHP += Randomizer.rand(16, 20);
 					if (improvingMaxHPLevel >= 1) {
 						MaxHP += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 					}
 				} else if (chr.getJobId() >= 1100 && chr.getJobId() <= 1111) { // Soul Master
-					improvingMaxHP = SkillFactory.getSkill(11000000);
+					improvingMaxHP = SkillInfoProvider.getSkill(11000000);
 					improvingMaxHPLevel = chr.getCurrentSkillLevel(improvingMaxHP);
 					MaxHP += Randomizer.rand(36, 42);
 					if (improvingMaxHPLevel >= 1) {
@@ -116,7 +116,7 @@ public class StatsHandling {
 				} else if (chr.getJobId() >= 100 && chr.getJobId() <= 132) { // Warrior
 					MaxMP += Randomizer.rand(2, 4);
 				} else if (chr.getJobId() >= 200 && chr.getJobId() <= 232) { // Magician
-					final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+					final ISkill improvingMaxMP = SkillInfoProvider.getSkill(2000001);
 					final int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
 					if (improvingMaxMPLevel >= 1) {
 						MaxMP += Randomizer.rand(18, 20) + improvingMaxMP.getEffect(improvingMaxMPLevel).getY();
@@ -132,7 +132,7 @@ public class StatsHandling {
 				} else if (chr.getJobId() >= 1100 && chr.getJobId() <= 1111) { // Soul Master
 					MaxMP += Randomizer.rand(6, 9);
 				} else if (chr.getJobId() >= 1200 && chr.getJobId() <= 1211) { // Flame Wizard
-					final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+					final ISkill improvingMaxMP = SkillInfoProvider.getSkill(12000000);
 					final int improvingMaxMPLevel = chr.getCurrentSkillLevel(improvingMaxMP);
 					MaxMP += Randomizer.rand(33, 36);
 					if (improvingMaxMPLevel >= 1) {
@@ -166,9 +166,9 @@ public class StatsHandling {
 		case 1000:
 		case 1001:
 		case 1002: {
-			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1000));
-			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1001));
-			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(1002));
+			final int snailsLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(1000));
+			final int recoveryLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(1001));
+			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(1002));
 			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
@@ -176,9 +176,9 @@ public class StatsHandling {
 		case 10001000:
 		case 10001001:
 		case 10001002: {
-			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001000));
-			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001001));
-			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(10001002));
+			final int snailsLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(10001000));
+			final int recoveryLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(10001001));
+			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(10001002));
 			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
@@ -186,9 +186,9 @@ public class StatsHandling {
 		case 20001000:
 		case 20001001:
 		case 20001002: {
-			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001000));
-			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001001));
-			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20001002));
+			final int snailsLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20001000));
+			final int recoveryLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20001001));
+			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20001002));
 			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
@@ -196,9 +196,9 @@ public class StatsHandling {
 		case 20011000:
 		case 20011001:
 		case 20011002: {
-			final int snailsLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011000));
-			final int recoveryLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011001));
-			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillFactory.getSkill(20011002));
+			final int snailsLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20011000));
+			final int recoveryLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20011001));
+			final int nimbleFeetLevel = chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(20011002));
 			remainingSp = Math.min(chr.getLevel() - 1, 6) - snailsLevel - recoveryLevel - nimbleFeetLevel;
 			isBeginnerSkill = true;
 			break;
@@ -208,10 +208,10 @@ public class StatsHandling {
 			break;
 		}
 		}
-		final ISkill skill = SkillFactory.getSkill(skillid);
+		final ISkill skill = SkillInfoProvider.getSkill(skillid);
 
 		if (skill.hasRequiredSkill()) {
-			if (chr.getCurrentSkillLevel(SkillFactory.getSkill(skill.getRequiredSkillId())) < skill.getRequiredSkillLevel()) {
+			if (chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(skill.getRequiredSkillId())) < skill.getRequiredSkillLevel()) {
 				AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill without the required skill (" + skillid + ")");
 				return;
 			}

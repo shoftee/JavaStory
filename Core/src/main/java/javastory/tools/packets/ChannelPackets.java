@@ -2525,11 +2525,11 @@ public final class ChannelPackets {
 			final PartyMember member = entry.getKey();
 			final DoorInfo door = entry.getValue();
 			if (member.getChannel() == channelId && !leaving) {
-				builder.writeInt(door.getTownId());
-				builder.writeInt(door.getTargetId());
+				builder.writeInt(door.TownId);
+				builder.writeInt(door.TargetId);
 				builder.writeInt(2311002);
-				builder.writeInt(door.getPosition().x);
-				builder.writeInt(door.getPosition().y);
+				builder.writeInt(door.Position.x);
+				builder.writeInt(door.Position.x);
 			} else {
 				builder.writeInt(leaving ? 999999999 : 0);
 				builder.writeLong(leaving ? 999999999 : 0);

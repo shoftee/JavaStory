@@ -25,8 +25,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import javastory.channel.ChannelCharacter;
-import javastory.channel.client.SkillFactory;
 import javastory.game.Item;
+import javastory.game.data.SkillInfoProvider;
 import javastory.wz.WzData;
 import javastory.wz.WzDataTool;
 
@@ -152,7 +152,7 @@ public class QuestRequirement implements Serializable {
 				final int skill = entry.Key;
 				final boolean acquire = entry.Value > 0;
 
-				final byte masterSkillLevel = c.getMasterSkillLevel(SkillFactory.getSkill(skill));
+				final byte masterSkillLevel = c.getMasterSkillLevel(SkillInfoProvider.getSkill(skill));
 				if (acquire) {
 					if (masterSkillLevel == 0) {
 						return false;

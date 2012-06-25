@@ -15,7 +15,6 @@ import javastory.channel.client.ActivePlayerStats;
 import javastory.channel.client.ISkill;
 import javastory.channel.client.Mount;
 import javastory.channel.client.Pet;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.FieldLimitType;
@@ -44,6 +43,7 @@ import javastory.game.data.ItemInfoProvider;
 import javastory.game.data.RandomRewards;
 import javastory.game.data.RewardItemInfo;
 import javastory.game.data.RewardSetInfo;
+import javastory.game.data.SkillInfoProvider;
 import javastory.game.quest.QuestInfoProvider;
 import javastory.game.quest.QuestInfoProvider.QuestInfo;
 import javastory.io.PacketFormatException;
@@ -269,7 +269,7 @@ public class InventoryHandler {
 		}
 
 		if (legendarySpirit) {
-			if (chr.getCurrentSkillLevel(SkillFactory.getSkill(1003)) <= 0) {
+			if (chr.getCurrentSkillLevel(SkillInfoProvider.getSkill(1003)) <= 0) {
 				// AutobanManager.getInstance().addPoints(c, 50, 120000,
 				// "Using the Skill 'Legendary Spirit' without having it.");
 				return;
@@ -346,7 +346,7 @@ public class InventoryHandler {
 				break; // End of data
 			}
 			if (CurrentLoopedSkillId / 100000 == chr.getJobId() / 10) {
-				final ISkill CurrSkillData = SkillFactory.getSkill(CurrentLoopedSkillId);
+				final ISkill CurrSkillData = SkillInfoProvider.getSkill(CurrentLoopedSkillId);
 				if (chr.getCurrentSkillLevel(CurrSkillData) >= ReqSkillLevel && chr.getMasterSkillLevel(CurrSkillData) < MasterLevel) {
 					canuse = true;
 					if (Randomizer.nextInt(99) <= SuccessRate && SuccessRate != 0) {
@@ -780,7 +780,7 @@ public class InventoryHandler {
 					if (job == 0) { // Beginner
 						maxhp += Randomizer.rand(8, 12);
 					} else if (job >= 100 && job <= 132) { // Warrior
-						final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(1000001);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += Randomizer.rand(20, 25);
 						if (improvingMaxHPLevel >= 1) {
@@ -793,14 +793,14 @@ public class InventoryHandler {
 					} else if (job >= 400 && job <= 434) { // Thief
 						maxhp += Randomizer.rand(16, 20);
 					} else if (job >= 500 && job <= 522) { // Pirate
-						final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(5100000);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += 20;
 						if (improvingMaxHPLevel >= 1) {
 							maxhp += improvingMaxHP.getEffect(improvingMaxHPLevel).getY();
 						}
 					} else if (job >= 1100 && job <= 1111) { // Soul Master
-						final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(11000000);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp += Randomizer.rand(36, 42);
 						if (improvingMaxHPLevel >= 1) {
@@ -833,7 +833,7 @@ public class InventoryHandler {
 					} else if (job >= 100 && job <= 132) {
 						maxmp += Randomizer.rand(2, 4);
 					} else if (job >= 200 && job <= 232) {
-						final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+						final ISkill improvingMaxMP = SkillInfoProvider.getSkill(2000001);
 						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(18, 20);
 						if (improvingMaxMPLevel >= 1) {
@@ -848,7 +848,7 @@ public class InventoryHandler {
 					} else if (job >= 1100 && job <= 1111) {
 						maxmp += Randomizer.rand(6, 9);
 					} else if (job >= 1200 && job <= 1211) {
-						final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+						final ISkill improvingMaxMP = SkillInfoProvider.getSkill(12000000);
 						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp += Randomizer.rand(33, 36);
 						if (improvingMaxMPLevel >= 1) {
@@ -905,7 +905,7 @@ public class InventoryHandler {
 						maxhp -= 12;
 					} else if (job >= 100 && job <= 132) {
 						// Warrior
-						final ISkill improvingMaxHP = SkillFactory.getSkill(1000001);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(1000001);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 24;
 						if (improvingMaxHPLevel >= 1) {
@@ -919,7 +919,7 @@ public class InventoryHandler {
 						maxhp -= 15;
 					} else if (job >= 500 && job <= 522) {
 						// Pirate
-						final ISkill improvingMaxHP = SkillFactory.getSkill(5100000);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(5100000);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 15;
 						if (improvingMaxHPLevel > 0) {
@@ -927,7 +927,7 @@ public class InventoryHandler {
 						}
 					} else if (job >= 1100 && job <= 1111) {
 						// Soul Master
-						final ISkill improvingMaxHP = SkillFactory.getSkill(11000000);
+						final ISkill improvingMaxHP = SkillInfoProvider.getSkill(11000000);
 						final int improvingMaxHPLevel = player.getCurrentSkillLevel(improvingMaxHP);
 						maxhp -= 27;
 						if (improvingMaxHPLevel >= 1) {
@@ -958,7 +958,7 @@ public class InventoryHandler {
 					} else if (job >= 100 && job <= 132) { // Warrior
 						maxmp -= 4;
 					} else if (job >= 200 && job <= 232) { // Magician
-						final ISkill improvingMaxMP = SkillFactory.getSkill(2000001);
+						final ISkill improvingMaxMP = SkillInfoProvider.getSkill(2000001);
 						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp -= 20;
 						if (improvingMaxMPLevel >= 1) {
@@ -971,7 +971,7 @@ public class InventoryHandler {
 					} else if (job >= 1100 && job <= 1111) { // Soul Master
 						maxmp -= 6;
 					} else if (job >= 1200 && job <= 1211) { // Flame Wizard
-						final ISkill improvingMaxMP = SkillFactory.getSkill(12000000);
+						final ISkill improvingMaxMP = SkillInfoProvider.getSkill(12000000);
 						final int improvingMaxMPLevel = player.getCurrentSkillLevel(improvingMaxMP);
 						maxmp -= 25;
 						if (improvingMaxMPLevel >= 1) {
@@ -1010,8 +1010,8 @@ public class InventoryHandler {
 			final int skill1 = reader.readInt();
 			final int skill2 = reader.readInt();
 
-			final ISkill skillSPTo = SkillFactory.getSkill(skill1);
-			final ISkill skillSPFrom = SkillFactory.getSkill(skill2);
+			final ISkill skillSPTo = SkillInfoProvider.getSkill(skill1);
+			final ISkill skillSPFrom = SkillInfoProvider.getSkill(skill2);
 
 			if (skillSPTo.isBeginnerSkill() || skillSPFrom.isBeginnerSkill()) {
 				break;

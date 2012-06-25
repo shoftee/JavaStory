@@ -10,7 +10,6 @@ import javastory.channel.ChannelServer;
 import javastory.channel.Guild;
 import javastory.channel.PartyMember;
 import javastory.channel.client.Pet;
-import javastory.channel.client.SkillFactory;
 import javastory.channel.life.LifeFactory;
 import javastory.channel.life.Monster;
 import javastory.channel.maps.Event_DojoAgent;
@@ -26,6 +25,7 @@ import javastory.game.Inventory;
 import javastory.game.InventoryType;
 import javastory.game.Item;
 import javastory.game.data.ItemInfoProvider;
+import javastory.game.data.SkillInfoProvider;
 import javastory.game.quest.QuestStatus;
 import javastory.tools.Randomizer;
 import javastory.tools.packets.ChannelPackets;
@@ -433,7 +433,7 @@ public class AbstractPlayerInteraction {
 	}
 
 	public final void teachSkill(final int id, final byte level, final byte masterlevel) {
-		this.getPlayer().changeSkillLevel(SkillFactory.getSkill(id), level, masterlevel);
+		this.getPlayer().changeSkillLevel(SkillInfoProvider.getSkill(id), level, masterlevel);
 	}
 
 	public final int getPlayerCount(final int mapid) {
