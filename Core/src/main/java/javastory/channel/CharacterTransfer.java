@@ -46,7 +46,7 @@ public class CharacterTransfer implements Externalizable {
 	public final long Timestamp;
 	
 	public int CharacterId, AccountId, Fame, STR, DEX, INT, LUK, MaxHP, MaxMP, HP, MP, Exp, hpApUsed, mpApUsed, RemainingAP, Meso, SkinColorId, JobId, HairId,
-		FaceId, MapId, InitialSpawnPoint, WorldId, GuildId, BuddyListCapacity, PartyId, MessengerId, MessengerPosition, MonsterBookCover, Dojo, RebornCount,
+		FaceId, MapId, InitialSpawnPoint, WorldId, GuildId, BuddyListCapacity, PartyId, MessengerId, MessengerPosition, MonsterBookCover, DojoPoints, RebornCount,
 		Subcategory;
 	public int ACash, vpoints, MaplePoints;
 	public int MountLevel, MountItemId, MountFatigue, MountExp;
@@ -54,7 +54,7 @@ public class CharacterTransfer implements Externalizable {
 	public Gender Gender;
 	public MemberRank GuildRank;
 	public boolean ondmg, callgm;
-	public long LastFameTime, TranferTime;
+	public long LastFameTime, TransferTime;
 	public String CharacterName, AccountName, BlessOfFairy;
 	public int Level;
 	public MonsterBook MonsterBook;
@@ -137,7 +137,7 @@ public class CharacterTransfer implements Externalizable {
 
 		this.MonsterBookCover = chr.getMonsterBookCover();
 		this.MonsterBook = chr.getMonsterBook();
-		this.Dojo = chr.getDojo();
+		this.DojoPoints = chr.getDojoPoints();
 		this.DojoRecord = (byte) chr.getDojoRecord();
 		this.RebornCount = chr.getReborns();
 		this.QuestInfoEntries = chr.getQuestInfoMap();
@@ -223,7 +223,7 @@ public class CharacterTransfer implements Externalizable {
 		this.MessengerId = in.readInt();
 		this.MessengerPosition = in.readInt();
 		this.MonsterBookCover = in.readInt();
-		this.Dojo = in.readInt();
+		this.DojoPoints = in.readInt();
 		this.DojoRecord = in.readByte();
 		this.RebornCount = in.readInt();
 		this.MonsterBook = (MonsterBook) in.readObject();
@@ -246,16 +246,15 @@ public class CharacterTransfer implements Externalizable {
 		}
 
 		final int questStatusEntryCount = in.readShort();
-		int questId;
-		QuestStatus questStatus;
 		for (int i = 0; i < questStatusEntryCount; i++) {
-			questId = in.readInt();
-			questStatus = (QuestStatus) in.readObject();
+			final int questId = in.readInt();
+			final QuestStatus questStatus = (QuestStatus) in.readObject();
 			this.Quests.put(questId, questStatus);
 		}
+		
 		this.ondmg = in.readByte() == 1;
 		this.callgm = in.readByte() == 1;
-		this.TranferTime = System.currentTimeMillis();
+		this.TransferTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -313,7 +312,7 @@ public class CharacterTransfer implements Externalizable {
 		out.writeInt(this.MessengerId);
 		out.writeInt(this.MessengerPosition);
 		out.writeInt(this.MonsterBookCover);
-		out.writeInt(this.Dojo);
+		out.writeInt(this.DojoPoints);
 		out.write(this.DojoRecord);
 		out.writeInt(this.RebornCount);
 		out.writeObject(this.MonsterBook);

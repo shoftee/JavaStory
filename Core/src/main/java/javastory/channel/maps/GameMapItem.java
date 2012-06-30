@@ -2,48 +2,52 @@ package javastory.channel.maps;
 
 import java.awt.Point;
 
-import javastory.channel.ChannelCharacter;
 import javastory.channel.ChannelClient;
 import javastory.game.Item;
 import javastory.tools.packets.ChannelPackets;
 
-public class GameMapItem extends AbstractGameMapObject {
+public final class GameMapItem extends AbstractGameMapObject {
 
-	protected Item item;
-	protected GameMapObject dropper;
-	protected int character_ownerid, meso, questid = -1;
-	protected byte type;
-	protected boolean pickedUp = false, playerDrop;
+	private Item item;
+	private GameMapObject dropper;
+	private int ownerId, meso, questId;
+	private ItemDropType type;
+	private boolean pickedUp, playerDrop;
 
-	public GameMapItem(final Item item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
-		this.setPosition(position);
-		this.item = item;
-		this.dropper = dropper;
-		this.character_ownerid = owner.getId();
-		this.meso = 0;
-		this.type = type;
-		this.playerDrop = playerDrop;
+	public static GameMapItem meso(final int amount, final Point position, final GameMapObject dropper, final int ownerId, final ItemDropType type,
+		final boolean playerDrop) {
+		final GameMapItem item = new GameMapItem(position, dropper, ownerId, type, playerDrop);
+		item.item = null;
+		item.meso = amount;
+		return item;
 	}
 
-	public GameMapItem(final Item item, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop, final int questid) {
-		this.setPosition(position);
-		this.item = item;
-		this.dropper = dropper;
-		this.character_ownerid = owner.getId();
-		this.meso = 0;
-		this.type = type;
-		this.playerDrop = playerDrop;
-		this.questid = questid;
+	public static GameMapItem item(final Item item, final Point position, final GameMapObject dropper, final int ownerId, final ItemDropType type,
+		final boolean playerDrop) {
+		final GameMapItem gameMapItem = new GameMapItem(position, dropper, ownerId, type, playerDrop);
+		gameMapItem.item = item;
+		gameMapItem.meso = 0;
+		return gameMapItem;
 	}
 
-	public GameMapItem(final int meso, final Point position, final GameMapObject dropper, final ChannelCharacter owner, final byte type, final boolean playerDrop) {
+	public static GameMapItem questItem(final Item item, final Point position, final GameMapObject dropper, final int ownerId, final ItemDropType type,
+		final boolean playerDrop, final int questId) {
+		final GameMapItem gameMapItem = GameMapItem.item(item, position, dropper, ownerId, type, playerDrop);
+		gameMapItem.questId = questId;
+		return gameMapItem;
+	}
+
+	private GameMapItem(final Point position, final GameMapObject dropper, final int ownerId, final ItemDropType type, final boolean playerDrop) {
 		this.setPosition(position);
+		this.dropper = dropper;
+		this.ownerId = ownerId;
+		this.type = type;
+		this.playerDrop = playerDrop;
+
+		this.meso = 0;
+		this.questId = -1;
 		this.item = null;
-		this.dropper = dropper;
-		this.character_ownerid = owner.getId();
-		this.meso = meso;
-		this.type = type;
-		this.playerDrop = playerDrop;
+		this.pickedUp = false;
 	}
 
 	public final Item getItem() {
@@ -51,7 +55,7 @@ public class GameMapItem extends AbstractGameMapObject {
 	}
 
 	public final int getQuest() {
-		return this.questid;
+		return this.questId;
 	}
 
 	public final int getItemId() {
@@ -66,7 +70,7 @@ public class GameMapItem extends AbstractGameMapObject {
 	}
 
 	public final int getOwner() {
-		return this.character_ownerid;
+		return this.ownerId;
 	}
 
 	public final int getMeso() {
@@ -85,7 +89,7 @@ public class GameMapItem extends AbstractGameMapObject {
 		this.pickedUp = pickedUp;
 	}
 
-	public byte getDropType() {
+	public ItemDropType getDropType() {
 		return this.type;
 	}
 
@@ -96,7 +100,7 @@ public class GameMapItem extends AbstractGameMapObject {
 
 	@Override
 	public void sendSpawnData(final ChannelClient client) {
-		if (this.questid <= 0 || client.getPlayer().getQuestCompletionStatus(this.questid) == 1) {
+		if (this.questId <= 0 || client.getPlayer().getQuestCompletionStatus(this.questId) == 1) {
 			client.write(ChannelPackets.dropItemFromMapObject(this, null, this.getPosition(), (byte) 2));
 		}
 	}

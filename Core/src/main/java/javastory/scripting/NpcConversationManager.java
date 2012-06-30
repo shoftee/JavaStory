@@ -703,7 +703,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 	}
 
 	public final int getDojoPoints() {
-		return super.client.getPlayer().getDojo();
+		return super.client.getPlayer().getDojoPoints();
 	}
 
 	public final int getDojoRecord() {

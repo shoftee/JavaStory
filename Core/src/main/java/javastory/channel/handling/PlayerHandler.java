@@ -21,6 +21,7 @@ import javastory.channel.life.Monster;
 import javastory.channel.maps.FieldLimitType;
 import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapFactory;
+import javastory.channel.maps.ItemDropType;
 import javastory.channel.movement.AbsoluteLifeMovement;
 import javastory.channel.movement.LifeMovementFragment;
 import javastory.channel.packet.MTSCSPacket;
@@ -757,7 +758,7 @@ public class PlayerHandler {
 			return;
 		}
 		chr.gainMeso(-meso, false, true);
-		chr.getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, (byte) 0);
+		chr.getMap().spawnMesoDrop(meso, chr.getPosition(), chr, chr, true, ItemDropType.DEFAULT);
 	}
 
 	public static void handleFaceExpression(final int emote, final ChannelCharacter chr) {

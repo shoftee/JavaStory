@@ -437,7 +437,7 @@ public class AbstractPlayerInteraction {
 	}
 
 	public final int getPlayerCount(final int mapid) {
-		return ChannelServer.getMapFactory().getMap(mapid).getCharactersSize();
+		return ChannelServer.getMapFactory().getMap(mapid).getCharacterCount();
 	}
 
 	public final void dojo_getUp() {
@@ -454,7 +454,7 @@ public class AbstractPlayerInteraction {
 	}
 
 	public final int dojo_getPts() {
-		return this.client.getPlayer().getDojo();
+		return this.client.getPlayer().getDojoPoints();
 	}
 
 	public final int getSavedLocation(final String loc) {

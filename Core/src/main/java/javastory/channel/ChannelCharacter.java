@@ -208,7 +208,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 	// TODO: Extract HP AP Used, MP AP Used, remaining AP into another class.
 	private int mpApUsed, hpApUsed, remainingAp;
 
-	private int meso, exp, mapId, initialSpawnPoint, bookCover, dojo, fallcounter, chair, itemEffect;
+	private int meso, exp, mapId, initialSpawnPoint, bookCover, dojoPoints, fallcounter, chair, itemEffect;
 
 	// TODO: Extract SP logic into class.
 	private int[] remainingSp = new int[10];
@@ -356,7 +356,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		ret.worldId = ct.WorldId;
 
 		ret.bookCover = ct.MonsterBookCover;
-		ret.dojo = ct.Dojo;
+		ret.dojoPoints = ct.DojoPoints;
 		ret.dojoRecord = ct.DojoRecord;
 		ret.reborns = ct.RebornCount;
 
@@ -878,7 +878,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 				}
 			}
 			this.bookCover = rs.getInt("monsterbookcover");
-			this.dojo = rs.getInt("dojo_pts");
+			this.dojoPoints = rs.getInt("dojo_pts");
 			this.dojoRecord = rs.getByte("dojoRecord");
 		}
 	}
@@ -1066,7 +1066,7 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		}
 
 		ps.setInt(29, this.bookCover);
-		ps.setInt(30, this.dojo);
+		ps.setInt(30, this.dojoPoints);
 		ps.setInt(31, this.dojoRecord);
 		ps.setInt(32, this.getReborns());
 		ps.setInt(33, this.subcategory);
@@ -2155,8 +2155,8 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		return this.fame;
 	}
 
-	public final int getDojo() {
-		return this.dojo;
+	public final int getDojoPoints() {
+		return this.dojoPoints;
 	}
 
 	public final int getDojoRecord() {
@@ -2281,13 +2281,13 @@ public class ChannelCharacter extends AbstractAnimatedGameMapObject implements G
 		this.fame = fame;
 	}
 
-	public void setDojo(final int dojo) {
-		this.dojo = dojo;
+	public void setDojoPoints(final int points) {
+		this.dojoPoints = points;
 	}
 
 	public void setDojoRecord(final boolean reset) {
 		if (reset) {
-			this.dojo = 0;
+			this.dojoPoints = 0;
 			this.dojoRecord = 0;
 		} else {
 			this.dojoRecord++;

@@ -19,7 +19,7 @@ public class Event_DojoAgent {
 		final int mapid = baseAgentMapId + stage * 100;
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
-			if (map.getCharactersSize() == 0) {
+			if (map.getCharacterCount() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
 				map.respawn(true);
@@ -55,7 +55,7 @@ public class Event_DojoAgent {
 		final int nextmapid = baseAgentMapId + (thisStage + 1) * 100;
 		for (int i = nextmapid; i < nextmapid + 7; i++) {
 			map = ChannelServer.getMapFactory().getMap(i);
-			if (map.getCharactersSize() == 0) {
+			if (map.getCharacterCount() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
 				map.respawn(true);
@@ -73,7 +73,7 @@ public class Event_DojoAgent {
 		final int mapid = 925020000 + stage * 100;
 		for (int i = mapid; i < mapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
-			if (map.getCharactersSize() == 0) {
+			if (map.getCharacterCount() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
 				spawnMonster(map, stage);
@@ -102,8 +102,8 @@ public class Event_DojoAgent {
 			} else {
 				c.modifyCSPoints(1, cashGain, true);
 			}
-			c.setDojo(c.getDojo() + 10);
-			c.getClient().write(ChannelPackets.Mulung_Pts(10, c.getDojo()));
+			c.setDojoPoints(c.getDojoPoints() + 10);
+			c.getClient().write(ChannelPackets.Mulung_Pts(10, c.getDojoPoints()));
 		}
 		if (currentmap >= 925023800 && currentmap <= 925023814) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(925020003);
@@ -117,7 +117,7 @@ public class Event_DojoAgent {
 
 		for (int i = nextmapid; i < nextmapid + 15; i++) {
 			final GameMap map = ChannelServer.getMapFactory().getMap(i);
-			if (map.getCharactersSize() == 0) {
+			if (map.getCharacterCount() == 0) {
 				clearMap(map, false);
 				c.changeMap(map, map.getPortal(0));
 				spawnMonster(map, thisStage + 1);
@@ -129,7 +129,7 @@ public class Event_DojoAgent {
 
 	private static void clearMap(final GameMap map, final boolean check) {
 		if (check) {
-			if (map.getCharactersSize() != 0) {
+			if (map.getCharacterCount() != 0) {
 				return;
 			}
 		}

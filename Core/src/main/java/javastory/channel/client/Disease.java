@@ -18,9 +18,7 @@
  */
 package javastory.channel.client;
 
-import java.io.Serializable;
-
-public enum Disease implements Serializable {
+public enum Disease {
 
 	NULL(0x0), SLOW(0x1), MORPH(0x2), // turns into an orange mushroom
 	SEDUCE(0x80),
@@ -34,7 +32,6 @@ public enum Disease implements Serializable {
 	DARKNESS(0x10000000000000L),
 	WEAKEN(0x4000000000000000L), ;
 	// 0x100 is disable skill except buff
-	private static final long serialVersionUID = 0L;
 	private long i;
 	private boolean first;
 

@@ -167,7 +167,12 @@ public class Reactor extends AbstractGameMapObject {
 
 	@Override
 	public String toString() {
-		return "Reactor " + this.getObjectId() + " of id " + this.reactorId + " at position " + this.getPosition().toString() + " state" + this.stateId
-			+ " type " + this.localInfo.getType(this.stateId);
+		StringBuilder builder = new StringBuilder();
+		builder.append("Reactor instance ").append(this.getObjectId()).append("; ");
+		builder.append("prototype ").append(this.reactorId).append("; ");
+		builder.append("position ").append(this.getPosition().toString()).append("; ");
+		builder.append("state ").append(this.stateId).append("; ");
+		builder.append("type ").append(this.localInfo.getType(this.stateId)).append("; ");
+		return builder.toString();
 	}
 }

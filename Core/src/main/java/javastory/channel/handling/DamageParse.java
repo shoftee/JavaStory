@@ -19,6 +19,7 @@ import javastory.channel.maps.GameMap;
 import javastory.channel.maps.GameMapItem;
 import javastory.channel.maps.GameMapObject;
 import javastory.channel.maps.GameMapObjectType;
+import javastory.channel.maps.ItemDropType;
 import javastory.channel.server.StatEffect;
 import javastory.game.AttackType;
 import javastory.game.AttackNature;
@@ -458,15 +459,15 @@ public final class DamageParse {
 			player.getClient().write(ChannelPackets.enableActions());
 			return;
 		}
-//	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
-//	    effect.applyTo(player);
-//	}
+		//	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
+		//	    effect.applyTo(player);
+		//	}
 		if (attack.hits > effect.getAttackCount() || attack.targets > effect.getMobCount()) {
 			player.getCheatTracker().registerOffense(CheatingOffense.MISMATCHING_BULLETCOUNT);
 			return;
 		}
 		final ActivePlayerStats stats = player.getStats();
-//	double minDamagePerHit;
+		//	double minDamagePerHit;
 		double maxDamagePerHit;
 		if (attack.skill == 2301002) {
 			maxDamagePerHit = 30000;
@@ -478,7 +479,7 @@ public final class DamageParse {
 			// Maximum Damage = BA * (INT * 0.5 + (MATK*0.058)Â² + (Mastery *
 			// 0.9 * MATK) * 3.3) /100
 			final double v75 = effect.getMatk() * 0.058;
-//	    minDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + effect.getMatk() * 3.3) / 100;
+			//	    minDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + (v75 * v75) + effect.getMatk() * 3.3) / 100;
 			maxDamagePerHit = stats.getTotalMagic() * (stats.getInt() * 0.5 + v75 * v75 + effect.getMastery() * 0.9 * effect.getMatk() * 3.3) / 100;
 		}
 		maxDamagePerHit *= 1.04; // Avoid any errors for now
@@ -545,7 +546,7 @@ public final class DamageParse {
 						if (monsterstats.getOnlyNoramlAttack()) {
 							eachd = 0; // Magic is always not a normal attack
 						} else {
-//			    System.out.println("Client damage : " + eachd + " Server : " + MaxDamagePerHit);
+							//			    System.out.println("Client damage : " + eachd + " Server : " + MaxDamagePerHit);
 
 							if (Tempest) { // Buffed with Tempest
 								// In special case such as Chain lightning, the
@@ -556,7 +557,7 @@ public final class DamageParse {
 								}
 							} else {
 								if (eachd > MaxDamagePerHit) {
-//				    System.out.println("EXCEED!!! Client damage : " + eachd + " Server : " + MaxDamagePerHit);
+									//				    System.out.println("EXCEED!!! Client damage : " + eachd + " Server : " + MaxDamagePerHit);
 									eachd = (int) MaxDamagePerHit; // Convert to
 																	// server
 																	// calculated
@@ -640,7 +641,7 @@ public final class DamageParse {
 		// FullAccuracy = Avoid * (dLevel * 2 + 51) / 50
 
 		// miss :P or HACK :O
-		if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() != 10001000 && skill.getId() != 20001000 && skill.getId() != 20011000) { 
+		if (MinAccuracy > Accuracy && skill.getId() != 1000 && skill.getId() != 10001000 && skill.getId() != 20001000 && skill.getId() != 20011000) {
 			return 0;
 		}
 		double elemMaxDamagePerMob;
@@ -671,9 +672,9 @@ public final class DamageParse {
 			elemMaxDamagePerMob += elemMaxDamagePerMob / 100 * sharpEye;
 		}
 
-//	if (skill.isChargeSkill()) {
-//	    elemMaxDamagePerMob = (float) ((90 * ((System.currentTimeMillis() - chr.getKeyDownSkill_Time()) / 1000) + 10) * elemMaxDamagePerMob * 0.01);
-//	}
+		//	if (skill.isChargeSkill()) {
+		//	    elemMaxDamagePerMob = (float) ((90 * ((System.currentTimeMillis() - chr.getKeyDownSkill_Time()) / 1000) + 10) * elemMaxDamagePerMob * 0.01);
+		//	}
 		if (skill.isChargeSkill() && chr.getKeyDownSkill_Time() == 0) {
 			return 0;
 		}
@@ -720,9 +721,11 @@ public final class DamageParse {
 
 					@Override
 					public void run() {
-						player.getMap().spawnMesoDrop(Math.min((int) Math.max((double) eachd / (double) 20000 * maxmeso, 1), maxmeso),
-							new Point((int) (mob.getPosition().getX() + Randomizer.nextInt(100) - 50), (int) mob.getPosition().getY()), mob, player, true,
-							(byte) 0);
+						final int amount = Math.min((int) Math.max((double) eachd / (double) 20000 * maxmeso, 1), maxmeso);
+						final int x = (int) (mob.getPosition().getX() + Randomizer.nextInt(100) - 50);
+						final int y = (int) mob.getPosition().getY();
+						final Point position = new Point(x, y);
+						player.getMap().spawnMesoDrop(amount, position, mob, player, true, ItemDropType.DEFAULT);
 					}
 				}, 100);
 			}
@@ -842,9 +845,9 @@ public final class DamageParse {
 		// Calculate passive bonuses + Sharp Eye
 		elementalMaxDamagePerMonster += elementalMaxDamagePerMonster / 100 * CriticalDamagePercent;
 
-//	if (theSkill.isChargeSkill()) {
-//	    elementalMaxDamagePerMonster = (double) (90 * (System.currentTimeMillis() - player.getKeyDownSkill_Time()) / 2000 + 10) * elementalMaxDamagePerMonster * 0.01;
-//	}
+		//	if (theSkill.isChargeSkill()) {
+		//	    elementalMaxDamagePerMonster = (double) (90 * (System.currentTimeMillis() - player.getKeyDownSkill_Time()) / 2000 + 10) * elementalMaxDamagePerMonster * 0.01;
+		//	}
 		if (theSkill != null && theSkill.isChargeSkill() && player.getKeyDownSkill_Time() == 0) {
 			return 0;
 		}
@@ -962,7 +965,7 @@ public final class DamageParse {
 
 		for (int i = 0; i < ret.targets; i++) {
 			oid = lea.readInt();
-//	    	System.out.println(tools.HexTool.toString(lea.readBytes(14)));
+			//	    	System.out.println(tools.HexTool.toString(lea.readBytes(14)));
 			// [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change
 			// randomly for some attack
 			lea.skip(14);
@@ -971,7 +974,7 @@ public final class DamageParse {
 
 			for (int j = 0; j < ret.hits; j++) {
 				damage = lea.readInt();
-//				System.out.println("Damage: " + damage);
+				//				System.out.println("Damage: " + damage);
 				allDamageNumbers.add(Integer.valueOf(damage));
 			}
 			// CRC of monster [Wz Editing]
@@ -1024,7 +1027,7 @@ public final class DamageParse {
 
 		for (int i = 0; i < ret.targets; i++) {
 			oid = lea.readInt();
-//	    	System.out.println(tools.HexTool.toString(lea.readBytes(14)));
+			//	    	System.out.println(tools.HexTool.toString(lea.readBytes(14)));
 			// [1] Always 6?, [3] unk, [4] Pos1, [4] Pos2, [2] seems to change
 			// randomly for some attack
 			lea.skip(14);
@@ -1035,7 +1038,7 @@ public final class DamageParse {
 			}
 			// CRC of monster [Wz Editing]
 			lea.skip(4);
-//	    	System.out.println(tools.HexTool.toString(lea.readBytes(4)));
+			//	    	System.out.println(tools.HexTool.toString(lea.readBytes(4)));
 
 			ret.allDamage.add(new AttackPair(Integer.valueOf(oid), allDamageNumbers));
 		}

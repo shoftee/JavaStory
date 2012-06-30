@@ -236,7 +236,7 @@ public class EventManager {
 		} else {
 			for (final Entry<Integer, GameMap> map : ChannelServer.getMapFactory().getMaps().entrySet()) {
 				final GameMap load = map.getValue();
-				if (load.getCharactersSize() > 0) {
+				if (load.getCharacterCount() > 0) {
 					load.startMapEffect(msg, type);
 				}
 			}

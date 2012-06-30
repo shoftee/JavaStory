@@ -724,10 +724,13 @@ public final class ChannelPackets {
 															// item meso bag,
 		builder.writeInt(drop.getItemId()); // drop object ID
 		builder.writeInt(drop.getOwner()); // owner charid
-		builder.writeByte(drop.getDropType()); // 0 = timeout for non-owner, 1 =
-												// timeout for non-owner's
-												// party, 2 = FFA, 3 =
-												// explosive/FFA
+
+		// 0 = timeout for non-owner, 
+		// 1 = timeout for non-owner's party, 
+		// 2 = FFA, 
+		// 3 = explosive/FFA
+		builder.writeByte(drop.getDropType().asByte());
+
 		builder.writeVector(dropto);
 		builder.writeInt(0);
 		if (mod != 2) {
@@ -767,7 +770,7 @@ public final class ChannelPackets {
 		}
 		builder.writeAsShort(0);
 		builder.writeAsShort(1016);
-		
+
 		// i think
 		builder.writeInt(0);
 
@@ -1554,7 +1557,7 @@ public final class ChannelPackets {
 	private static void writeLongDiseaseMask(final PacketBuilder builder, final List<DiseaseValue> statUpdates) {
 		long firstmask = 0;
 		long secondmask = 0;
-		// TODO: use EnumSet for this instead?
+		// TODO: use EnumMap<Disease, Integer> for this instead?
 		for (final DiseaseValue update : statUpdates) {
 			if (update.getDisease().isFirst()) {
 				firstmask |= update.getDisease().getValue();

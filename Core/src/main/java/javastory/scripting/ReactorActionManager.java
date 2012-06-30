@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import javastory.channel.ChannelClient;
 import javastory.channel.ChannelServer;
 import javastory.channel.life.LifeFactory;
+import javastory.channel.maps.ItemDropType;
 import javastory.channel.maps.Reactor;
 import javastory.game.Equip;
 import javastory.game.GameConstants;
@@ -93,7 +94,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
 				final double randomMeso = Math.random() * range + minMeso;
 				final float mesoRate = ChannelServer.getInstance().getMesoRate();
 				mesoDrop = (int) (randomMeso * mesoRate);
-				this.reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, this.reactor, this.getPlayer(), false, (byte) 0);
+				this.reactor.getMap().spawnMesoDrop(mesoDrop, dropPos, this.reactor, this.getPlayer(), false, ItemDropType.DEFAULT);
 			} else {
 				Item drop;
 				if (GameConstants.getInventoryType(d.itemId) != InventoryType.EQUIP) {

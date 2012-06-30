@@ -500,7 +500,7 @@ public class InventoryHandler {
 				for (int i = 390001000; i <= 390001004; i++) {
 					map = ChannelServer.getMapFactory().getMap(i);
 
-					if (map.getCharactersSize() == 0) {
+					if (map.getCharacterCount() == 0) {
 						chr.changeMap(map, map.getPortal(0));
 						warped = true;
 						break;
