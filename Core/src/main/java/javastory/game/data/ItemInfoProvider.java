@@ -725,13 +725,13 @@ public final class ItemInfoProvider {
 		if (data == null) {
 			return null;
 		}
-		final List<IdProbabilityEntry> mobPairs = Lists.newArrayList();
+		final List<IdProbabilityEntry> entries = Lists.newArrayList();
 
 		for (final WzData child : data.getChildren()) {
-			mobPairs.add(new IdProbabilityEntry(WzDataTool.getIntConvert("id", child), WzDataTool.getIntConvert("prob", child)));
+			entries.add(new IdProbabilityEntry(WzDataTool.getIntConvert("id", child), WzDataTool.getIntConvert("prob", child)));
 		}
-		this.summonMobCache.put(itemId, mobPairs);
-		return mobPairs;
+		this.summonMobCache.put(itemId, entries);
+		return entries;
 	}
 
 	public final int getCardMobId(final int id) {
@@ -899,9 +899,9 @@ public final class ItemInfoProvider {
 
 			all.add(info);
 		}
-		final RewardSetInfo toreturn = new RewardSetInfo(all);
-		this.RewardItem.put(itemId, toreturn);
-		return toreturn;
+		final RewardSetInfo set = new RewardSetInfo(all);
+		this.RewardItem.put(itemId, set);
+		return set;
 	}
 
 	public final Map<String, Integer> getSkillStats(final int itemId) {
@@ -931,7 +931,8 @@ public final class ItemInfoProvider {
 
 		final WzData skill = info.getChildByPath("skill");
 
-		for (int i = 0; i < skill.getChildren().size(); i++) { // List of allowed skillIds
+		for (int i = 0; i < skill.getChildren().size(); i++) { 
+			// List of allowed skillIds
 			ret.put("skillid" + i, WzDataTool.getInt(Integer.toString(i), skill, 0));
 		}
 		this.SkillStatsCache.put(itemId, ret);

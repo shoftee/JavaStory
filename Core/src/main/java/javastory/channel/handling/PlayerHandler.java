@@ -808,7 +808,8 @@ public class PlayerHandler {
 		// { unk1, unk2 });
 		final List<LifeMovementFragment> res = MovementParse.parseMovement(reader);
 
-		if (res != null) { // TODO more validation of input data
+		if (res != null) { 
+			// TODO more validation of input data
 			if (reader.remaining() != 18) {
 				// System.out.println("reader.remaining != 18 (movement parsing error)");
 				return;

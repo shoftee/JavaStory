@@ -277,7 +277,8 @@ public final class LoginClient extends GameClient {
 		return this.allowedChar.contains(characterId);
 	}
 
-	private List<LoginCharacter> loadCharacters(final int worldId) { // TODO make this less costly zZz
+	private List<LoginCharacter> loadCharacters(final int worldId) {
+		// TODO make this less costly zZz
 		final List<LoginCharacter> list = LoginCharacter.loadCharacters(super.getAccountId(), worldId);
 		for (final LoginCharacter character : list) {
 			this.allowedChar.add(character.getId());

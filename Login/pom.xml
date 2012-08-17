@@ -18,11 +18,6 @@
 			<artifactId>javastory.core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>r08</version>
-		</dependency>
 	</dependencies>
 	<artifactId>javastory.login</artifactId>
 	<name>javastory-login</name>

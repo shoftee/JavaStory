@@ -221,8 +221,9 @@ public class XmlDomWzData implements WzData, Serializable {
 	public WzDataEntity getParent() {
 		final Node parentNode = this.node.getParentNode();
 		if (parentNode.getNodeType() == Node.DOCUMENT_NODE) {
-			return null; // can't traverse outside the img file - TODO is this a
-							// problem?
+			return null; 
+			// can't traverse outside the img file
+			// TODO is this a problem?
 		}
 		final XmlDomWzData parentData = new XmlDomWzData(parentNode);
 		parentData.imageDataDir = this.imageDataDir.getParentFile();

@@ -13,4 +13,13 @@
 		<module>World</module>
 		<module>Channel</module>
 	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>13.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

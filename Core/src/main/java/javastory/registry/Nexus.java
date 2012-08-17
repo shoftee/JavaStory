@@ -8,7 +8,7 @@ import java.rmi.registry.Registry;
 
 import javastory.rmi.Sockets;
 
-public class Universe {
+public class Nexus {
 
 	private static WorldRegistry worldRegistry;
 

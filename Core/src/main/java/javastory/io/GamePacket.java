@@ -104,7 +104,6 @@ public final class GamePacket implements Externalizable {
 	@Override
 	public void writeExternal(final ObjectOutput output) throws IOException {
 		output.write(this.bytes.length);
-		// TODO Auto-generated method stub
 		output.write(this.bytes);
 	}
 }
